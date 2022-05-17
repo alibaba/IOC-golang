@@ -17,6 +17,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -53,9 +54,45 @@ func TestLoad(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Nil(t, os.Setenv("IOC_GOLANG_CONFIG_PATH", tt.iocGolangConfigPath))
-			if err := Load(); (err != nil) != tt.wantErr {
+			if err := Load(1); (err != nil) != tt.wantErr {
 				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
 			}
+		})
+	}
+}
+
+func TestLoadFixedNotFound(t *testing.T) {
+	defer clearEnv()
+
+	wd, _ := os.Getwd() // current working directory
+
+	tests := []struct {
+		name                string
+		iocGolangConfigPath string
+		wantErr             bool
+	}{
+		{
+			"test load from file",
+			filepath.Join(wd, "/test/ioc_golang.yaml"), // abs path
+			false,
+		},
+		{
+			"test load from file",
+			"/test/ioc_golang.yaml", // relative path
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Nil(t, os.Setenv("IOC_GOLANG_CONFIG_PATH", tt.iocGolangConfigPath))
+			if err := Load(1); (err != nil) != tt.wantErr {
+				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			strValue := "strVal"
+			intValue := 123
+			assert.Nil(t, LoadConfigByPrefix("autowire.config.strValue", &strValue))
+			assert.Nil(t, LoadConfigByPrefix("autowire.config.intValue", &intValue))
 		})
 	}
 }
@@ -63,7 +100,7 @@ func TestLoad(t *testing.T) {
 func TestLoadConfigByPrefix(t *testing.T) {
 	defer clearEnv()
 	assert.Nil(t, os.Setenv("IOC_GOLANG_CONFIG_PATH", "./test/ioc_golang.yaml"))
-	assert.Nil(t, Load())
+	assert.Nil(t, Load(1))
 
 	t.Run("test with multi redis config prefix", func(t *testing.T) {
 		redisConfig := &redisConfig{}
