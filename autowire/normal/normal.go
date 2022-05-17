@@ -1,0 +1,80 @@
+/*
+ * Copyright (c) 2022, Alibaba Group;
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package normal
+
+import (
+	"github.com/alibaba/IOC-Golang/autowire"
+	"github.com/alibaba/IOC-Golang/autowire/base"
+	"github.com/alibaba/IOC-Golang/autowire/param_loader"
+	"github.com/alibaba/IOC-Golang/autowire/sdid_parser"
+)
+
+func init() {
+	autowire.RegisterAutowire(NewNormalAutowire(nil, nil, nil))
+}
+
+const Name = "normal"
+
+// NewNormalAutowire create a normal autowire based autowire, e.g. config, base.facade can be re-write to outer autowire
+func NewNormalAutowire(sp autowire.SDIDParser, pl autowire.ParamLoader, facade autowire.Autowire) autowire.Autowire {
+	if sp == nil {
+		sp = sdid_parser.GetDefaultSDIDParser()
+	}
+	if pl == nil {
+		pl = param_loader.GetDefaultParamLoader()
+	}
+	normalAutowire := &NormalAutowire{}
+	if facade == nil {
+		facade = normalAutowire
+	}
+	normalAutowire.AutowireBase = base.New(facade, sp, pl)
+	return normalAutowire
+}
+
+type NormalAutowire struct {
+	base.AutowireBase
+}
+
+func (n *NormalAutowire) IsSingleton() bool {
+	return false
+}
+
+// GetAllStructDescribers should be re-write by facade
+func (n *NormalAutowire) GetAllStructDescribers() map[string]*autowire.StructDescriber {
+	return normalEntryDescriberMap
+}
+
+// TagKey should be re-writed by facade autowire
+func (n *NormalAutowire) TagKey() string {
+	return Name
+}
+
+func (s *NormalAutowire) CanBeEntrance() bool {
+	return false
+}
+
+var normalEntryDescriberMap = make(map[string]*autowire.StructDescriber)
+
+// developer APIs
+
+func RegisterStructDescriber(s *autowire.StructDescriber) {
+	s.SetAutowireType(Name)
+	normalEntryDescriberMap[s.ID()] = s
+}
+
+func GetImpl(sdID string, param interface{}) (interface{}, error) {
+	return autowire.Impl(Name, sdID, param)
+}

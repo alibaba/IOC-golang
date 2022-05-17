@@ -1,0 +1,26 @@
+autowire:
+  config:
+    strValue: strVal
+    intValue: 123
+    mapValue:
+      mapKey1: mapValue1
+      mapKey2: mapValue2
+      mapKey3: mapValue3
+    sliceValue:
+      - sliceStr1
+      - sliceStr2
+      - sliceStr3
+  normal:
+    Redis:
+      Impl:
+        db1-redis:
+          param:
+            address: localhost:16379
+            db: 1
+        db2-redis:
+          param:
+            address: localhost:26379
+            db: 2
+        param:
+          address: localhost:6379
+          db: 0

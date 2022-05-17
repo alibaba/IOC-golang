@@ -1,0 +1,18 @@
+autowire:
+  config:
+    demo-config:
+      int-value: 123
+      string-value: stringValue
+      map-value:
+        key1: value1
+        key2: value2
+        key3: value3
+        obj:
+          objkey1: objvalue1
+          objkey2: objvalue2
+          objkeyslice: objslicevalue
+      slice-value:
+        - sliceValue1
+        - sliceValue2
+        - sliceValue3
+        - sliceValue4

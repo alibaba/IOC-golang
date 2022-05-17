@@ -1,0 +1,20 @@
+autowire:
+  singleton:
+    App:
+      App:
+        param:
+          RedisAddr: localhost:6379
+  normal:
+    Redis:
+      Impl:
+        db1-redis:
+          param:
+            address: localhost:6379
+            db: 1
+        db2-redis:
+          param:
+            address: localhost:6379
+            db: 2
+        param:
+          address: localhost:6379
+          db: 0
