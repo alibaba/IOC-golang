@@ -70,8 +70,6 @@ go install github.com/alibaba/IOC-Golang/ioc-go-cli@latest
 
 我们将开发一个具有以下拓扑的工程，在本例子中，可以展示代码生成、接口注入、对象指针注入、API 获取对象能力。
 
-![image-20220511193857200](http://gitlab.alibaba-inc.com/glory/doc/raw/master/image/image-20220511193857200.png)
-
 用户所需编写的全部代码：main.go
 
 ```go

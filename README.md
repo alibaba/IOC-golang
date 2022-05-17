@@ -70,8 +70,6 @@ go install github.com/alibaba/IOC-Golang/ioc-go-cli@latest
 
 We will develop a project with the following topology, in this example, we can demonstrate code generation, interface injection, object pointer injection, and API access to objects capabilities.
 
-![image-20220511193857200](http://gitlab.alibaba-inc.com/glory/doc/raw/master/image/image-20220511193857200.png)
-
 All the code the user needs to write: main.go
 
 ```go
