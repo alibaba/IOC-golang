@@ -25,7 +25,7 @@ import (
 	"github.com/alibaba/ioc-golang/debug/common"
 )
 
-func Start(port string, allInterfaceMetadataMap map[string]*common.DebugMetadata) error {
+func StartDebugServer(port string, allInterfaceMetadataMap map[string]*common.DebugMetadata) error {
 	grpcServer := grpc.NewServer()
 	grpcServer.RegisterService(&boot.DebugService_ServiceDesc, &DebugServerImpl{
 		editInterceptor:         GetEditInterceptor(),

@@ -20,6 +20,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/alibaba/ioc-golang/debug/common"
+
 	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
 )
 
@@ -27,16 +29,19 @@ type EditInterceptor struct {
 	watchEdit sync.Map
 }
 
-func (w *EditInterceptor) Invoke(interfaceImplId, methodName string, isParam bool, values []reflect.Value) []reflect.Value {
-	methodUniqueKey := getMethodUniqueKey(interfaceImplId, methodName, isParam)
+func (w *EditInterceptor) Invoke(ctx *common.InterceptorContext, values []reflect.Value) ([]reflect.Value, error) {
+	interfaceImplId := ctx.GetSDID()
+	methodName := ctx.GetMethod()
+	isParam := ctx.IsParam()
+	methodUniqueKey := getMethodUniqueKey(ctx)
 	watchEditCtxInterface, ok := w.watchEdit.Load(methodUniqueKey)
 	if !ok {
-		return values
+		return values, nil
 	}
 	watchEditCtx := watchEditCtxInterface.(*EditContext)
 	if watchEditCtx.FieldMatcher != nil && !watchEditCtx.FieldMatcher.Match(values) {
 		// doesn't match
-		return values
+		return values, nil
 	}
 
 	// send condition
@@ -48,9 +53,13 @@ func (w *EditInterceptor) Invoke(interfaceImplId, methodName string, isParam boo
 	// edit
 	afterEditedValues, ok := recvMsg.Edit(values)
 	if !ok {
-		return values
+		return values, nil
 	}
-	return afterEditedValues
+	return afterEditedValues, nil
+}
+
+func (w *EditInterceptor) Name() string {
+	return "default_edit"
 }
 
 type EditContext struct {
@@ -95,13 +104,13 @@ func (e *EditData) Edit(values []reflect.Value) ([]reflect.Value, bool) {
 	return values, true
 }
 
-func (w *EditInterceptor) WatchEdit(interfaceImplId, methodName string, isParam bool, editCtx *EditContext) {
-	methodUniqueKey := getMethodUniqueKey(interfaceImplId, methodName, isParam)
+func (w *EditInterceptor) WatchEdit(ctx *common.InterceptorContext, editCtx *EditContext) {
+	methodUniqueKey := getMethodUniqueKey(ctx)
 	w.watchEdit.Store(methodUniqueKey, editCtx)
 }
 
-func (w *EditInterceptor) UnWatchEdit(interfaceImplId, methodName string, isParam bool) {
-	methodUniqueKey := getMethodUniqueKey(interfaceImplId, methodName, isParam)
+func (w *EditInterceptor) UnWatchEdit(ctx *common.InterceptorContext) {
+	methodUniqueKey := getMethodUniqueKey(ctx)
 	w.watchEdit.Delete(methodUniqueKey)
 }
 

@@ -82,14 +82,14 @@ func (d *DebugServerImpl) Watch(req *boot.WatchRequest, watchSever boot.DebugSer
 		}
 	}
 	if input {
-		d.watchInterceptor.Watch(interfaceImplId, method, true, &WatchContext{
+		d.watchInterceptor.Watch(common.NewInterceptorContext(context.Background(), interfaceImplId, method, true), &WatchContext{
 			Ch:           sendCh,
 			FieldMatcher: fieldMatcher,
 		})
 	}
 
 	if output {
-		d.watchInterceptor.Watch(interfaceImplId, method, false, &WatchContext{
+		d.watchInterceptor.Watch(common.NewInterceptorContext(context.Background(), interfaceImplId, method, false), &WatchContext{
 			Ch:           sendCh,
 			FieldMatcher: fieldMatcher,
 		})
@@ -101,10 +101,10 @@ func (d *DebugServerImpl) Watch(req *boot.WatchRequest, watchSever boot.DebugSer
 		case <-done:
 			// watch stop
 			if input {
-				d.watchInterceptor.UnWatch(interfaceImplId, method, true)
+				d.watchInterceptor.UnWatch(common.NewInterceptorContext(context.Background(), interfaceImplId, method, true))
 			}
 			if output {
-				d.watchInterceptor.UnWatch(interfaceImplId, method, false)
+				d.watchInterceptor.UnWatch(common.NewInterceptorContext(context.Background(), interfaceImplId, method, false))
 			}
 
 			return nil
@@ -128,19 +128,19 @@ func (d *DebugServerImpl) WatchEdit(watchEditServerReq boot.DebugService_WatchEd
 	for {
 		req, err := watchEditServerReq.Recv()
 		if err != nil {
-			d.watchInterceptor.UnWatch(interfaceImplId, method, isParam)
+			d.watchInterceptor.UnWatch(common.NewInterceptorContext(context.Background(), interfaceImplId, method, isParam))
 			return err
 		}
 		interfaceImplId = util.GetIdByNamePair(req.GetInterfaceName(), req.GetImplementationName())
 		method = req.GetMethod()
 		isParam = req.GetIsParam()
-		uniqueMethodKey := getMethodUniqueKey(interfaceImplId, method, isParam)
+		uniqueMethodKey := getMethodUniqueKey(common.NewInterceptorContext(context.Background(), interfaceImplId, method, isParam))
 		if !req.IsEdit {
 			// start new watch
 			_, ok := sendRecvChWatchEditMap[uniqueMethodKey]
 			if ok {
 				// if already watch, unwatch
-				d.editInterceptor.UnWatchEdit(interfaceImplId, method, isParam)
+				d.editInterceptor.UnWatchEdit(common.NewInterceptorContext(context.Background(), interfaceImplId, method, isParam))
 			}
 			var fieldMatcher *FieldMatcher
 			sendCh := make(chan *boot.WatchResponse)
@@ -153,7 +153,7 @@ func (d *DebugServerImpl) WatchEdit(watchEditServerReq boot.DebugService_WatchEd
 				}
 			}
 			d.editInterceptor.WatchEdit(
-				interfaceImplId, method, isParam,
+				common.NewInterceptorContext(context.Background(), interfaceImplId, method, isParam),
 				&EditContext{
 					RecvCh:       recvCh,
 					SendCh:       sendCh,

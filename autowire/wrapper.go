@@ -67,7 +67,7 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}) (int
 		}
 	}
 
-	// 4. construct field
+	// 3. construct field
 	impledPtr, err = w.Autowire.Construct(sdID, impledPtr, param)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}) (int
 		}
 	}
 
-	// 5. record singleton ptr
+	// 4. record singleton ptr
 	if w.Autowire.IsSingleton() {
 		w.singletonImpledMap[sdID] = impledPtr
 	}

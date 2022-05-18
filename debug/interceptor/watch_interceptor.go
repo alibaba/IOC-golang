@@ -16,11 +16,14 @@
 package interceptor
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
 	"sync"
+
+	"github.com/alibaba/ioc-golang/debug/common"
 
 	"github.com/davecgh/go-spew/spew"
 
@@ -31,19 +34,26 @@ type WatchInterceptor struct {
 	watch sync.Map
 }
 
-func (w *WatchInterceptor) Invoke(interfaceImplId, methodName string, isParam bool, values []reflect.Value) []reflect.Value {
-	methodUniqueKey := getMethodUniqueKey(interfaceImplId, methodName, isParam)
+func (w *WatchInterceptor) Invoke(ctx *common.InterceptorContext, values []reflect.Value) ([]reflect.Value, error) {
+	interfaceImplId := ctx.GetSDID()
+	methodName := ctx.GetMethod()
+	isParam := ctx.IsParam()
+	methodUniqueKey := getMethodUniqueKey(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, isParam))
 	watchCtxInterface, ok := w.watch.Load(methodUniqueKey)
 	if !ok {
-		return values
+		return values, nil
 	}
 	watchCtx := watchCtxInterface.(*WatchContext)
 	if watchCtx.FieldMatcher != nil && !watchCtx.FieldMatcher.Match(values) {
 		// doesn't match
-		return values
+		return values, nil
 	}
 	sendValues(interfaceImplId, methodName, isParam, values, watchCtx.Ch)
-	return values
+	return values, nil
+}
+
+func (w *WatchInterceptor) Name() string {
+	return "default_watch"
 }
 
 func sendValues(interfaceImplId, methodName string, isParam bool, values []reflect.Value, sendCh chan *boot.WatchResponse) {
@@ -124,13 +134,13 @@ func (f *FieldMatcher) Match(values []reflect.Value) bool {
 	return true
 }
 
-func (w *WatchInterceptor) Watch(interfaceImplId, methodName string, isParam bool, watchCtx *WatchContext) {
-	methodUniqueKey := getMethodUniqueKey(interfaceImplId, methodName, isParam)
+func (w *WatchInterceptor) Watch(ctx *common.InterceptorContext, watchCtx *WatchContext) {
+	methodUniqueKey := getMethodUniqueKey(ctx)
 	w.watch.Store(methodUniqueKey, watchCtx)
 }
 
-func (w *WatchInterceptor) UnWatch(interfaceImplId, methodName string, isParam bool) {
-	methodUniqueKey := getMethodUniqueKey(interfaceImplId, methodName, isParam)
+func (w *WatchInterceptor) UnWatch(ctx *common.InterceptorContext) {
+	methodUniqueKey := getMethodUniqueKey(ctx)
 	w.watch.Delete(methodUniqueKey)
 }
 
@@ -143,6 +153,6 @@ func GetWatchInterceptor() *WatchInterceptor {
 	return watchInterceptorSingleton
 }
 
-func getMethodUniqueKey(interfaceImplId, methodName string, isParam bool) string {
-	return strings.Join([]string{interfaceImplId, methodName, fmt.Sprintf("%t", isParam)}, "-")
+func getMethodUniqueKey(ctx *common.InterceptorContext) string {
+	return strings.Join([]string{ctx.GetSDID(), ctx.GetMethod(), fmt.Sprintf("%t", ctx.IsParam())}, "-")
 }

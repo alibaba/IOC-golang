@@ -17,8 +17,16 @@ package interceptor
 
 import (
 	"reflect"
+
+	"github.com/alibaba/ioc-golang/debug/common"
 )
 
 type Interceptor interface {
-	Invoke(interfaceImplId, methodName string, isParam bool, value []reflect.Value) []reflect.Value
+	Invoke(ctx *common.InterceptorContext, values []reflect.Value) ([]reflect.Value, error)
+	Name() string
+}
+
+type PriorityInterceptor interface {
+	Interceptor
+	Priority() int
 }

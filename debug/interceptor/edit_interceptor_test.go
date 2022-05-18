@@ -22,6 +22,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alibaba/ioc-golang/debug/common"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
@@ -47,7 +49,7 @@ func TestEditInterceptorWithCondition(t *testing.T) {
 			recvCh <- info
 		}
 	}()
-	editInterceptor.WatchEdit(interfaceImplId, methodName, true, &EditContext{
+	editInterceptor.WatchEdit(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, true), &EditContext{
 		SendCh: sendCh,
 		RecvCh: recvCh,
 		FieldMatcher: &FieldMatcher{
@@ -72,8 +74,9 @@ func TestEditInterceptorWithCondition(t *testing.T) {
 		}
 	}()
 
-	editInterceptor.Invoke(interfaceImplId, methodName, true,
-		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	interceptorCtx := common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, true)
+
+	_, _ = editInterceptor.Invoke(interceptorCtx, []reflect.Value{reflect.ValueOf(service), reflect.ValueOf(ctx), reflect.ValueOf(param)})
 
 	rsp, err := service.Invoke(ctx, param)
 

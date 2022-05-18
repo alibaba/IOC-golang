@@ -46,3 +46,17 @@ func (m MethodSorter) Less(i, j int) bool {
 func (m MethodSorter) Swap(i, j int) {
 	m[i], m[j] = m[j], m[i]
 }
+
+type PriorityInterceptors []PriorityInterceptor
+
+func (m PriorityInterceptors) Len() int {
+	return len(m)
+}
+
+func (m PriorityInterceptors) Less(i, j int) bool {
+	return m[i].Priority() < m[j].Priority()
+}
+
+func (m PriorityInterceptors) Swap(i, j int) {
+	m[i], m[j] = m[j], m[i]
+}

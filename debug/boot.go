@@ -16,6 +16,7 @@
 package debug
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/fatih/color"
@@ -27,20 +28,11 @@ import (
 	"github.com/alibaba/ioc-golang/debug/interceptor"
 )
 
-var paramInterceptors = make([]interceptor.Interceptor, 0)
-var responseInterceptors = make([]interceptor.Interceptor, 0)
-
 const (
 	defaultDebugPort = "1999"
 )
 
 func init() {
-	paramInterceptors = append(paramInterceptors, interceptor.GetWatchInterceptor())
-	paramInterceptors = append(paramInterceptors, interceptor.GetEditInterceptor())
-
-	responseInterceptors = append(responseInterceptors, interceptor.GetWatchInterceptor())
-	responseInterceptors = append(responseInterceptors, interceptor.GetEditInterceptor())
-
 	autowire.RegisterMonkeyFunction(implMonkey)
 }
 
@@ -57,7 +49,7 @@ func Load() error {
 		color.Blue("[Debug] Debug port is set to default :%s", defaultDebugPort)
 		bootConfig.Port = defaultDebugPort
 	}
-	if err := interceptor.Start(bootConfig.Port, guardMap); err != nil {
+	if err := interceptor.StartDebugServer(bootConfig.Port, guardMap); err != nil {
 		color.Red("[Debug] Start debug server error = %s", err)
 		return err
 	}
@@ -100,12 +92,20 @@ func makeCallProxy(tempInterfaceId, methodName string, isVariadic bool) func(in 
 		guardMap[tempInterfaceId].GuardMap[methodName].Lock.Lock()
 		guardMap[tempInterfaceId].GuardMap[methodName].Guard.Unpatch()
 		defer func() {
+			r := recover()
+			if r != nil {
+				color.Red("[Function Proxy] Recover panic %s", r)
+			}
 			guardMap[tempInterfaceId].GuardMap[methodName].Guard.Restore()
 			guardMap[tempInterfaceId].GuardMap[methodName].Lock.Unlock()
 		}()
-		// interceptor
-		for _, i := range paramInterceptors {
-			in = i.Invoke(tempInterfaceId, methodName, true, in)
+		ctx := common.NewInterceptorContext(context.Background(), tempInterfaceId, methodName, true)
+		var err error
+		for _, i := range registeredInterceptors {
+			in, err = i.Invoke(ctx, in)
+			if err != nil {
+				color.Red("[Interceptor] Interceptor %s invoke failed, error is %s, interceptor context is %s", i.Name(), err, ctx)
+			}
 		}
 
 		if isVariadic {
@@ -116,9 +116,13 @@ func makeCallProxy(tempInterfaceId, methodName string, isVariadic bool) func(in 
 			}
 		}
 
+		ctx = common.NewInterceptorContext(ctx.Context, tempInterfaceId, methodName, false)
 		out := in[0].MethodByName(methodName).Call(in[1:])
-		for _, i := range responseInterceptors {
-			out = i.Invoke(tempInterfaceId, methodName, false, out)
+		for _, i := range registeredInterceptors {
+			out, err = i.Invoke(ctx, out)
+			if err != nil {
+				color.Red("[Interceptor] Interceptor %s invoke failed, error is %s, interceptor context is %s", i.Name(), err, ctx)
+			}
 		}
 		return out
 	}

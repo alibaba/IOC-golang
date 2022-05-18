@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alibaba/ioc-golang/debug/common"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
@@ -59,10 +61,11 @@ func TestWatchInterceptor(t *testing.T) {
 		info = <-sendCh
 		controlCh <- info
 	}()
-	watchInterceptor.Watch(interfaceImplId, methodName, true, &WatchContext{
+
+	watchInterceptor.Watch(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, true), &WatchContext{
 		Ch: sendCh,
 	})
-	watchInterceptor.Watch(interfaceImplId, methodName, false, &WatchContext{
+	watchInterceptor.Watch(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, false), &WatchContext{
 		Ch: sendCh,
 	})
 
@@ -74,7 +77,7 @@ func TestWatchInterceptor(t *testing.T) {
 		},
 	}
 
-	watchInterceptor.Invoke(interfaceImplId, methodName, true,
+	_, _ = watchInterceptor.Invoke(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, true),
 		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(ctx), reflect.ValueOf(param)})
 	rsp, err := service.Invoke(ctx, param)
 	info := <-controlCh
@@ -82,7 +85,7 @@ func TestWatchInterceptor(t *testing.T) {
 	assert.Equal(t, info.ImplementationName, "ServiceFoo")
 	assert.Equal(t, info.MethodName, "Invoke")
 
-	watchInterceptor.Invoke(interfaceImplId, methodName, false,
+	_, _ = watchInterceptor.Invoke(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, false),
 		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(rsp), reflect.ValueOf(err)})
 	info = <-controlCh
 	assert.Equal(t, "Service", info.InterfaceName)
@@ -102,7 +105,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 			controlCh <- info
 		}
 	}()
-	watchInterceptor.Watch(interfaceImplId, methodName, true, &WatchContext{
+	watchInterceptor.Watch(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, true), &WatchContext{
 		Ch: sendCh,
 		FieldMatcher: &FieldMatcher{
 			FieldIndex: 2,
@@ -119,7 +122,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 			Name: "laurence",
 		},
 	}
-	watchInterceptor.Invoke(interfaceImplId, methodName, true,
+	_, _ = watchInterceptor.Invoke(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, true),
 		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(ctx), reflect.ValueOf(param)})
 	rsp, err := service.Invoke(ctx, param)
 	info := &boot.WatchResponse{}
@@ -129,7 +132,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 	default:
 	}
 	assert.Equal(t, "", info.InterfaceName)
-	watchInterceptor.Invoke(interfaceImplId, methodName, false,
+	_, _ = watchInterceptor.Invoke(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, false),
 		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(rsp), reflect.ValueOf(err)})
 	time.Sleep(time.Millisecond * 500)
 	select {
@@ -140,7 +143,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 
 	// match
 	param.User.Name = "lizhixin"
-	watchInterceptor.Invoke(interfaceImplId, methodName, true,
+	_, _ = watchInterceptor.Invoke(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, true),
 		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(ctx), reflect.ValueOf(param)})
 	rsp, err = service.Invoke(ctx, param)
 	time.Sleep(time.Millisecond * 500)
@@ -151,7 +154,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 	assert.Equal(t, "Service", info.InterfaceName)
 	assert.Equal(t, "ServiceFoo", info.ImplementationName)
 	assert.Equal(t, "Invoke", info.MethodName)
-	watchInterceptor.Invoke(interfaceImplId, methodName, false,
+	_, _ = watchInterceptor.Invoke(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, false),
 		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(rsp), reflect.ValueOf(err)})
 	time.Sleep(time.Millisecond * 500)
 	info = &boot.WatchResponse{}
@@ -163,8 +166,8 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 
 	// not match
 	param.User.Name = "lizhixin"
-	watchInterceptor.UnWatch(interfaceImplId, methodName, true)
-	watchInterceptor.Invoke(interfaceImplId, methodName, true,
+	watchInterceptor.UnWatch(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, true))
+	_, _ = watchInterceptor.Invoke(common.NewInterceptorContext(context.Background(), interfaceImplId, methodName, true),
 		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(ctx), reflect.ValueOf(param)})
 	_, _ = service.Invoke(ctx, param)
 	time.Sleep(time.Millisecond * 500)
