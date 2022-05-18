@@ -21,8 +21,8 @@ import (
 	"github.com/fatih/color"
 	"google.golang.org/grpc"
 
-	"github.com/alibaba/IOC-Golang/debug/api/ioc_golang/boot"
-	"github.com/alibaba/IOC-Golang/debug/common"
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
+	"github.com/alibaba/ioc-golang/debug/common"
 )
 
 func Start(port string, allInterfaceMetadataMap map[string]*common.DebugMetadata) error {

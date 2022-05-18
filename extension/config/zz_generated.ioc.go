@@ -6,8 +6,8 @@
 package config
 
 import (
-	autowire "github.com/alibaba/IOC-Golang/autowire"
-	autowireconfig "github.com/alibaba/IOC-Golang/extension/autowire/config"
+	autowire "github.com/alibaba/ioc-golang/autowire"
+	autowireconfig "github.com/alibaba/ioc-golang/extension/autowire/config"
 )
 
 func init() {

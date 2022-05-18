@@ -18,7 +18,7 @@ package service2
 import (
 	"context"
 
-	"github.com/alibaba/IOC-Golang/example/autowire_grpc_client/api"
+	"github.com/alibaba/ioc-golang/example/autowire_grpc_client/api"
 )
 
 // +ioc:autowire=true

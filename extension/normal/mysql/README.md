@@ -73,7 +73,7 @@ type Config struct {
 
 ```go
 import (
-  normalMysql "github.com/alibaba/IOC-Golang/extension/normal/mysql"
+  normalMysql "github.com/alibaba/ioc-golang/extension/normal/mysql"
 )
 
 

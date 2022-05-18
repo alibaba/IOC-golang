@@ -137,7 +137,7 @@ type paramImplPair struct {
 func (c *copyMethodMaker) GenerateMethodsFor(root *loader.Package, imports *importsList, infos []*markers.TypeInfo) {
 	paramImplPairs := make([]paramImplPair, 0)
 	c.Line(`func init() {`)
-	autowireAlise := c.NeedImport("github.com/alibaba/IOC-Golang/autowire")
+	autowireAlise := c.NeedImport("github.com/alibaba/ioc-golang/autowire")
 	for _, info := range infos {
 		if len(info.Markers["ioc:autowire"]) == 0 {
 			continue
@@ -173,9 +173,9 @@ func (c *copyMethodMaker) GenerateMethodsFor(root *loader.Package, imports *impo
 
 		alise := ""
 		if autowireType == "normal" || autowireType == "singleton" {
-			alise = c.NeedImport(fmt.Sprintf("github.com/alibaba/IOC-Golang/autowire/%s", autowireType))
+			alise = c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/autowire/%s", autowireType))
 		} else {
-			alise = c.NeedImport(fmt.Sprintf("github.com/alibaba/IOC-Golang/extension/autowire/%s", autowireType))
+			alise = c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/extension/autowire/%s", autowireType))
 		}
 		c.Linef(`%s.RegisterStructDescriber(&%s.StructDescriber{`, alise, autowireAlise)
 

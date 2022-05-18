@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/alibaba/IOC-Golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire"
 )
 
 type mockInterface interface {

@@ -20,10 +20,10 @@ import (
 
 	"github.com/go-redis/redis"
 
-	ioc "github.com/alibaba/IOC-Golang"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	ioc "github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 
-	normalRedis "github.com/alibaba/IOC-Golang/extension/normal/redis"
+	normalRedis "github.com/alibaba/ioc-golang/extension/normal/redis"
 )
 
 // +ioc:autowire=true

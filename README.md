@@ -30,12 +30,12 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
 
 ## project list
 
-- **ioc-golang: **[ioc-golang](http://github.com/alibaba/IOC-Golang) framework kernel
+- **ioc-golang: **[ioc-golang](http://github.com/alibaba/ioc-golang) framework kernel
     - Configuration loading module: responsible for parsing user yaml configuration files
     - Automatic loading module: provides singleton model, multi-instance model and extension model, responsible for dependency injection and object method AOP layer encapsulation.
     - Debug module: Provides debugging API, provides debugging injection layer implementation.
 
-- **ioc-golang-extension: **[ioc-golang-extension](http://github.com/alibaba/IOC-Golang/extension) component extension repository
+- **ioc-golang-extension: **[ioc-golang-extension](http://github.com/alibaba/ioc-golang/extension) component extension repository
     - Provides preset implementation structures based on various injection models:
         - Config: Configuration field injection
         - Normal: multi-instance model
@@ -45,7 +45,7 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
             - http-server
     - To be expanded on the open source side in the future
 
-- **ioc-golang-example: **[ioc-golang-example](http://github.com/alibaba/IOC-Golang/example) example repository
+- **ioc-golang-example: **[ioc-golang-example](http://github.com/alibaba/ioc-golang/example) example repository
     - Configuration injection
     - mysql client
     - grpc client
@@ -54,7 +54,7 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
     - Get objects via API
     - To be expanded in the future
 
-- **ioc-go-cli: **[ioc-go-cli](http://github.com/alibaba/IOC-Golang/ioc-go-cli) code generation/program debugging tool
+- **ioc-go-cli: **[ioc-go-cli](http://github.com/alibaba/ioc-golang/ioc-go-cli) code generation/program debugging tool
 
   Provides the ability to automatically generate annotation-based structural description information
 
@@ -63,7 +63,7 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
 ### Install code generation tools
 
 ```shell
-go install github.com/alibaba/IOC-Golang/ioc-go-cli@latest
+go install github.com/alibaba/ioc-golang/ioc-go-cli@latest
 ````
 
 ### Dependency Injection Tutorial
@@ -77,8 +77,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/alibaba/IOC-Golang"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 // +ioc:autowire=true
@@ -169,8 +169,8 @@ It will be generated in the current directory: zz_generated.ioc.go, developers d
 package main
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 func init() {
@@ -264,9 +264,9 @@ Markers implement the interface Service and can be injected into objects of type
 
 ###  More
 
-More code generation annotations can be viewed at [ioc-golang-cli](http://github.com/alibaba/IOC-Golang/ioc-go-cli).
+More code generation annotations can be viewed at [ioc-golang-cli](http://github.com/alibaba/ioc-golang/ioc-go-cli).
 
-You can go to [ioc-golang-example.git](http://github.com/alibaba/IOC-Golang/example) for more examples and advanced usage.
+You can go to [ioc-golang-example.git](http://github.com/alibaba/ioc-golang/example) for more examples and advanced usage.
 
 ### License
 

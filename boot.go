@@ -18,9 +18,9 @@ package ioc
 import (
 	"github.com/fatih/color"
 
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/config"
-	"github.com/alibaba/IOC-Golang/debug"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/config"
+	"github.com/alibaba/ioc-golang/debug"
 )
 
 func Load() error {

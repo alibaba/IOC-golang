@@ -20,9 +20,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/util"
-	"github.com/alibaba/IOC-Golang/config"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/alibaba/ioc-golang/config"
 )
 
 type defaultConfig struct {

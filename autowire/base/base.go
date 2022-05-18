@@ -20,7 +20,7 @@ import (
 
 	perrors "github.com/pkg/errors"
 
-	"github.com/alibaba/IOC-Golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire"
 )
 
 type FacadeAutowire interface {

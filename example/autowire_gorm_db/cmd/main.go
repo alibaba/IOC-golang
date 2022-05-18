@@ -18,10 +18,10 @@ package main
 import (
 	"fmt"
 
-	ioc "github.com/alibaba/IOC-Golang"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	ioc "github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 
-	normalMysql "github.com/alibaba/IOC-Golang/extension/normal/mysql"
+	normalMysql "github.com/alibaba/ioc-golang/extension/normal/mysql"
 )
 
 // +ioc:autowire=true
