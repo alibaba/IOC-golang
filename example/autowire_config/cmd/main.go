@@ -25,6 +25,7 @@ import (
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
+
 type App struct {
 	DemoConfigString *config.ConfigString `config:"ConfigString,autowire.config.demo-config.string-value"`
 	DemoConfigInt    *config.ConfigInt    `config:"ConfigInt,autowire.config.demo-config.int-value"`

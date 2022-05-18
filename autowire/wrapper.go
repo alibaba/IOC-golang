@@ -29,8 +29,8 @@ type WrapperAutowire interface {
 	Autowire
 
 	ImplWithoutParam(sdID string) (interface{}, error)
-
 	ImplWithParam(sdID string, param interface{}) (interface{}, error)
+
 	implWithField(info *FieldInfo) (interface{}, error)
 }
 
