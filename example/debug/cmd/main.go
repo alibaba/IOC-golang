@@ -20,17 +20,17 @@ import (
 	"fmt"
 	"time"
 
-	ioc "github.com/alibaba/IOC-Golang"
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
-	"github.com/alibaba/IOC-Golang/extension/autowire/grpc"
+	ioc "github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/extension/autowire/grpc"
 
 	googleGRPC "google.golang.org/grpc"
 
-	"github.com/alibaba/IOC-Golang/example/debug/api"
-	"github.com/alibaba/IOC-Golang/example/debug/cmd/service1"
-	"github.com/alibaba/IOC-Golang/example/debug/cmd/service2"
-	"github.com/alibaba/IOC-Golang/example/debug/cmd/struct1"
+	"github.com/alibaba/ioc-golang/example/debug/api"
+	"github.com/alibaba/ioc-golang/example/debug/cmd/service1"
+	"github.com/alibaba/ioc-golang/example/debug/cmd/service2"
+	"github.com/alibaba/ioc-golang/example/debug/cmd/struct1"
 )
 
 func init() {

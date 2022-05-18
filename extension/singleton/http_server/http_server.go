@@ -8,8 +8,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
-	"github.com/alibaba/IOC-Golang/extension/singleton/http_server/ghttp"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/extension/singleton/http_server/ghttp"
 )
 
 const SDID = "HttpServer-Impl"

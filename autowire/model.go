@@ -16,7 +16,7 @@
 package autowire
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire/util"
+	"github.com/alibaba/ioc-golang/autowire/util"
 )
 
 // Autowire

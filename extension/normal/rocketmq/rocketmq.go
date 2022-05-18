@@ -7,7 +7,7 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	rocketmq "github.com/cinience/go_rocketmq"
 
-	"github.com/alibaba/IOC-Golang/autowire/normal"
+	"github.com/alibaba/ioc-golang/autowire/normal"
 )
 
 const SDID = "RocketMQClient-Impl"

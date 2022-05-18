@@ -6,8 +6,8 @@
 package service2
 
 import (
-	autowire "github.com/alibaba/IOC-Golang/autowire"
-	singleton "github.com/alibaba/IOC-Golang/autowire/singleton"
+	autowire "github.com/alibaba/ioc-golang/autowire"
+	singleton "github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 func init() {

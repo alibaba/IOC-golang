@@ -8,7 +8,7 @@ test:
 	go test ./... -cover
 
 imports:
-	goimports -local github.com/alibaba/IOC-Golang -w .
+	goimports -local github.com/alibaba/ioc-golang -w .
 
 lint: tidy
 	golangci-lint run
