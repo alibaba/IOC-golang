@@ -6,8 +6,8 @@
 package redis
 
 import (
-	autowire "github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/normal"
+	autowire "github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/normal"
 )
 
 func init() {

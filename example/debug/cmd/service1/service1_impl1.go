@@ -18,9 +18,9 @@ package service1
 import (
 	"context"
 
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
-	"github.com/alibaba/IOC-Golang/example/debug/api"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/example/debug/api"
 )
 
 // +ioc:autowire=true

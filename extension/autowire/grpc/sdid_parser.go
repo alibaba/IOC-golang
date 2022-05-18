@@ -1,8 +1,8 @@
 package grpc
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/util"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/util"
 )
 
 type sdIDParser struct {

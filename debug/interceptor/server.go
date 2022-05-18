@@ -24,9 +24,9 @@ import (
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	"github.com/alibaba/IOC-Golang/autowire/util"
-	"github.com/alibaba/IOC-Golang/debug/api/ioc_golang/boot"
-	"github.com/alibaba/IOC-Golang/debug/common"
+	"github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
+	"github.com/alibaba/ioc-golang/debug/common"
 )
 
 var sendRecvChWatchEditMap = make(map[string]sendRecvCh)

@@ -16,7 +16,7 @@
 package param_loader
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire"
 )
 
 type defaultParamLoader struct {

@@ -20,7 +20,7 @@ import (
 
 	"github.com/go-redis/redis"
 
-	"github.com/alibaba/IOC-Golang/autowire/normal"
+	"github.com/alibaba/ioc-golang/autowire/normal"
 )
 
 type Redis interface {

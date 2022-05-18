@@ -18,7 +18,7 @@ package mysql
 import (
 	"gorm.io/gorm"
 
-	"github.com/alibaba/IOC-Golang/autowire/normal"
+	"github.com/alibaba/ioc-golang/autowire/normal"
 )
 
 type Mysql interface {

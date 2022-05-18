@@ -30,12 +30,12 @@ IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
 
 ## 项目列表
 
-- **ioc-golang：**[ioc-golang](http://github.com/alibaba/IOC-Golang) 框架内核
+- **ioc-golang：**[ioc-golang](http://github.com/alibaba/ioc-golang) 框架内核
     - 配置加载模块：负责解析用户yaml配置文件
     - 自动装载模块：提供单例模型、多例模型和扩展模型，负责依赖注入与对象方法 AOP 层封装。
     - 调试模块：提供调试 API、提供调试注入层实现。
 
-- **ioc-golang-extension：**[ioc-golang-extension](http://github.com/alibaba/IOC-Golang/extension) 组件扩展仓库
+- **ioc-golang-extension：**[ioc-golang-extension](http://github.com/alibaba/ioc-golang/extension) 组件扩展仓库
     - 提供基于多种注入模型的预置实现结构：
         - Config：配置字段注入
         - Normal：多例模型
@@ -45,7 +45,7 @@ IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
             - http-server
     - 待后续开源侧扩充
 
-- **ioc-golang-example：**[ioc-golang-example](http://github.com/alibaba/IOC-Golang/example) 示例仓库
+- **ioc-golang-example：**[ioc-golang-example](http://github.com/alibaba/ioc-golang/example) 示例仓库
     - 配置注入
     - mysql client
     - grpc client
@@ -54,7 +54,7 @@ IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
     - 通过 API 获取对象
     - 待后续扩充
 
-- **ioc-go-cli：**[ioc-go-cli](http://github.com/alibaba/IOC-Golang/ioc-go-cli) 代码生成/程序调试 工具
+- **ioc-go-cli：**[ioc-go-cli](http://github.com/alibaba/ioc-golang/ioc-go-cli) 代码生成/程序调试 工具
 
   提供基于注解的结构描述信息自动生成能力
 
@@ -63,7 +63,7 @@ IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
 ### 安装代码生成工具
 
 ```shell
-go install github.com/alibaba/IOC-Golang/ioc-go-cli@latest
+go install github.com/alibaba/ioc-golang/ioc-go-cli@latest
 ```
 
 ### 依赖注入教程
@@ -77,8 +77,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/alibaba/IOC-Golang"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 // +ioc:autowire=true
@@ -170,8 +170,8 @@ sudo ioc-go-cli gen
 package main
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 func init() {
@@ -265,9 +265,9 @@ This is ServiceStruct, hello world
 
 ###  更多
 
-更多代码生成注解可以移步[ioc-golang-cli](http://github.com/alibaba/IOC-Golang/ioc-go-cli) 查看。
+更多代码生成注解可以移步[ioc-golang-cli](http://github.com/alibaba/ioc-golang/ioc-go-cli) 查看。
 
-可以移步[ioc-golang-example.git](http://github.com/alibaba/IOC-Golang/example)  查看更多例子和高级使用方法。
+可以移步[ioc-golang-example.git](http://github.com/alibaba/ioc-golang/example)  查看更多例子和高级使用方法。
 
 
 ### License

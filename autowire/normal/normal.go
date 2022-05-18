@@ -16,10 +16,10 @@
 package normal
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/base"
-	"github.com/alibaba/IOC-Golang/autowire/param_loader"
-	"github.com/alibaba/IOC-Golang/autowire/sdid_parser"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/base"
+	"github.com/alibaba/ioc-golang/autowire/param_loader"
+	"github.com/alibaba/ioc-golang/autowire/sdid_parser"
 )
 
 func init() {

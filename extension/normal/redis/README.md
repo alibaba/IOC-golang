@@ -24,7 +24,7 @@ type Config struct {
 
 ```go
 import (
-  normalRedis "github.com/alibaba/IOC-Golang/extension/normal/redis"
+  normalRedis "github.com/alibaba/ioc-golang/extension/normal/redis"
 )
 
 redisImpl, err := normalRedis.GetRedis(&normalRedis.Config{
