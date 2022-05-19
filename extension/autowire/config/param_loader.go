@@ -41,7 +41,7 @@ myConfig:
       myConfigKey: myConfigValue
 ```
 */
-func (p *paramLoader) Load(sd *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+func (p *paramLoader) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
 	if sd == nil || fi == nil || sd.ParamFactory == nil {
 		return nil, errors.New("not supported")
 	}

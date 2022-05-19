@@ -24,16 +24,16 @@ func (a *Autowire) TagKey() string {
 	return Name
 }
 
-// GetAllStructDescribers re-write NormalAutowire
-func (a *Autowire) GetAllStructDescribers() map[string]*autowire.StructDescriber {
-	return configStructDescriberMap
+// GetAllStructDescriptors re-write NormalAutowire
+func (a *Autowire) GetAllStructDescriptors() map[string]*autowire.StructDescriptor {
+	return configStructDescriptorMap
 }
 
-var configStructDescriberMap = make(map[string]*autowire.StructDescriber)
+var configStructDescriptorMap = make(map[string]*autowire.StructDescriptor)
 
-func RegisterStructDescriber(s *autowire.StructDescriber) {
+func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	s.SetAutowireType(Name)
-	configStructDescriberMap[s.ID()] = s
+	configStructDescriptorMap[s.ID()] = s
 }
 
 func GetImpl(extensionId string, configPrefix string) (interface{}, error) {

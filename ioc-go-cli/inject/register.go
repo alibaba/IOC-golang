@@ -177,7 +177,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(root *loader.Package, imports *impo
 		} else {
 			alise = c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/extension/autowire/%s", autowireType))
 		}
-		c.Linef(`%s.RegisterStructDescriber(&%s.StructDescriber{`, alise, autowireAlise)
+		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, alise, autowireAlise)
 
 		// 1. gen interface
 		if len(info.Markers["ioc:autowire:interface"]) != 0 {

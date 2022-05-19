@@ -29,7 +29,7 @@ import (
 type defaultTagPointToConfig struct {
 }
 
-func getDefaultTagPointToConfigPrefix(sd *autowire.StructDescriber, instanceName string) string {
+func getDefaultTagPointToConfigPrefix(sd *autowire.StructDescriptor, instanceName string) string {
 	return fmt.Sprintf("autowire.%s.%s.%s.%s.param", sd.AutowireType(), util.GetStructName(sd.Interface), util.GetStructName(sd.Factory()), instanceName)
 }
 
@@ -45,7 +45,7 @@ func GetDefaultTagPointToConfigParamLoader() autowire.ParamLoader {
 /*
 Load support load struct described like:
 ```go
-normal.RegisterStructDescriber(&autowire.StructDescriber{
+normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Redis),
 		Factory:   func() interface{}{
 			return &Impl{}
@@ -64,11 +64,14 @@ type Config struct {
 	Password string
 	DB       string
 }
+
 ```
 with
 Autowire type 'normal'
 InterfaceName 'Redis'
 StructName 'Impl'
+Field:
+	MyRedis Redis `normal:"Impl, redis-1"`
 
 from:
 
@@ -77,13 +80,14 @@ extension:
   normal:
     Redis:
       Impl:
-        param:
-          address: 127.0.0.1
-          password: xxx
-          db: 0
+        redis-1:
+          param:
+            address: 127.0.0.1
+            password: xxx
+            db: 0
 ```
 */
-func (p *defaultTagPointToConfig) Load(sd *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+func (p *defaultTagPointToConfig) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
 	if fi == nil || sd == nil || sd.ParamFactory == nil {
 		return nil, errors.New("not supported")
 	}

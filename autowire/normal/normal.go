@@ -52,9 +52,9 @@ func (n *NormalAutowire) IsSingleton() bool {
 	return false
 }
 
-// GetAllStructDescribers should be re-write by facade
-func (n *NormalAutowire) GetAllStructDescribers() map[string]*autowire.StructDescriber {
-	return normalEntryDescriberMap
+// GetAllStructDescriptors should be re-write by facade
+func (n *NormalAutowire) GetAllStructDescriptors() map[string]*autowire.StructDescriptor {
+	return normalEntryDescriptorMap
 }
 
 // TagKey should be re-writed by facade autowire
@@ -66,13 +66,13 @@ func (s *NormalAutowire) CanBeEntrance() bool {
 	return false
 }
 
-var normalEntryDescriberMap = make(map[string]*autowire.StructDescriber)
+var normalEntryDescriptorMap = make(map[string]*autowire.StructDescriptor)
 
 // developer APIs
 
-func RegisterStructDescriber(s *autowire.StructDescriber) {
+func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	s.SetAutowireType(Name)
-	normalEntryDescriberMap[s.ID()] = s
+	normalEntryDescriptorMap[s.ID()] = s
 }
 
 func GetImpl(sdID string, param interface{}) (interface{}, error) {

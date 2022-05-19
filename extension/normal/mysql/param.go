@@ -50,7 +50,7 @@ func getMysqlLinkStr(conf *Config) string {
 type paramLoader struct {
 }
 
-func (p *paramLoader) Load(sd *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+func (p *paramLoader) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
 	splitedTagValue := strings.Split(fi.TagValue, ",")
 	param := &Config{}
 	if len(splitedTagValue) <= 2 {

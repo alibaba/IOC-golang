@@ -46,8 +46,8 @@ const mockSubSDID = "MockSubInterface-MockSubImpl"
 func TestWrapperAutowireImpl_ImplWithParam(t *testing.T) {
 	t.Run("test impl with param", func(t *testing.T) {
 		mockAutowire := NewMockAutowire(t)
-		mockAutowire.On("GetAllStructDescribers").Return(func() map[string]*StructDescriber {
-			return map[string]*StructDescriber{
+		mockAutowire.On("GetAllStructDescriptors").Return(func() map[string]*StructDescriptor {
+			return map[string]*StructDescriptor{
 				mockSubSDID: {
 					Interface: new(MockSubInterface),
 					Factory: func() interface{} {

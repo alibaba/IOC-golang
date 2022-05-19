@@ -88,16 +88,16 @@ func (_m *MockAutowire) Factory(sdID string) (interface{}, error) {
 	return r0, r1
 }
 
-// GetAllStructDescribers provides a mock function with given fields:
-func (_m *MockAutowire) GetAllStructDescribers() map[string]*StructDescriber {
+// GetAllStructDescriptors provides a mock function with given fields:
+func (_m *MockAutowire) GetAllStructDescriptors() map[string]*StructDescriptor {
 	ret := _m.Called()
 
-	var r0 map[string]*StructDescriber
-	if rf, ok := ret.Get(0).(func() map[string]*StructDescriber); ok {
+	var r0 map[string]*StructDescriptor
+	if rf, ok := ret.Get(0).(func() map[string]*StructDescriptor); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[string]*StructDescriber)
+			r0 = ret.Get(0).(map[string]*StructDescriptor)
 		}
 	}
 

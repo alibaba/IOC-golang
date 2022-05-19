@@ -9,9 +9,14 @@
                                                                     |___/ 
 ```
 
-[English READMD](./README_CN.md)
+[![IOC-Golang CI](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml/badge.svg)](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml)
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-[IOC-Golang 文档](https://ioc-golang.github.io/cn)
+[文档](https://ioc-golang.github.io/cn)
+
+[English Docs](https://ioc-golang.github.io)
+
+[English README](./README.md)
 
 IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完善的 IoC 容器。其能力如下：
 
@@ -23,13 +28,13 @@ IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
 
   可以接管对象的创建、参数注入、工厂方法。可定制化对象参数来源。
 
-- 自动代码生成能力
-
-  我们提供了代码生成工具，开发者可以通过注解的方式标注结构，从而便捷地生成结构注册代码。
-
 - 代码调试能力
 
   基于 AOP 的思路，为由框架接管的对象方法提供运行时监控、调试能力。
+
+- 结构注册代码生成能力
+
+  我们提供了代码生成工具，开发者可以通过注解的方式标注结构，从而便捷地生成结构注册代码。
 
 - 可扩展能力
 
@@ -198,25 +203,25 @@ import (
 )
 
 func init() {
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: &App{},
 		Factory: func() interface{} {
 			return &App{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: &ServiceStruct{},
 		Factory: func() interface{} {
 			return &ServiceStruct{}

@@ -235,7 +235,7 @@ ioc-go-cli 可以识别以下注解：
   ```go
   // ParamLoader is interface to load param
   type ParamLoader interface {
-  	Load(sd *StructDescriber, fi *FieldInfo) (interface{}, error)
+  	Load(sd *StructDescriptor, fi *FieldInfo) (interface{}, error)
   }
   ```
 
@@ -277,7 +277,7 @@ ioc-go-cli 可以识别以下注解：
   type paramLoader struct {
   }
   
-  func (p *paramLoader) Load(sd *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+  func (p *paramLoader) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
   	splitedTagValue := strings.Split(fi.TagValue, ",")
   	param := &Config{}
   	if len(splitedTagValue) == 1 {

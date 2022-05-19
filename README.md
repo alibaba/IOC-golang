@@ -9,9 +9,14 @@
                                                                     |___/ 
 ```
 
-[中文 READMD](./README_CN.md)
+[![IOC-Golang CI](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml/badge.svg)](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml)
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 [IOC-Golang Docs](https://ioc-golang.github.io)
+
+[中文 文档](https://ioc-golang.github.io/cn)
+
+[中文 README](./README_CN.md)
 
 IOC-Golang is a powerful golang dependency injection framework that provides a complete implementation of IoC containers. Its capabilities are as follows:
 
@@ -23,13 +28,13 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
 
   Can take over object creation, parameter injection, factory methods. Customizable object parameter source.
 
-- Automatic code generation capability
-
-  We provide a code generation tool, and developers can annotate the structure through annotations, so as to easily generate structure registration code.
-
 - Code debugging ability
 
   Based on the idea of AOP, it provides runtime monitoring and debugging capabilities for object methods taken over by the framework.
+
+- Automatic struct descriptor codes generation capability
+
+  We provide a code generation tool, and developers can annotate the structure through annotations, so as to easily generate structure registration code.
 
 - Scalability
 
@@ -193,25 +198,25 @@ import (
 )
 
 func init() {
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: &App{},
 		Factory: func() interface{} {
 			return &App{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: &ServiceStruct{},
 		Factory: func() interface{} {
 			return &ServiceStruct{}

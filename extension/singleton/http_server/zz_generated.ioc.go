@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(HttpServer),
 		Factory: func() interface{} {
 			return &Impl{}

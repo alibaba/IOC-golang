@@ -110,7 +110,7 @@ func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) 
 
 // inject do tag autowire and monkey inject
 func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
-	sd := w.Autowire.GetAllStructDescribers()[sdId]
+	sd := w.Autowire.GetAllStructDescriptors()[sdId]
 
 	// 1. reflect
 	valueOf := reflect.ValueOf(impledPtr)

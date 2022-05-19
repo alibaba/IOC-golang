@@ -47,16 +47,16 @@ func (a *Autowire) InjectPosition() autowire.InjectPosition {
 	return autowire.AfterConstructorCalled
 }
 
-// GetAllStructDescribers re-write SingletonAutowire
-func (a *Autowire) GetAllStructDescribers() map[string]*autowire.StructDescriber {
-	return grpcStructDescriberMap
+// GetAllStructDescriptors re-write SingletonAutowire
+func (a *Autowire) GetAllStructDescriptors() map[string]*autowire.StructDescriptor {
+	return grpcStructDescriptorMap
 }
 
-var grpcStructDescriberMap = make(map[string]*autowire.StructDescriber)
+var grpcStructDescriptorMap = make(map[string]*autowire.StructDescriptor)
 
-func RegisterStructDescriber(s *autowire.StructDescriber) {
+func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	s.SetAutowireType(Name)
-	grpcStructDescriberMap[s.ID()] = s
+	grpcStructDescriptorMap[s.ID()] = s
 }
 
 func GetImpl(extensionId string) (interface{}, error) {

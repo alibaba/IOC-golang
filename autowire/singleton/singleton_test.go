@@ -32,17 +32,17 @@ type mockImpl struct {
 const mockInterfaceName = "mockInterface"
 const mockImplName = "mockImpl"
 
-func TestAutowire_RegisterAndGetAllStructDescribers(t *testing.T) {
-	t.Run("test singleton autowire register and get all struct describers", func(t *testing.T) {
-		sd := &autowire.StructDescriber{
+func TestAutowire_RegisterAndGetAllStructDescriptors(t *testing.T) {
+	t.Run("test singleton autowire register and get all struct descriptors", func(t *testing.T) {
+		sd := &autowire.StructDescriptor{
 			Interface: new(mockInterface),
 			Factory: func() interface{} {
 				return &mockImpl{}
 			},
 		}
-		RegisterStructDescriber(sd)
+		RegisterStructDescriptor(sd)
 		n := &SingletonAutowire{}
-		allStructDesc := n.GetAllStructDescribers()
+		allStructDesc := n.GetAllStructDescriptors()
 		assert.NotNil(t, allStructDesc)
 		structDesc, ok := allStructDesc[mockInterfaceName+"-"+mockImplName]
 		assert.True(t, ok)
