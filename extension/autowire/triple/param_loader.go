@@ -30,7 +30,7 @@ autowire:
 
 Make Dial and generate *grpc.ClientConn as param
 */
-func (p *paramLoader) Load(_ *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+func (p *paramLoader) Load(_ *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
 	if fi == nil {
 		return nil, errors.New("not supported")
 	}

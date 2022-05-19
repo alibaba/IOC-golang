@@ -31,7 +31,7 @@ import(
 )
 func init() {
 	// register grpc client
-	grpc.RegisterStructDescriber(&autowire.StructDescriber{
+	grpc.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(api.HelloServiceClient),
 		Factory: func() interface{} {
 			return new(api.HelloServiceClient)

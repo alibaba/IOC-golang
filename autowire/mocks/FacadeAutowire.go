@@ -30,16 +30,16 @@ type FacadeAutowire struct {
 	mock.Mock
 }
 
-// GetAllStructDescribers provides a mock function with given fields:
-func (_m *FacadeAutowire) GetAllStructDescribers() map[string]*autowire.StructDescriber {
+// GetAllStructDescriptors provides a mock function with given fields:
+func (_m *FacadeAutowire) GetAllStructDescriptors() map[string]*autowire.StructDescriptor {
 	ret := _m.Called()
 
-	var r0 map[string]*autowire.StructDescriber
-	if rf, ok := ret.Get(0).(func() map[string]*autowire.StructDescriber); ok {
+	var r0 map[string]*autowire.StructDescriptor
+	if rf, ok := ret.Get(0).(func() map[string]*autowire.StructDescriptor); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[string]*autowire.StructDescriber)
+			r0 = ret.Get(0).(map[string]*autowire.StructDescriptor)
 		}
 	}
 

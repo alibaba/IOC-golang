@@ -11,13 +11,13 @@ import (
 )
 
 func init() {
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Service2),
 		Factory: func() interface{} {
 			return &Impl1{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Service2),
 		Factory: func() interface{} {
 			return &Impl2{}

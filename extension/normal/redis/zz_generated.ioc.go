@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriber(&autowire.StructDescriber{
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Redis),
 		Factory: func() interface{} {
 			return &Impl{}
