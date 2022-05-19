@@ -78,7 +78,7 @@ func TestLoadFixedNotFound(t *testing.T) {
 		},
 		{
 			"test load from file",
-			"/test/ioc_golang.yaml", // relative path
+			"./test/ioc_golang.yaml", // relative path
 			false,
 		},
 	}
