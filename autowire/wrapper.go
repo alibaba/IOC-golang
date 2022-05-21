@@ -161,9 +161,9 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 		subService.Set(reflect.ValueOf(subImpledPtr))
 	}
 	// 3. monkey
-	if os.Getenv("GOARCH") == "amd64" || runtime.GOARCH == "amd64" {
-		// only service, only amd64 mod can inject monkey function
-		GetMonkeyFunction()(impledPtr, sd.ID())
+	if monkeyFunction := GetMonkeyFunction(); (os.Getenv("GOARCH") == "amd64" || runtime.GOARCH == "amd64") && monkeyFunction != nil {
+		// only amd64-os/amd64-go-arch-env with build flags '-gcflags="-N -l" -tags iocdebug' can inject monkey function
+		monkeyFunction(impledPtr, sd.ID())
 	}
 	return nil
 }

@@ -20,29 +20,29 @@
 
 IOC-Golang is a powerful golang dependency injection framework that provides a complete implementation of IoC containers. Its capabilities are as follows:
 
-- Dependency Injection
+- [Dependency Injection](https://ioc-golang.github.io/docs/getting-started/turtoral/)
 
   Supports dependency injection of any structure and interface.
 
-- Perfect object life cycle management mechanism.
+- Object life cycle management mechanism.
 
   Can take over object creation, parameter injection, factory methods. Customizable object parameter source.
 
-- Code debugging ability
+- [Code debugging ability](https://ioc-golang.github.io/docs/examples/debug/)
 
   Based on the idea of AOP, it provides runtime monitoring and debugging capabilities for object methods taken over by the framework.
 
-- Automatic struct descriptor codes generation capability
+- [Automatic struct descriptor codes generation capability](https://ioc-golang.github.io/docs/reference/ioc-go-cli/)
 
   We provide a code generation tool, and developers can annotate the structure through annotations, so as to easily generate structure registration code.
 
-- Scalability
+- [Scalability](https://ioc-golang.github.io/cn/docs/contribution-guidelines/)
 
-  Supports the extension of the auto-loading model, the extension of the injection parameter source, and the extension of the object method AOP layer.
+  Support the extension of struct to be injected, the extension of autowire model, and the extension of the debug AOP layer.
 
-- Complete prefabricated components
+- [Complete prefabricated components](https://ioc-golang.github.io/cn/docs/examples/)
 
-  Provides prefabricated objects covering mainstream middleware for direct injection.
+  Provides prefabricated objects covering mainstream middleware sdk for injection.
 
 ## Project Structure
 
@@ -79,7 +79,7 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
 
 - **ioc-go-cli:** code generation/program debugging tool
 
-## quick start
+## Quick start
 
 ### Install code generation tools
 
@@ -89,9 +89,15 @@ go install github.com/alibaba/ioc-golang/ioc-go-cli@latest
 
 ### Dependency Injection Tutorial
 
-We will develop a project with the following topology, in this example, we can demonstrate code generation, interface injection, object pointer injection, and API access to objects capabilities.
+We will develop a project with the following topology, This tutorial can show:
 
-![ioc-golang-quickstart-structure](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/img/ioc-golang-quickstart-structure-en.png)
+1. Registry codes generation
+2. Interface injection
+3. Struct pointer injection
+4. Get object by API
+5. Debug capability, list interface, implementations and methods; watch real-time param and return value.
+
+![ioc-golang-quickstart-structure](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/img/ioc-golang-quickstart-structure.png)
 
 
 All the code the user needs to write: main.go
@@ -101,6 +107,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
@@ -115,9 +122,13 @@ type App struct {
 }
 
 func (a*App) Run(){
-	a.ServiceImpl1.Hello()
-	a.ServiceImpl2.Hello()
-	a.ServiceStruct.Hello()
+	for {
+		time.Sleep(time.Second*3)
+		a.ServiceImpl1.Hello()
+		a.ServiceImpl2.Hello()
+		
+		fmt.Println(a.ServiceStruct.GetString("laurence"))
+    }
 }
 
 
@@ -156,8 +167,8 @@ type ServiceStruct struct {
 
 }
 
-func (s *ServiceStruct) Hello(){
-	fmt.Println("This is ServiceStruct, hello world")
+func (s *ServiceStruct) GetString(name string)string{
+	return fmt.Sprintf("Hello %s", name)
 }
 
 func main(){
@@ -176,10 +187,12 @@ func main(){
 	app.Run()
 }
 ```
-After writing, you can exec the following cli command.  (mac may require sudo due to permissions)
+After writing, you can exec the following cli command to init go mod and generate codes.  (mac may require sudo due to permissions during code generation)
 
 ```bash
-sudo ioc-go-cli gen
+% go mod init ioc-golang-demo
+% go mod tidy
+% sudo ioc-go-cli gen
 ````
 
 It will be generated in the current directory: zz_generated.ioc.go, developers **do not need to care about this file**, this file contains the description information of all interfaces,
@@ -193,7 +206,7 @@ It will be generated in the current directory: zz_generated.ioc.go, developers *
 package main
 
 import (
-	"github.com/alibaba/ioc-golang/autowire"
+	autowire "github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
@@ -226,12 +239,9 @@ func init() {
 
 ```
 
-initialize go mod
-
-implement
+See the file tree:
 
 ```bash
-% go mod tidy
 % tree
 .
 ├── go.mod
@@ -240,7 +250,9 @@ implement
 └── zz_generated.ioc.go
 ````
 
-execute program:
+#### Execute program
+
+**Run with general mode**
 
 `go run .`
 
@@ -256,7 +268,7 @@ Console printout:
 Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
 [Config] Load config file from ../conf/ioc_golang.yaml
-Load ioc_golang config file failed. open ../conf/ioc_golang.yaml: no such file or directory
+Load ioc-golang config file failed. open ../conf/ioc_golang.yaml: no such file or directory
 The load procedure is continue
 [Boot] Start to load debug
 [Debug] Debug mod is not enabled
@@ -268,10 +280,60 @@ The load procedure is continue
 [Autowire Struct Descriptor] Found type singleton registered SD ServiceStruct-ServiceStruct
 This is ServiceImpl1, hello world
 This is ServiceImpl2, hello world
-This is ServiceStruct, hello world
+Hello laurence
+...
 ```
 
 It shows that the injection is successful and the program runs normally.
+
+**Run with debug mode**
+
+`GOARCH=amd64 go run -gcflags="-N -l" -tags iocdebug .`
+
+Following logs can be found in console output:
+
+```bash
+[Debug] Debug server listening at :1999
+```
+
+List all interface, implementations and methods
+
+```
+% ioc-go-cli list
+App
+App
+[Run]
+
+Service
+ServiceImpl1
+[Hello]
+
+Service
+ServiceImpl2
+[Hello]
+
+ServiceStruct
+ServiceStruct
+[GetString]
+```
+
+Watch real-time param and return value. We take 'GetString' method as an example. The method would be called every  3s .
+
+```
+% ioc-go-cli watch ServiceStruct ServiceStruct GetString
+
+========== On Call ==========
+ServiceStruct.(ServiceStruct).GetString()
+Param 1: (string) (len=8) "laurence"
+
+
+========== On Response ==========
+ServiceStruct.(ServiceStruct).GetString()
+Response 1: (string) (len=14) "Hello laurence"
+...
+```
+
+
 
 ### Annotation Analysis
 
@@ -280,7 +342,7 @@ It shows that the injection is successful and the program runs normally.
 The code generation tool recognizes objects marked with the +ioc:autowire=true annotation
 
 // +ioc:autowire:type=singleton
-The marker injection model is the singleton singleton model, as well as the normal multi-instance model, the config configuration model, the grpc grpc client model and other extensions.
+The marker autowire model is the singleton, as well as the normal multi-instance model, the config configuration model, the grpc client model and other extensions.
 
 // +ioc:autowire:interface=Service
 Markers implement the interface Service and can be injected into objects of type Service .
