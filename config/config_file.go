@@ -1,7 +1,9 @@
 package config
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 )
 
 const (
@@ -15,10 +17,13 @@ func searchConfigFiles(opts *Options) []string {
 
 	if isNotEmptyStringSlice(opts.AbsPath) {
 		for _, absPath := range opts.AbsPath {
+			if !filepath.IsAbs(absPath) {
+				panic(fmt.Sprintf("[Config] %s, abs path?", absPath))
+			}
 			configFiles = append(configFiles, absPath)
-
-			return configFiles
 		}
+
+		return configFiles
 	}
 
 	configNames := determineConfigFileName(opts)
