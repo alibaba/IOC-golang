@@ -1,5 +1,23 @@
 # IOC-Golang: A golang dependency injection framework
 
+```
+  ___    ___     ____            ____           _                         
+ |_ _|  / _ \   / ___|          / ___|   ___   | |   __ _   _ __     __ _ 
+  | |  | | | | | |      _____  | |  _   / _ \  | |  / _` | | '_ \   / _` |
+  | |  | |_| | | |___  |_____| | |_| | | (_) | | | | (_| | | | | | | (_| |
+ |___|  \___/   \____|          \____|  \___/  |_|  \__,_| |_| |_|  \__, |
+                                                                    |___/ 
+```
+
+[![IOC-Golang CI](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml/badge.svg)](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml)
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+
+[IOC-Golang Docs](https://ioc-golang.github.io)
+
+[中文 文档](https://ioc-golang.github.io/cn)
+
+[中文 README](./README_CN.md)
+
 IOC-Golang is a powerful golang dependency injection framework that provides a complete implementation of IoC containers. Its capabilities are as follows:
 
 - Dependency Injection
@@ -10,13 +28,13 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
 
   Can take over object creation, parameter injection, factory methods. Customizable object parameter source.
 
-- Automatic code generation capability
-
-  We provide a code generation tool, and developers can annotate the structure through annotations, so as to easily generate structure registration code.
-
 - Code debugging ability
 
   Based on the idea of AOP, it provides runtime monitoring and debugging capabilities for object methods taken over by the framework.
+
+- Automatic struct descriptor codes generation capability
+
+  We provide a code generation tool, and developers can annotate the structure through annotations, so as to easily generate structure registration code.
 
 - Scalability
 
@@ -26,49 +44,55 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
 
   Provides prefabricated objects covering mainstream middleware for direct injection.
 
+## Project Structure
 
+- **autowire:** Provides two basic injection models: singleton model and multi-instance model
+- **config:** Configuration loading module, responsible for parsing user yaml configuration files
+- **debug:** Debug module: Provide debugging API, provide debugging injection layer implementation
+- **extension:** Component extension directory: Provides preset implementation structures based on various injection models:
 
-## project list
+    - autowire: autoload model extensions
 
-- **ioc-golang: **[ioc-golang](http://github.com/alibaba/IOC-Golang) framework kernel
-    - Configuration loading module: responsible for parsing user yaml configuration files
-    - Automatic loading module: provides singleton model, multi-instance model and extension model, responsible for dependency injection and object method AOP layer encapsulation.
-    - Debug module: Provides debugging API, provides debugging injection layer implementation.
+        - grpc: grpc client model definition
 
-- **ioc-golang-extension: **[ioc-golang-extension](http://github.com/alibaba/IOC-Golang/extension) component extension repository
-    - Provides preset implementation structures based on various injection models:
-        - Config: Configuration field injection
-        - Normal: multi-instance model
-            - redis
-            - mysql
-        - singleton: singleton model
-            - http-server
-    - To be expanded on the open source side in the future
+        - config: configure the model definition
 
-- **ioc-golang-example: **[ioc-golang-example](http://github.com/alibaba/IOC-Golang/example) example repository
-    - Configuration injection
-    - mysql client
-    - grpc client
-    - redis client
-    - Use debugging capabilities
-    - Get objects via API
-    - To be expanded in the future
+    - config: configuration injection model extension structure
 
-- **ioc-go-cli: **[ioc-go-cli](http://github.com/alibaba/IOC-Golang/ioc-go-cli) code generation/program debugging tool
+        - string,int,map,slice
 
-  Provides the ability to automatically generate annotation-based structural description information
+    - normal: multi-instance model extension structure
+
+        - redis
+
+        - mysql
+
+        - rocketmq
+
+        - nacos
+
+    - singleton: singleton model extension structure
+
+        - http-server
+
+- **example:** example repository
+
+- **ioc-go-cli:** code generation/program debugging tool
 
 ## quick start
 
 ### Install code generation tools
 
 ```shell
-go install github.com/alibaba/IOC-Golang/ioc-go-cli@latest
+go install github.com/alibaba/ioc-golang/ioc-go-cli@latest
 ````
 
 ### Dependency Injection Tutorial
 
 We will develop a project with the following topology, in this example, we can demonstrate code generation, interface injection, object pointer injection, and API access to objects capabilities.
+
+![ioc-golang-quickstart-structure](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/img/ioc-golang-quickstart-structure-en.png)
+
 
 All the code the user needs to write: main.go
 
@@ -77,8 +101,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/alibaba/IOC-Golang"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 // +ioc:autowire=true
@@ -142,7 +166,7 @@ func main(){
 		panic(err)
 	}
 
-	// App-App is the format of： '$(interfaceName)-$(Implementation)'
+	// App-App is the format of： '$(interfaceName)-$(implementationStructName)'
 	// We can get instance by ths id
 	appInterface, err := singleton.GetImpl("App-App")
 	if err != nil{
@@ -152,13 +176,13 @@ func main(){
 	app.Run()
 }
 ```
-After writing, the current directory command line is executed (mac environment may require sudo due to permissions):
+After writing, you can exec the following cli command.  (mac may require sudo due to permissions)
 
 ```bash
 sudo ioc-go-cli gen
 ````
 
-It will be generated in the current directory: zz_generated.ioc.go, developers do not need to care about this file, this file contains the description information of all interfaces,**
+It will be generated in the current directory: zz_generated.ioc.go, developers **do not need to care about this file**, this file contains the description information of all interfaces,
 
 ```go
 //go:build !ignore_autogenerated
@@ -169,30 +193,30 @@ It will be generated in the current directory: zz_generated.ioc.go, developers d
 package main
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 func init() {
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: &App{},
 		Factory: func() interface{} {
 			return &App{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: &ServiceStruct{},
 		Factory: func() interface{} {
 			return &ServiceStruct{}
@@ -233,7 +257,7 @@ Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
 [Config] Load config file from ../conf/ioc_golang.yaml
 Load ioc_golang config file failed. open ../conf/ioc_golang.yaml: no such file or directory
- The load procedure is continue
+The load procedure is continue
 [Boot] Start to load debug
 [Debug] Debug mod is not enabled
 [Boot] Start to load autowire
@@ -264,9 +288,9 @@ Markers implement the interface Service and can be injected into objects of type
 
 ###  More
 
-More code generation annotations can be viewed at [ioc-golang-cli](http://github.com/alibaba/IOC-Golang/ioc-go-cli).
+More code generation annotations can be viewed at [ioc-golang-cli](https://github.com/alibaba/IOC-Golang/tree/master/ioc-go-cli).
 
-You can go to [ioc-golang-example.git](http://github.com/alibaba/IOC-Golang/example) for more examples and advanced usage.
+You can go to [ioc-golang-example](https://github.com/alibaba/IOC-Golang/tree/master/example) for more examples and advanced usage.
 
 ### License
 

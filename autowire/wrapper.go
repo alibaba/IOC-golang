@@ -22,15 +22,15 @@ import (
 
 	perrors "github.com/pkg/errors"
 
-	"github.com/alibaba/IOC-Golang/autowire/util"
+	"github.com/alibaba/ioc-golang/autowire/util"
 )
 
 type WrapperAutowire interface {
 	Autowire
 
 	ImplWithoutParam(sdID string) (interface{}, error)
-
 	ImplWithParam(sdID string, param interface{}) (interface{}, error)
+
 	implWithField(info *FieldInfo) (interface{}, error)
 }
 
@@ -110,7 +110,7 @@ func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) 
 
 // inject do tag autowire and monkey inject
 func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
-	sd := w.Autowire.GetAllStructDescribers()[sdId]
+	sd := w.Autowire.GetAllStructDescriptors()[sdId]
 
 	// 1. reflect
 	valueOf := reflect.ValueOf(impledPtr)

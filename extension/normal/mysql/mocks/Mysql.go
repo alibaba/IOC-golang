@@ -21,7 +21,7 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	gorm "gorm.io/gorm"
 
-	mysql "github.com/alibaba/IOC-Golang/extension/normal/mysql"
+	mysql "github.com/alibaba/ioc-golang/extension/normal/mysql"
 
 	testing "testing"
 )

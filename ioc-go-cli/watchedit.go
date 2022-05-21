@@ -22,7 +22,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/alibaba/IOC-Golang/debug/api/ioc_golang/boot"
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
 )
 
 // watchEdit todo

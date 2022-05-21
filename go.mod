@@ -1,4 +1,4 @@
-module github.com/alibaba/IOC-Golang
+module github.com/alibaba/ioc-golang
 
 go 1.17
 

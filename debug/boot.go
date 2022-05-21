@@ -21,10 +21,10 @@ import (
 	"github.com/fatih/color"
 	"github.com/glory-go/monkey"
 
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/config"
-	"github.com/alibaba/IOC-Golang/debug/common"
-	"github.com/alibaba/IOC-Golang/debug/interceptor"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/config"
+	"github.com/alibaba/ioc-golang/debug/common"
+	"github.com/alibaba/ioc-golang/debug/interceptor"
 )
 
 var paramInterceptors = make([]interceptor.Interceptor, 0)

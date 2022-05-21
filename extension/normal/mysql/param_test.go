@@ -22,9 +22,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	ioc "github.com/alibaba/IOC-Golang"
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/config"
+	ioc "github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/config"
 )
 
 func Test_getMysqlLinkStr(t *testing.T) {

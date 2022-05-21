@@ -6,12 +6,12 @@
 package rocketmq
 
 import (
-	autowire "github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/normal"
+	autowire "github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/normal"
 )
 
 func init() {
-	normal.RegisterStructDescriber(&autowire.StructDescriber{
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(RocketMQClient),
 		Factory: func() interface{} {
 			return &Impl{}

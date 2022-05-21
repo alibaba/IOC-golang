@@ -39,7 +39,7 @@ func Load() error {
 
 	yamlFile, err := ioutil.ReadFile(absPath)
 	if err != nil {
-		color.Red("Load ioc-golang config file failed. %v\n The load procedure is continue\n", err)
+		color.Red("Load ioc-golang config file failed. %v\nThe load procedure is continue\n", err)
 		return nil
 	}
 

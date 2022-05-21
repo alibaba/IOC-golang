@@ -6,12 +6,12 @@
 package config
 
 import (
-	autowire "github.com/alibaba/IOC-Golang/autowire"
-	autowireconfig "github.com/alibaba/IOC-Golang/extension/autowire/config"
+	autowire "github.com/alibaba/ioc-golang/autowire"
+	autowireconfig "github.com/alibaba/ioc-golang/extension/autowire/config"
 )
 
 func init() {
-	autowireconfig.RegisterStructDescriber(&autowire.StructDescriber{
+	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(ConfigInt),
 		Factory: func() interface{} {
 			return new(ConfigInt)
@@ -25,7 +25,7 @@ func init() {
 			return param.New(impl)
 		},
 	})
-	autowireconfig.RegisterStructDescriber(&autowire.StructDescriber{
+	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(ConfigMap),
 		Factory: func() interface{} {
 			return new(ConfigMap)
@@ -39,7 +39,7 @@ func init() {
 			return param.New(impl)
 		},
 	})
-	autowireconfig.RegisterStructDescriber(&autowire.StructDescriber{
+	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(ConfigSlice),
 		Factory: func() interface{} {
 			return new(ConfigSlice)
@@ -53,7 +53,7 @@ func init() {
 			return param.New(impl)
 		},
 	})
-	autowireconfig.RegisterStructDescriber(&autowire.StructDescriber{
+	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(ConfigString),
 		Factory: func() interface{} {
 			return new(ConfigString)

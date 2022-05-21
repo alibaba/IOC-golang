@@ -228,14 +228,14 @@ ioc-go-cli 可以识别以下注解：
 
   string类型，表示需要定制的“参数加载器“类型名
 
-  参数加载器由结构定义者可选定制。可参考：[ioc-go-extension/normal/redis](http://github.com/alibaba/IOC-Golang/extension/blob/master/normal)
+  参数加载器由结构定义者可选定制。可参考：[ioc-go-extension/normal/redis](http://github.com/alibaba/ioc-golang/extension/blob/master/normal)
 
   参数加载器需要实现Load方法：
 
   ```go
   // ParamLoader is interface to load param
   type ParamLoader interface {
-  	Load(sd *StructDescriber, fi *FieldInfo) (interface{}, error)
+  	Load(sd *StructDescriptor, fi *FieldInfo) (interface{}, error)
   }
   ```
 
@@ -277,7 +277,7 @@ ioc-go-cli 可以识别以下注解：
   type paramLoader struct {
   }
   
-  func (p *paramLoader) Load(sd *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+  func (p *paramLoader) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
   	splitedTagValue := strings.Split(fi.TagValue, ",")
   	param := &Config{}
   	if len(splitedTagValue) == 1 {
@@ -323,9 +323,9 @@ ioc-go-cli 可以识别以下注解：
 
   **我们提供了预置的参数加载器**
 
-  除非用户有强烈需求，我们更推荐用户直接使用我们预置的参数加载器：http://github.com/alibaba/IOC-Golang/tree/master/autowire/param_loader。
+  除非用户有强烈需求，我们更推荐用户直接使用我们预置的参数加载器：http://github.com/alibaba/ioc-golang/tree/master/autowire/param_loader。
 
-  我们会先后尝试：标签重定向到配置、标签读入参数、配置文件的默认位置读入参数。每个注册到框架的结构都有唯一的ID，因此也会在配置文件中拥有配置参数的位置，这一默认位置在这里定义：http://github.com/alibaba/IOC-Golang/blob/master/autowire/param_loader/default_config.go#L21，我们更希望和用户约定好这一点。
+  我们会先后尝试：标签重定向到配置、标签读入参数、配置文件的默认位置读入参数。每个注册到框架的结构都有唯一的ID，因此也会在配置文件中拥有配置参数的位置，这一默认位置在这里定义：http://github.com/alibaba/ioc-golang/blob/master/autowire/param_loader/default_config.go#L21，我们更希望和用户约定好这一点。
 
   当所有加载器都加载参数失败后，将会抛出错误。使用者应当查阅自己引入的结构加载器实现，并按照要求配置好参数。
 
@@ -351,7 +351,7 @@ ioc-go-cli 可以识别以下注解：
 
   该类型是否为基础类型
 
-  go 基础类型不可直接通过&在构造时取地址，因此我们针对基础类型单独设计了该注解。在 http://github.com/alibaba/IOC-Golang/extension/tree/master/config 配置扩展中被使用较多。
+  go 基础类型不可直接通过&在构造时取地址，因此我们针对基础类型单独设计了该注解。在 http://github.com/alibaba/ioc-golang/extension/tree/master/config 配置扩展中被使用较多。
 
 
 

@@ -16,10 +16,10 @@
 package singleton
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/base"
-	"github.com/alibaba/IOC-Golang/autowire/param_loader"
-	"github.com/alibaba/IOC-Golang/autowire/sdid_parser"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/base"
+	"github.com/alibaba/ioc-golang/autowire/param_loader"
+	"github.com/alibaba/ioc-golang/autowire/sdid_parser"
 )
 
 func init() {
@@ -28,7 +28,7 @@ func init() {
 
 const Name = "singleton"
 
-var singletonStructDescribersMap = make(map[string]*autowire.StructDescriber)
+var singletonStructDescriptorsMap = make(map[string]*autowire.StructDescriptor)
 
 // autowire APIs
 
@@ -58,9 +58,9 @@ type SingletonAutowire struct {
 	sdIDParser  autowire.SDIDParser
 }
 
-// GetAllStructDescribers should be re-write by facade
-func (s *SingletonAutowire) GetAllStructDescribers() map[string]*autowire.StructDescriber {
-	return singletonStructDescribersMap
+// GetAllStructDescriptors should be re-write by facade
+func (s *SingletonAutowire) GetAllStructDescriptors() map[string]*autowire.StructDescriptor {
+	return singletonStructDescriptorsMap
 }
 
 // TagKey should be re-writed by facade autowire
@@ -78,9 +78,9 @@ func (s *SingletonAutowire) CanBeEntrance() bool {
 
 // developer APIs
 
-func RegisterStructDescriber(sd *autowire.StructDescriber) {
+func RegisterStructDescriptor(sd *autowire.StructDescriptor) {
 	sd.SetAutowireType(Name)
-	singletonStructDescribersMap[sd.ID()] = sd
+	singletonStructDescriptorsMap[sd.ID()] = sd
 }
 
 func GetImpl(sdId string) (interface{}, error) {

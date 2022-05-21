@@ -1,5 +1,23 @@
 # IOC-Golang：一款 GO 语言依赖注入框架
 
+```
+  ___    ___     ____            ____           _                         
+ |_ _|  / _ \   / ___|          / ___|   ___   | |   __ _   _ __     __ _ 
+  | |  | | | | | |      _____  | |  _   / _ \  | |  / _` | | '_ \   / _` |
+  | |  | |_| | | |___  |_____| | |_| | | (_) | | | | (_| | | | | | | (_| |
+ |___|  \___/   \____|          \____|  \___/  |_|  \__,_| |_| |_|  \__, |
+                                                                    |___/ 
+```
+
+[![IOC-Golang CI](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml/badge.svg)](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml)
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+
+[文档](https://ioc-golang.github.io/cn)
+
+[English Docs](https://ioc-golang.github.io)
+
+[English README](./README.md)
+
 IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完善的 IoC 容器。其能力如下：
 
 - 依赖注入
@@ -10,13 +28,13 @@ IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
 
   可以接管对象的创建、参数注入、工厂方法。可定制化对象参数来源。
 
-- 自动代码生成能力
-
-  我们提供了代码生成工具，开发者可以通过注解的方式标注结构，从而便捷地生成结构注册代码。
-
 - 代码调试能力
 
   基于 AOP 的思路，为由框架接管的对象方法提供运行时监控、调试能力。
+
+- 结构注册代码生成能力
+
+  我们提供了代码生成工具，开发者可以通过注解的方式标注结构，从而便捷地生成结构注册代码。
 
 - 可扩展能力
 
@@ -27,48 +45,58 @@ IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
   提供覆盖主流中间件的预制对象，方便直接注入使用。
 
 
+## 项目结构
 
-## 项目列表
+- **autowire：** 提供单例模型、多例模型两种基本注入模型
+- **config：** 配置加载模块，负责解析用户yaml配置文件
+- **debug：** 调试模块：提供调试 API、提供调试注入层实现
+- **extension：** 组件扩展目录：提供基于多种注入模型的预置实现结构：
 
-- **ioc-golang：**[ioc-golang](http://github.com/alibaba/IOC-Golang) 框架内核
-    - 配置加载模块：负责解析用户yaml配置文件
-    - 自动装载模块：提供单例模型、多例模型和扩展模型，负责依赖注入与对象方法 AOP 层封装。
-    - 调试模块：提供调试 API、提供调试注入层实现。
+    - autowire：自动装载模型扩展
 
-- **ioc-golang-extension：**[ioc-golang-extension](http://github.com/alibaba/IOC-Golang/extension) 组件扩展仓库
-    - 提供基于多种注入模型的预置实现结构：
-        - Config：配置字段注入
-        - Normal：多例模型
-            - redis
-            - mysql
-        - singleton：单例模型
-            - http-server
-    - 待后续开源侧扩充
+        - grpc：grpc 客户端模型定义
 
-- **ioc-golang-example：**[ioc-golang-example](http://github.com/alibaba/IOC-Golang/example) 示例仓库
-    - 配置注入
-    - mysql client
-    - grpc client
-    - redis client
-    - 使用调试能力
-    - 通过 API 获取对象
-    - 待后续扩充
+        - config：配置模型定义
 
-- **ioc-go-cli：**[ioc-go-cli](http://github.com/alibaba/IOC-Golang/ioc-go-cli) 代码生成/程序调试 工具
+    - config：配置注入模型扩展结构
+
+        - string,int,map,slice
+
+    - normal：多例模型扩展结构
+
+        - redis
+
+        - mysql
+
+        - rocketmq
+
+        - nacos
+
+    - singleton：单例模型扩展结构
+
+        - http-server
+
+- **example：** 示例仓库
+
+- **ioc-go-cli：** 代码生成/程序调试 工具
 
   提供基于注解的结构描述信息自动生成能力
+
 
 ## 快速开始
 
 ### 安装代码生成工具
 
 ```shell
-go install github.com/alibaba/IOC-Golang/ioc-go-cli@latest
+go install github.com/alibaba/ioc-golang/ioc-go-cli@latest
 ```
 
 ### 依赖注入教程
 
 我们将开发一个具有以下拓扑的工程，在本例子中，可以展示代码生成、接口注入、对象指针注入、API 获取对象能力。
+
+![ioc-golang-quickstart-structure](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/img/ioc-golang-quickstart-structure.png)
+
 
 用户所需编写的全部代码：main.go
 
@@ -77,8 +105,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/alibaba/IOC-Golang"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 // +ioc:autowire=true
@@ -142,7 +170,7 @@ func main(){
 		panic(err)
 	}
 
-	// App-App 即结构ID： '$(接口名)-$(方法名)'， 对于结构指针，接口名默认为方法名
+	// App-App 即结构ID： '$(接口名)-$(结构名)'， 对于结构指针，接口名默认为结构名
 	// 可通过这一 ID 获取实例
 	appInterface, err := singleton.GetImpl("App-App")
 	if err != nil{
@@ -170,30 +198,30 @@ sudo ioc-go-cli gen
 package main
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 func init() {
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: &App{},
 		Factory: func() interface{} {
 			return &App{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
 	})
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: &ServiceStruct{},
 		Factory: func() interface{} {
 			return &ServiceStruct{}
@@ -234,7 +262,7 @@ Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
 [Config] Load config file from ../conf/ioc_golang.yaml
 Load ioc_golang config file failed. open ../conf/ioc_golang.yaml: no such file or directory
- The load procedure is continue
+The load procedure is continue
 [Boot] Start to load debug
 [Debug] Debug mod is not enabled
 [Boot] Start to load autowire
@@ -265,12 +293,12 @@ This is ServiceStruct, hello world
 
 ###  更多
 
-更多代码生成注解可以移步[ioc-golang-cli](http://github.com/alibaba/IOC-Golang/ioc-go-cli) 查看。
+更多代码生成注解可以移步[ioc-golang-cli](https://github.com/alibaba/IOC-Golang/tree/master/ioc-go-cli).查看。
 
-可以移步[ioc-golang-example.git](http://github.com/alibaba/IOC-Golang/example)  查看更多例子和高级使用方法。
+可以移步 [ioc-golang-example](https://github.com/alibaba/IOC-Golang/tree/master/example)  查看更多例子和高级使用方法。
 
 
-### License
+### 证书
 
 IOC-Golang developed by Alibaba and licensed under the Apache License (Version 2.0).
 See the NOTICE file for more information.
