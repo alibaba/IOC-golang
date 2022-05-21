@@ -1,0 +1,13 @@
+profilesActive:
+  shared:
+    strValue: world
+    intValue: 123
+    boolValue: true
+    mapValue:
+      mapKey1: mapValue1
+      mapKey2: mapValue2
+      mapKey3: mapValue3
+    sliceValue:
+      - sliceStr1
+      - sliceStr2
+      - sliceStr3

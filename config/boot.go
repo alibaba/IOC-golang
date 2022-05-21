@@ -17,20 +17,13 @@ package config
 
 import (
 	"io/ioutil"
-	"path"
-	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/fatih/color"
 	"gopkg.in/yaml.v3"
 )
 
-type Config map[string]interface{}
-
-const (
-	DefaultCallerSkipStep int = 3
-)
+type Config AnyMap
 
 var config Config
 
@@ -38,24 +31,13 @@ func SetConfig(yamlBytes []byte) error {
 	return yaml.Unmarshal(yamlBytes, &config)
 }
 
-func Load(skips ...int) error {
-	// skips - the number of stack frames to ascend, default 3
-	skip := DefaultCallerSkipStep
-	switch len(skips) {
-	case 1:
-		skip = skips[0]
-	}
-
+func Load() error {
 	configPath := GetConfigPath()
-
-	if IsNotAbsPath(configPath) {
-		currentDir := getCurrentAbPathByCaller(skip)
-		color.Blue("[Config] Parse current dir %s", currentDir)
-		configPath = filepath.Join(currentDir, configPath)
-	}
-
 	color.Blue("[Config] Load config file from %s", configPath)
-	yamlFile, err := ioutil.ReadFile(configPath)
+
+	absPath := determineAbsPath(configPath)
+
+	yamlFile, err := ioutil.ReadFile(absPath)
 	if err != nil {
 		color.Red("Load ioc-golang config file failed. %v\n The load procedure is continue\n", err)
 		return nil
@@ -77,20 +59,4 @@ func LoadConfigByPrefix(prefix string, configStructPtr interface{}) error {
 	}
 	configProperties := strings.Split(prefix, ".")
 	return loadProperty(configProperties, 0, config, configStructPtr)
-}
-
-// getCurrentAbPathByCaller - get current path by caller
-func getCurrentAbPathByCaller(skip int) string {
-	var currentAbsPath string
-	_, filename, _, ok := runtime.Caller(skip)
-	if ok {
-		currentAbsPath = path.Dir(filename)
-	}
-
-	return currentAbsPath
-}
-
-// IsNotAbsPath - reports whether the path isn't absolute
-func IsNotAbsPath(path string) bool {
-	return !filepath.IsAbs(path)
 }
