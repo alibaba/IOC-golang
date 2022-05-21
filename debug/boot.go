@@ -21,8 +21,8 @@ import (
 	"github.com/fatih/color"
 	"github.com/glory-go/monkey"
 
-	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/config"
+
 	"github.com/alibaba/ioc-golang/debug/common"
 	"github.com/alibaba/ioc-golang/debug/interceptor"
 )
@@ -40,19 +40,19 @@ func init() {
 
 	responseInterceptors = append(responseInterceptors, interceptor.GetWatchInterceptor())
 	responseInterceptors = append(responseInterceptors, interceptor.GetEditInterceptor())
-
-	autowire.RegisterMonkeyFunction(implMonkey)
 }
 
 var guardMap = make(map[string]*common.DebugMetadata)
 
+var enable = false
+
 func Load() error {
-	// start debug port if enabled
 	bootConfig := &Config{}
-	if err := config.LoadConfigByPrefix("debug", bootConfig); err != nil || !bootConfig.Enable {
+	if !enable {
 		color.Blue("[Debug] Debug mod is not enabled")
 		return nil
 	}
+	_ = config.LoadConfigByPrefix("debug", bootConfig)
 	if bootConfig.Port == "" {
 		color.Blue("[Debug] Debug port is set to default :%s", defaultDebugPort)
 		bootConfig.Port = defaultDebugPort
@@ -64,6 +64,7 @@ func Load() error {
 	return nil
 }
 
+// nolint
 func implMonkey(servicePtr interface{}, tempInterfaceId string) {
 	if _, ok := guardMap[tempInterfaceId]; !ok {
 		guardMap[tempInterfaceId] = &common.DebugMetadata{
@@ -95,6 +96,7 @@ func implMonkey(servicePtr interface{}, tempInterfaceId string) {
 	}
 }
 
+// nolint
 func makeCallProxy(tempInterfaceId, methodName string, isVariadic bool) func(in []reflect.Value) []reflect.Value {
 	return func(in []reflect.Value) []reflect.Value {
 		guardMap[tempInterfaceId].GuardMap[methodName].Lock.Lock()

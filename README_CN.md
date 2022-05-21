@@ -20,7 +20,7 @@
 
 IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完善的 IoC 容器。其能力如下：
 
-- 依赖注入
+- [依赖注入](https://ioc-golang.github.io/cn/docs/getting-started/turtoral/)
 
   支持任何结构、接口的依赖注入。
 
@@ -28,19 +28,19 @@ IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
 
   可以接管对象的创建、参数注入、工厂方法。可定制化对象参数来源。
 
-- 代码调试能力
+- [代码调试能力](https://ioc-golang.github.io/cn/docs/examples/debug/)
 
   基于 AOP 的思路，为由框架接管的对象方法提供运行时监控、调试能力。
 
-- 结构注册代码生成能力
+- [结构注册代码生成能力](https://ioc-golang.github.io/cn/docs/reference/ioc-go-cli/#%E7%BB%93%E6%9E%84%E6%B3%A8%E8%A7%A3)
 
   我们提供了代码生成工具，开发者可以通过注解的方式标注结构，从而便捷地生成结构注册代码。
 
-- 可扩展能力
+- [可扩展能力](https://ioc-golang.github.io/cn/docs/contribution-guidelines/)
 
-  支持自动装载模型的扩展、注入参数来源的扩展、对象方法 AOP 层的扩展。
+  支持被注入结构的扩展、自动装载模型的扩展、调试 AOP 层的扩展。
 
-- 完备的预制组件
+- [完备的预制组件](https://ioc-golang.github.io/cn/docs/examples/)
 
   提供覆盖主流中间件的预制对象，方便直接注入使用。
 
@@ -93,7 +93,13 @@ go install github.com/alibaba/ioc-golang/ioc-go-cli@latest
 
 ### 依赖注入教程
 
-我们将开发一个具有以下拓扑的工程，在本例子中，可以展示代码生成、接口注入、对象指针注入、API 获取对象能力。
+我们将开发一个具有以下拓扑的工程，在本例子中，可以展示
+
+1. 注册代码生成
+2. 接口注入
+3. 对象指针注入
+4. API 获取对象
+5. 调试能力，查看运行中的接口、实现、方法；以及实时监听参数值、返回值。
 
 ![ioc-golang-quickstart-structure](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/img/ioc-golang-quickstart-structure.png)
 
@@ -105,6 +111,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
@@ -119,9 +126,13 @@ type App struct {
 }
 
 func (a*App) Run(){
-	a.ServiceImpl1.Hello()
-	a.ServiceImpl2.Hello()
-	a.ServiceStruct.Hello()
+	for {
+		time.Sleep(time.Second*3)
+		a.ServiceImpl1.Hello()
+		a.ServiceImpl2.Hello()
+		
+		fmt.Println(a.ServiceStruct.GetString("laurence"))
+    }
 }
 
 
@@ -160,8 +171,8 @@ type ServiceStruct struct {
 
 }
 
-func (s *ServiceStruct) Hello(){
-	fmt.Println("This is ServiceStruct, hello world")
+func (s *ServiceStruct) GetString(name string)string{
+	return fmt.Sprintf("Hello %s", name)
 }
 
 func main(){
@@ -181,10 +192,12 @@ func main(){
 }
 ```
 
-编写完毕后，当前目录命令行执行（mac 环境可能因为权限原因需要sudo）：
+编写完毕后，当前目录执行以下命令，初始化 go mod ，生成结构注册代码。（mac 环境可能因权限原因需要sudo）：
 
 ```bash
-sudo ioc-go-cli gen
+% go mod init ioc-golang-demo
+% go mod tidy
+% sudo ioc-go-cli gen
 ```
 
 会在当前目录生成：zz_generated.ioc.go，开发者无需关心这一文件，该文件包含了所有接口的描述信息，
@@ -198,7 +211,7 @@ sudo ioc-go-cli gen
 package main
 
 import (
-	"github.com/alibaba/ioc-golang/autowire"
+	autowire "github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
@@ -231,12 +244,9 @@ func init() {
 
 ```
 
-初始化 go mod
-
-执行
+查看当前目录文件
 
 ```bash
-% go mod tidy
 % tree
 .
 ├── go.mod
@@ -245,7 +255,9 @@ func init() {
 └── zz_generated.ioc.go
 ```
 
-执行程序：
+#### 执行程序
+
+**正常方式启动程序**
 
 `go run .`
 
@@ -261,7 +273,7 @@ func init() {
 Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
 [Config] Load config file from ../conf/ioc_golang.yaml
-Load ioc_golang config file failed. open ../conf/ioc_golang.yaml: no such file or directory
+Load ioc-golang config file failed. open ../conf/ioc_golang.yaml: no such file or directory
 The load procedure is continue
 [Boot] Start to load debug
 [Debug] Debug mod is not enabled
@@ -273,10 +285,60 @@ The load procedure is continue
 [Autowire Struct Descriptor] Found type singleton registered SD ServiceStruct-ServiceStruct
 This is ServiceImpl1, hello world
 This is ServiceImpl2, hello world
-This is ServiceStruct, hello world
+Hello laurence
+...
 ```
 
 可看到，注入成功，程序正常运行。
+
+**以调试模式启动程序**
+
+`GOARCH=amd64 go run -gcflags="-N -l" -tags iocdebug .`
+
+可看到打印出的日志中包含
+
+```bash
+[Debug] Debug server listening at :1999
+```
+
+查看所有接口、实现和方法
+
+```bash
+% ioc-go-cli list
+App
+App
+[Run]
+
+Service
+ServiceImpl1
+[Hello]
+
+Service
+ServiceImpl2
+[Hello]
+
+ServiceStruct
+ServiceStruct
+[GetString]
+```
+
+监听方法的参数和返回值。以监听 GetString 方法为例，每隔三秒钟函数被调用的时候，打印参数和返回值。
+
+```bash
+% ioc-go-cli watch ServiceStruct ServiceStruct GetString
+
+========== On Call ==========
+ServiceStruct.(ServiceStruct).GetString()
+Param 1: (string) (len=8) "laurence"
+
+
+========== On Response ==========
+ServiceStruct.(ServiceStruct).GetString()
+Response 1: (string) (len=14) "Hello laurence"
+...
+```
+
+
 
 ### 注解分析
 
@@ -285,7 +347,7 @@ This is ServiceStruct, hello world
 代码生成工具会识别到标有 +ioc:autowire=true 注解的对象
 
 // +ioc:autowire:type=singleton
-标记注入模型为 singleton 单例模型，还有 normal 多例模型，config 配置模型，grpc grpc客户端模型等扩展。
+标记注入模型为 singleton 单例模型，还有 normal 多例模型，config 配置模型，grpc gRPC客户端模型等扩展。
 
 // +ioc:autowire:interface=Service
 标记实现了接口 Service，可被注入到 Service 类型的对象中。

@@ -1,3 +1,5 @@
+//go:build iocdebug
+
 /*
  * Copyright (c) 2022, Alibaba Group;
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +17,9 @@
 
 package debug
 
-type Config struct {
-	Port string `yaml:"port"`
+import "github.com/alibaba/ioc-golang/autowire"
+
+func init() {
+	autowire.RegisterMonkeyFunction(implMonkey)
+	enable = true
 }
