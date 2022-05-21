@@ -18,9 +18,11 @@
 
 [中文 README](./README_CN.md)
 
+![demo gif](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/video/ioc-golang-demo.gif)
+
 IOC-Golang is a powerful golang dependency injection framework that provides a complete implementation of IoC containers. Its capabilities are as follows:
 
-- [Dependency Injection](https://ioc-golang.github.io/docs/getting-started/turtoral/)
+- [Dependency Injection](https://ioc-golang.github.io/docs/getting-started/tutorial/)
 
   Supports dependency injection of any structure and interface.
 
