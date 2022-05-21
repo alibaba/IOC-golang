@@ -22,7 +22,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/alibaba/IOC-Golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire"
 )
 
 type defaultTag struct {
@@ -53,7 +53,7 @@ from field:
 NormalRedis  normalRedis.Redis  `normal:"Impl,address=127.0.0.1&password=xxx&db=0"`
 ```
 */
-func (p *defaultTag) Load(sd *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+func (p *defaultTag) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
 	if sd == nil || fi == nil || sd.ParamFactory == nil {
 		return nil, errors.New("not supported")
 	}

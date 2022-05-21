@@ -22,8 +22,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/mocks"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/mocks"
 )
 
 const (
@@ -37,7 +37,7 @@ const (
 type paramLoader struct {
 }
 
-func (p *paramLoader) Load(sd *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+func (p *paramLoader) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
 	return &param{
 		name: modifiedMockName,
 	}, nil
@@ -62,8 +62,8 @@ func newMockImpl() *MockImpl {
 func TestAutowireBase_Construct(t *testing.T) {
 	t.Run("test call construct success", func(t *testing.T) {
 		facadeAutowire := mocks.NewFacadeAutowire(t)
-		facadeAutowire.On("GetAllStructDescribers").Return(func() map[string]*autowire.StructDescriber {
-			return map[string]*autowire.StructDescriber{
+		facadeAutowire.On("GetAllStructDescriptors").Return(func() map[string]*autowire.StructDescriptor {
+			return map[string]*autowire.StructDescriptor{
 				mockSDID: {
 					ConstructFunc: func(impl interface{}, p interface{}) (interface{}, error) {
 						mockImpl := impl.(*MockImpl)
@@ -88,8 +88,8 @@ func TestAutowireBase_Construct(t *testing.T) {
 
 	t.Run("test call construct without constructFunc defined", func(t *testing.T) {
 		facadeAutowire := mocks.NewFacadeAutowire(t)
-		facadeAutowire.On("GetAllStructDescribers").Return(func() map[string]*autowire.StructDescriber {
-			return map[string]*autowire.StructDescriber{
+		facadeAutowire.On("GetAllStructDescriptors").Return(func() map[string]*autowire.StructDescriptor {
+			return map[string]*autowire.StructDescriptor{
 				mockSDID: {},
 			}
 		})
@@ -107,8 +107,8 @@ func TestAutowireBase_Construct(t *testing.T) {
 
 	t.Run("test call construct with sdID not found", func(t *testing.T) {
 		facadeAutowire := mocks.NewFacadeAutowire(t)
-		facadeAutowire.On("GetAllStructDescribers").Return(func() map[string]*autowire.StructDescriber {
-			return map[string]*autowire.StructDescriber{
+		facadeAutowire.On("GetAllStructDescriptors").Return(func() map[string]*autowire.StructDescriptor {
+			return map[string]*autowire.StructDescriptor{
 				mockSDID + "foo": {
 					Factory: func() interface{} {
 						return newMockImpl()
@@ -122,12 +122,12 @@ func TestAutowireBase_Construct(t *testing.T) {
 		mockImpl := newMockImpl()
 		param := &param{name: modifiedMockName}
 		_, err := a.Construct(mockSDID, mockImpl, param)
-		assert.Equal(t, perrors.Errorf("struct ID %s struct describer not found ", mockSDID).Error(), err.Error())
+		assert.Equal(t, perrors.Errorf("struct ID %s struct descriptor not found ", mockSDID).Error(), err.Error())
 	})
 
-	t.Run("test call construct with struct describer map empty", func(t *testing.T) {
+	t.Run("test call construct with struct descriptor map empty", func(t *testing.T) {
 		facadeAutowire := mocks.NewFacadeAutowire(t)
-		facadeAutowire.On("GetAllStructDescribers").Return(func() map[string]*autowire.StructDescriber {
+		facadeAutowire.On("GetAllStructDescriptors").Return(func() map[string]*autowire.StructDescriptor {
 			return nil
 		})
 		a := &AutowireBase{
@@ -136,15 +136,15 @@ func TestAutowireBase_Construct(t *testing.T) {
 		mockImpl := newMockImpl()
 		param := &param{name: modifiedMockName}
 		_, err := a.Construct(mockSDID, mockImpl, param)
-		assert.Equal(t, "struct describer map is empty.", err.Error())
+		assert.Equal(t, "struct descriptor map is empty.", err.Error())
 	})
 }
 
 func TestAutowireBase_Factory(t *testing.T) {
 	t.Run("test call factory success", func(t *testing.T) {
 		facadeAutowire := mocks.NewFacadeAutowire(t)
-		facadeAutowire.On("GetAllStructDescribers").Return(func() map[string]*autowire.StructDescriber {
-			return map[string]*autowire.StructDescriber{
+		facadeAutowire.On("GetAllStructDescriptors").Return(func() map[string]*autowire.StructDescriptor {
+			return map[string]*autowire.StructDescriptor{
 				mockSDID: {
 					Factory: func() interface{} {
 						return newMockImpl()
@@ -162,22 +162,22 @@ func TestAutowireBase_Factory(t *testing.T) {
 		assert.Equal(t, mockName, impl.Name())
 	})
 
-	t.Run("test call factory with struct describer map empty ", func(t *testing.T) {
+	t.Run("test call factory with struct descriptor map empty ", func(t *testing.T) {
 		facadeAutowire := mocks.NewFacadeAutowire(t)
-		facadeAutowire.On("GetAllStructDescribers").Return(func() map[string]*autowire.StructDescriber {
+		facadeAutowire.On("GetAllStructDescriptors").Return(func() map[string]*autowire.StructDescriptor {
 			return nil
 		})
 		a := &AutowireBase{
 			facadeAutowire: facadeAutowire,
 		}
 		_, err := a.Factory(mockSDID)
-		assert.Equal(t, "struct describer map is empty.", err.Error())
+		assert.Equal(t, "struct descriptor map is empty.", err.Error())
 	})
 
-	t.Run("test call factory with struct describer ID not found ", func(t *testing.T) {
+	t.Run("test call factory with struct descriptor ID not found ", func(t *testing.T) {
 		facadeAutowire := mocks.NewFacadeAutowire(t)
-		facadeAutowire.On("GetAllStructDescribers").Return(func() map[string]*autowire.StructDescriber {
-			return map[string]*autowire.StructDescriber{
+		facadeAutowire.On("GetAllStructDescriptors").Return(func() map[string]*autowire.StructDescriptor {
+			return map[string]*autowire.StructDescriptor{
 				mockSDID + "foo": {
 					Factory: func() interface{} {
 						return newMockImpl()
@@ -189,7 +189,7 @@ func TestAutowireBase_Factory(t *testing.T) {
 			facadeAutowire: facadeAutowire,
 		}
 		_, err := a.Factory(mockSDID)
-		assert.Equal(t, perrors.Errorf("struct ID %s struct describer not found ", mockSDID).Error(), err.Error())
+		assert.Equal(t, perrors.Errorf("struct ID %s struct descriptor not found ", mockSDID).Error(), err.Error())
 	})
 }
 
@@ -200,22 +200,22 @@ func TestAutowireBase_InjectPosition(t *testing.T) {
 
 func TestAutowireBase_ParseParam(t *testing.T) {
 	defaultParamLoader := mocks.NewParamLoader(t)
-	defaultParamLoader.On("Load", mock.MatchedBy(func(sd *autowire.StructDescriber) bool {
+	defaultParamLoader.On("Load", mock.MatchedBy(func(sd *autowire.StructDescriptor) bool {
 		return true
 	}), mock.MatchedBy(func(fi *autowire.FieldInfo) bool {
 		return true
-	})).Return(func(sd *autowire.StructDescriber, fi *autowire.FieldInfo) interface{} {
+	})).Return(func(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) interface{} {
 		return &param{
 			name: mockName,
 		}
-	}, func(sd *autowire.StructDescriber, fi *autowire.FieldInfo) error {
+	}, func(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) error {
 		return nil
 	})
 
 	t.Run("test parse param success with param loader defined in sd", func(t *testing.T) {
 		facadeAutowire := mocks.NewFacadeAutowire(t)
-		facadeAutowire.On("GetAllStructDescribers").Return(func() map[string]*autowire.StructDescriber {
-			return map[string]*autowire.StructDescriber{
+		facadeAutowire.On("GetAllStructDescriptors").Return(func() map[string]*autowire.StructDescriptor {
+			return map[string]*autowire.StructDescriptor{
 				mockSDID: {
 					ParamFactory: func() interface{} {
 						return &param{
@@ -240,8 +240,8 @@ func TestAutowireBase_ParseParam(t *testing.T) {
 
 	t.Run("test parse param success with default param loader", func(t *testing.T) {
 		facadeAutowire := mocks.NewFacadeAutowire(t)
-		facadeAutowire.On("GetAllStructDescribers").Return(func() map[string]*autowire.StructDescriber {
-			return map[string]*autowire.StructDescriber{
+		facadeAutowire.On("GetAllStructDescriptors").Return(func() map[string]*autowire.StructDescriptor {
+			return map[string]*autowire.StructDescriptor{
 				mockSDID: {
 					ParamFactory: func() interface{} {
 						return &param{
@@ -265,7 +265,7 @@ func TestAutowireBase_ParseParam(t *testing.T) {
 
 	t.Run("test parse param success with empty sd map", func(t *testing.T) {
 		facadeAutowire := mocks.NewFacadeAutowire(t)
-		facadeAutowire.On("GetAllStructDescribers").Return(func() map[string]*autowire.StructDescriber {
+		facadeAutowire.On("GetAllStructDescriptors").Return(func() map[string]*autowire.StructDescriptor {
 			return nil
 		})
 
@@ -274,13 +274,13 @@ func TestAutowireBase_ParseParam(t *testing.T) {
 			facadeAutowire: facadeAutowire,
 		}
 		_, err := a.ParseParam(mockSDID, nil)
-		assert.Equal(t, "struct describer map is empty.", err.Error())
+		assert.Equal(t, "struct descriptor map is empty.", err.Error())
 	})
 
 	t.Run("test parse param success with sdID not found", func(t *testing.T) {
 		facadeAutowire := mocks.NewFacadeAutowire(t)
-		facadeAutowire.On("GetAllStructDescribers").Return(func() map[string]*autowire.StructDescriber {
-			return map[string]*autowire.StructDescriber{}
+		facadeAutowire.On("GetAllStructDescriptors").Return(func() map[string]*autowire.StructDescriptor {
+			return map[string]*autowire.StructDescriptor{}
 		})
 
 		a := &AutowireBase{
@@ -288,7 +288,7 @@ func TestAutowireBase_ParseParam(t *testing.T) {
 			facadeAutowire: facadeAutowire,
 		}
 		_, err := a.ParseParam(mockSDID, nil)
-		assert.Equal(t, perrors.Errorf("struct ID %s struct describer not found ", mockSDID).Error(), err.Error())
+		assert.Equal(t, perrors.Errorf("struct ID %s struct descriptor not found ", mockSDID).Error(), err.Error())
 	})
 }
 

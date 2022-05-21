@@ -21,8 +21,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/config"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/config"
 )
 
 type paramLoader struct {
@@ -45,7 +45,7 @@ autowire:
 
 Make Dial and generate *grpc.ClientConn as param
 */
-func (p *paramLoader) Load(_ *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+func (p *paramLoader) Load(_ *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
 	if fi == nil {
 		return nil, errors.New("not supported")
 	}

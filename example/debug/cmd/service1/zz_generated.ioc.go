@@ -6,12 +6,12 @@
 package service1
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 func init() {
-	singleton.RegisterStructDescriber(&autowire.StructDescriber{
+	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Service1),
 		Factory: func() interface{} {
 			return &Impl1{}

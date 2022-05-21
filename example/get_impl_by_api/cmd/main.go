@@ -18,10 +18,10 @@ package main
 import (
 	"fmt"
 
-	ioc "github.com/alibaba/IOC-Golang"
-	"github.com/alibaba/IOC-Golang/autowire/normal"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
-	"github.com/alibaba/IOC-Golang/extension/normal/redis"
+	ioc "github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire/normal"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/extension/normal/redis"
 )
 
 // +ioc:autowire=true

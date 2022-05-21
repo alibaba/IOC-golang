@@ -16,7 +16,7 @@
 package autowire
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire/util"
+	"github.com/alibaba/ioc-golang/autowire/util"
 )
 
 // Autowire
@@ -33,7 +33,7 @@ type Autowire interface {
 	Factory(sdID string) (interface{}, error)
 
 	/*
-		ParseSDID parse FieldInfo to struct describerId
+		ParseSDID parse FieldInfo to struct descriptorId
 
 		if field type is struct ptr like
 		MyStruct *MyStruct `autowire-type:"MyStruct"`
@@ -55,7 +55,7 @@ type Autowire interface {
 	ParseSDID(field *FieldInfo) (string, error)
 	ParseParam(sdID string, fi *FieldInfo) (interface{}, error)
 	Construct(sdID string, impledPtr, param interface{}) (interface{}, error)
-	GetAllStructDescribers() map[string]*StructDescriber
+	GetAllStructDescriptors() map[string]*StructDescriptor
 	InjectPosition() InjectPosition
 }
 
@@ -78,9 +78,9 @@ type FieldInfo struct {
 	TagValue  string
 }
 
-// StructDescriber
+// StructDescriptor
 
-type StructDescriber struct {
+type StructDescriptor struct {
 	Interface     interface{}
 	Factory       func() interface{} // raw struct
 	ParamFactory  func() interface{}
@@ -92,28 +92,28 @@ type StructDescriber struct {
 	autowireType    string
 }
 
-func (ed *StructDescriber) SetAutowireType(autowireType string) {
+func (ed *StructDescriptor) SetAutowireType(autowireType string) {
 	ed.autowireType = autowireType
 }
 
-func (ed *StructDescriber) AutowireType() string {
+func (ed *StructDescriptor) AutowireType() string {
 	return ed.autowireType
 }
 
-func (ed *StructDescriber) ID() string {
+func (ed *StructDescriptor) ID() string {
 	if ed.impledStructPtr == nil {
 		ed.parse()
 	}
 	return util.GetIdByInterfaceAndImplPtr(ed.Interface, ed.impledStructPtr)
 }
 
-func (ed *StructDescriber) parse() {
+func (ed *StructDescriptor) parse() {
 	ed.impledStructPtr = ed.Factory()
 }
 
 // ParamLoader is interface to load param
 type ParamLoader interface {
-	Load(sd *StructDescriber, fi *FieldInfo) (interface{}, error)
+	Load(sd *StructDescriptor, fi *FieldInfo) (interface{}, error)
 }
 
 // SDIDParser is interface to parse struct descriptor id

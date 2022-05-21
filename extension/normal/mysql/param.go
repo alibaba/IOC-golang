@@ -22,8 +22,8 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/config"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/config"
 )
 
 type Config struct {
@@ -50,7 +50,7 @@ func getMysqlLinkStr(conf *Config) string {
 type paramLoader struct {
 }
 
-func (p *paramLoader) Load(sd *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+func (p *paramLoader) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
 	splitedTagValue := strings.Split(fi.TagValue, ",")
 	param := &Config{}
 	if len(splitedTagValue) <= 2 {

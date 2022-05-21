@@ -36,7 +36,7 @@ import (
 	"sigs.k8s.io/controller-tools/pkg/genall"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 
-	"github.com/alibaba/IOC-Golang/ioc-go-cli/inject"
+	"github.com/alibaba/ioc-golang/ioc-go-cli/inject"
 )
 
 var (

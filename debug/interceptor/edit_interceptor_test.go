@@ -24,7 +24,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/alibaba/IOC-Golang/debug/api/ioc_golang/boot"
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
 )
 
 func TestEditInterceptorWithCondition(t *testing.T) {

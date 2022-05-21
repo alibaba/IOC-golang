@@ -21,19 +21,19 @@ import (
 
 	googleGRPC "google.golang.org/grpc"
 
-	ioc "github.com/alibaba/IOC-Golang"
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
-	"github.com/alibaba/IOC-Golang/example/autowire_grpc_client/api"
-	"github.com/alibaba/IOC-Golang/example/autowire_grpc_client/cmd/service1"
-	"github.com/alibaba/IOC-Golang/example/autowire_grpc_client/cmd/service2"
-	"github.com/alibaba/IOC-Golang/example/autowire_grpc_client/cmd/struct1"
-	"github.com/alibaba/IOC-Golang/extension/autowire/grpc"
+	ioc "github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/example/autowire_grpc_client/api"
+	"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service1"
+	"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service2"
+	"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/struct1"
+	"github.com/alibaba/ioc-golang/extension/autowire/grpc"
 )
 
 func init() {
 	// register grpc client
-	grpc.RegisterStructDescriber(&autowire.StructDescriber{
+	grpc.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(api.HelloServiceClient),
 		Factory: func() interface{} {
 			return new(api.HelloServiceClient)

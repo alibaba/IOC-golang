@@ -18,13 +18,14 @@ package main
 import (
 	"fmt"
 
-	ioc "github.com/alibaba/IOC-Golang"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
-	"github.com/alibaba/IOC-Golang/extension/config"
+	ioc "github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/extension/config"
 )
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
+
 type App struct {
 	DemoConfigString *config.ConfigString `config:"ConfigString,autowire.config.demo-config.string-value"`
 	DemoConfigInt    *config.ConfigInt    `config:"ConfigInt,autowire.config.demo-config.int-value"`

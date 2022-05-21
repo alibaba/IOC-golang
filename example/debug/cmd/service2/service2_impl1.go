@@ -18,7 +18,7 @@ package service2
 import (
 	"context"
 
-	"github.com/alibaba/IOC-Golang/example/debug/api"
+	"github.com/alibaba/ioc-golang/example/debug/api"
 )
 
 // +ioc:autowire=true

@@ -23,10 +23,10 @@ import (
 
 var allWrapperAutowires = make(map[string]WrapperAutowire)
 
-func printAutowireRegisteredStructDescriber() {
+func printAutowireRegisteredStructDescriptor() {
 	for autowireType, aw := range allWrapperAutowires {
 		color.Blue("[Autowire Type] Found registered autowire type %s", autowireType)
-		for sdID := range aw.GetAllStructDescribers() {
+		for sdID := range aw.GetAllStructDescriptors() {
 			color.Blue("[Autowire Struct Descriptor] Found type %s registered SD %s", autowireType, sdID)
 		}
 	}
@@ -36,11 +36,11 @@ func Load() error {
 	// get all autowires
 	allWrapperAutowires = GetAllWrapperAutowires()
 
-	printAutowireRegisteredStructDescriber()
+	printAutowireRegisteredStructDescriptor()
 
 	// autowire all struct that can be entrance
 	for _, aw := range allWrapperAutowires {
-		for sdID := range aw.GetAllStructDescribers() {
+		for sdID := range aw.GetAllStructDescriptors() {
 			if aw.CanBeEntrance() {
 				_, err := aw.ImplWithoutParam(sdID)
 				if err != nil {
@@ -52,10 +52,10 @@ func Load() error {
 	return nil
 }
 
-func Impl(autowireType, structDescriberID string, param interface{}) (interface{}, error) {
+func Impl(autowireType, structDescriptorID string, param interface{}) (interface{}, error) {
 	for _, wrapperAutowire := range allWrapperAutowires {
 		if wrapperAutowire.TagKey() == autowireType {
-			return wrapperAutowire.ImplWithParam(structDescriberID, param)
+			return wrapperAutowire.ImplWithParam(structDescriptorID, param)
 		}
 	}
 	return nil, nil

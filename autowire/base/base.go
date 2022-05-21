@@ -20,11 +20,11 @@ import (
 
 	perrors "github.com/pkg/errors"
 
-	"github.com/alibaba/IOC-Golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire"
 )
 
 type FacadeAutowire interface {
-	GetAllStructDescribers() map[string]*autowire.StructDescriber
+	GetAllStructDescriptors() map[string]*autowire.StructDescriptor
 	TagKey() string
 }
 
@@ -44,25 +44,25 @@ type AutowireBase struct {
 }
 
 func (a *AutowireBase) Factory(sdID string) (interface{}, error) {
-	allStructDescriber := a.facadeAutowire.GetAllStructDescribers()
-	if allStructDescriber == nil {
-		return nil, perrors.New("struct describer map is empty.")
+	allStructDescriptor := a.facadeAutowire.GetAllStructDescriptors()
+	if allStructDescriptor == nil {
+		return nil, perrors.New("struct descriptor map is empty.")
 	}
-	sd, ok := allStructDescriber[sdID]
+	sd, ok := allStructDescriptor[sdID]
 	if !ok {
-		return nil, perrors.Errorf("struct ID %s struct describer not found ", sdID)
+		return nil, perrors.Errorf("struct ID %s struct descriptor not found ", sdID)
 	}
 	return sd.Factory(), nil
 }
 
 func (a *AutowireBase) Construct(sdID string, impledPtr, param interface{}) (interface{}, error) {
-	allStructDescriber := a.facadeAutowire.GetAllStructDescribers()
-	if allStructDescriber == nil {
-		return nil, perrors.New("struct describer map is empty.")
+	allStructDescriptor := a.facadeAutowire.GetAllStructDescriptors()
+	if allStructDescriptor == nil {
+		return nil, perrors.New("struct descriptor map is empty.")
 	}
-	sd, ok := allStructDescriber[sdID]
+	sd, ok := allStructDescriptor[sdID]
 	if !ok {
-		return nil, perrors.Errorf("struct ID %s struct describer not found ", sdID)
+		return nil, perrors.Errorf("struct ID %s struct descriptor not found ", sdID)
 	}
 	if sd.ConstructFunc != nil {
 		return sd.ConstructFunc(impledPtr, param)
@@ -75,13 +75,13 @@ func (a *AutowireBase) ParseSDID(field *autowire.FieldInfo) (string, error) {
 }
 
 func (a *AutowireBase) ParseParam(sdID string, fi *autowire.FieldInfo) (interface{}, error) {
-	allStructDescriber := a.facadeAutowire.GetAllStructDescribers()
-	if allStructDescriber == nil {
-		return nil, perrors.New("struct describer map is empty.")
+	allStructDescriptor := a.facadeAutowire.GetAllStructDescriptors()
+	if allStructDescriptor == nil {
+		return nil, perrors.New("struct descriptor map is empty.")
 	}
-	sd, ok := allStructDescriber[sdID]
+	sd, ok := allStructDescriptor[sdID]
 	if !ok {
-		return nil, perrors.Errorf("struct ID %s struct describer not found ", sdID)
+		return nil, perrors.Errorf("struct ID %s struct descriptor not found ", sdID)
 	}
 	if sd.ParamFactory == nil {
 		// doesn't register param factory, do not load param, return with success

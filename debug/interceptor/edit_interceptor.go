@@ -20,7 +20,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/alibaba/IOC-Golang/debug/api/ioc_golang/boot"
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
 )
 
 type EditInterceptor struct {

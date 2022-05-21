@@ -20,8 +20,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/config"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/config"
 )
 
 type paramLoader struct {
@@ -41,7 +41,7 @@ myConfig:
       myConfigKey: myConfigValue
 ```
 */
-func (p *paramLoader) Load(sd *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+func (p *paramLoader) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
 	if sd == nil || fi == nil || sd.ParamFactory == nil {
 		return nil, errors.New("not supported")
 	}

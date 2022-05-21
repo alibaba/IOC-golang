@@ -20,15 +20,15 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/util"
-	"github.com/alibaba/IOC-Golang/config"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/alibaba/ioc-golang/config"
 )
 
 type defaultConfig struct {
 }
 
-func getDefaultConfigPrefix(sd *autowire.StructDescriber) string {
+func getDefaultConfigPrefix(sd *autowire.StructDescriptor) string {
 	return fmt.Sprintf("autowire.%s.%s.%s.param", sd.AutowireType(), util.GetStructName(sd.Interface), util.GetStructName(sd.Factory()))
 }
 
@@ -44,7 +44,7 @@ func GetDefaultConfigParamLoader() autowire.ParamLoader {
 /*
 Load support load struct described like:
 ```go
-normal.RegisterStructDescriber(&autowire.StructDescriber{
+normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Interface: new(Redis),
 		Factory:   func() interface{}{
 			return &Impl{}
@@ -82,7 +82,7 @@ autowire:
           db: 0
 ```
 */
-func (p *defaultConfig) Load(sd *autowire.StructDescriber, fi *autowire.FieldInfo) (interface{}, error) {
+func (p *defaultConfig) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
 	if sd == nil || sd.ParamFactory == nil {
 		return nil, errors.New("not supporterd")
 	}

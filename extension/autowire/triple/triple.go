@@ -1,8 +1,8 @@
 package triple
 
 import (
-	"github.com/alibaba/IOC-Golang/autowire"
-	"github.com/alibaba/IOC-Golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 func init() {
@@ -28,16 +28,16 @@ func (a *Autowire) CanBeEntrance() bool {
 	return false
 }
 
-// GetAllStructDescribers re-write SingletonAutowire
-func (a *Autowire) GetAllStructDescribers() map[string]*autowire.StructDescriber {
-	return tripleStructDescriberMap
+// GetAllStructDescriptors re-write SingletonAutowire
+func (a *Autowire) GetAllStructDescriptors() map[string]*autowire.StructDescriptor {
+	return tripleStructDescriptorMap
 }
 
-var tripleStructDescriberMap = make(map[string]*autowire.StructDescriber)
+var tripleStructDescriptorMap = make(map[string]*autowire.StructDescriptor)
 
-func RegisterStructDescriber(s *autowire.StructDescriber) {
+func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	s.SetAutowireType(Name)
-	tripleStructDescriberMap[s.ID()] = s
+	tripleStructDescriptorMap[s.ID()] = s
 }
 
 func GetImpl(extensionId string) (interface{}, error) {
