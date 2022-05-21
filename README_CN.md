@@ -18,9 +18,11 @@
 
 [English README](./README.md)
 
+![demo gif](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/video/ioc-golang-demo.gif)
+
 IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完善的 IoC 容器。其能力如下：
 
-- [依赖注入](https://ioc-golang.github.io/cn/docs/getting-started/turtoral/)
+- [依赖注入](https://ioc-golang.github.io/cn/docs/getting-started/tutorial/)
 
   支持任何结构、接口的依赖注入。
 
