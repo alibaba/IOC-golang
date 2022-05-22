@@ -24,33 +24,163 @@ import (
 )
 
 type Config AnyMap
+type Option func(opts *Options)
 
-var config Config
+const (
+	YmlExtension            = "yml"
+	YamlExtension           = "yaml"
+	DefaultSearchConfigName = "config"
+	DefaultSearchConfigType = YmlExtension // yaml
+
+	emptySlice = 0
+)
+
+var (
+	config               Config
+	supportedConfigTypes = []string{YmlExtension, YamlExtension}
+	DefaultSearchPath    = []string{".", "./config", "./configs"}
+)
+
+type Options struct {
+	AbsPath []string // abs path -> high level priority
+
+	// default: config
+	ConfigName string
+	// default: yml,yaml
+	ConfigType string
+	// Search path of config files
+	//
+	// default: ., ./config, ./configs;
+	//
+	// priority: ./ > ./config > ./configs
+	SearchPath []string
+	// Profiles active
+	//
+	// default: []string
+	//
+	// e.g.:
+	//
+	// []string{"dev","share"}
+	//
+	// search target: config.yml/config_dev.yml/config_share.yml
+	ProfilesActive []string
+	// Depth of merging under multiple config files
+	MergeDepth uint8
+}
+
+func (opts *Options) validate() {
+	if isBlankString(opts.ConfigName) {
+		opts.ConfigName = DefaultSearchConfigName
+	}
+	if isBlankString(opts.ConfigType) {
+		opts.ConfigType = DefaultSearchConfigType
+	}
+	if isEmptyStringSlice(opts.SearchPath) {
+		opts.SearchPath = DefaultSearchPath
+	}
+	if opts.MergeDepth == 0 {
+		opts.MergeDepth = defaultMergeDepth
+	}
+}
+
+// ----------------------------------------------------------------
 
 func SetConfig(yamlBytes []byte) error {
 	return yaml.Unmarshal(yamlBytes, &config)
 }
 
-func Load() error {
-	configPath := GetConfigPath()
-	color.Blue("[Config] Load config file from %s", configPath)
-
-	absPath := determineAbsPath(configPath)
-
-	yamlFile, err := ioutil.ReadFile(absPath)
-	if err != nil {
-		color.Red("Load ioc-golang config file failed. %v\nThe load procedure is continue\n", err)
+func Load(opts ...Option) error {
+	options := initOptions(opts...)
+	if notSupportConfigType(options.ConfigType) {
+		color.Red("[Config] Config file type:[%s] not supported now(yml, yaml)", options.ConfigType)
 		return nil
 	}
 
-	err = yaml.Unmarshal(yamlFile, &config)
-	if err != nil {
-		color.Red("yamlFile Unmarshal err: %v\n", err)
-		return err
+	targetMap := make(Config)
+
+	configFiles := searchConfigFiles(options)
+	if len(opts) == emptySlice {
+		defaultConfigFile := loadDefaultConfigFileIfNecessary()
+		if isNotBlankString(defaultConfigFile) {
+			configFiles = append(configFiles, defaultConfigFile)
+		}
 	}
+
+	for _, cf := range configFiles {
+		contents, err := ioutil.ReadFile(cf)
+		if err != nil {
+			color.Red("[Config] Load ioc-golang config file failed. %v\n The load procedure is continue", err)
+			return nil
+		}
+
+		var sub Config
+		err = yaml.Unmarshal(contents, &sub)
+		if err != nil {
+			color.Red("[Config] yamlFile Unmarshal err: %v", err)
+			return err
+		}
+
+		if len(sub) > 0 {
+			targetMap = MergeMap(targetMap, sub)
+		}
+
+	}
+	config = targetMap
 	parseConfigSource(config)
+
 	return nil
 }
+
+func loadDefaultConfigFileIfNecessary() string {
+	configPath := GetConfigPath()
+	color.Blue("[Config] Load default config file from %s", configPath)
+	if isBlankString(configPath) {
+		return configPath
+	}
+	absPath := determineAbsPath(configPath)
+
+	return absPath
+}
+
+// ----------------------------------------------------------------
+
+func WithAbsPath(absPath ...string) Option {
+	return func(opts *Options) {
+		opts.AbsPath = absPath
+	}
+}
+
+func WithConfigName(configName string) Option {
+	return func(opts *Options) {
+		opts.ConfigName = configName
+	}
+}
+
+func WithConfigType(configType string) Option {
+	return func(opts *Options) {
+		opts.ConfigType = configType
+	}
+}
+
+func WithSearchPath(searchPath ...string) Option {
+	return func(opts *Options) {
+		opts.SearchPath = searchPath
+	}
+}
+
+func WithProfilesActive(profilesActive ...string) Option {
+	return func(opts *Options) {
+		opts.ProfilesActive = profilesActive
+	}
+}
+
+func WithMergeDepth(mergeDepth uint8) Option {
+	return func(opts *Options) {
+		opts.MergeDepth = mergeDepth
+	}
+}
+
+// ----------------------------------------------------------------
 
 // LoadConfigByPrefix prefix is a.b.c, configStructPtr is interface ptr
 func LoadConfigByPrefix(prefix string, configStructPtr interface{}) error {
@@ -59,4 +189,37 @@ func LoadConfigByPrefix(prefix string, configStructPtr interface{}) error {
 	}
 	configProperties := strings.Split(prefix, ".")
 	return loadProperty(configProperties, 0, config, configStructPtr)
+}
+
+// ----------------------------------------------------------------
+
+func newOptions() *Options {
+	return &Options{
+		SearchPath:     make([]string, 0),
+		ProfilesActive: make([]string, 0),
+	}
+}
+
+func initOptions(opts ...Option) *Options {
+	options := newOptions()
+	for _, opt := range opts {
+		opt(options)
+	}
+	options.validate()
+
+	return options
+}
+
+func notSupportConfigType(configType string) bool {
+	return !stringSliceContains(supportedConfigTypes, configType)
+}
+
+func stringSliceContains(haystack []string, needle string) bool {
+	for _, hs := range haystack {
+		if hs == needle {
+			return true
+		}
+	}
+
+	return false
 }

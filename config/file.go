@@ -16,24 +16,33 @@
 package config
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/fatih/color"
+	"gopkg.in/yaml.v3"
 
 	perrors "github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 )
 
-// EnvKeyIOCGolangConfigPath is absolute/relate path to ioc_golang.yaml
-const EnvKeyIOCGolangConfigPath = "IOC_GOLANG_CONFIG_PATH" // default val is "../conf/ioc_golang.yaml"
+const (
 
-// EnvKeyIOCGolangEnv if is set to dev,then:
-// 1. choose config center with namespace dev
-// 2. choose config path like "config/ioc_golang_dev.yaml
-const EnvKeyIOCGolangEnv = "IOC_GOLANG_ENV" //
+	// EnvKeyIOCGolangConfigPath is absolute/relate path to ioc_golang.yaml
+	EnvKeyIOCGolangConfigPath = "IOC_GOLANG_CONFIG_PATH" // default val is "../conf/ioc_golang.yaml"
 
-const DefaultConfigPath = "../conf/ioc_golang.yaml"
+	// EnvKeyIOCGolangEnv if is set to dev,then:
+	// 1. choose config center with namespace dev
+	// 2. choose config path like "config/ioc_golang_dev.yaml
+	EnvKeyIOCGolangEnv = "IOC_GOLANG_ENV" //
+
+	DefaultConfigPath = "../conf/ioc_golang.yaml"
+
+	PathSeparator = string(os.PathSeparator)
+	emptyString   = ""
+	dotSeparator  = "."
+)
 
 func GetEnv() string {
 	return os.Getenv(EnvKeyIOCGolangEnv)
@@ -85,4 +94,109 @@ func loadProperty(splitedConfigName []string, index int, tempConfigMap Config, c
 			splitedConfigName[index], subConfig)
 	}
 	return loadProperty(splitedConfigName, index+1, subMap, configStructPtr)
+}
+
+func searchConfigFiles(opts *Options) []string {
+	configFiles := make([]string, 0)
+
+	if isNotEmptyStringSlice(opts.AbsPath) {
+		for _, absPath := range opts.AbsPath {
+			if !filepath.IsAbs(absPath) {
+				panic(fmt.Sprintf("[Config] %s, abs path?", absPath))
+			}
+			configFiles = append(configFiles, absPath)
+		}
+
+		return configFiles
+	}
+
+	configNames := determineConfigFileName(opts)
+	for _, configName := range configNames {
+	PATH:
+		for _, path := range opts.SearchPath {
+			searchPath := determinePathSuffix(path) + configName
+			absPath := determineAbsPath(searchPath)
+			if stringSliceContains(configFiles, absPath) {
+				continue PATH
+			}
+			if ok, _ := fileExists(absPath); ok { // xxx/config.yml
+				configFiles = append(configFiles, absPath)
+			}
+		}
+	}
+
+	return configFiles
+}
+
+func isBlankString(src string) bool {
+	return "" == src || "" == strings.TrimSpace(src)
+}
+
+func isNotBlankString(src string) bool {
+	return !isBlankString(src)
+}
+
+func isEmptyStringSlice(src []string) bool {
+	return 0 == len(src)
+}
+
+func isNotEmptyStringSlice(src []string) bool {
+	return !isEmptyStringSlice(src)
+}
+
+func determineAbsPath(path string) string {
+	if path == emptyString {
+		path = dotSeparator
+	}
+	if filepath.IsAbs(path) {
+		return filepath.Clean(path)
+	}
+
+	p, err := filepath.Abs(path)
+	if err == nil {
+		return filepath.Clean(p)
+	}
+
+	return emptyString
+}
+
+func determinePathSuffix(searchPath string) string {
+	if searchPath == emptyString {
+		searchPath = dotSeparator
+	}
+	if strings.HasSuffix(searchPath, PathSeparator) {
+		return searchPath
+	}
+
+	return searchPath + PathSeparator
+}
+
+func determineConfigFileName(opts *Options) []string {
+	configNames := make([]string, len(opts.ProfilesActive)+1)              // dev,share
+	configName := populateConfigName(opts.ConfigName, "", opts.ConfigType) // config
+	configNames[0] = configName
+	for i, profile := range opts.ProfilesActive {
+		configNames[i+1] = populateConfigName(opts.ConfigName, profile, opts.ConfigType) // config_dev.yml, config_share.yml
+	}
+
+	return configNames
+}
+
+func populateConfigName(configName, profile, configType string) string {
+	if profile == emptyString {
+		return fmt.Sprintf("%s.%s", configName, configType) // config.yml
+	}
+	return fmt.Sprintf("%s_%s.%s", configName, profile, configType) // config_dev.yml
+}
+
+func fileExists(path string) (bool, error) {
+	stat, err := os.Stat(path)
+	if err == nil {
+		return !stat.IsDir(), nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+
+	return false, err
 }

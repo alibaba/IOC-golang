@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLoadOptions_empty(t *testing.T) {
+func TestLoad_empty(t *testing.T) {
 	type args struct {
 		opts []Option
 	}
@@ -35,7 +35,7 @@ func TestLoadOptions_empty(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Test LoadOptions()",
+			name: "Test Load()",
 			args: args{
 				opts: []Option{},
 			},
@@ -43,7 +43,7 @@ func TestLoadOptions_empty(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := LoadOptions(tt.args.opts...); (err != nil) != tt.wantErr {
+			if err := Load(tt.args.opts...); (err != nil) != tt.wantErr {
 				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
@@ -54,7 +54,7 @@ func TestLoadOptions_empty(t *testing.T) {
 	}
 }
 
-func TestLoadOptions(t *testing.T) {
+func TestLoad_options(t *testing.T) {
 	type args struct {
 		opts []Option
 	}
@@ -64,7 +64,7 @@ func TestLoadOptions(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Test LoadOptions()",
+			name: "Test Load()",
 			args: args{
 				opts: []Option{
 					WithConfigName("ioc_golang"),
@@ -76,7 +76,7 @@ func TestLoadOptions(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := LoadOptions(tt.args.opts...); (err != nil) != tt.wantErr {
+			if err := Load(tt.args.opts...); (err != nil) != tt.wantErr {
 				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
@@ -88,7 +88,7 @@ func TestLoadOptions(t *testing.T) {
 	}
 }
 
-func TestLoadOptions_profile_active(t *testing.T) {
+func TestLoad_profile_active(t *testing.T) {
 	type args struct {
 		opts []Option
 	}
@@ -98,7 +98,7 @@ func TestLoadOptions_profile_active(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Test LoadOptions()",
+			name: "Test Load()",
 			args: args{
 				opts: []Option{
 					WithConfigName("ioc_golang"),
@@ -111,7 +111,7 @@ func TestLoadOptions_profile_active(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := LoadOptions(tt.args.opts...); (err != nil) != tt.wantErr {
+			if err := Load(tt.args.opts...); (err != nil) != tt.wantErr {
 				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
@@ -133,7 +133,7 @@ func TestLoadOptions_profile_active(t *testing.T) {
 	}
 }
 
-func TestLoadOptions_abs_path(t *testing.T) {
+func TestLoad_abs_path(t *testing.T) {
 	type args struct {
 		opts []Option
 	}
@@ -146,7 +146,7 @@ func TestLoadOptions_abs_path(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Test LoadOptions()",
+			name: "Test Load()",
 			args: args{
 				opts: []Option{
 					WithAbsPath(
@@ -159,7 +159,7 @@ func TestLoadOptions_abs_path(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := LoadOptions(tt.args.opts...); (err != nil) != tt.wantErr {
+			if err := Load(tt.args.opts...); (err != nil) != tt.wantErr {
 				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
@@ -181,7 +181,7 @@ func TestLoadOptions_abs_path(t *testing.T) {
 	}
 }
 
-func TestLoadOptions_abs_path_panic(t *testing.T) {
+func TestLoad_abs_path_panic(t *testing.T) {
 	type args struct {
 		opts []Option
 	}
@@ -191,7 +191,7 @@ func TestLoadOptions_abs_path_panic(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Test LoadOptions()-panic",
+			name: "Test Load()-panic",
 			args: args{
 				opts: []Option{WithAbsPath("./test/ioc_golang.yaml")},
 			},
@@ -204,7 +204,7 @@ func TestLoadOptions_abs_path_panic(t *testing.T) {
 					assert.Equal(t, fmt.Sprintf("%v", err), "[Config] ./test/ioc_golang.yaml, abs path?")
 				}
 			}()
-			if err := LoadOptions(tt.args.opts...); (err != nil) != tt.wantErr {
+			if err := Load(tt.args.opts...); (err != nil) != tt.wantErr {
 				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
