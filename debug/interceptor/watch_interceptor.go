@@ -66,10 +66,8 @@ func sendValues(interfaceImplId, methodName string, isParam bool, values []refle
 		}
 		invokeDetail.Params = append(invokeDetail.Params, spew.Sdump(values[i].Interface()))
 	}
-	select {
-	case sendCh <- invokeDetail:
-	default:
-	}
+	// FIXME: sendCh may be closed
+	sendCh <- invokeDetail
 }
 
 type WatchContext struct {

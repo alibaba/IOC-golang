@@ -4,16 +4,7 @@
 
 本示例展示了 ioc-golang 框架提供的代码调试能力
 
-调试能力对于程序性能有损耗，请您不要在追求性能的场景下开启调试能力。
-
-ioc_golang.yaml:
-
-```yaml
-debug:
-  enable: true # debug 开关，默认为 false
-```
-
-debug 模式下，本框架基于 AOP 的思路，为每个注册在框架的结构方法都封装了一组拦截器。基于这些拦截器，可以实现具有很好扩展能力的调试功能。
+调试能力对于程序性能有损耗，请您不要在追求性能的场景下开启调试能力。 debug 模式下，框架基于 AOP 的思路，为每个注册在框架的结构方法都封装了一组拦截器。基于这些拦截器，可以实现具有扩展能力的调试功能。
 
 调试能力包括：
 
@@ -44,15 +35,22 @@ debug 模式下，本框架基于 AOP 的思路，为每个注册在框架的结
 
 2. 新开一个终端，启动客户端。
 
-   **注意 GOARCH 环境变量和 -gcflags 编译参数, amd机器无需指定 GOARCH 环境变量。**
+   ```go
+   % cd example/debug/cmd
+   % GOARCH=amd64 go run -gcflags="-N -l" -tags iocdebug .
+   ```
 
-   正确在 ioc_golang.yaml 中开启debug模式后，会打印 
+   **GOARCH=amd64：amd64 架构下无需指定 GOARCH 环境变量, arm64 架构需要指定为amd64**
 
-   `[Debug] Debug port is set to default :1999 `的日志。
+   **-gcflags="-N -l"： 注意要包含  -gcflags 编译参数**
+
+   **-tags iocdebug：注意编译标签 -tags iocdebug 用于开启 debug 模式**
+
+   启动后，会打印`[Debug] Debug port is set to default :1999 `  日志，表明 debug 模式启动成功。
 
    ```bash
    % cd example/debug/cmd
-   % GOARCH=amd64 go run -gcflags="-N -l" .
+   % GOARCH=amd64 go run -gcflags="-N -l" -tags iocdebug .
      ___    ___     ____            ____           _                         
     |_ _|  / _ \   / ___|          / ___|   ___   | |   __ _   _ __     __ _ 
      | |  | | | | | |      _____  | |  _   / _ \  | |  / _` | | '_ \   / _` |
