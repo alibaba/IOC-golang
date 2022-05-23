@@ -12,33 +12,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package main
 
 import (
-	"context"
 	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
 )
 
-var list = &cobra.Command{
-	Use: "list",
+const (
+	defaultDebugAddr = "localhost:1999"
+)
+
+var rootCmd = &cobra.Command{
+	Use: "iocli",
 	Run: func(cmd *cobra.Command, args []string) {
-		debugServiceClient := getDebugServiceClent(defaultDebugAddr)
-		rsp, err := debugServiceClient.ListServices(context.Background(), &emptypb.Empty{})
-		if err != nil {
-			panic(err)
-		}
-		for _, v := range rsp.ServiceMetadata {
-			fmt.Println(v.InterfaceName)
-			fmt.Println(v.ImplementationName)
-			fmt.Println(v.Methods)
-			fmt.Println()
-		}
+		fmt.Println("hello")
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(list)
+func getDebugServiceClent(addr string) boot.DebugServiceClient {
+	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	return boot.NewDebugServiceClient(conn)
+}
+
+func main() {
+	if err := rootCmd.Execute(); err != nil {
+		log.Println(err)
+	}
 }

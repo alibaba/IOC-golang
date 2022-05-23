@@ -1,14 +1,14 @@
-# ioc-go-cli 工具
+# iocli 工具
 
-ioc-go-cli 是一款命令行工具，提供了以下能力：
+iocli 是一款命令行工具，提供了以下能力：
 
 - 代码调试
 
-  开发者可以配置启动 ioc-go 内核提供的调试能力，ioc-go-cli 作为调试客户端。
+  开发者可以配置启动 ioc-go 内核提供的调试能力，iocli 作为调试客户端。
 
 - 结构描述注册信息生成
 
-  开发者可以为需要依赖注入的结构体增加注解，ioc-go-cli 会识别这些注解，并产生结构描述符，注册在 ioc-go 框架内。
+  开发者可以为需要依赖注入的结构体增加注解，iocli 会识别这些注解，并产生结构描述符，注册在 ioc-go 框架内。
 
 ## 代码调试能力
 
@@ -16,7 +16,7 @@ ioc-golang 框架拥有首创的基于 AOP 思路的 Go 运行时程序调试能
 
 ### 开启代码调试能力
 
-我们以的 demo 为基础，开启代码调试能力，并使用 ioc-go-cli 进行调试。
+我们以的 demo 为基础，开启代码调试能力，并使用 iocli 进行调试。
 
 修改 main 函数 Run 方法调用方式为隔 5s 调用一次
 
@@ -97,7 +97,7 @@ This is ServiceStruct, hello world
 新启动一个终端，查看所有接口实现和方法：
 
 ```bash
-$ ioc-go-cli list
+$ iocli list
 App
 App
 [Run]
@@ -118,7 +118,7 @@ ServiceStruct
 监听一个实现类的方法：
 
 ```bash
-% ioc-go-cli watch Service ServiceImpl1 Hello
+% iocli watch Service ServiceImpl1 Hello
 
 ========== On Call ==========
 Service.(ServiceImpl1).Hello()
@@ -182,7 +182,7 @@ Response 2: (interface {}) <nil>
 
 ## 结构注解
 
-ioc-go-cli 可以识别以下注解：
+iocli 可以识别以下注解：
 
 ```go
 // +ioc:autowire=true
