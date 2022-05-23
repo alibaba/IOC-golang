@@ -16,37 +16,30 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
 
 	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
-	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-const (
-	defaultDebugAddr = "localhost:1999"
-)
-
-var rootCmd = &cobra.Command{
-	Use: "ioc-go-cli",
+var list = &cobra.Command{
+	Use: "list",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("hello")
+		debugServiceClient := getDebugServiceClent(defaultDebugAddr)
+		rsp, err := debugServiceClient.ListServices(context.Background(), &emptypb.Empty{})
+		if err != nil {
+			panic(err)
+		}
+		for _, v := range rsp.ServiceMetadata {
+			fmt.Println(v.InterfaceName)
+			fmt.Println(v.ImplementationName)
+			fmt.Println(v.Methods)
+			fmt.Println()
+		}
 	},
 }
 
-func getDebugServiceClent(addr string) boot.DebugServiceClient {
-	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	return boot.NewDebugServiceClient(conn)
-}
-
-func main() {
-	if err := rootCmd.Execute(); err != nil {
-		log.Println(err)
-	}
+func init() {
+	rootCmd.AddCommand(list)
 }

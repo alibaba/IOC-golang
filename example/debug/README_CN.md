@@ -22,7 +22,7 @@
 
 在这个例子中，App 结构会依此调用所有依赖对象，进而调用一个单例模型注入的 gRPC 客户端，该客户端发起网络请求，并获得结果。
 
-我们将开启 debug 模式，通过 ioc-go-cli 工具查看接口、实现、方法，并监听通过 gRPC Client 发送的所有请求和返回值。 
+我们将开启 debug 模式，通过 iocli 工具查看接口、实现、方法，并监听通过 gRPC Client 发送的所有请求和返回值。 
 
 ### 运行示例
 
@@ -85,7 +85,7 @@
 3. 新开一个终端，查看所有接口、实现和方法。
 
    ```bash
-   % ioc-go-cli list
+   % iocli list
    App
    App
    [Run]
@@ -114,7 +114,7 @@
 4. 监听 gRPC Client 的所有流量，每隔 5s 会打印出相关的请求、返回值信息。
 
    ```bash
-   % ioc-go-cli watch HelloServiceClient HelloServiceClient SayHello
+   % iocli watch HelloServiceClient HelloServiceClient SayHello
    ========== On Call ==========
    HelloServiceClient.(HelloServiceClient).SayHello()
    Param 1: (*context.emptyCtx)(0xc0000280e0)(context.Background)
