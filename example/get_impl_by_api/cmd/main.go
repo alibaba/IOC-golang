@@ -18,7 +18,7 @@ package main
 import (
 	"fmt"
 
-	ioc "github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/normal"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/extension/normal/redis"
@@ -31,15 +31,28 @@ type App struct {
 }
 
 func (a *App) Run() {
-	normalRedis, err := normal.GetImpl("Redis-Impl", &redis.Config{
+	redisClientGetyByNormalAPI, err := normal.GetImpl("Redis-Impl", &redis.Config{
 		Address: "localhost:6379",
 		DB:      "0",
 	})
 	if err != nil {
 		panic(err)
 	}
-	normalRedisImpl := normalRedis.(redis.Redis)
-	val, err := normalRedisImpl.Get("mykey")
+	redisClientGetByNormalAPIImpl := redisClientGetyByNormalAPI.(redis.Redis)
+	_, err = redisClientGetByNormalAPIImpl.Set("myKey", "myValue", -1)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Sprintln("redisClientByNormalAPIImpl set  myKey:myValue")
+
+	redisClientGetByRedisExtension, err := redis.GetRedis(&redis.Config{
+		Address: "localhost:6379",
+		DB:      "0",
+	})
+	if err != nil {
+		panic(err)
+	}
+	val, err := redisClientGetByRedisExtension.Get("myKey")
 	if err != nil {
 		panic(err)
 	}

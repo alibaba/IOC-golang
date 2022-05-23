@@ -29,9 +29,9 @@ type Impl2 struct {
 	HelloServiceClient api.HelloServiceClient `grpc:"hello-service"`
 }
 
-func (i *Impl2) Hello(string) string {
+func (i *Impl2) Hello(name string) string {
 	rsp, err := i.HelloServiceClient.SayHello(context.Background(), &api.HelloRequest{
-		Name: "laurence_service2_impl2",
+		Name: name,
 	})
 	if err != nil {
 		panic(err)

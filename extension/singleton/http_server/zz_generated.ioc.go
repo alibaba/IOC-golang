@@ -17,17 +17,17 @@ func init() {
 			return &Impl{}
 		},
 		ParamFactory: func() interface{} {
-			var _ HTTPServerConfigInterface = &HTTPServerConfig{}
+			var _ hTTPServerConfigInterface = &HTTPServerConfig{}
 			return &HTTPServerConfig{}
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(HTTPServerConfigInterface)
+			param := p.(hTTPServerConfigInterface)
 			impl := i.(*Impl)
 			return param.Create(impl)
 		},
 	})
 }
 
-type HTTPServerConfigInterface interface {
+type hTTPServerConfigInterface interface {
 	Create(impl *Impl) (*Impl, error)
 }

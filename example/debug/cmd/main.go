@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"time"
 
-	ioc "github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/extension/autowire/grpc"

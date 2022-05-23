@@ -41,6 +41,16 @@ func (a *MyDataDO) TableName() string {
 }
 
 func (a *App) Run() {
+	// create table
+	if err := a.MyDataTable.GetDB().Model(&MyDataDO{}).AutoMigrate(&MyDataDO{}); err != nil {
+		panic(err)
+	}
+	toInsertMyData := &MyDataDO{
+		Value: "first value",
+	}
+	if err := a.MyDataTable.Insert(toInsertMyData); err != nil {
+		panic(err)
+	}
 	myDataDOs := make([]MyDataDO, 0)
 	if err := a.MyDataTable.SelectWhere("id = ?", &myDataDOs, 1); err != nil {
 		panic(err)

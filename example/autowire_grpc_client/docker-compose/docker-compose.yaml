@@ -1,0 +1,7 @@
+version: '3.1'
+services:
+  grpc_server:
+    image: laurencelizhixin/grpc-server-sayhello:1.0.0
+    container_name: grpc-server
+    ports:
+      - "8080:8080"

@@ -22,7 +22,6 @@ import (
 
 type Config struct {
 	rocketmq.Metadata
-	AccessProto string
 }
 
 func (c *Config) New(impl *Impl) (*Impl, error) {
