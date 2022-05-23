@@ -17,17 +17,17 @@ func init() {
 			return &Impl{}
 		},
 		ParamFactory: func() interface{} {
-			var _ ConfigInterface = &Config{}
+			var _ configInterface = &Config{}
 			return &Config{}
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(ConfigInterface)
+			param := p.(configInterface)
 			impl := i.(*Impl)
 			return param.New(impl)
 		},
 	})
 }
 
-type ConfigInterface interface {
+type configInterface interface {
 	New(impl *Impl) (*Impl, error)
 }

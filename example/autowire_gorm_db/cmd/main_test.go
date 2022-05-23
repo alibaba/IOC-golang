@@ -16,49 +16,39 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"runtime"
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/alibaba/ioc-golang/test/docker_compose"
 
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
-
-	normalMysql "github.com/alibaba/ioc-golang/extension/normal/mysql"
 )
 
-// +ioc:autowire=true
-// +ioc:autowire:type=singleton
-
-type App struct {
-	MyDataTable normalMysql.Mysql `normal:"Impl,my-mysql,mydata"`
-}
-
-type MyDataDO struct {
-	Id    int32
-	Value string
-}
-
-func (a *MyDataDO) TableName() string {
-	return "mydata"
-}
-
-func (a *App) Run() {
+func (a *App) TestRun(t *testing.T) {
 	// create table
-	if err := a.MyDataTable.GetDB().Model(&MyDataDO{}).AutoMigrate(&MyDataDO{}); err != nil {
-		panic(err)
-	}
+	assert.Nil(t, a.MyDataTable.GetDB().Model(&MyDataDO{}).AutoMigrate(&MyDataDO{}))
 	toInsertMyData := &MyDataDO{
 		Value: "first value",
 	}
-	if err := a.MyDataTable.Insert(toInsertMyData); err != nil {
-		panic(err)
-	}
+	assert.Nil(t, a.MyDataTable.Insert(toInsertMyData))
 	myDataDOs := make([]MyDataDO, 0)
-	if err := a.MyDataTable.SelectWhere("id = ?", &myDataDOs, 1); err != nil {
-		panic(err)
-	}
-	fmt.Println(myDataDOs)
+	assert.Nil(t, a.MyDataTable.SelectWhere("id = ?", &myDataDOs, 1))
+	assert.Equal(t, 1, len(myDataDOs))
+	assert.Equal(t, int32(1), myDataDOs[0].Id)
+	assert.Equal(t, "first value", myDataDOs[0].Value)
 }
 
-func main() {
+func TestGORM(t *testing.T) {
+	if runtime.GOARCH != "amd64" {
+		log.Println("Warning: Mysql image only support amd arch. Skip integration test")
+		return
+	}
+	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", time.Second*10))
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
@@ -67,6 +57,6 @@ func main() {
 		panic(err)
 	}
 	app := appInterface.(*App)
-
-	app.Run()
+	app.TestRun(t)
+	assert.Nil(t, docker_compose.DockerComposeDown("../docker-compose/docker-compose.yaml"))
 }

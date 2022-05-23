@@ -16,50 +16,39 @@
 package main
 
 import (
-	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/normal"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/extension/normal/redis"
+	"github.com/alibaba/ioc-golang/test/docker_compose"
 )
 
-// +ioc:autowire=true
-// +ioc:autowire:type=singleton
-
-type App struct {
-}
-
-func (a *App) Run() {
-	redisClientGetyByNormalAPI, err := normal.GetImpl("Redis-Impl", &redis.Config{
+func (a *App) TestRun(t *testing.T) {
+	redisClientGetByNormalAPI, err := normal.GetImpl("Redis-Impl", &redis.Config{
 		Address: "localhost:6379",
 		DB:      "0",
 	})
-	if err != nil {
-		panic(err)
-	}
-	redisClientGetByNormalAPIImpl := redisClientGetyByNormalAPI.(redis.Redis)
+	assert.Nil(t, err)
+	redisClientGetByNormalAPIImpl := redisClientGetByNormalAPI.(redis.Redis)
 	_, err = redisClientGetByNormalAPIImpl.Set("myKey", "myValue", -1)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Sprintln("redisClientByNormalAPIImpl set  myKey:myValue")
+	assert.Nil(t, err)
 
 	redisClientGetByRedisExtension, err := redis.GetRedis(&redis.Config{
 		Address: "localhost:6379",
 		DB:      "0",
 	})
-	if err != nil {
-		panic(err)
-	}
+	assert.Nil(t, err)
 	val, err := redisClientGetByRedisExtension.Get("myKey")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("get val = ", val)
+	assert.Nil(t, err)
+	assert.Equal(t, "myValue", val)
 }
 
-func main() {
+func TestGetAPI(t *testing.T) {
+	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", 0))
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
@@ -68,6 +57,6 @@ func main() {
 		panic(err)
 	}
 	app := appInterface.(*App)
-
-	app.Run()
+	app.TestRun(t)
+	assert.Nil(t, docker_compose.DockerComposeDown("../docker-compose/docker-compose.yaml"))
 }

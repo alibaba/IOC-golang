@@ -196,7 +196,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(root *loader.Package, imports *impo
 			if paramType != "" {
 				c.Line(`ParamFactory: func() interface{} {`)
 				if constructFunc != "" && paramType != "" {
-					c.Linef(`var _ %sInterface = &%s{}`, paramType, paramType)
+					c.Linef(`var _ %s = &%s{}`, getParamInterfaceType(paramType), paramType)
 				}
 				c.Linef(`return &%s{}
 		},`, paramType)
@@ -225,10 +225,10 @@ func (c *copyMethodMaker) GenerateMethodsFor(root *loader.Package, imports *impo
 				constructFuncName: constructFunc,
 			})
 			c.Linef(`ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(%sInterface)
+			param := p.(%s)
 			impl := i.(*%s)
 			return param.%s(impl)
-		},`, paramType, info.Name, constructFunc)
+		},`, getParamInterfaceType(paramType), info.Name, constructFunc)
 		}
 
 		c.Line(`})`)
@@ -241,8 +241,19 @@ func (c *copyMethodMaker) GenerateMethodsFor(root *loader.Package, imports *impo
 	c.Line(`}`)
 
 	for _, paramImplPair := range paramImplPairs {
-		c.Linef(`type %sInterface interface {
+		c.Linef(`type %s interface {
 			%s (impl *%s) (*%s,error)
-		}`, paramImplPair.paramName, paramImplPair.constructFuncName, paramImplPair.implName, paramImplPair.implName)
+		}`, getParamInterfaceType(paramImplPair.paramName), paramImplPair.constructFuncName, paramImplPair.implName, paramImplPair.implName)
 	}
+}
+
+func getParamInterfaceType(paramType string) string {
+	return fmt.Sprintf("%sInterface", firstCharLower(paramType))
+}
+
+func firstCharLower(s string) string {
+	if len(s) > 0 {
+		return strings.ToLower(string(s[0])) + s[1:]
+	}
+	return s
 }

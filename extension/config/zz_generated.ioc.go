@@ -20,7 +20,7 @@ func init() {
 			return new(ConfigInt)
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(ConfigIntInterface)
+			param := p.(configIntInterface)
 			impl := i.(*ConfigInt)
 			return param.New(impl)
 		},
@@ -34,7 +34,7 @@ func init() {
 			return new(ConfigMap)
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(ConfigMapInterface)
+			param := p.(configMapInterface)
 			impl := i.(*ConfigMap)
 			return param.New(impl)
 		},
@@ -48,7 +48,7 @@ func init() {
 			return new(ConfigSlice)
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(ConfigSliceInterface)
+			param := p.(configSliceInterface)
 			impl := i.(*ConfigSlice)
 			return param.New(impl)
 		},
@@ -62,22 +62,22 @@ func init() {
 			return new(ConfigString)
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(ConfigStringInterface)
+			param := p.(configStringInterface)
 			impl := i.(*ConfigString)
 			return param.New(impl)
 		},
 	})
 }
 
-type ConfigIntInterface interface {
+type configIntInterface interface {
 	New(impl *ConfigInt) (*ConfigInt, error)
 }
-type ConfigMapInterface interface {
+type configMapInterface interface {
 	New(impl *ConfigMap) (*ConfigMap, error)
 }
-type ConfigSliceInterface interface {
+type configSliceInterface interface {
 	New(impl *ConfigSlice) (*ConfigSlice, error)
 }
-type ConfigStringInterface interface {
+type configStringInterface interface {
 	New(impl *ConfigString) (*ConfigString, error)
 }

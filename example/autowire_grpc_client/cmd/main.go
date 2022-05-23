@@ -21,7 +21,7 @@ import (
 
 	googleGRPC "google.golang.org/grpc"
 
-	ioc "github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/example/autowire_grpc_client/api"
@@ -74,13 +74,13 @@ func (a *App) Run() {
 
 	fmt.Println("App call grpc get: " + rsp.Reply)
 
-	fmt.Println("ExampleService1Impl1 call grpc get :" + a.ExampleService1Impl1.Hello(name))
+	fmt.Println("ExampleService1Impl1 call grpc get :" + a.ExampleService1Impl1.Hello(name+"_service1_impl1"))
 
-	fmt.Println("ExampleService2Impl1 call grpc get :" + a.ExampleService2Impl1.Hello(name))
+	fmt.Println("ExampleService2Impl1 call grpc get :" + a.ExampleService2Impl1.Hello(name+"_service2_impl1"))
 
-	fmt.Println("ExampleService2Impl2 call grpc get :" + a.ExampleService2Impl2.Hello(name))
+	fmt.Println("ExampleService2Impl2 call grpc get :" + a.ExampleService2Impl2.Hello(name+"_service2_impl2"))
 
-	fmt.Println("ExampleStruct1 call grpc get :" + a.ExampleStruct1.Hello(name))
+	fmt.Println("ExampleStruct1 call grpc get :" + a.ExampleStruct1.Hello(name+"_struct"))
 }
 
 func main() {

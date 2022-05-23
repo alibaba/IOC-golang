@@ -18,7 +18,7 @@ package main
 import (
 	"fmt"
 
-	ioc "github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/extension/config"
 )

@@ -4,8 +4,9 @@ proto-gen:
 tidy:
 	go mod tidy -compat=1.17
 
+.PHONY:test
 test:
-	go test ./... -cover
+	go test ./... -cover -p 1
 
 imports:
 	goimports -local github.com/alibaba/ioc-golang -w .

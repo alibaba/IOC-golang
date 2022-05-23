@@ -13,27 +13,34 @@
  * limitations under the License.
  */
 
-package struct1
+package docker_compose
 
 import (
-	"context"
-
-	"github.com/alibaba/ioc-golang/example/autowire_grpc_client/api"
+	"log"
+	"os/exec"
+	"time"
 )
 
-// +ioc:autowire=true
-// +ioc:autowire:type=singleton
+const waitTime = time.Second * 3
 
-type Struct1 struct {
-	HelloServiceClient api.HelloServiceClient `grpc:"hello-service"`
+func DockerComposeUp(path string, addtionalWaitTime time.Duration) error {
+	out, err := exec.Command(
+		"docker-compose",
+		"-f", path,
+		"up", "-d",
+		"--remove-orphans").CombinedOutput()
+	log.Printf("%s\n", string(out))
+	time.Sleep(waitTime)
+	time.Sleep(addtionalWaitTime)
+	return err
 }
 
-func (i *Struct1) Hello(name string) string {
-	rsp, err := i.HelloServiceClient.SayHello(context.Background(), &api.HelloRequest{
-		Name: name,
-	})
-	if err != nil {
-		panic(err)
-	}
-	return rsp.Reply
+func DockerComposeDown(path string) error {
+	out, err := exec.Command(
+		"docker-compose",
+		"-f", path,
+		"down", "-v").CombinedOutput()
+	log.Printf("%s\n", string(out))
+	time.Sleep(waitTime)
+	return err
 }

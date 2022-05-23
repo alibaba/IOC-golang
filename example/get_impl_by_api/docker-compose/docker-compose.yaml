@@ -1,0 +1,7 @@
+version: '3.1'
+services:
+  get_by_api:
+    image: redis:latest
+    container_name: get_by_api-server
+    ports:
+      - "6379:6379"

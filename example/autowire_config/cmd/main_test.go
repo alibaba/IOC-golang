@@ -17,48 +17,15 @@ package main
 
 import (
 	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
-
-	normalMysql "github.com/alibaba/ioc-golang/extension/normal/mysql"
 )
 
-// +ioc:autowire=true
-// +ioc:autowire:type=singleton
-
-type App struct {
-	MyDataTable normalMysql.Mysql `normal:"Impl,my-mysql,mydata"`
-}
-
-type MyDataDO struct {
-	Id    int32
-	Value string
-}
-
-func (a *MyDataDO) TableName() string {
-	return "mydata"
-}
-
-func (a *App) Run() {
-	// create table
-	if err := a.MyDataTable.GetDB().Model(&MyDataDO{}).AutoMigrate(&MyDataDO{}); err != nil {
-		panic(err)
-	}
-	toInsertMyData := &MyDataDO{
-		Value: "first value",
-	}
-	if err := a.MyDataTable.Insert(toInsertMyData); err != nil {
-		panic(err)
-	}
-	myDataDOs := make([]MyDataDO, 0)
-	if err := a.MyDataTable.SelectWhere("id = ?", &myDataDOs, 1); err != nil {
-		panic(err)
-	}
-	fmt.Println(myDataDOs)
-}
-
-func main() {
+func TestConfig(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
@@ -67,6 +34,8 @@ func main() {
 		panic(err)
 	}
 	app := appInterface.(*App)
-
-	app.Run()
+	assert.Equal(t, "stringValue", app.DemoConfigString.Value())
+	assert.Equal(t, 123, app.DemoConfigInt.Value())
+	assert.Equal(t, "map[key1:value1 key2:value2 key3:value3 obj:map[objkey1:objvalue1 objkey2:objvalue2 objkeyslice:objslicevalue]]", fmt.Sprint(app.DemoConfigMap.Value()))
+	assert.Equal(t, "[sliceValue1 sliceValue2 sliceValue3 sliceValue4]", fmt.Sprint(app.DemoConfigSlice.Value()))
 }

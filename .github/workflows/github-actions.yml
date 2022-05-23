@@ -35,4 +35,4 @@ jobs:
         go fmt ./...
     - name: Unit Test
       run: |
-        go test ./... -cover
+        go test ./... -cover -p 1
