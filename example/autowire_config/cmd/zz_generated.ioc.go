@@ -6,12 +6,13 @@
 package main
 
 import (
-	autowire "github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 func init() {
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Alias:     "AppAlias",
 		Interface: &App{},
 		Factory: func() interface{} {
 			return &App{}

@@ -27,7 +27,7 @@ func GetIdByInterfaceAndImplPtr(interfaceStruct, implStructPtr interface{}) stri
 }
 
 func GetIdByNamePair(interfaceName, structPtrName string) string {
-	return strings.Join([]string{interfaceName, structPtrName}, "-")
+	return strings.Join([]string{interfaceName, structPtrName}, "#") // - -> #
 }
 
 func GetStructName(v interface{}) string {

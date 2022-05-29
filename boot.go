@@ -23,13 +23,13 @@ import (
 	"github.com/alibaba/ioc-golang/debug"
 )
 
-func Load() error {
+func Load(opts ...config.Option) error {
 	printLogo()
 	color.Cyan("Welcome to use ioc-golang!")
 
 	// 1. load config
 	color.Blue("[Boot] Start to load ioc-golang config")
-	if err := config.Load(); err != nil {
+	if err := config.Load(opts...); err != nil {
 		return err
 	}
 

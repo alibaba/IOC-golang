@@ -48,7 +48,8 @@ func (a *AutowireBase) Factory(sdID string) (interface{}, error) {
 	if allStructDescriptor == nil {
 		return nil, perrors.New("struct descriptor map is empty.")
 	}
-	sd, ok := allStructDescriptor[sdID]
+	targetSDID := autowire.MappingSDIDAliasIfNecessary(sdID)
+	sd, ok := allStructDescriptor[targetSDID]
 	if !ok {
 		return nil, perrors.Errorf("struct ID %s struct descriptor not found ", sdID)
 	}
@@ -60,7 +61,8 @@ func (a *AutowireBase) Construct(sdID string, impledPtr, param interface{}) (int
 	if allStructDescriptor == nil {
 		return nil, perrors.New("struct descriptor map is empty.")
 	}
-	sd, ok := allStructDescriptor[sdID]
+	targetSDID := autowire.MappingSDIDAliasIfNecessary(sdID)
+	sd, ok := allStructDescriptor[targetSDID]
 	if !ok {
 		return nil, perrors.Errorf("struct ID %s struct descriptor not found ", sdID)
 	}
@@ -79,7 +81,8 @@ func (a *AutowireBase) ParseParam(sdID string, fi *autowire.FieldInfo) (interfac
 	if allStructDescriptor == nil {
 		return nil, perrors.New("struct descriptor map is empty.")
 	}
-	sd, ok := allStructDescriptor[sdID]
+	targetSDID := autowire.MappingSDIDAliasIfNecessary(sdID)
+	sd, ok := allStructDescriptor[targetSDID]
 	if !ok {
 		return nil, perrors.Errorf("struct ID %s struct descriptor not found ", sdID)
 	}
@@ -94,8 +97,8 @@ func (a *AutowireBase) ParseParam(sdID string, fi *autowire.FieldInfo) (interfac
 			return param, nil
 		} else {
 			// log warning, given pl load failed, fall back to default
-			color.Red("[Autoware Base] Load SD %s param with defined sd.ParamLoader error: %s\n"+
-				"Try load by autowire %s's default paramloader", sd.ID(), err, a.facadeAutowire.TagKey())
+			color.Red("[Autowire Base] Load SD %s param with defined sd.ParamLoader error: %s\n"+
+				"Try load by autowire %s's default paramLoader", sd.ID(), err, a.facadeAutowire.TagKey())
 		}
 	}
 	// use autowire defined paramLoader as fall back

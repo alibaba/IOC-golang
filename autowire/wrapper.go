@@ -125,17 +125,18 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 	// 2. tag inject
 	numField := valueOfElem.NumField()
 	for i := 0; i < numField; i++ {
-		t := typeOf.Field(i)
+		field := typeOf.Field(i)
 		var subImpledPtr interface{}
 		tagKey := ""
 		tagValue := ""
 		for _, aw := range w.allAutowires {
-			if val, ok := t.Tag.Lookup(aw.TagKey()); ok {
+			if val, ok := field.Tag.Lookup(aw.TagKey()); ok {
 				fieldInfo := &FieldInfo{
-					FieldName: t.Name,
-					FieldType: t.Type.Name(),
-					TagKey:    aw.TagKey(),
-					TagValue:  val,
+					FieldName:        field.Name,
+					FieldType:        field.Type.Name(),
+					FieldTypePkgPath: field.Type.PkgPath(),
+					TagKey:           aw.TagKey(),
+					TagValue:         val,
 				}
 				// create param from field info
 				var err error
@@ -155,7 +156,7 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 		subService := valueOfElem.Field(i)
 		if !(subService.IsValid() && subService.CanSet()) {
 			err := perrors.Errorf("Failed to autowire interface %s's impl %s service. It's field %s with tag '%s:\"%s\"', please check if the field is exported",
-				util.GetStructName(sd.Interface), util.GetStructName(impledPtr), t.Type.Name(), tagKey, tagValue)
+				util.GetStructName(sd.Interface), util.GetStructName(impledPtr), field.Type.Name(), tagKey, tagValue)
 			return err
 		}
 		subService.Set(reflect.ValueOf(subImpledPtr))

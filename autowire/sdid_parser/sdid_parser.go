@@ -16,10 +16,16 @@
 package sdid_parser
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/util"
+)
+
+const (
+	configTagKey           = "config"
+	configExtensionPkgPath = "github.com/alibaba/ioc-golang/extension/config"
 )
 
 type defaultSDIDParser struct {
@@ -40,5 +46,34 @@ func (p *defaultSDIDParser) Parse(fi *autowire.FieldInfo) (string, error) {
 	if interfaceName == "" {
 		interfaceName = splitedTagValue[0]
 	}
-	return util.GetIdByNamePair(interfaceName, splitedTagValue[0]), nil
+	// +ioc:autowire:alias=order
+	injectStructName := splitedTagValue[0]
+	if autowire.HasAlias(injectStructName) {
+		return injectStructName, nil // by alias
+	}
+
+	// `config:"placeholder"`
+	if fi.TagKey == configTagKey {
+		// `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt,xxx.yyy.zzz"`
+		if strings.HasPrefix(injectStructName, configExtensionPkgPath) {
+			return injectStructName, nil
+		}
+
+		// `config:"ConfigString,xxx.yyy.zzz"`
+		return fmt.Sprintf("%s.%s", configExtensionPkgPath, injectStructName), nil
+	}
+
+	interfaceFullName := interfaceName // InterfaceName
+	// github.com/author/project/package/subPackage/targetPackage
+	if len(fi.FieldTypePkgPath) > 0 {
+		// github.com/author/project/package/subPackage/targetPackage.InterfaceName
+		interfaceFullName = fi.FieldTypePkgPath + "." + interfaceName
+	}
+	injectStructFullName := injectStructName
+
+	if interfaceFullName == injectStructFullName {
+		return injectStructFullName, nil
+	}
+
+	return util.GetIdByNamePair(interfaceFullName, injectStructFullName), nil
 }

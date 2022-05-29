@@ -80,7 +80,11 @@ func (s *SingletonAutowire) CanBeEntrance() bool {
 
 func RegisterStructDescriptor(sd *autowire.StructDescriptor) {
 	sd.SetAutowireType(Name)
-	singletonStructDescriptorsMap[sd.ID()] = sd
+	sdID := sd.ID()
+	singletonStructDescriptorsMap[sdID] = sd
+	if len(sd.Alias) > 0 {
+		autowire.RegisterAlias(sd.Alias, sdID)
+	}
 }
 
 func GetImpl(sdId string) (interface{}, error) {
