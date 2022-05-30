@@ -23,10 +23,8 @@ import (
 )
 
 const (
-	configTagKey         = "config"
 	packagePathSeparator = "/"
 	dot                  = "."
-	emptyString          = ""
 )
 
 type defaultSDIDParser struct {

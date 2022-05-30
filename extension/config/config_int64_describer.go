@@ -18,7 +18,7 @@ package config
 //
 // Why?
 //
-// In many scenarios, int64 may be us
+// In many scenarios, int64 may be use,
 // such as the nextId by the snowflake algorithm.
 //
 

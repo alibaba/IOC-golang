@@ -18,8 +18,8 @@ package config
 //
 // Why?
 //
-// In many scenarios, int64 may be us
-// such as the nextId by the snowflake algorithm.
+// In many scenarios, float64 may be use,
+// such as the price of order.
 //
 
 // +ioc:autowire=true
