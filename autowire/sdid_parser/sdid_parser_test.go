@@ -55,7 +55,7 @@ func Test_defaultSDIDParser_Parse(t *testing.T) {
 					TagValue:  "Impl",
 				},
 			},
-			want:    "Redis-Impl",
+			want:    "Impl#Redis",
 			wantErr: false,
 		},
 		{
@@ -68,7 +68,7 @@ func Test_defaultSDIDParser_Parse(t *testing.T) {
 					TagValue:  "StructImpl",
 				},
 			},
-			want:    "StructImpl-StructImpl",
+			want:    "StructImpl",
 			wantErr: false,
 		},
 	}

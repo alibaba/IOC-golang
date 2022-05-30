@@ -33,7 +33,11 @@ var configStructDescriptorMap = make(map[string]*autowire.StructDescriptor)
 
 func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	s.SetAutowireType(Name)
-	configStructDescriptorMap[s.ID()] = s
+	sdID := s.ID()
+	configStructDescriptorMap[sdID] = s
+	if s.Alias != "" {
+		autowire.RegisterAlias(s.Alias, sdID)
+	}
 }
 
 func GetImpl(extensionId string, configPrefix string) (interface{}, error) {

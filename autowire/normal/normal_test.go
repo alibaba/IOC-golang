@@ -29,8 +29,8 @@ type mockInterface interface {
 type mockImpl struct {
 }
 
-const mockInterfaceName = "mockInterface"
-const mockImplName = "mockImpl"
+const mockInterfaceName = "github.com/alibaba/ioc-golang/autowire/normal.mockInterface"
+const mockImplName = "github.com/alibaba/ioc-golang/autowire/normal.mockImpl"
 
 func TestAutowire_RegisterAndGetAllStructDescriptors(t *testing.T) {
 	t.Run("test normal autowire register and get all struct descriptors", func(t *testing.T) {
@@ -44,9 +44,10 @@ func TestAutowire_RegisterAndGetAllStructDescriptors(t *testing.T) {
 		n := &NormalAutowire{}
 		allStructDesc := n.GetAllStructDescriptors()
 		assert.NotNil(t, allStructDesc)
-		structDesc, ok := allStructDesc[mockInterfaceName+"-"+mockImplName]
+		sdid := mockImplName + "#" + mockInterfaceName
+		structDesc, ok := allStructDesc[sdid]
 		assert.True(t, ok)
-		assert.Equal(t, mockInterfaceName+"-"+mockImplName, structDesc.ID())
+		assert.Equal(t, sdid, structDesc.ID())
 	})
 }
 

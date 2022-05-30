@@ -31,10 +31,12 @@ import (
 // +ioc:autowire:alias=AppAlias
 
 type App struct {
-	DemoConfigString *config.ConfigString `config:"ConfigString,autowire.config.demo-config.string-value"`
-	DemoConfigInt    *config.ConfigInt    `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt,autowire.config.demo-config.int-value"`
-	DemoConfigMap    *config.ConfigMap    `config:"ConfigMap,autowire.config.demo-config.map-value"`
-	DemoConfigSlice  *config.ConfigSlice  `config:"ConfigSlice,autowire.config.demo-config.slice-value"`
+	DemoConfigString  *config.ConfigString  `config:"ConfigString,autowire.config.demo-config.string-value"`
+	DemoConfigInt     *config.ConfigInt     `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt,autowire.config.demo-config.int-value"`
+	DemoConfigMap     *config.ConfigMap     `config:"ConfigMap,autowire.config.demo-config.map-value"`
+	DemoConfigSlice   *config.ConfigSlice   `config:"ConfigSlice,autowire.config.demo-config.slice-value"`
+	DemoConfigInt64   *config.ConfigInt64   `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt64,autowire.config.demo-config.int64-value"`
+	DemoConfigFloat64 *config.ConfigFloat64 `config:"ConfigFloat64,autowire.config.demo-config.float64-value"`
 }
 
 func (a *App) Run() {
@@ -42,6 +44,8 @@ func (a *App) Run() {
 	fmt.Println(a.DemoConfigInt.Value())
 	fmt.Println(a.DemoConfigMap.Value())
 	fmt.Println(a.DemoConfigSlice.Value())
+	fmt.Println(a.DemoConfigInt64.Value())
+	fmt.Println(a.DemoConfigFloat64.Value())
 }
 
 func main() {

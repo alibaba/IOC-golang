@@ -131,12 +131,12 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 		tagValue := ""
 		for _, aw := range w.allAutowires {
 			if val, ok := field.Tag.Lookup(aw.TagKey()); ok {
+				fieldType := buildFiledTypeFullName(field)
 				fieldInfo := &FieldInfo{
-					FieldName:        field.Name,
-					FieldType:        field.Type.Name(),
-					FieldTypePkgPath: field.Type.PkgPath(),
-					TagKey:           aw.TagKey(),
-					TagValue:         val,
+					FieldName: field.Name,
+					FieldType: fieldType,
+					TagKey:    aw.TagKey(),
+					TagValue:  val,
 				}
 				// create param from field info
 				var err error
@@ -167,4 +167,8 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 		monkeyFunction(impledPtr, sd.ID())
 	}
 	return nil
+}
+
+func buildFiledTypeFullName(field reflect.StructField) string {
+	return field.Type.PkgPath() + "." + field.Type.Name()
 }

@@ -82,7 +82,7 @@ func RegisterStructDescriptor(sd *autowire.StructDescriptor) {
 	sd.SetAutowireType(Name)
 	sdID := sd.ID()
 	singletonStructDescriptorsMap[sdID] = sd
-	if len(sd.Alias) > 0 {
+	if sd.Alias != "" {
 		autowire.RegisterAlias(sd.Alias, sdID)
 	}
 }

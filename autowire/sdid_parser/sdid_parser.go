@@ -16,7 +16,6 @@
 package sdid_parser
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/alibaba/ioc-golang/autowire"
@@ -24,8 +23,10 @@ import (
 )
 
 const (
-	configTagKey           = "config"
-	configExtensionPkgPath = "github.com/alibaba/ioc-golang/extension/config"
+	configTagKey         = "config"
+	packagePathSeparator = "/"
+	dot                  = "."
+	emptyString          = ""
 )
 
 type defaultSDIDParser struct {
@@ -46,34 +47,59 @@ func (p *defaultSDIDParser) Parse(fi *autowire.FieldInfo) (string, error) {
 	if interfaceName == "" {
 		interfaceName = splitedTagValue[0]
 	}
-	// +ioc:autowire:alias=order
+	// +ioc:autowire:alias=xxx
 	injectStructName := splitedTagValue[0]
 	if autowire.HasAlias(injectStructName) {
 		return injectStructName, nil // by alias
 	}
 
-	// `config:"placeholder"`
-	if fi.TagKey == configTagKey {
-		// `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt,xxx.yyy.zzz"`
-		if strings.HasPrefix(injectStructName, configExtensionPkgPath) {
-			return injectStructName, nil
+	// handle plain struct bean, such as:
+	// `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt,xxx.yyy.zzz"`
+	if alias, ok := tryFindAlias(injectStructName); ok {
+		return alias, nil
+	}
+
+	if interfaceName == injectStructName {
+		return injectStructName, nil
+	}
+
+	return util.GetIdByNamePair(interfaceName, injectStructName), nil
+}
+
+func tryFindAlias(structName string) (string, bool) {
+	if isEligibleInterfaceReferencePath(structName) {
+		shortName := structName[strings.LastIndex(structName, ".")+1:]
+		if autowire.HasAlias(shortName) {
+			return shortName, true
 		}
-
-		// `config:"ConfigString,xxx.yyy.zzz"`
-		return fmt.Sprintf("%s.%s", configExtensionPkgPath, injectStructName), nil
+		if target, ok := tryOtherCase(shortName); ok {
+			return target, true
+		}
 	}
 
-	interfaceFullName := interfaceName // InterfaceName
-	// github.com/author/project/package/subPackage/targetPackage
-	if len(fi.FieldTypePkgPath) > 0 {
-		// github.com/author/project/package/subPackage/targetPackage.InterfaceName
-		interfaceFullName = fi.FieldTypePkgPath + "." + interfaceName
-	}
-	injectStructFullName := injectStructName
+	return structName, false
+}
 
-	if interfaceFullName == injectStructFullName {
-		return injectStructFullName, nil
+func isEligibleInterfaceReferencePath(interfaceReferencePath string) bool {
+	return strings.Contains(interfaceReferencePath, packagePathSeparator) &&
+		strings.LastIndex(interfaceReferencePath, dot) > 0 &&
+		strings.LastIndex(interfaceReferencePath, dot) < len(interfaceReferencePath)-1 &&
+		(strings.LastIndex(interfaceReferencePath, packagePathSeparator) < strings.LastIndex(interfaceReferencePath, dot))
+}
+
+func tryOtherCase(structName string) (string, bool) {
+	return tryCamelCase(structName)
+}
+
+func tryCamelCase(structName string) (string, bool) {
+	camelCaseName := util.ToCamelCase(structName)
+	if autowire.HasAlias(camelCaseName) {
+		return camelCaseName, true
+	}
+	snakeCase := util.ToSnakeCase(camelCaseName)
+	if autowire.HasAlias(snakeCase) {
+		return snakeCase, true
 	}
 
-	return util.GetIdByNamePair(interfaceFullName, injectStructFullName), nil
+	return structName, false
 }

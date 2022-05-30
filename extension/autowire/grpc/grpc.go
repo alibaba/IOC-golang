@@ -56,7 +56,11 @@ var grpcStructDescriptorMap = make(map[string]*autowire.StructDescriptor)
 
 func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	s.SetAutowireType(Name)
-	grpcStructDescriptorMap[s.ID()] = s
+	sdID := s.ID()
+	grpcStructDescriptorMap[sdID] = s
+	if s.Alias != "" {
+		autowire.RegisterAlias(s.Alias, sdID)
+	}
 }
 
 func GetImpl(extensionId string) (interface{}, error) {

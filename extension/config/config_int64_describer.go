@@ -15,25 +15,32 @@
 
 package config
 
+//
+// Why?
+//
+// In many scenarios, int64 may be us
+// such as the nextId by the snowflake algorithm.
+//
+
 // +ioc:autowire=true
 // +ioc:autowire:baseType=true
 // +ioc:autowire:type=config
-// +ioc:autowire:paramType=ConfigSlice
+// +ioc:autowire:paramType=ConfigInt64
 // +ioc:autowire:constructFunc=New
-// +ioc:autowire:alias=ConfigSlice
+// +ioc:autowire:alias=ConfigInt64
 
-type ConfigSlice []interface{}
+type ConfigInt64 int64
 
-func (cs *ConfigSlice) Value() []interface{} {
-	return *cs
+func (ci *ConfigInt64) Value() int64 {
+	return int64(*ci)
 }
 
-func (ci *ConfigSlice) New(impl *ConfigSlice) (*ConfigSlice, error) {
+func (ci *ConfigInt64) New(impl *ConfigInt64) (*ConfigInt64, error) {
 	*impl = *ci
 	return impl, nil
 }
 
-func FromSlice(val []interface{}) *ConfigSlice {
-	configSlice := ConfigSlice(val)
-	return &configSlice
+func FromInt64(val int64) *ConfigInt64 {
+	configInt64 := ConfigInt64(val)
+	return &configInt64
 }
