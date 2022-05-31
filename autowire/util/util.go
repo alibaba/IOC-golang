@@ -16,6 +16,7 @@
 package util
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 )
@@ -24,22 +25,20 @@ const (
 	emptyString = ""
 )
 
-func GetIdByInterfaceAndImplPtr(interfaceStruct, implStructPtr interface{}) string {
-	interfaceName := GetStructName(interfaceStruct)
-	structPtrName := GetStructName(implStructPtr)
-	return GetIdByNamePair(interfaceName, structPtrName)
-}
-
-func GetIdByNamePair(interfaceName, structPtrName string) string {
-	return strings.Join([]string{structPtrName, interfaceName}, "#") // - -> #
-}
-
 func GetStructName(v interface{}) string {
 	if v == nil {
 		return ""
 	}
 	typeOfInterface := GetTypeFromInterface(v)
 	return typeOfInterface.Name()
+}
+
+func GetSDIDByStructPtr(v interface{}) string {
+	if v == nil {
+		return ""
+	}
+	typeOfInterface := GetTypeFromInterface(v)
+	return fmt.Sprintf("%s.%s", typeOfInterface.PkgPath(), typeOfInterface.Name())
 }
 
 func GetTypeFromInterface(v interface{}) reflect.Type {

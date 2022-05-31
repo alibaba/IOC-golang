@@ -122,9 +122,9 @@ import (
 // +ioc:autowire:type=singleton
 
 type App struct {
-	ServiceImpl1 Service `singleton:"ServiceImpl1"` // 要求注入Service 的 ServiceImpl1 实现
-	ServiceImpl2 Service `singleton:"ServiceImpl2"` // 要求注入Service 的 ServiceImpl2 实现
-	ServiceStruct *ServiceStruct `singleton:"ServiceStruct"` // 要求注入 ServiceStruct 指针
+	ServiceImpl1 Service `singleton:"main.ServiceImpl1"` // 要求注入Service 的 ServiceImpl1 实现
+	ServiceImpl2 Service `singleton:"main.ServiceImpl2"` // 要求注入Service 的 ServiceImpl2 实现
+	ServiceStruct *ServiceStruct `singleton:"main.ServiceStruct"` // 要求注入 ServiceStruct 指针
 }
 
 func (a*App) Run(){
@@ -144,7 +144,6 @@ type Service interface{
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=Service
 
 type ServiceImpl1 struct {
 
@@ -156,7 +155,6 @@ func (s *ServiceImpl1) Hello(){
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=Service
 
 type ServiceImpl2 struct {
 
@@ -185,7 +183,7 @@ func main(){
 
 	// App-App 即结构ID： '$(接口名)-$(结构名)'， 对于结构指针，接口名默认为结构名
 	// 可通过这一 ID 获取实例
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("main.App")
 	if err != nil{
 		panic(err)
 	}
@@ -219,25 +217,21 @@ import (
 
 func init() {
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: &App{},
 		Factory: func() interface{} {
 			return &App{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: &ServiceStruct{},
 		Factory: func() interface{} {
 			return &ServiceStruct{}
 		},
@@ -351,8 +345,6 @@ Response 1: (string) (len=14) "Hello laurence"
 // +ioc:autowire:type=singleton
 标记注入模型为 singleton 单例模型，还有 normal 多例模型，config 配置模型，grpc gRPC客户端模型等扩展。
 
-// +ioc:autowire:interface=Service
-标记实现了接口 Service，可被注入到 Service 类型的对象中。
 ```
 
 ###  更多

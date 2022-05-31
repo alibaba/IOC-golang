@@ -47,12 +47,11 @@ func (w *WatchInterceptor) Invoke(interfaceImplId, methodName string, isParam bo
 }
 
 func sendValues(interfaceImplId, methodName string, isParam bool, values []reflect.Value, sendCh chan *boot.WatchResponse) {
-	splitedSDID := strings.Split(interfaceImplId, "-")
 	invokeDetail := &boot.WatchResponse{
 		IsParam:            isParam,
-		InterfaceName:      splitedSDID[0],
+		InterfaceName:      interfaceImplId,
 		MethodName:         methodName,
-		ImplementationName: splitedSDID[1],
+		ImplementationName: interfaceImplId,
 	}
 	i := 0
 	if isParam {

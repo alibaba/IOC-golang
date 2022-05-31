@@ -48,8 +48,7 @@ func (a *AutowireBase) Factory(sdID string) (interface{}, error) {
 	if allStructDescriptor == nil {
 		return nil, perrors.New("struct descriptor map is empty.")
 	}
-	targetSDID := autowire.MappingSDIDAliasIfNecessary(sdID)
-	sd, ok := allStructDescriptor[targetSDID]
+	sd, ok := allStructDescriptor[sdID]
 	if !ok {
 		return nil, perrors.Errorf("struct ID %s struct descriptor not found ", sdID)
 	}
@@ -61,8 +60,7 @@ func (a *AutowireBase) Construct(sdID string, impledPtr, param interface{}) (int
 	if allStructDescriptor == nil {
 		return nil, perrors.New("struct descriptor map is empty.")
 	}
-	targetSDID := autowire.MappingSDIDAliasIfNecessary(sdID)
-	sd, ok := allStructDescriptor[targetSDID]
+	sd, ok := allStructDescriptor[sdID]
 	if !ok {
 		return nil, perrors.Errorf("struct ID %s struct descriptor not found ", sdID)
 	}
@@ -81,8 +79,7 @@ func (a *AutowireBase) ParseParam(sdID string, fi *autowire.FieldInfo) (interfac
 	if allStructDescriptor == nil {
 		return nil, perrors.New("struct descriptor map is empty.")
 	}
-	targetSDID := autowire.MappingSDIDAliasIfNecessary(sdID)
-	sd, ok := allStructDescriptor[targetSDID]
+	sd, ok := allStructDescriptor[sdID]
 	if !ok {
 		return nil, perrors.Errorf("struct ID %s struct descriptor not found ", sdID)
 	}

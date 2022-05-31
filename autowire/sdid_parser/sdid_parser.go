@@ -19,12 +19,6 @@ import (
 	"strings"
 
 	"github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/util"
-)
-
-const (
-	packagePathSeparator = "/"
-	dot                  = "."
 )
 
 type defaultSDIDParser struct {
@@ -41,63 +35,7 @@ func GetDefaultSDIDParser() autowire.SDIDParser {
 
 func (p *defaultSDIDParser) Parse(fi *autowire.FieldInfo) (string, error) {
 	splitedTagValue := strings.Split(fi.TagValue, ",")
-	interfaceName := fi.FieldType
-	if interfaceName == "" {
-		interfaceName = splitedTagValue[0]
-	}
-	// +ioc:autowire:alias=xxx
+	// fixme: out of range
 	injectStructName := splitedTagValue[0]
-	if autowire.HasAlias(injectStructName) {
-		return injectStructName, nil // by alias
-	}
-
-	// handle plain struct bean, such as:
-	// `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt,xxx.yyy.zzz"`
-	if alias, ok := tryFindAlias(injectStructName); ok {
-		return alias, nil
-	}
-
-	if interfaceName == injectStructName {
-		return injectStructName, nil
-	}
-
-	return util.GetIdByNamePair(interfaceName, injectStructName), nil
-}
-
-func tryFindAlias(structName string) (string, bool) {
-	if isEligibleInterfaceReferencePath(structName) {
-		shortName := structName[strings.LastIndex(structName, ".")+1:]
-		if autowire.HasAlias(shortName) {
-			return shortName, true
-		}
-		if target, ok := tryOtherCase(shortName); ok {
-			return target, true
-		}
-	}
-
-	return structName, false
-}
-
-func isEligibleInterfaceReferencePath(interfaceReferencePath string) bool {
-	return strings.Contains(interfaceReferencePath, packagePathSeparator) &&
-		strings.LastIndex(interfaceReferencePath, dot) > 0 &&
-		strings.LastIndex(interfaceReferencePath, dot) < len(interfaceReferencePath)-1 &&
-		(strings.LastIndex(interfaceReferencePath, packagePathSeparator) < strings.LastIndex(interfaceReferencePath, dot))
-}
-
-func tryOtherCase(structName string) (string, bool) {
-	return tryCamelCase(structName)
-}
-
-func tryCamelCase(structName string) (string, bool) {
-	camelCaseName := util.ToCamelCase(structName)
-	if autowire.HasAlias(camelCaseName) {
-		return camelCaseName, true
-	}
-	snakeCase := util.ToSnakeCase(camelCaseName)
-	if autowire.HasAlias(snakeCase) {
-		return snakeCase, true
-	}
-
-	return structName, false
+	return autowire.GetSDIDByAliasIfNecessary(injectStructName), nil
 }

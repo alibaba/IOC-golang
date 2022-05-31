@@ -30,62 +30,25 @@ type InterfaceFoo interface {
 
 func TestGetIdByInterfaceAndImplPtr(t *testing.T) {
 	type args struct {
-		interfaceStruct interface{}
-		implStructPtr   interface{}
+		implStructPtr interface{}
 	}
 	tests := []struct {
 		name string
 		args args
 		want string
 	}{
-		{
-			name: "test get id by interface and impl",
-			args: args{
-				interfaceStruct: new(InterfaceFoo),
-				implStructPtr:   &StructFoo{},
-			},
-			want: "StructFoo#InterfaceFoo",
-		},
 		{
 			name: "test get id by impl",
 			args: args{
 				implStructPtr: &StructFoo{},
 			},
-			want: "StructFoo#",
+			want: "github.com/alibaba/ioc-golang/autowire/util.StructFoo",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetIdByInterfaceAndImplPtr(tt.args.interfaceStruct, tt.args.implStructPtr); got != tt.want {
+			if got := GetSDIDByStructPtr(tt.args.implStructPtr); got != tt.want {
 				t.Errorf("GetIdByInterfaceAndImplPtr() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestGetIdByNamePair(t *testing.T) {
-	type args struct {
-		interfaceName string
-		structPtrName string
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "get id by name pair",
-			args: args{
-				interfaceName: "InterfaceFoo",
-				structPtrName: "StructFoo",
-			},
-			want: "StructFoo#InterfaceFoo",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := GetIdByNamePair(tt.args.interfaceName, tt.args.structPtrName); got != tt.want {
-				t.Errorf("GetIdByNamePair() = %v, want %v", got, tt.want)
 			}
 		})
 	}

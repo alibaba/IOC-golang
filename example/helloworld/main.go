@@ -10,11 +10,12 @@ import (
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
+// +ioc:autowire:alias=App
 
 type App struct {
-	ServiceImpl1  Service        `singleton:"ServiceImpl1"`  // inject Service 's ServiceImpl1 implementation
-	ServiceImpl2  Service        `singleton:"ServiceImpl2"`  // inject Service 's ServiceImpl2 implementation
-	ServiceStruct *ServiceStruct `singleton:"ServiceStruct"` // inject ServiceStruct struct pointer
+	ServiceImpl1  Service        `singleton:"main.ServiceImpl1"`  // inject Service 's ServiceImpl1 implementation
+	ServiceImpl2  Service        `singleton:"main.ServiceImpl2"`  // inject Service 's ServiceImpl2 implementation
+	ServiceStruct *ServiceStruct `singleton:"main.ServiceStruct"` // inject ServiceStruct struct pointer
 }
 
 func (a *App) Run() {
@@ -33,7 +34,6 @@ type Service interface {
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=Service
 
 type ServiceImpl1 struct {
 }
@@ -44,7 +44,6 @@ func (s *ServiceImpl1) Hello() {
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=Service
 
 type ServiceImpl2 struct {
 }
@@ -69,9 +68,9 @@ func main() {
 		panic(err)
 	}
 
-	// App-App is the format of： '$(interfaceName)-$(implementationStructName)'
+	// 'App' is alias name
 	// We can get instance by ths id
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("main.App")
 	if err != nil {
 		panic(err)
 	}

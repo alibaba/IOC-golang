@@ -12,25 +12,22 @@ import (
 
 func init() {
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: &App{},
+		Alias: "App",
 		Factory: func() interface{} {
 			return &App{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: &ServiceStruct{},
 		Factory: func() interface{} {
 			return &ServiceStruct{}
 		},

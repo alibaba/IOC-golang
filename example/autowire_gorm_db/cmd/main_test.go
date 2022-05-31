@@ -52,7 +52,7 @@ func TestGORM(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("AppAlias")
 	if err != nil {
 		panic(err)
 	}

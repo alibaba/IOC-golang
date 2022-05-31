@@ -62,7 +62,7 @@ func (l *importsList) NeedImport(importPath string) string {
 	// we get an actual path from Package, which might include venddored
 	// packages if running on a package in vendor.
 	if ind := strings.LastIndex(importPath, "/vendor/"); ind != -1 {
-		importPath = importPath[ind+8:/* len("/vendor/") */ ]
+		importPath = importPath[ind+8: /* len("/vendor/") */]
 	}
 
 	// check to see if we've already assigned an alias, and just return that.
@@ -187,29 +187,6 @@ func (c *copyMethodMaker) GenerateMethodsFor(root *loader.Package, imports *impo
 		// 0.gen alias
 		if len(info.Markers["ioc:autowire:alias"]) != 0 {
 			c.Linef(`Alias: "%s",`, info.Markers["ioc:autowire:alias"][0].(string))
-		}
-
-		// 1. gen interface
-		if len(info.Markers["ioc:autowire:interface"]) != 0 {
-			infoName := info.Markers["ioc:autowire:interface"][0].(string)
-			// Other package
-			// ioc:autowire:interface=github.com/author/project/package/subPackage/interfacePackage.InterfaceName
-			if isEligibleInterfaceReferencePath(infoName) {
-				// github.com/author/project/package/subPackage/interfacePackage
-				interfacePackage := parseInterfacePackage(infoName)
-				// InterfaceName
-				interfaceName := parseInterfaceName(infoName)
-				// interfacePackage
-				interfacePackageAlias := parseInterfacePackageAlias(c, interfacePackage)
-				interfaceFullName := fmt.Sprintf("%s.%s", interfacePackageAlias, interfaceName)
-				c.Linef(`Interface: new (%s),`, interfaceFullName)
-			} else {
-				c.Linef(`Interface: new (%s),`, info.Name)
-			}
-		} else if baseType {
-			c.Linef(`Interface: new (%s),`, info.Name)
-		} else {
-			c.Linef(`Interface: &%s{},`, info.Name)
 		}
 
 		// 2. gen struct factory and gen param

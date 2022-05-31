@@ -3,7 +3,7 @@
 ## 基本信息
 
 - Autowire 类型：normal
-- SDID：Redis-Impl
+- SDID：github.com/alibaba/ioc-golang/extension/normal/redis.Impl
 - 参数来源：默认参数加载方式
 
 ## 参数说明：

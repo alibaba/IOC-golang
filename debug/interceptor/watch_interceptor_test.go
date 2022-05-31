@@ -49,7 +49,7 @@ func (s *ServiceFoo) Invoke(ctx context.Context, param *RequestParam) (*Response
 
 func TestWatchInterceptor(t *testing.T) {
 	watchInterceptor := GetWatchInterceptor()
-	interfaceImplId := "Service-ServiceFoo"
+	interfaceImplId := serviceFooStructID
 	methodName := "Invoke"
 	sendCh := make(chan *boot.WatchResponse, 10)
 	controlCh := make(chan *boot.WatchResponse, 10)
@@ -78,21 +78,19 @@ func TestWatchInterceptor(t *testing.T) {
 		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(ctx), reflect.ValueOf(param)})
 	rsp, err := service.Invoke(ctx, param)
 	info := <-controlCh
-	assert.Equal(t, info.InterfaceName, "Service")
-	assert.Equal(t, info.ImplementationName, "ServiceFoo")
+	assert.Equal(t, serviceFooStructID, info.ImplementationName)
 	assert.Equal(t, info.MethodName, "Invoke")
 
 	watchInterceptor.Invoke(interfaceImplId, methodName, false,
 		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(rsp), reflect.ValueOf(err)})
 	info = <-controlCh
-	assert.Equal(t, "Service", info.InterfaceName)
-	assert.Equal(t, "ServiceFoo", info.ImplementationName)
+	assert.Equal(t, serviceFooStructID, info.ImplementationName)
 	assert.Equal(t, "Invoke", info.MethodName)
 }
 
 func TestWatchInterceptorWithCondition(t *testing.T) {
 	watchInterceptor := GetWatchInterceptor()
-	interfaceImplId := "Service-ServiceFoo"
+	interfaceImplId := serviceFooStructID
 	methodName := "Invoke"
 	sendCh := make(chan *boot.WatchResponse, 10)
 	controlCh := make(chan *boot.WatchResponse, 10)
@@ -148,8 +146,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 	case info = <-controlCh:
 	default:
 	}
-	assert.Equal(t, "Service", info.InterfaceName)
-	assert.Equal(t, "ServiceFoo", info.ImplementationName)
+	assert.Equal(t, serviceFooStructID, info.ImplementationName)
 	assert.Equal(t, "Invoke", info.MethodName)
 	watchInterceptor.Invoke(interfaceImplId, methodName, false,
 		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(rsp), reflect.ValueOf(err)})

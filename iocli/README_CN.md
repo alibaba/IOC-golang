@@ -187,7 +187,6 @@ iocli 可以识别以下注解：
 ```go
 // +ioc:autowire=true
 // +ioc:autowire:type=normal
-// +ioc:autowire:interface=Redis
 // +ioc:autowire:paramLoader=paramLoader
 // +ioc:autowire:paramType=Config
 // +ioc:autowire:constructFunc=New

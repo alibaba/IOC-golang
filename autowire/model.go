@@ -16,9 +16,6 @@
 package autowire
 
 import (
-	"fmt"
-	"reflect"
-
 	"github.com/alibaba/ioc-golang/autowire/util"
 )
 
@@ -75,17 +72,15 @@ func GetAllWrapperAutowires() map[string]WrapperAutowire {
 // FieldInfo
 
 type FieldInfo struct {
-	FieldName        string
-	FieldType        string
-	FieldTypePkgPath string // PkgPath
-	TagKey           string
-	TagValue         string
+	FieldName string
+	FieldType string
+	TagKey    string
+	TagValue  string
 }
 
 // StructDescriptor
 
 type StructDescriptor struct {
-	Interface     interface{}
 	Factory       func() interface{} // raw struct
 	ParamFactory  func() interface{}
 	ParamLoader   ParamLoader
@@ -106,37 +101,14 @@ func (ed *StructDescriptor) AutowireType() string {
 }
 
 func (ed *StructDescriptor) ID() string {
+	return util.GetSDIDByStructPtr(ed.getStructPtr())
+}
+
+func (ed *StructDescriptor) getStructPtr() interface{} {
 	if ed.impledStructPtr == nil {
-		ed.parse()
+		ed.impledStructPtr = ed.Factory()
 	}
-
-	interfaceFullName := ed.populateInterfaceFullName()
-	implFullName := ed.populateImplFullName()
-	if interfaceFullName == implFullName {
-		return interfaceFullName
-	}
-
-	return util.GetIdByNamePair(interfaceFullName, implFullName)
-}
-
-func (ed *StructDescriptor) populateInterfaceFullName() string {
-	interfaceType := reflect.TypeOf(ed.Interface)
-	interfacePkgPathName := interfaceType.Elem().PkgPath()
-	interfaceName := interfaceType.Elem().Name()
-
-	return fmt.Sprintf("%s.%s", interfacePkgPathName, interfaceName)
-}
-
-func (ed *StructDescriptor) populateImplFullName() string {
-	implType := reflect.TypeOf(ed.impledStructPtr)
-	implPkgPath := implType.Elem().PkgPath()
-	implName := implType.Elem().Name()
-
-	return fmt.Sprintf("%s.%s", implPkgPath, implName)
-}
-
-func (ed *StructDescriptor) parse() {
-	ed.impledStructPtr = ed.Factory()
+	return ed.impledStructPtr
 }
 
 // ParamLoader is interface to load param

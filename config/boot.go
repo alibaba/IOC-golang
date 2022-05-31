@@ -33,6 +33,8 @@ const (
 	DefaultSearchConfigType = YmlExtension // yaml
 
 	emptySlice = 0
+
+	YamlConfigSeparator = "#"
 )
 
 var (
@@ -182,12 +184,12 @@ func WithMergeDepth(mergeDepth uint8) Option {
 
 // ----------------------------------------------------------------
 
-// LoadConfigByPrefix prefix is a.b.c, configStructPtr is interface ptr
+// LoadConfigByPrefix prefix is a#b#c, configStructPtr is interface ptr
 func LoadConfigByPrefix(prefix string, configStructPtr interface{}) error {
 	if configStructPtr == nil {
 		return nil
 	}
-	configProperties := strings.Split(prefix, ".")
+	configProperties := strings.Split(prefix, YamlConfigSeparator)
 	return loadProperty(configProperties, 0, config, configStructPtr)
 }
 

@@ -30,7 +30,11 @@ type defaultTagPointToConfig struct {
 }
 
 func getDefaultTagPointToConfigPrefix(sd *autowire.StructDescriptor, instanceName string) string {
-	return fmt.Sprintf("autowire.%s.%s.%s.%s.param", sd.AutowireType(), util.GetStructName(sd.Interface), util.GetStructName(sd.Factory()), instanceName)
+	pointToKey := sd.Alias
+	if pointToKey == "" {
+		pointToKey = util.GetSDIDByStructPtr(sd.Factory())
+	}
+	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s%[3]s%[1]s%[4]s%[1]sparam", config.YamlConfigSeparator, sd.AutowireType(), pointToKey, instanceName)
 }
 
 var defaultTagPointToConfigSingleton autowire.ParamLoader
@@ -46,7 +50,6 @@ func GetDefaultTagPointToConfigParamLoader() autowire.ParamLoader {
 Load support load struct described like:
 ```go
 normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Redis),
 		Factory:   func() interface{}{
 			return &Impl{}
 		},
@@ -68,7 +71,6 @@ type Config struct {
 ```
 with
 Autowire type 'normal'
-InterfaceName 'Redis'
 StructName 'Impl'
 Field:
 	MyRedis Redis `normal:"Impl, redis-1"`
@@ -78,8 +80,7 @@ from:
 ```yaml
 extension:
   normal:
-    Redis:
-      Impl:
+      github.com/alibaba/ioc-golang/test.Impl:
         redis-1:
           param:
             address: 127.0.0.1

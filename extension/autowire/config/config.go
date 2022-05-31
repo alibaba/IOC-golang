@@ -40,6 +40,6 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	}
 }
 
-func GetImpl(extensionId string, configPrefix string) (interface{}, error) {
-	return autowire.Impl(Name, extensionId, configPrefix)
+func GetImpl(key string, configPrefix string) (interface{}, error) {
+	return autowire.Impl(Name, key, configPrefix)
 }

@@ -25,7 +25,6 @@ import (
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=Service1
 
 type Impl1 struct {
 	HelloServiceClient api.HelloServiceClient `grpc:"hello-service"`
@@ -43,7 +42,6 @@ func (i *Impl1) Hello(req string) string {
 
 func init() {
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Service1),
 		Factory: func() interface{} {
 			return &Impl1{}
 		},

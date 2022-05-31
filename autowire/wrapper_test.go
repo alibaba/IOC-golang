@@ -34,14 +34,11 @@ type MockSubInterface interface {
 }
 
 type MockImpl struct {
-	SubImpl MockSubInterface `singleton:"MockSubImpl"`
+	SubImpl MockSubInterface `singleton:"github.com/alibaba/ioc-golang/autowire.MockSubImpl"`
 }
 
-type MockInterface interface {
-}
-
-const mockSDID = "MockInterface-MockImpl"
-const mockSubSDID = "MockSubInterface-MockSubImpl"
+const mockSDID = "github.com/alibaba/ioc-golang/autowire.MockImpl"
+const mockSubSDID = "github.com/alibaba/ioc-golang/autowire.MockSubImpl"
 
 func TestWrapperAutowireImpl_ImplWithParam(t *testing.T) {
 	t.Run("test impl with param", func(t *testing.T) {
@@ -49,13 +46,11 @@ func TestWrapperAutowireImpl_ImplWithParam(t *testing.T) {
 		mockAutowire.On("GetAllStructDescriptors").Return(func() map[string]*StructDescriptor {
 			return map[string]*StructDescriptor{
 				mockSubSDID: {
-					Interface: new(MockSubInterface),
 					Factory: func() interface{} {
 						return &MockSubImpl{}
 					},
 				},
 				mockSDID: {
-					Interface: new(MockInterface),
 					Factory: func() interface{} {
 						return &MockImpl{}
 					},

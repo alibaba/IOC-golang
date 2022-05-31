@@ -20,7 +20,6 @@ package config
 // +ioc:autowire:type=config
 // +ioc:autowire:paramType=ConfigInt
 // +ioc:autowire:constructFunc=New
-// +ioc:autowire:alias=ConfigInt
 
 type ConfigInt int
 

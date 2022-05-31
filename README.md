@@ -118,9 +118,9 @@ import (
 // +ioc:autowire:type=singleton
 
 type App struct {
-	ServiceImpl1 Service `singleton:"ServiceImpl1"` // inject Service 's ServiceImpl1 implementation
-	ServiceImpl2 Service `singleton:"ServiceImpl2"` // inject Service 's ServiceImpl2 implementation
-	ServiceStruct *ServiceStruct `singleton:"ServiceStruct"` // inject ServiceStruct struct pointer
+	ServiceImpl1 Service `singleton:"main.ServiceImpl1"` // inject Service 's ServiceImpl1 implementation
+	ServiceImpl2 Service `singleton:"main.ServiceImpl2"` // inject Service 's ServiceImpl2 implementation
+	ServiceStruct *ServiceStruct `singleton:"main.ServiceStruct"` // inject ServiceStruct struct pointer
 }
 
 func (a*App) Run(){
@@ -140,7 +140,6 @@ type Service interface{
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=Service
 
 type ServiceImpl1 struct {
 
@@ -152,7 +151,6 @@ func (s *ServiceImpl1) Hello(){
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=Service
 
 type ServiceImpl2 struct {
 
@@ -179,9 +177,8 @@ func main(){
 		panic(err)
 	}
 
-	// App-App is the format of： '$(interfaceName)-$(implementationStructName)'
 	// We can get instance by ths id
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("main.App")
 	if err != nil{
 		panic(err)
 	}
@@ -214,25 +211,21 @@ import (
 
 func init() {
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: &App{},
 		Factory: func() interface{} {
 			return &App{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: &ServiceStruct{},
 		Factory: func() interface{} {
 			return &ServiceStruct{}
 		},
@@ -345,9 +338,6 @@ The code generation tool recognizes objects marked with the +ioc:autowire=true a
 
 // +ioc:autowire:type=singleton
 The marker autowire model is the singleton, as well as the normal multi-instance model, the config configuration model, the grpc client model and other extensions.
-
-// +ioc:autowire:interface=Service
-Markers implement the interface Service and can be injected into objects of type Service .
 ````
 
 ###  More

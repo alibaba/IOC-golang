@@ -16,6 +16,7 @@
 package config
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/fatih/color"
@@ -40,11 +41,11 @@ func MergeMap(dst, src AnyMap, maxDepths ...uint8) AnyMap {
 func merge(dst, src AnyMap, depth uint8, depths ...uint8) AnyMap {
 	maxDepth := determineMerDepth(depths)
 	if maxDepth > maxMergeDepth {
-		panic(color.RedString("[Config] expect depth too deep: [%d]", maxDepth))
+		panic(fmt.Sprintf("[Config] expect depth too deep: [%d]", maxDepth))
 	}
 	color.Blue("[Config] merge config map, depth: [%d]", depth)
 	if depth > maxDepth {
-		panic(color.RedString("[Config] recursion too deep: [%d]", depth))
+		panic(fmt.Sprintf("[Config] recursion too deep: [%d]", depth))
 	}
 
 	for k, v := range src {

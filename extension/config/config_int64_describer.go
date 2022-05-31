@@ -27,7 +27,6 @@ package config
 // +ioc:autowire:type=config
 // +ioc:autowire:paramType=ConfigInt64
 // +ioc:autowire:constructFunc=New
-// +ioc:autowire:alias=ConfigInt64
 
 type ConfigInt64 int64
 

@@ -155,8 +155,8 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 		// set field
 		subService := valueOfElem.Field(i)
 		if !(subService.IsValid() && subService.CanSet()) {
-			err := perrors.Errorf("Failed to autowire interface %s's impl %s service. It's field %s with tag '%s:\"%s\"', please check if the field is exported",
-				util.GetStructName(sd.Interface), util.GetStructName(impledPtr), field.Type.Name(), tagKey, tagValue)
+			err := perrors.Errorf("Failed to autowire struct %s's impl %s service. It's field %s with tag '%s:\"%s\"', please check if the field is exported",
+				util.GetStructName(sd.ID()), util.GetStructName(impledPtr), field.Type.Name(), tagKey, tagValue)
 			return err
 		}
 		subService.Set(reflect.ValueOf(subImpledPtr))

@@ -12,7 +12,6 @@ import (
 
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(RocketMQClient),
 		Factory: func() interface{} {
 			return &Impl{}
 		},

@@ -31,12 +31,12 @@ import (
 // +ioc:autowire:alias=AppAlias
 
 type App struct {
-	DemoConfigString  *config.ConfigString  `config:"ConfigString,autowire.config.demo-config.string-value"`
-	DemoConfigInt     *config.ConfigInt     `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt,autowire.config.demo-config.int-value"`
-	DemoConfigMap     *config.ConfigMap     `config:"ConfigMap,autowire.config.demo-config.map-value"`
-	DemoConfigSlice   *config.ConfigSlice   `config:"ConfigSlice,autowire.config.demo-config.slice-value"`
-	DemoConfigInt64   *config.ConfigInt64   `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt64,autowire.config.demo-config.int64-value"`
-	DemoConfigFloat64 *config.ConfigFloat64 `config:"ConfigFloat64,autowire.config.demo-config.float64-value"`
+	DemoConfigString  *config.ConfigString  `config:"github.com/alibaba/ioc-golang/extension/config.ConfigString,autowire#config#demo-config#string-value"`
+	DemoConfigInt     *config.ConfigInt     `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt,autowire#config#demo-config#int-value"`
+	DemoConfigMap     *config.ConfigMap     `config:"github.com/alibaba/ioc-golang/extension/config.ConfigMap,autowire#config#demo-config#map-value"`
+	DemoConfigSlice   *config.ConfigSlice   `config:"github.com/alibaba/ioc-golang/extension/config.ConfigSlice,autowire#config#demo-config#slice-value"`
+	DemoConfigInt64   *config.ConfigInt64   `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt64,autowire#config#demo-config#int64-value"`
+	DemoConfigFloat64 *config.ConfigFloat64 `config:"github.com/alibaba/ioc-golang/extension/config.ConfigFloat64,autowire#config#demo-config#float64-value"`
 }
 
 func (a *App) Run() {

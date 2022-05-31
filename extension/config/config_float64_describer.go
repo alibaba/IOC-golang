@@ -27,7 +27,6 @@ package config
 // +ioc:autowire:type=config
 // +ioc:autowire:paramType=ConfigFloat64
 // +ioc:autowire:constructFunc=New
-// +ioc:autowire:alias=ConfigFloat64
 
 type ConfigFloat64 float64
 

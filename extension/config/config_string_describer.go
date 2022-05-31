@@ -20,7 +20,6 @@ package config
 // +ioc:autowire:type=config
 // +ioc:autowire:paramType=ConfigString
 // +ioc:autowire:constructFunc=New
-// +ioc:autowire:alias=ConfigString
 
 type ConfigString string
 

@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"log"
 	"sort"
-	"strings"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
@@ -46,13 +45,10 @@ func (d *DebugServerImpl) ListServices(ctx context.Context, empty *emptypb.Empty
 			methods = append(methods, key)
 		}
 
-		pair := strings.Split(key, "-")
-		interfaceName := pair[0]
-		implName := pair[1]
 		structsMetadatas = append(structsMetadatas, &boot.ServiceMetadata{
 			Methods:            methods,
-			InterfaceName:      interfaceName,
-			ImplementationName: implName,
+			InterfaceName:      key,
+			ImplementationName: key,
 		})
 	}
 	sort.Sort(structsMetadatas)
@@ -63,7 +59,7 @@ func (d *DebugServerImpl) ListServices(ctx context.Context, empty *emptypb.Empty
 }
 
 func (d *DebugServerImpl) Watch(req *boot.WatchRequest, watchSever boot.DebugService_WatchServer) error {
-	interfaceImplId := util.GetIdByNamePair(req.GetInterfaceName(), req.GetImplementationName())
+	interfaceImplId := req.GetImplementationName()
 	method := req.GetMethod()
 	input := req.GetInput()
 	output := req.GetOutput()
@@ -131,7 +127,7 @@ func (d *DebugServerImpl) WatchEdit(watchEditServerReq boot.DebugService_WatchEd
 			d.watchInterceptor.UnWatch(interfaceImplId, method, isParam)
 			return err
 		}
-		interfaceImplId = util.GetIdByNamePair(req.GetInterfaceName(), req.GetImplementationName())
+		interfaceImplId = util.GetSDIDByStructPtr(req.GetImplementationName())
 		method = req.GetMethod()
 		isParam = req.GetIsParam()
 		uniqueMethodKey := getMethodUniqueKey(interfaceImplId, method, isParam)

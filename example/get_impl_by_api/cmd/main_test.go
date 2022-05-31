@@ -28,7 +28,7 @@ import (
 )
 
 func (a *App) TestRun(t *testing.T) {
-	redisClientGetByNormalAPI, err := normal.GetImpl("Redis-Impl", &redis.Config{
+	redisClientGetByNormalAPI, err := normal.GetImpl("github.com/alibaba/ioc-golang/extension/normal/redis.Impl", &redis.Config{
 		Address: "localhost:6379",
 		DB:      "0",
 	})
@@ -52,7 +52,7 @@ func TestGetAPI(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("appalias")
 	if err != nil {
 		panic(err)
 	}

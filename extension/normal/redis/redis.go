@@ -30,11 +30,10 @@ type Redis interface {
 	HGetAll(key string) (map[string]string, error)
 }
 
-const SDID = "Redis-Impl"
+const sdid = "github.com/alibaba/ioc-golang/extension/normal/redis.Impl"
 
 // +ioc:autowire=true
 // +ioc:autowire:type=normal
-// +ioc:autowire:interface=Redis
 // +ioc:autowire:paramType=Config
 // +ioc:autowire:constructFunc=New
 
@@ -61,7 +60,7 @@ func (i *Impl) Set(key string, value interface{}, expiration time.Duration) (str
 var _ Redis = &Impl{}
 
 func GetRedis(config *Config) (Redis, error) {
-	mysqlImpl, err := normal.GetImpl(SDID, config)
+	mysqlImpl, err := normal.GetImpl(sdid, config)
 	if err != nil {
 		return nil, err
 	}

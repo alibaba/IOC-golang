@@ -14,7 +14,7 @@ extension/normal/redis/redis.go
 
 ```go
 func GetRedis(config *Config) (Redis, error) {
-	mysqlImpl, err := normal.GetImpl(SDID, config)
+	mysqlImpl, err := normal.GetImpl(sdid, config)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ import(
 
 func (a *App) Run() {
   // 通过 normal 提供的全局 API，传递结构描述 ID 和配置结构，创建多例对象
-	normalRedis, err := normal.GetImpl("Redis-Impl", &redis.Config{
+	normalRedis, err := normal.GetImpl("github.com/alibaba/ioc-golang/extension/normal/redis.Impl", &redis.Config{
 		Address: "localhost:6379",
 		DB:      "0",
 	})
@@ -75,7 +75,7 @@ func main() {
 		panic(err)
 	}
   // 通过 singleton 提供的全局 API，传递结构描述 ID 获取单例对象
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("applias")
 	if err != nil {
 		panic(err)
 	}

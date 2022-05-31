@@ -37,7 +37,6 @@ var (
 	enableIOCGolangAutowireMarker        = markers.Must(markers.MakeDefinition("ioc:autowire", markers.DescribesType, false))
 	iocGolangAutowireTypeMarker          = markers.Must(markers.MakeDefinition("ioc:autowire:type", markers.DescribesType, ""))
 	iocGolangAutowireBaseTypeMarker      = markers.Must(markers.MakeDefinition("ioc:autowire:baseType", markers.DescribesType, false))
-	iocGolangAutowireInterfaceMarker     = markers.Must(markers.MakeDefinition("ioc:autowire:interface", markers.DescribesType, ""))
 	iocGolangAutowireParamMarker         = markers.Must(markers.MakeDefinition("ioc:autowire:paramType", markers.DescribesType, ""))
 	iocGolangAutowireParamLoaderMarker   = markers.Must(markers.MakeDefinition("ioc:autowire:paramLoader", markers.DescribesType, ""))
 	iocGolangAutowireConstructFuncMarker = markers.Must(markers.MakeDefinition("ioc:autowire:constructFunc", markers.DescribesType, ""))
@@ -61,7 +60,6 @@ func (Generator) RegisterMarkers(into *markers.Registry) error {
 	if err := markers.RegisterAll(into,
 		enableIOCGolangAutowireMarker,
 		iocGolangAutowireTypeMarker,
-		iocGolangAutowireInterfaceMarker,
 		iocGolangAutowireConstructFuncMarker,
 		iocGolangAutowireParamLoaderMarker,
 		iocGolangAutowireParamMarker,

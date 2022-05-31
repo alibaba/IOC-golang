@@ -20,7 +20,6 @@ package config
 // +ioc:autowire:type=config
 // +ioc:autowire:paramType=ConfigSlice
 // +ioc:autowire:constructFunc=New
-// +ioc:autowire:alias=ConfigSlice
 
 type ConfigSlice []interface{}
 

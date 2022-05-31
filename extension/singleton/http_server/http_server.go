@@ -25,7 +25,6 @@ type HttpServer interface {
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=HttpServer
 // +ioc:autowire:paramType=HTTPServerConfig
 // +ioc:autowire:constructFunc=Create
 

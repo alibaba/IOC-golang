@@ -15,22 +15,15 @@ func RegisterAlias(alias, value string) {
 	sdIDAliasMap[alias] = value
 }
 
-func MappingSDIDAliasIfNecessary(sdID string) string {
-	if mappingSDID, ok := getAlias(sdID); ok {
+func GetSDIDByAliasIfNecessary(key string) string {
+	if mappingSDID, ok := GetSDIDByAlias(key); ok {
 		return mappingSDID
 	}
 
-	return sdID
+	return key
 }
 
-func HasAlias(alias string) bool {
-	_, ok := sdIDAliasMap[alias]
-
-	return ok
-}
-
-func getAlias(alias string) (string, bool) {
-	v, ok := sdIDAliasMap[alias]
-
-	return v, ok
+func GetSDIDByAlias(alias string) (string, bool) {
+	sdid, ok := sdIDAliasMap[alias]
+	return sdid, ok
 }

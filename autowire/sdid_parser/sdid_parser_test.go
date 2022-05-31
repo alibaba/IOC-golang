@@ -55,7 +55,7 @@ func Test_defaultSDIDParser_Parse(t *testing.T) {
 					TagValue:  "Impl",
 				},
 			},
-			want:    "Impl#Redis",
+			want:    "Impl",
 			wantErr: false,
 		},
 		{
