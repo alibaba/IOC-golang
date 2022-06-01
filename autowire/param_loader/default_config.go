@@ -33,7 +33,7 @@ func getDefaultConfigPrefix(sd *autowire.StructDescriptor) string {
 	if structConfigPathKey == "" {
 		structConfigPathKey = util.GetSDIDByStructPtr(sd.Factory())
 	}
-	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s%[3]s%[1]sparam", config.YamlConfigSeparator, sd.AutowireType(), structConfigPathKey)
+	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s<%[3]s>%[1]sparam", config.YamlConfigSeparator, sd.AutowireType(), structConfigPathKey)
 }
 
 var defaultConfigParamLoaderSingleton autowire.ParamLoader

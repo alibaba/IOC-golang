@@ -49,7 +49,7 @@ func TestLoad_empty(t *testing.T) {
 
 			strValue := ""
 			assert.Error(t, perrors.New("property [autowire config strValue]'s key autowire not found"),
-				LoadConfigByPrefix("autowire#config#strValue", &strValue))
+				LoadConfigByPrefix("autowire.config.strValue", &strValue))
 		})
 	}
 }
@@ -82,8 +82,8 @@ func TestLoad_options(t *testing.T) {
 
 			strValue := "strValue"
 			intValue := 123
-			assert.Nil(t, LoadConfigByPrefix("autowire#config#strValue", &strValue))
-			assert.Nil(t, LoadConfigByPrefix("autowire#config#intValue", &intValue))
+			assert.Nil(t, LoadConfigByPrefix("autowire.config.strValue", &strValue))
+			assert.Nil(t, LoadConfigByPrefix("autowire.config.intValue", &intValue))
 		})
 	}
 }
@@ -119,13 +119,13 @@ func TestLoad_profile_active(t *testing.T) {
 			intValue := 123
 			boolValue := true
 			mapValue := "mapValue1"
-			assert.Nil(t, LoadConfigByPrefix("autowire#config#strValue", &strValue))
-			assert.Nil(t, LoadConfigByPrefix("autowire#config#intValue", &intValue))
-			assert.Nil(t, LoadConfigByPrefix("profilesActive#shared#boolValue", &boolValue))
-			assert.Nil(t, LoadConfigByPrefix("profilesActive#shared#mapValue#mapKey1", &mapValue))
+			assert.Nil(t, LoadConfigByPrefix("autowire.config.strValue", &strValue))
+			assert.Nil(t, LoadConfigByPrefix("autowire.config.intValue", &intValue))
+			assert.Nil(t, LoadConfigByPrefix("profilesActive.shared.boolValue", &boolValue))
+			assert.Nil(t, LoadConfigByPrefix("profilesActive.shared.mapValue.mapKey1", &mapValue))
 
 			sliceValue := []string{}
-			assert.Nil(t, LoadConfigByPrefix("profilesActive#shared#sliceValue", &sliceValue))
+			assert.Nil(t, LoadConfigByPrefix("profilesActive.shared.sliceValue", &sliceValue))
 			assert.Equal(t, "sliceStr1", sliceValue[0])
 			assert.Equal(t, "sliceStr2", sliceValue[1])
 			assert.Equal(t, "sliceStr3", sliceValue[2])
@@ -167,13 +167,13 @@ func TestLoad_abs_path(t *testing.T) {
 			intValue := 123
 			boolValue := true
 			mapValue := "mapValue1"
-			assert.Nil(t, LoadConfigByPrefix("autowire#config#strValue", &strValue))
-			assert.Nil(t, LoadConfigByPrefix("autowire#config#intValue", &intValue))
-			assert.Nil(t, LoadConfigByPrefix("profilesActive#shared#boolValue", &boolValue))
-			assert.Nil(t, LoadConfigByPrefix("profilesActive#shared#mapValue#mapKey1", &mapValue))
+			assert.Nil(t, LoadConfigByPrefix("autowire.config.strValue", &strValue))
+			assert.Nil(t, LoadConfigByPrefix("autowire.config.intValue", &intValue))
+			assert.Nil(t, LoadConfigByPrefix("profilesActive.shared.boolValue", &boolValue))
+			assert.Nil(t, LoadConfigByPrefix("profilesActive.shared.mapValue.mapKey1", &mapValue))
 
 			sliceValue := []string{}
-			assert.Nil(t, LoadConfigByPrefix("profilesActive#shared#sliceValue", &sliceValue))
+			assert.Nil(t, LoadConfigByPrefix("profilesActive.shared.sliceValue", &sliceValue))
 			assert.Equal(t, "sliceStr1", sliceValue[0])
 			assert.Equal(t, "sliceStr2", sliceValue[1])
 			assert.Equal(t, "sliceStr3", sliceValue[2])

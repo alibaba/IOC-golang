@@ -68,34 +68,34 @@ func TestLoadConfigByPrefix(t *testing.T) {
 	t.Run("test with multi redis config prefix", func(t *testing.T) {
 		redisConfig := &redisConfig{}
 
-		assert.Nil(t, LoadConfigByPrefix("autowire#normal#github.com/alibaba/ioc-golang/extension/normal/redis.Impl#param", redisConfig))
+		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/redis.Impl>.param", redisConfig))
 		assert.Equal(t, "0", redisConfig.DB)
 		assert.Equal(t, "localhost:6379", redisConfig.Address)
 
-		assert.Nil(t, LoadConfigByPrefix("autowire#normal#github.com/alibaba/ioc-golang/extension/normal/redis.Impl#db1-redis#param", redisConfig))
+		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/redis.Impl>.db1-redis.param", redisConfig))
 		assert.Equal(t, "1", redisConfig.DB)
 		assert.Equal(t, "localhost:16379", redisConfig.Address)
 
-		assert.Nil(t, LoadConfigByPrefix("autowire#normal#github.com/alibaba/ioc-golang/extension/normal/redis.Impl#db2-redis#param", redisConfig))
+		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/redis.Impl>.db2-redis.param", redisConfig))
 		assert.Equal(t, "2", redisConfig.DB)
 		assert.Equal(t, "localhost:26379", redisConfig.Address)
 	})
 
 	t.Run("test with int value", func(t *testing.T) {
 		intValue := 0
-		assert.Nil(t, LoadConfigByPrefix("autowire#config#intValue", &intValue))
+		assert.Nil(t, LoadConfigByPrefix("autowire.config.intValue", &intValue))
 		assert.Equal(t, 123, intValue)
 	})
 
 	t.Run("test with string value", func(t *testing.T) {
 		strValue := ""
-		assert.Nil(t, LoadConfigByPrefix("autowire#config#strValue", &strValue))
+		assert.Nil(t, LoadConfigByPrefix("autowire.config.strValue", &strValue))
 		assert.Equal(t, "strVal", strValue)
 	})
 
 	t.Run("test with map value", func(t *testing.T) {
 		mapValue := map[string]interface{}{}
-		assert.Nil(t, LoadConfigByPrefix("autowire#config#mapValue", &mapValue))
+		assert.Nil(t, LoadConfigByPrefix("autowire.config.mapValue", &mapValue))
 		assert.Equal(t, "mapValue1", mapValue["mapKey1"])
 		assert.Equal(t, "mapValue2", mapValue["mapKey2"])
 		assert.Equal(t, "mapValue3", mapValue["mapKey3"])
@@ -103,7 +103,7 @@ func TestLoadConfigByPrefix(t *testing.T) {
 
 	t.Run("test with slice value", func(t *testing.T) {
 		sliceValue := []string{}
-		assert.Nil(t, LoadConfigByPrefix("autowire#config#sliceValue", &sliceValue))
+		assert.Nil(t, LoadConfigByPrefix("autowire.config.sliceValue", &sliceValue))
 		assert.Equal(t, 3, len(sliceValue))
 		assert.Equal(t, "sliceStr1", sliceValue[0])
 		assert.Equal(t, "sliceStr2", sliceValue[1])

@@ -34,7 +34,7 @@ const (
 
 	emptySlice = 0
 
-	YamlConfigSeparator = "#"
+	YamlConfigSeparator = "."
 )
 
 var (
@@ -184,13 +184,28 @@ func WithMergeDepth(mergeDepth uint8) Option {
 
 // ----------------------------------------------------------------
 
-// LoadConfigByPrefix prefix is a#b#c, configStructPtr is interface ptr
+// LoadConfigByPrefix prefix is like 'a.b.c' or 'a.b.<github.com/xxx/xx/xxx.Impl>.c', configStructPtr is interface ptr
 func LoadConfigByPrefix(prefix string, configStructPtr interface{}) error {
 	if configStructPtr == nil {
 		return nil
 	}
-	configProperties := strings.Split(prefix, YamlConfigSeparator)
-	return loadProperty(configProperties, 0, config, configStructPtr)
+	splited := strings.Split(prefix, "<")
+	var configProperties []string
+	if len(splited) == 1 {
+		configProperties = strings.Split(prefix, YamlConfigSeparator)
+	} else {
+		configProperties = strings.Split(splited[0], YamlConfigSeparator)
+		backSplitedList := strings.Split(splited[1], ">")
+		configProperties = append(configProperties, backSplitedList[0])
+		configProperties = append(configProperties, strings.Split(backSplitedList[1], YamlConfigSeparator)...)
+	}
+	realConfigProperties := make([]string, 0)
+	for _, v := range configProperties {
+		if v != "" {
+			realConfigProperties = append(realConfigProperties, v)
+		}
+	}
+	return loadProperty(realConfigProperties, 0, config, configStructPtr)
 }
 
 // ----------------------------------------------------------------

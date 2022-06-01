@@ -114,6 +114,7 @@ package main
 import (
 	"fmt"
 	"time"
+
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
@@ -181,8 +182,7 @@ func main(){
 		panic(err)
 	}
 
-	// App-App 即结构ID： '$(接口名)-$(结构名)'， 对于结构指针，接口名默认为结构名
-	// 可通过这一 ID 获取实例
+	// 可通过这一 ID 获取实例: "包名.结构名"
 	appInterface, err := singleton.GetImpl("main.App")
 	if err != nil{
 		panic(err)
@@ -268,17 +268,17 @@ func init() {
                                                                     |___/ 
 Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
-[Config] Load config file from ../conf/ioc_golang.yaml
-Load ioc-golang config file failed. open ../conf/ioc_golang.yaml: no such file or directory
-The load procedure is continue
+[Config] Load default config file from ../conf/ioc_golang.yaml
+[Config] Load ioc-golang config file failed. open alibaba/IOC-Golang/example/conf/ioc_golang.yaml: no such file or directory
+ The load procedure is continue
 [Boot] Start to load debug
 [Debug] Debug mod is not enabled
 [Boot] Start to load autowire
 [Autowire Type] Found registered autowire type singleton
-[Autowire Struct Descriptor] Found type singleton registered SD App-App
-[Autowire Struct Descriptor] Found type singleton registered SD Service-ServiceImpl1
-[Autowire Struct Descriptor] Found type singleton registered SD Service-ServiceImpl2
-[Autowire Struct Descriptor] Found type singleton registered SD ServiceStruct-ServiceStruct
+[Autowire Struct Descriptor] Found type singleton registered SD main.App
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl1
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl2
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceStruct
 This is ServiceImpl1, hello world
 This is ServiceImpl2, hello world
 Hello laurence
@@ -301,35 +301,32 @@ Hello laurence
 
 ```bash
 % iocli list
-App
-App
+main.App
 [Run]
 
-Service
-ServiceImpl1
+main.ServiceImpl1
 [Hello]
 
-Service
-ServiceImpl2
+main.ServiceImpl2
 [Hello]
 
-ServiceStruct
-ServiceStruct
+main.ServiceStruct
 [GetString]
+
 ```
 
 监听方法的参数和返回值。以监听 GetString 方法为例，每隔三秒钟函数被调用的时候，打印参数和返回值。
 
 ```bash
-% iocli watch ServiceStruct ServiceStruct GetString
+% iocli watch main.ServiceStruct GetString
 
 ========== On Call ==========
-ServiceStruct.(ServiceStruct).GetString()
+main.ServiceStruct.GetString()
 Param 1: (string) (len=8) "laurence"
 
 
 ========== On Response ==========
-ServiceStruct.(ServiceStruct).GetString()
+main.ServiceStruct.GetString()
 Response 1: (string) (len=14) "Hello laurence"
 ...
 ```

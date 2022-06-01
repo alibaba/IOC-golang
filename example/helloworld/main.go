@@ -10,7 +10,6 @@ import (
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:alias=App
 
 type App struct {
 	ServiceImpl1  Service        `singleton:"main.ServiceImpl1"`  // inject Service 's ServiceImpl1 implementation

@@ -32,7 +32,6 @@ var list = &cobra.Command{
 			panic(err)
 		}
 		for _, v := range rsp.ServiceMetadata {
-			fmt.Println(v.InterfaceName)
 			fmt.Println(v.ImplementationName)
 			fmt.Println(v.Methods)
 			fmt.Println()

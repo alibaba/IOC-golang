@@ -30,9 +30,8 @@ var watch = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		debugServiceClient := getDebugServiceClent(defaultDebugAddr)
 		client, err := debugServiceClient.Watch(context.Background(), &boot.WatchRequest{
-			InterfaceName:      args[0],
-			ImplementationName: args[1],
-			Method:             args[2],
+			ImplementationName: args[0],
+			Method:             args[1],
 			Input:              true,
 			Output:             true,
 		})

@@ -110,6 +110,7 @@ package main
 import (
 	"fmt"
 	"time"
+
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
@@ -177,7 +178,7 @@ func main(){
 		panic(err)
 	}
 
-	// We can get instance by ths id
+	// We can get instance by this id: "${pkgName}.${structName}"
 	appInterface, err := singleton.GetImpl("main.App")
 	if err != nil{
 		panic(err)
@@ -231,7 +232,6 @@ func init() {
 		},
 	})
 }
-
 ```
 
 See the file tree:
@@ -262,17 +262,17 @@ Console printout:
                                                                     |___/ 
 Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
-[Config] Load config file from ../conf/ioc_golang.yaml
-Load ioc-golang config file failed. open ../conf/ioc_golang.yaml: no such file or directory
-The load procedure is continue
+[Config] Load default config file from ../conf/ioc_golang.yaml
+[Config] Load ioc-golang config file failed. open alibaba/IOC-Golang/example/conf/ioc_golang.yaml: no such file or directory
+ The load procedure is continue
 [Boot] Start to load debug
 [Debug] Debug mod is not enabled
 [Boot] Start to load autowire
 [Autowire Type] Found registered autowire type singleton
-[Autowire Struct Descriptor] Found type singleton registered SD App-App
-[Autowire Struct Descriptor] Found type singleton registered SD Service-ServiceImpl1
-[Autowire Struct Descriptor] Found type singleton registered SD Service-ServiceImpl2
-[Autowire Struct Descriptor] Found type singleton registered SD ServiceStruct-ServiceStruct
+[Autowire Struct Descriptor] Found type singleton registered SD main.App
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl1
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl2
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceStruct
 This is ServiceImpl1, hello world
 This is ServiceImpl2, hello world
 Hello laurence
@@ -295,35 +295,31 @@ List all interface, implementations and methods
 
 ```
 % iocli list
-App
-App
+main.App
 [Run]
 
-Service
-ServiceImpl1
+main.ServiceImpl1
 [Hello]
 
-Service
-ServiceImpl2
+main.ServiceImpl2
 [Hello]
 
-ServiceStruct
-ServiceStruct
+main.ServiceStruct
 [GetString]
 ```
 
 Watch real-time param and return value. We take 'GetString' method as an example. The method would be called every  3s .
 
 ```
-% iocli watch ServiceStruct ServiceStruct GetString
+% iocli watch main.ServiceStruct GetString
 
 ========== On Call ==========
-ServiceStruct.(ServiceStruct).GetString()
+main.ServiceStruct.GetString()
 Param 1: (string) (len=8) "laurence"
 
 
 ========== On Response ==========
-ServiceStruct.(ServiceStruct).GetString()
+main.ServiceStruct.GetString()
 Response 1: (string) (len=14) "Hello laurence"
 ...
 ```

@@ -12,7 +12,6 @@ import (
 
 func init() {
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Alias: "App",
 		Factory: func() interface{} {
 			return &App{}
 		},

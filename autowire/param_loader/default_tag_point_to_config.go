@@ -34,7 +34,7 @@ func getDefaultTagPointToConfigPrefix(sd *autowire.StructDescriptor, instanceNam
 	if pointToKey == "" {
 		pointToKey = util.GetSDIDByStructPtr(sd.Factory())
 	}
-	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s%[3]s%[1]s%[4]s%[1]sparam", config.YamlConfigSeparator, sd.AutowireType(), pointToKey, instanceName)
+	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s<%[3]s>%[1]s%[4]s%[1]sparam", config.YamlConfigSeparator, sd.AutowireType(), pointToKey, instanceName)
 }
 
 var defaultTagPointToConfigSingleton autowire.ParamLoader
