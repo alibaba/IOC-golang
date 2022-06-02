@@ -32,7 +32,6 @@ import(
 func init() {
 	// register grpc client
 	grpc.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(api.HelloServiceClient),
 		Factory: func() interface{} {
 			return new(api.HelloServiceClient)
 		},
@@ -57,7 +56,7 @@ type App struct {
 
 需要在代码中手动注册 gRPC 客户端。在需要使用的地方，增加  `grpc:"xxx"` 标签
 
-框架会默认从 autowire.grpc.xxx 读取参数, 在例子中，为`autowire.grpc.hello-service `
+框架会默认从 autowire.grpc.xxx 读取参数, 在例子中，为`autowire#grpc#hello-service `
 
 ```yaml
 autowire:

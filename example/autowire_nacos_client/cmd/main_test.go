@@ -80,7 +80,7 @@ func TestNacosClient(t *testing.T) {
 	}
 	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", time.Second*10))
 	assert.Nil(t, ioc.Load())
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("AppAlias")
 	assert.Nil(t, err)
 	app := appInterface.(*App)
 	app.TestRun(t)

@@ -34,7 +34,6 @@ import (
 func init() {
 	// register grpc client
 	grpc.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(api.HelloServiceClient),
 		Factory: func() interface{} {
 			return new(api.HelloServiceClient)
 		},
@@ -51,16 +50,17 @@ func init() {
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
+// +ioc:autowire:alias=App
 
 type App struct {
 	HelloServiceClient api.HelloServiceClient `grpc:"hello-service"`
 
-	ExampleService1Impl1 service1.Service1 `singleton:"Impl1"`
+	ExampleService1Impl1 service1.Service1 `singleton:"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service1.Impl1"`
 
-	ExampleService2Impl1 service2.Service2 `singleton:"Impl1"`
-	ExampleService2Impl2 service2.Service2 `singleton:"Impl2"`
+	ExampleService2Impl1 service2.Service2 `singleton:"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service2.Impl1"`
+	ExampleService2Impl2 service2.Service2 `singleton:"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service2.Impl2"`
 
-	ExampleStruct1 *struct1.Struct1 `singleton:"Struct1"`
+	ExampleStruct1 *struct1.Struct1 `singleton:"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/struct1.Struct1"`
 }
 
 func (a *App) Run() {

@@ -94,8 +94,8 @@ func (a *AutowireBase) ParseParam(sdID string, fi *autowire.FieldInfo) (interfac
 			return param, nil
 		} else {
 			// log warning, given pl load failed, fall back to default
-			color.Red("[Autoware Base] Load SD %s param with defined sd.ParamLoader error: %s\n"+
-				"Try load by autowire %s's default paramloader", sd.ID(), err, a.facadeAutowire.TagKey())
+			color.Red("[Autowire Base] Load SD %s param with defined sd.ParamLoader error: %s\n"+
+				"Try load by autowire %s's default paramLoader", sd.ID(), err, a.facadeAutowire.TagKey())
 		}
 	}
 	// use autowire defined paramLoader as fall back

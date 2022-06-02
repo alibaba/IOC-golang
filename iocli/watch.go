@@ -30,9 +30,8 @@ var watch = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		debugServiceClient := getDebugServiceClent(defaultDebugAddr)
 		client, err := debugServiceClient.Watch(context.Background(), &boot.WatchRequest{
-			InterfaceName:      args[0],
-			ImplementationName: args[1],
-			Method:             args[2],
+			ImplementationName: args[0],
+			Method:             args[1],
 			Input:              true,
 			Output:             true,
 		})
@@ -49,7 +48,7 @@ var watch = &cobra.Command{
 				paramOrResponse = "Response"
 			}
 			color.Red("========== On %s ==========\n", onToPrint)
-			color.Red("%s.(%s).%s()", msg.InterfaceName, msg.ImplementationName, msg.MethodName)
+			color.Red("%s.%s()", msg.ImplementationName, msg.MethodName)
 			for index, p := range msg.GetParams() {
 				color.Cyan("%s %d: %s", paramOrResponse, index+1, p)
 			}

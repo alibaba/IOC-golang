@@ -12,7 +12,6 @@ import (
 
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Mysql),
 		Factory: func() interface{} {
 			return &Impl{}
 		},

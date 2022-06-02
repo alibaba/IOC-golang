@@ -1,20 +1,12 @@
 autowire:
   singleton:
-    App:
-      App:
-        param:
-          nacosaddr: 127.0.0.1
-          nacosport: 8848
+    AppAlias:
+      param:
+        nacosaddr: 127.0.0.1
+        nacosport: 8848
   normal:
-    NacosClient:
-      Impl:
-        nacos-2:
-          nacosclientparam:
-            clientconfig:
-              appKey: appKey
-            serverconfigs:
-              - ipaddr: 127.0.0.1
-                port: 8848
+    github.com/alibaba/ioc-golang/extension/normal/nacos.Impl:
+      nacos-2:
         param:
           nacosclientparam:
             clientconfig:
@@ -22,3 +14,10 @@ autowire:
             serverconfigs:
               - ipaddr: 127.0.0.1
                 port: 8848
+      param:
+        nacosclientparam:
+          clientconfig:
+            appKey: appKey
+          serverconfigs:
+            - ipaddr: 127.0.0.1
+              port: 8848

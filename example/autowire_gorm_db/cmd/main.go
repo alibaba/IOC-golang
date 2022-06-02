@@ -26,9 +26,10 @@ import (
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
+// +ioc:autowire:alias=AppAlias
 
 type App struct {
-	MyDataTable normalMysql.Mysql `normal:"Impl,my-mysql,mydata"`
+	MyDataTable normalMysql.Mysql `normal:"github.com/alibaba/ioc-golang/extension/normal/mysql.Impl,my-mysql,mydata"`
 }
 
 type MyDataDO struct {
@@ -62,7 +63,7 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("AppAlias")
 	if err != nil {
 		panic(err)
 	}

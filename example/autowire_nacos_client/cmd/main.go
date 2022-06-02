@@ -32,10 +32,11 @@ import (
 // +ioc:autowire:type=singleton
 // +ioc:autowire:paramType=Param
 // +ioc:autowire:constructFunc=Init
+// +ioc:autowire:alias=AppAlias
 
 type App struct {
-	NormalNacosClient  normalNacos.NacosClient `normal:"Impl"`
-	NormalNacosClient2 normalNacos.NacosClient `normal:"Impl,nacos-2"`
+	NormalNacosClient  normalNacos.NacosClient `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl"`
+	NormalNacosClient2 normalNacos.NacosClient `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl,nacos-2"`
 
 	createByAPINacosClient normalNacos.NacosClient
 }
@@ -93,7 +94,7 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("AppAlias")
 	if err != nil {
 		panic(err)
 	}

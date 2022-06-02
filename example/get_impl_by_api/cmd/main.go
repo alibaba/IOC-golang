@@ -26,12 +26,13 @@ import (
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
+// +ioc:autowire:alias=appalias
 
 type App struct {
 }
 
 func (a *App) Run() {
-	redisClientGetyByNormalAPI, err := normal.GetImpl("Redis-Impl", &redis.Config{
+	redisClientGetyByNormalAPI, err := normal.GetImpl("github.com/alibaba/ioc-golang/extension/normal/redis.Impl", &redis.Config{
 		Address: "localhost:6379",
 		DB:      "0",
 	})
@@ -63,7 +64,7 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("appalias")
 	if err != nil {
 		panic(err)
 	}

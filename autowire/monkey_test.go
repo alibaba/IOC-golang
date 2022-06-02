@@ -44,6 +44,7 @@ func TestRegisterMonkeyFunction(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			RegisterMonkeyFunction(tt.args.f)
+			defer RegisterMonkeyFunction(nil)
 			assert.Equal(t, fmt.Sprintf("%p", mockMonkeyFunction), fmt.Sprintf("%p", mf))
 		})
 	}

@@ -23,19 +23,14 @@ import (
 	"github.com/alibaba/ioc-golang/autowire"
 )
 
-type mockInterface interface {
-}
-
 type mockImpl struct {
 }
 
-const mockInterfaceName = "mockInterface"
-const mockImplName = "mockImpl"
+const mockImplFullName = "github.com/alibaba/ioc-golang/autowire/singleton.mockImpl"
 
 func TestAutowire_RegisterAndGetAllStructDescriptors(t *testing.T) {
 	t.Run("test singleton autowire register and get all struct descriptors", func(t *testing.T) {
 		sd := &autowire.StructDescriptor{
-			Interface: new(mockInterface),
 			Factory: func() interface{} {
 				return &mockImpl{}
 			},
@@ -44,9 +39,9 @@ func TestAutowire_RegisterAndGetAllStructDescriptors(t *testing.T) {
 		n := &SingletonAutowire{}
 		allStructDesc := n.GetAllStructDescriptors()
 		assert.NotNil(t, allStructDesc)
-		structDesc, ok := allStructDesc[mockInterfaceName+"-"+mockImplName]
+		structDesc, ok := allStructDesc[mockImplFullName]
 		assert.True(t, ok)
-		assert.Equal(t, mockInterfaceName+"-"+mockImplName, structDesc.ID())
+		assert.Equal(t, mockImplFullName, structDesc.ID())
 	})
 }
 

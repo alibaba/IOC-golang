@@ -7,7 +7,7 @@
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,马克
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -24,7 +24,7 @@ import (
 	"github.com/alibaba/ioc-golang/autowire/normal"
 )
 
-const SDID = "NacosClient-Impl"
+const sdid = "github.com/alibaba/ioc-golang/extension/normal/nacos.Impl"
 
 type NacosClient interface {
 	GetConfig(param vo.ConfigParam) (string, error)
@@ -47,7 +47,6 @@ type NacosClient interface {
 }
 
 // +ioc:autowire=true
-// +ioc:autowire:interface=NacosClient
 // +ioc:autowire:type=normal
 // +ioc:autowire:paramType=Config
 // +ioc:autowire:constructFunc=New
@@ -60,7 +59,7 @@ type Impl struct {
 var _ NacosClient = &Impl{}
 
 func GetNacosClient(config *Config) (NacosClient, error) {
-	nacosClientImpl, err := normal.GetImpl(SDID, config)
+	nacosClientImpl, err := normal.GetImpl(sdid, config)
 	if err != nil {
 		return nil, err
 	}

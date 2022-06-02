@@ -22,7 +22,6 @@ import (
 )
 
 // +ioc:autowire=true
-// +ioc:autowire:interface=Service2
 // +ioc:autowire:type=singleton
 
 type Impl2 struct {

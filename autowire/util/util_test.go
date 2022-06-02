@@ -18,6 +18,8 @@ package util
 import (
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type StructFoo struct {
@@ -28,62 +30,25 @@ type InterfaceFoo interface {
 
 func TestGetIdByInterfaceAndImplPtr(t *testing.T) {
 	type args struct {
-		interfaceStruct interface{}
-		implStructPtr   interface{}
+		implStructPtr interface{}
 	}
 	tests := []struct {
 		name string
 		args args
 		want string
 	}{
-		{
-			name: "test get id by interface and impl",
-			args: args{
-				interfaceStruct: new(InterfaceFoo),
-				implStructPtr:   &StructFoo{},
-			},
-			want: "InterfaceFoo-StructFoo",
-		},
 		{
 			name: "test get id by impl",
 			args: args{
 				implStructPtr: &StructFoo{},
 			},
-			want: "-StructFoo",
+			want: "github.com/alibaba/ioc-golang/autowire/util.StructFoo",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetIdByInterfaceAndImplPtr(tt.args.interfaceStruct, tt.args.implStructPtr); got != tt.want {
+			if got := GetSDIDByStructPtr(tt.args.implStructPtr); got != tt.want {
 				t.Errorf("GetIdByInterfaceAndImplPtr() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestGetIdByNamePair(t *testing.T) {
-	type args struct {
-		interfaceName string
-		structPtrName string
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "get id by name pair",
-			args: args{
-				interfaceName: "InterfaceFoo",
-				structPtrName: "StructFoo",
-			},
-			want: "InterfaceFoo-StructFoo",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := GetIdByNamePair(tt.args.interfaceName, tt.args.structPtrName); got != tt.want {
-				t.Errorf("GetIdByNamePair() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -153,6 +118,82 @@ func TestGetTypeFromInterface(t *testing.T) {
 			if got := GetTypeFromInterface(tt.args.v); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetTypeFromInterface() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func Test_ToCamelCase(t *testing.T) {
+	type args struct {
+		src string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "Test ToCamelCase-1",
+			args: args{
+				src: "HelloWorld",
+			},
+			want: "helloWorld",
+		},
+		{
+			name: "Test ToCamelCase-2",
+			args: args{
+				src: "helloWorld",
+			},
+			want: "helloWorld",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, ToCamelCase(tt.args.src), "toCamelCase(%v)", tt.args.src)
+		})
+	}
+}
+
+func Test_ToSnakeCase(t *testing.T) {
+	type args struct {
+		src string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "Test ToSnakeCase-1",
+			args: args{
+				src: "HelloWorld",
+			},
+			want: "hello_world",
+		},
+		{
+			name: "Test ToSnakeCase-2",
+			args: args{
+				src: "helloWorld",
+			},
+			want: "hello_world",
+		},
+		{
+			name: "Test ToSnakeCase-3",
+			args: args{
+				src: "hello_world",
+			},
+			want: "hello_world",
+		},
+		{
+			name: "Test ToSnakeCase-4",
+			args: args{
+				src: "hello_World",
+			},
+			want: "hello_world",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, ToSnakeCase(tt.args.src), "toSnakeCase(%v)", tt.args.src)
 		})
 	}
 }

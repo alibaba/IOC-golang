@@ -37,9 +37,13 @@ var tripleStructDescriptorMap = make(map[string]*autowire.StructDescriptor)
 
 func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	s.SetAutowireType(Name)
-	tripleStructDescriptorMap[s.ID()] = s
+	sdID := s.ID()
+	tripleStructDescriptorMap[sdID] = s
+	if s.Alias != "" {
+		autowire.RegisterAlias(s.Alias, sdID)
+	}
 }
 
-func GetImpl(extensionId string) (interface{}, error) {
-	return autowire.Impl(Name, extensionId, nil)
+func GetImpl(key string) (interface{}, error) {
+	return autowire.Impl(Name, key, nil)
 }

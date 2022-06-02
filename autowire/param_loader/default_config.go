@@ -29,7 +29,11 @@ type defaultConfig struct {
 }
 
 func getDefaultConfigPrefix(sd *autowire.StructDescriptor) string {
-	return fmt.Sprintf("autowire.%s.%s.%s.param", sd.AutowireType(), util.GetStructName(sd.Interface), util.GetStructName(sd.Factory()))
+	structConfigPathKey := sd.Alias
+	if structConfigPathKey == "" {
+		structConfigPathKey = util.GetSDIDByStructPtr(sd.Factory())
+	}
+	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s<%[3]s>%[1]sparam", config.YamlConfigSeparator, sd.AutowireType(), structConfigPathKey)
 }
 
 var defaultConfigParamLoaderSingleton autowire.ParamLoader
@@ -45,7 +49,6 @@ func GetDefaultConfigParamLoader() autowire.ParamLoader {
 Load support load struct described like:
 ```go
 normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Redis),
 		Factory:   func() interface{}{
 			return &Impl{}
 		},
@@ -66,7 +69,6 @@ type Config struct {
 ```
 with
 Autowire type 'normal'
-InterfaceName 'Redis'
 StructName 'Impl'
 
 from:
@@ -74,8 +76,7 @@ from:
 ```yaml
 autowire:
   normal:
-    Redis:
-      Impl:
+      github.com/alibaba/ioc-golang/test.Impl:
         param:
           address: 127.0.0.1
           password: xxx

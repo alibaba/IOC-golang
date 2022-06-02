@@ -30,12 +30,13 @@ import (
 // +ioc:autowire:type=singleton
 // +ioc:autowire:paramType=Param
 // +ioc:autowire:constructFunc=Init
+// +ioc:autowire:alias=AppAlias
 
 type App struct {
-	NormalRedis    normalRedis.Redis `normal:"Impl"`
-	NormalDB1Redis normalRedis.Redis `normal:"Impl,db1-redis"`
-	NormalDB2Redis normalRedis.Redis `normal:"Impl,db2-redis"`
-	NormalDB3Redis normalRedis.Redis `normal:"Impl,address=127.0.0.1:6379&db=3"`
+	NormalRedis    normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl"`
+	NormalDB1Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,db1-redis"`
+	NormalDB2Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,db2-redis"`
+	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,address=127.0.0.1:6379&db=3"`
 
 	privateClient *redis.Client
 }
@@ -98,7 +99,7 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("AppAlias")
 	if err != nil {
 		panic(err)
 	}

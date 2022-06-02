@@ -27,9 +27,8 @@ func main(){
 		panic(err)
 	}
 
-	// App-App 即结构ID： '$(接口名)-$(方法名)'， 对于结构指针，接口名默认为方法名
-	// 可通过这一 ID 获取实例
-	appInterface, err := singleton.GetImpl("App-App")
+    // 可通过这一 ID 获取实例: "包名.结构名"
+	appInterface, err := singleton.GetImpl("main.App")
 	if err != nil{
 		panic(err)
 	}
@@ -97,31 +96,28 @@ This is ServiceStruct, hello world
 新启动一个终端，查看所有接口实现和方法：
 
 ```bash
-$ iocli list
-App
-App
+% iocli list
+main.App
 [Run]
 
-Service
-ServiceImpl1
+main.ServiceImpl1
 [Hello]
 
-Service
-ServiceImpl2
+main.ServiceImpl2
 [Hello]
 
-ServiceStruct
-ServiceStruct
-[Hello]
+main.ServiceStruct
+[GetString]
 ```
 
 监听一个实现类的方法：
 
 ```bash
-% iocli watch Service ServiceImpl1 Hello
+% iocli watch main.ServiceStruct GetString
 
 ========== On Call ==========
-Service.(ServiceImpl1).Hello()
+main.ServiceStruct.GetString()
+Param 1: (string) (len=8) "laurence"
 ```
 
 对于有入参和返回值的参数，可以监听到具体参数类型和值。一个监听 grpc 客户端的例子如下：
@@ -187,11 +183,11 @@ iocli 可以识别以下注解：
 ```go
 // +ioc:autowire=true
 // +ioc:autowire:type=normal
-// +ioc:autowire:interface=Redis
 // +ioc:autowire:paramLoader=paramLoader
 // +ioc:autowire:paramType=Config
 // +ioc:autowire:constructFunc=New
 // +ioc:autowire:baseType=true
+// +ioc:autowire:alias=MyAppAlias
 ```
 
 - ioc:autowire 
@@ -350,6 +346,11 @@ iocli 可以识别以下注解：
   该类型是否为基础类型
 
   go 基础类型不可直接通过&在构造时取地址，因此我们针对基础类型单独设计了该注解。在 http://github.com/alibaba/ioc-golang/extension/tree/master/config 配置扩展中被使用较多。
+
+- ioc:autowire:alias=MyAppAlias （非必填）
+
+  该类型的别名
+
 
 
 

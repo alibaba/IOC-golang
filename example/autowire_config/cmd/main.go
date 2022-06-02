@@ -17,20 +17,26 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
+	conf "github.com/alibaba/ioc-golang/config"
 	"github.com/alibaba/ioc-golang/extension/config"
 )
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
+// +ioc:autowire:alias=AppAlias
 
 type App struct {
-	DemoConfigString *config.ConfigString `config:"ConfigString,autowire.config.demo-config.string-value"`
-	DemoConfigInt    *config.ConfigInt    `config:"ConfigInt,autowire.config.demo-config.int-value"`
-	DemoConfigMap    *config.ConfigMap    `config:"ConfigMap,autowire.config.demo-config.map-value"`
-	DemoConfigSlice  *config.ConfigSlice  `config:"ConfigSlice,autowire.config.demo-config.slice-value"`
+	DemoConfigString  *config.ConfigString  `config:"github.com/alibaba/ioc-golang/extension/config.ConfigString,autowire.config.demo-config.string-value"`
+	DemoConfigInt     *config.ConfigInt     `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt,autowire.config.demo-config.int-value"`
+	DemoConfigMap     *config.ConfigMap     `config:"github.com/alibaba/ioc-golang/extension/config.ConfigMap,autowire.config.demo-config.map-value"`
+	DemoConfigSlice   *config.ConfigSlice   `config:"github.com/alibaba/ioc-golang/extension/config.ConfigSlice,autowire.config.demo-config.slice-value"`
+	DemoConfigInt64   *config.ConfigInt64   `config:"github.com/alibaba/ioc-golang/extension/config.ConfigInt64,autowire.config.demo-config.int64-value"`
+	DemoConfigFloat64 *config.ConfigFloat64 `config:"github.com/alibaba/ioc-golang/extension/config.ConfigFloat64,autowire.config#demo-config#float64-value"`
 }
 
 func (a *App) Run() {
@@ -38,13 +44,34 @@ func (a *App) Run() {
 	fmt.Println(a.DemoConfigInt.Value())
 	fmt.Println(a.DemoConfigMap.Value())
 	fmt.Println(a.DemoConfigSlice.Value())
+	fmt.Println(a.DemoConfigInt64.Value())
+	fmt.Println(a.DemoConfigFloat64.Value())
 }
 
 func main() {
-	if err := ioc.Load(); err != nil {
+	wd, _ := os.Getwd()
+	absPathOpt := conf.WithAbsPath(filepath.Join(wd, "./example/autowire_config/conf/ioc_golang.yaml"))
+
+	if err := ioc.Load(absPathOpt); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("App-App")
+
+	getImplByFullName()
+	getImplByAlias() // +ioc:autowire:alias=AppAlias
+}
+
+func getImplByFullName() {
+	// Use the full name of the struct instead of App-App(${interfaceName}-${structName})
+	appInterface, err := singleton.GetImpl("main.App")
+	if err != nil {
+		panic(err)
+	}
+	app := appInterface.(*App)
+	app.Run()
+}
+
+func getImplByAlias() {
+	appInterface, err := singleton.GetImpl("AppAlias") // Use the alias name of the struct
 	if err != nil {
 		panic(err)
 	}

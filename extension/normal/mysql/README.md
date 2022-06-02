@@ -43,8 +43,7 @@ type App struct {
 ```yaml
 autowire:
   normal:
-    Mysql:
-      Impl:
+    github.com/alibaba/ioc-golang/extension/normal/mysql.Impl:
         param:
           my-mysql:
             host: "127.0.0.1"

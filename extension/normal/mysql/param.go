@@ -56,7 +56,7 @@ func (p *paramLoader) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo
 	if len(splitedTagValue) <= 2 {
 		return nil, fmt.Errorf("file info %s doesn't contains param information, create param from sd paramLoader failed", fi)
 	}
-	if err := config.LoadConfigByPrefix(fmt.Sprintf("autowire.normal.Mysql.Impl.%s.param", splitedTagValue[1]), param); err != nil {
+	if err := config.LoadConfigByPrefix(fmt.Sprintf("autowire%[1]snormal%[1]s<github.com/alibaba/ioc-golang/extension/normal/mysql.Impl>%[1]s%[2]s%[1]sparam", config.YamlConfigSeparator, splitedTagValue[1]), param); err != nil {
 		return nil, err
 	}
 	param.TableName = splitedTagValue[2]

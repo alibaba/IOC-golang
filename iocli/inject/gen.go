@@ -34,13 +34,13 @@ type GeneratorInterface interface {
 }
 
 var (
-	enableIOCGoangAutowireMarker         = markers.Must(markers.MakeDefinition("ioc:autowire", markers.DescribesType, false))
+	enableIOCGolangAutowireMarker        = markers.Must(markers.MakeDefinition("ioc:autowire", markers.DescribesType, false))
 	iocGolangAutowireTypeMarker          = markers.Must(markers.MakeDefinition("ioc:autowire:type", markers.DescribesType, ""))
 	iocGolangAutowireBaseTypeMarker      = markers.Must(markers.MakeDefinition("ioc:autowire:baseType", markers.DescribesType, false))
-	iocGolangAutowireInterfaceMarker     = markers.Must(markers.MakeDefinition("ioc:autowire:interface", markers.DescribesType, ""))
 	iocGolangAutowireParamMarker         = markers.Must(markers.MakeDefinition("ioc:autowire:paramType", markers.DescribesType, ""))
 	iocGolangAutowireParamLoaderMarker   = markers.Must(markers.MakeDefinition("ioc:autowire:paramLoader", markers.DescribesType, ""))
 	iocGolangAutowireConstructFuncMarker = markers.Must(markers.MakeDefinition("ioc:autowire:constructFunc", markers.DescribesType, ""))
+	iocGolangAutowireAliasMarker         = markers.Must(markers.MakeDefinition("ioc:autowire:alias", markers.DescribesType, ""))
 )
 
 type Generator struct {
@@ -58,10 +58,17 @@ func (Generator) CheckFilter() loader.NodeFilter {
 
 func (Generator) RegisterMarkers(into *markers.Registry) error {
 	if err := markers.RegisterAll(into,
-		enableIOCGoangAutowireMarker, iocGolangAutowireTypeMarker, iocGolangAutowireInterfaceMarker,
-		iocGolangAutowireConstructFuncMarker, iocGolangAutowireParamLoaderMarker, iocGolangAutowireParamMarker, iocGolangAutowireBaseTypeMarker); err != nil {
+		enableIOCGolangAutowireMarker,
+		iocGolangAutowireTypeMarker,
+		iocGolangAutowireConstructFuncMarker,
+		iocGolangAutowireParamLoaderMarker,
+		iocGolangAutowireParamMarker,
+		iocGolangAutowireBaseTypeMarker,
+		iocGolangAutowireAliasMarker, // alias
+	); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -126,7 +133,7 @@ import (
 
 }
 
-// generateForPackage generates IOCGloang init and runtime.Object implementations for
+// generateForPackage generates IOCGolang init and runtime.Object implementations for
 // types in the given package, writing the formatted result to given writer.
 // May return nil if source could not be generated.
 func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) []byte {

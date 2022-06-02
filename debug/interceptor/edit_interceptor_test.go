@@ -27,9 +27,11 @@ import (
 	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
 )
 
+const serviceFooStructID = "github.com/alibaba/ioc-golang/debug/interceptore.ServiceFoo"
+
 func TestEditInterceptorWithCondition(t *testing.T) {
 	editInterceptor := GetEditInterceptor()
-	interfaceImplId := "Service-ServiceFoo"
+	interfaceImplId := serviceFooStructID
 	methodName := "Invoke"
 	sendCh := make(chan *boot.WatchResponse, 10)
 	recvCh := make(chan *EditData, 10)
@@ -83,8 +85,7 @@ func TestEditInterceptorWithCondition(t *testing.T) {
 	case info = <-controlSendCh:
 	default:
 	}
-	assert.Equal(t, "Service", info.InterfaceName)
-	assert.Equal(t, "ServiceFoo", info.ImplementationName)
+	assert.Equal(t, serviceFooStructID, info.ImplementationName)
 	assert.Equal(t, "Invoke", info.MethodName)
 	assert.Equal(t, true, info.IsParam)
 	assert.True(t, strings.Contains(info.Params[1], "lizhixin"))

@@ -110,6 +110,7 @@ package main
 import (
 	"fmt"
 	"time"
+
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
@@ -118,9 +119,9 @@ import (
 // +ioc:autowire:type=singleton
 
 type App struct {
-	ServiceImpl1 Service `singleton:"ServiceImpl1"` // inject Service 's ServiceImpl1 implementation
-	ServiceImpl2 Service `singleton:"ServiceImpl2"` // inject Service 's ServiceImpl2 implementation
-	ServiceStruct *ServiceStruct `singleton:"ServiceStruct"` // inject ServiceStruct struct pointer
+	ServiceImpl1 Service `singleton:"main.ServiceImpl1"` // inject Service 's ServiceImpl1 implementation
+	ServiceImpl2 Service `singleton:"main.ServiceImpl2"` // inject Service 's ServiceImpl2 implementation
+	ServiceStruct *ServiceStruct `singleton:"main.ServiceStruct"` // inject ServiceStruct struct pointer
 }
 
 func (a*App) Run(){
@@ -140,7 +141,6 @@ type Service interface{
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=Service
 
 type ServiceImpl1 struct {
 
@@ -152,7 +152,6 @@ func (s *ServiceImpl1) Hello(){
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=Service
 
 type ServiceImpl2 struct {
 
@@ -179,9 +178,8 @@ func main(){
 		panic(err)
 	}
 
-	// App-App is the format of： '$(interfaceName)-$(implementationStructName)'
-	// We can get instance by ths id
-	appInterface, err := singleton.GetImpl("App-App")
+	// We can get instance by this id: "${pkgName}.${structName}"
+	appInterface, err := singleton.GetImpl("main.App")
 	if err != nil{
 		panic(err)
 	}
@@ -214,31 +212,26 @@ import (
 
 func init() {
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: &App{},
 		Factory: func() interface{} {
 			return &App{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: &ServiceStruct{},
 		Factory: func() interface{} {
 			return &ServiceStruct{}
 		},
 	})
 }
-
 ```
 
 See the file tree:
@@ -269,17 +262,17 @@ Console printout:
                                                                     |___/ 
 Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
-[Config] Load config file from ../conf/ioc_golang.yaml
-Load ioc-golang config file failed. open ../conf/ioc_golang.yaml: no such file or directory
-The load procedure is continue
+[Config] Load default config file from ../conf/ioc_golang.yaml
+[Config] Load ioc-golang config file failed. open alibaba/IOC-Golang/example/conf/ioc_golang.yaml: no such file or directory
+ The load procedure is continue
 [Boot] Start to load debug
 [Debug] Debug mod is not enabled
 [Boot] Start to load autowire
 [Autowire Type] Found registered autowire type singleton
-[Autowire Struct Descriptor] Found type singleton registered SD App-App
-[Autowire Struct Descriptor] Found type singleton registered SD Service-ServiceImpl1
-[Autowire Struct Descriptor] Found type singleton registered SD Service-ServiceImpl2
-[Autowire Struct Descriptor] Found type singleton registered SD ServiceStruct-ServiceStruct
+[Autowire Struct Descriptor] Found type singleton registered SD main.App
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl1
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl2
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceStruct
 This is ServiceImpl1, hello world
 This is ServiceImpl2, hello world
 Hello laurence
@@ -302,35 +295,31 @@ List all interface, implementations and methods
 
 ```
 % iocli list
-App
-App
+main.App
 [Run]
 
-Service
-ServiceImpl1
+main.ServiceImpl1
 [Hello]
 
-Service
-ServiceImpl2
+main.ServiceImpl2
 [Hello]
 
-ServiceStruct
-ServiceStruct
+main.ServiceStruct
 [GetString]
 ```
 
 Watch real-time param and return value. We take 'GetString' method as an example. The method would be called every  3s .
 
 ```
-% iocli watch ServiceStruct ServiceStruct GetString
+% iocli watch main.ServiceStruct GetString
 
 ========== On Call ==========
-ServiceStruct.(ServiceStruct).GetString()
+main.ServiceStruct.GetString()
 Param 1: (string) (len=8) "laurence"
 
 
 ========== On Response ==========
-ServiceStruct.(ServiceStruct).GetString()
+main.ServiceStruct.GetString()
 Response 1: (string) (len=14) "Hello laurence"
 ...
 ```
@@ -345,9 +334,6 @@ The code generation tool recognizes objects marked with the +ioc:autowire=true a
 
 // +ioc:autowire:type=singleton
 The marker autowire model is the singleton, as well as the normal multi-instance model, the config configuration model, the grpc client model and other extensions.
-
-// +ioc:autowire:interface=Service
-Markers implement the interface Service and can be injected into objects of type Service .
 ````
 
 ###  More

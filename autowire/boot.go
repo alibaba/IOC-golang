@@ -52,10 +52,12 @@ func Load() error {
 	return nil
 }
 
-func Impl(autowireType, structDescriptorID string, param interface{}) (interface{}, error) {
+func Impl(autowireType, key string, param interface{}) (interface{}, error) {
+	targetSDID := GetSDIDByAliasIfNecessary(key)
+
 	for _, wrapperAutowire := range allWrapperAutowires {
 		if wrapperAutowire.TagKey() == autowireType {
-			return wrapperAutowire.ImplWithParam(structDescriptorID, param)
+			return wrapperAutowire.ImplWithParam(targetSDID, param)
 		}
 	}
 	return nil, nil

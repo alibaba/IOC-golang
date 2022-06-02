@@ -17,7 +17,6 @@ package triple
 
 import (
 	"github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/util"
 )
 
 type sdIDParser struct {
@@ -29,6 +28,5 @@ ResourceServiceClient resources.ResourceServiceClient `triple:"resource-service"
 to struct descriptor ID 'ResourceServiceClient-ResourceServiceClient'
 */
 func (p *sdIDParser) Parse(fi *autowire.FieldInfo) (string, error) {
-	grpcInterfaceName := fi.FieldType
-	return util.GetIdByNamePair(grpcInterfaceName, grpcInterfaceName), nil
+	return fi.FieldType, nil
 }

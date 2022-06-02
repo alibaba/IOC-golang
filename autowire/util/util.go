@@ -16,19 +16,14 @@
 package util
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 )
 
-func GetIdByInterfaceAndImplPtr(interfaceStruct, implStructPtr interface{}) string {
-	interfaceName := GetStructName(interfaceStruct)
-	structPtrName := GetStructName(implStructPtr)
-	return GetIdByNamePair(interfaceName, structPtrName)
-}
-
-func GetIdByNamePair(interfaceName, structPtrName string) string {
-	return strings.Join([]string{interfaceName, structPtrName}, "-")
-}
+const (
+	emptyString = ""
+)
 
 func GetStructName(v interface{}) string {
 	if v == nil {
@@ -38,8 +33,46 @@ func GetStructName(v interface{}) string {
 	return typeOfInterface.Name()
 }
 
+func GetSDIDByStructPtr(v interface{}) string {
+	if v == nil {
+		return ""
+	}
+	typeOfInterface := GetTypeFromInterface(v)
+	return fmt.Sprintf("%s.%s", typeOfInterface.PkgPath(), typeOfInterface.Name())
+}
+
 func GetTypeFromInterface(v interface{}) reflect.Type {
 	valueOfInterface := reflect.ValueOf(v)
 	valueOfElemInterface := valueOfInterface.Elem()
 	return valueOfElemInterface.Type()
+}
+
+func ToCamelCase(src string) string {
+	if src == emptyString {
+		return emptyString
+	}
+
+	return strings.ToLower(src[:1]) + src[1:]
+}
+
+func ToSnakeCase(src string) string {
+	if src == emptyString {
+		return src
+	}
+	srcLen := len(src)
+	result := make([]byte, 0, srcLen*2)
+	caseSymbol := false
+	for i := 0; i < srcLen; i++ {
+		char := src[i]
+		if i > 0 && char >= 'A' && char <= 'Z' && caseSymbol { // _xxx || yyy__zzz
+			result = append(result, '_')
+		}
+		caseSymbol = char != '_'
+
+		result = append(result, char)
+	}
+
+	snakeCase := strings.ToLower(string(result))
+
+	return snakeCase
 }

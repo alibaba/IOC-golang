@@ -19,7 +19,6 @@ import (
 	"strings"
 
 	"github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/util"
 )
 
 type defaultSDIDParser struct {
@@ -36,9 +35,7 @@ func GetDefaultSDIDParser() autowire.SDIDParser {
 
 func (p *defaultSDIDParser) Parse(fi *autowire.FieldInfo) (string, error) {
 	splitedTagValue := strings.Split(fi.TagValue, ",")
-	interfaceName := fi.FieldType
-	if interfaceName == "" {
-		interfaceName = splitedTagValue[0]
-	}
-	return util.GetIdByNamePair(interfaceName, splitedTagValue[0]), nil
+	// fixme: out of range
+	injectStructName := splitedTagValue[0]
+	return autowire.GetSDIDByAliasIfNecessary(injectStructName), nil
 }

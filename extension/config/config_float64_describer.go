@@ -13,32 +13,33 @@
  * limitations under the License.
  */
 
-package main
+package config
 
-import (
-	"context"
-	"fmt"
+//
+// Why?
+//
+// In many scenarios, float64 may be use,
+// such as the price of order.
+//
 
-	"github.com/spf13/cobra"
-	"google.golang.org/protobuf/types/known/emptypb"
-)
+// +ioc:autowire=true
+// +ioc:autowire:baseType=true
+// +ioc:autowire:type=config
+// +ioc:autowire:paramType=ConfigFloat64
+// +ioc:autowire:constructFunc=New
 
-var list = &cobra.Command{
-	Use: "list",
-	Run: func(cmd *cobra.Command, args []string) {
-		debugServiceClient := getDebugServiceClent(defaultDebugAddr)
-		rsp, err := debugServiceClient.ListServices(context.Background(), &emptypb.Empty{})
-		if err != nil {
-			panic(err)
-		}
-		for _, v := range rsp.ServiceMetadata {
-			fmt.Println(v.ImplementationName)
-			fmt.Println(v.Methods)
-			fmt.Println()
-		}
-	},
+type ConfigFloat64 float64
+
+func (ci *ConfigFloat64) Value() float64 {
+	return float64(*ci)
 }
 
-func init() {
-	rootCmd.AddCommand(list)
+func (ci *ConfigFloat64) New(impl *ConfigFloat64) (*ConfigFloat64, error) {
+	*impl = *ci
+	return impl, nil
+}
+
+func FromFloat64(val float64) *ConfigFloat64 {
+	configFloat64 := ConfigFloat64(val)
+	return &configFloat64
 }

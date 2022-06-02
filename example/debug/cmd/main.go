@@ -36,7 +36,6 @@ import (
 func init() {
 	// register grpc client
 	grpc.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(api.HelloServiceClient),
 		Factory: func() interface{} {
 			return new(api.HelloServiceClient)
 		},
@@ -57,12 +56,12 @@ func init() {
 type App struct {
 	HelloServiceClient api.HelloServiceClient `grpc:"hello-service"`
 
-	ExampleService1Impl1 service1.Service1 `singleton:"Impl1"`
+	ExampleService1Impl1 service1.Service1 `singleton:"github.com/alibaba/ioc-golang/example/debug/cmd/service1.Impl1"`
 
-	ExampleService2Impl1 service2.Service2 `singleton:"Impl1"`
-	ExampleService2Impl2 service2.Service2 `singleton:"Impl2"`
+	ExampleService2Impl1 service2.Service2 `singleton:"github.com/alibaba/ioc-golang/example/debug/cmd/service2.Impl1"`
+	ExampleService2Impl2 service2.Service2 `singleton:"github.com/alibaba/ioc-golang/example/debug/cmd/service2.Impl2"`
 
-	ExampleStruct1 *struct1.Struct1 `singleton:"Struct1"`
+	ExampleStruct1 *struct1.Struct1 `singleton:"github.com/alibaba/ioc-golang/example/debug/cmd/struct1.Struct1"`
 }
 
 func (a *App) Run() {
@@ -89,7 +88,7 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("main.App")
 	if err != nil {
 		panic(err)
 	}

@@ -22,7 +22,6 @@ type RocketMQClient interface {
 }
 
 // +ioc:autowire=true
-// +ioc:autowire:interface=RocketMQClient
 // +ioc:autowire:type=normal
 // +ioc:autowire:paramType=Config
 // +ioc:autowire:constructFunc=New

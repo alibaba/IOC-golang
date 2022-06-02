@@ -33,7 +33,6 @@ type Mysql interface {
 const SDID = "Mysql-Impl"
 
 // +ioc:autowire=true
-// +ioc:autowire:interface=Mysql
 // +ioc:autowire:type=normal
 // +ioc:autowire:paramType=Config
 // +ioc:autowire:paramLoader=paramLoader

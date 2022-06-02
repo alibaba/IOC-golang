@@ -25,7 +25,7 @@ import(
 // +ioc:autowire:type=singleton
 
 type App struct {
-	MyDataTable normalMysql.Mysql `normal:"Impl,my-mysql,mydata"`
+	MyDataTable normalMysql.Mysql `normal:"github.com/alibaba/ioc-golang/extension/normal.Impl,my-mysql,mydata"`
 }
 ```
 
@@ -37,13 +37,12 @@ type App struct {
 
   开发人员可以为 normalMysql.Mysql 类型的字段增加 `normal:"Impl,$(configKey),$(tableName)" `标签。从而注入指定数据库的指定表 sdk。
 
-  例子中的 `normal:"Impl,my-mysql,mydata"` 的意义为，将配置文件内 `autowire.normal.Mysql.Impl,my-mysql.param`定义的值作为参数。
+  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/normal/mysql.Impl,my-mysql,mydata"` 的意义为，将配置文件内`autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/mysql.Impl>.my-mysql.param`定义的值作为参数。
 
   ```yaml
   autowire:
     normal:
-      Mysql:
-        Impl:
+        github.com/alibaba/ioc-golang/extension/normal/mysql.Impl:
           my-mysql:
             param:
               host: "127.0.0.1"
@@ -59,12 +58,12 @@ type App struct {
 
   ```go
   type Mysql interface {
-  	GetDB() *gorm.DB
-  	SelectWhere(queryStr string, result interface{}, args ...interface{}) error
-  	Insert(toInsertLines UserDefinedModel) error
-  	Delete(toDeleteTarget UserDefinedModel) error
-  	First(queryStr string, findTarget UserDefinedModel, args ...interface{}) error
-  	Update(queryStr, field string, target interface{}, args ...interface{}) error
+      GetDB() *gorm.DB
+      SelectWhere(queryStr string, result interface{}, args ...interface{}) error
+      Insert(toInsertLines UserDefinedModel) error
+      Delete(toDeleteTarget UserDefinedModel) error
+      First(queryStr string, findTarget UserDefinedModel, args ...interface{}) error
+      Update(queryStr, field string, target interface{}, args ...interface{}) error
   }
   ```
 

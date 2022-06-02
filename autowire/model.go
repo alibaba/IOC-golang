@@ -81,12 +81,12 @@ type FieldInfo struct {
 // StructDescriptor
 
 type StructDescriptor struct {
-	Interface     interface{}
 	Factory       func() interface{} // raw struct
 	ParamFactory  func() interface{}
 	ParamLoader   ParamLoader
 	ConstructFunc func(impl interface{}, param interface{}) (interface{}, error) // injected
 	DestroyFunc   func(impl interface{})
+	Alias         string // alias of SDID
 
 	impledStructPtr interface{} // impledStructPtr is only used to get name
 	autowireType    string
@@ -101,14 +101,14 @@ func (ed *StructDescriptor) AutowireType() string {
 }
 
 func (ed *StructDescriptor) ID() string {
-	if ed.impledStructPtr == nil {
-		ed.parse()
-	}
-	return util.GetIdByInterfaceAndImplPtr(ed.Interface, ed.impledStructPtr)
+	return util.GetSDIDByStructPtr(ed.getStructPtr())
 }
 
-func (ed *StructDescriptor) parse() {
-	ed.impledStructPtr = ed.Factory()
+func (ed *StructDescriptor) getStructPtr() interface{} {
+	if ed.impledStructPtr == nil {
+		ed.impledStructPtr = ed.Factory()
+	}
+	return ed.impledStructPtr
 }
 
 // ParamLoader is interface to load param

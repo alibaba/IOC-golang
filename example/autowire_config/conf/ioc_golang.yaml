@@ -2,6 +2,8 @@ autowire:
   config:
     demo-config:
       int-value: 123
+      int64-value: 130117537261158665
+      float64-value: 0.001
       string-value: stringValue
       map-value:
         key1: value1

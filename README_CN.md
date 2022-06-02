@@ -114,6 +114,7 @@ package main
 import (
 	"fmt"
 	"time"
+
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
@@ -122,9 +123,9 @@ import (
 // +ioc:autowire:type=singleton
 
 type App struct {
-	ServiceImpl1 Service `singleton:"ServiceImpl1"` // 要求注入Service 的 ServiceImpl1 实现
-	ServiceImpl2 Service `singleton:"ServiceImpl2"` // 要求注入Service 的 ServiceImpl2 实现
-	ServiceStruct *ServiceStruct `singleton:"ServiceStruct"` // 要求注入 ServiceStruct 指针
+	ServiceImpl1 Service `singleton:"main.ServiceImpl1"` // 要求注入Service 的 ServiceImpl1 实现
+	ServiceImpl2 Service `singleton:"main.ServiceImpl2"` // 要求注入Service 的 ServiceImpl2 实现
+	ServiceStruct *ServiceStruct `singleton:"main.ServiceStruct"` // 要求注入 ServiceStruct 指针
 }
 
 func (a*App) Run(){
@@ -144,7 +145,6 @@ type Service interface{
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=Service
 
 type ServiceImpl1 struct {
 
@@ -156,7 +156,6 @@ func (s *ServiceImpl1) Hello(){
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:interface=Service
 
 type ServiceImpl2 struct {
 
@@ -183,9 +182,8 @@ func main(){
 		panic(err)
 	}
 
-	// App-App 即结构ID： '$(接口名)-$(结构名)'， 对于结构指针，接口名默认为结构名
-	// 可通过这一 ID 获取实例
-	appInterface, err := singleton.GetImpl("App-App")
+	// 可通过这一 ID 获取实例: "包名.结构名"
+	appInterface, err := singleton.GetImpl("main.App")
 	if err != nil{
 		panic(err)
 	}
@@ -219,25 +217,21 @@ import (
 
 func init() {
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: &App{},
 		Factory: func() interface{} {
 			return &App{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: new(Service),
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Interface: &ServiceStruct{},
 		Factory: func() interface{} {
 			return &ServiceStruct{}
 		},
@@ -274,17 +268,17 @@ func init() {
                                                                     |___/ 
 Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
-[Config] Load config file from ../conf/ioc_golang.yaml
-Load ioc-golang config file failed. open ../conf/ioc_golang.yaml: no such file or directory
-The load procedure is continue
+[Config] Load default config file from ../conf/ioc_golang.yaml
+[Config] Load ioc-golang config file failed. open alibaba/IOC-Golang/example/conf/ioc_golang.yaml: no such file or directory
+ The load procedure is continue
 [Boot] Start to load debug
 [Debug] Debug mod is not enabled
 [Boot] Start to load autowire
 [Autowire Type] Found registered autowire type singleton
-[Autowire Struct Descriptor] Found type singleton registered SD App-App
-[Autowire Struct Descriptor] Found type singleton registered SD Service-ServiceImpl1
-[Autowire Struct Descriptor] Found type singleton registered SD Service-ServiceImpl2
-[Autowire Struct Descriptor] Found type singleton registered SD ServiceStruct-ServiceStruct
+[Autowire Struct Descriptor] Found type singleton registered SD main.App
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl1
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl2
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceStruct
 This is ServiceImpl1, hello world
 This is ServiceImpl2, hello world
 Hello laurence
@@ -307,35 +301,32 @@ Hello laurence
 
 ```bash
 % iocli list
-App
-App
+main.App
 [Run]
 
-Service
-ServiceImpl1
+main.ServiceImpl1
 [Hello]
 
-Service
-ServiceImpl2
+main.ServiceImpl2
 [Hello]
 
-ServiceStruct
-ServiceStruct
+main.ServiceStruct
 [GetString]
+
 ```
 
 监听方法的参数和返回值。以监听 GetString 方法为例，每隔三秒钟函数被调用的时候，打印参数和返回值。
 
 ```bash
-% iocli watch ServiceStruct ServiceStruct GetString
+% iocli watch main.ServiceStruct GetString
 
 ========== On Call ==========
-ServiceStruct.(ServiceStruct).GetString()
+main.ServiceStruct.GetString()
 Param 1: (string) (len=8) "laurence"
 
 
 ========== On Response ==========
-ServiceStruct.(ServiceStruct).GetString()
+main.ServiceStruct.GetString()
 Response 1: (string) (len=14) "Hello laurence"
 ...
 ```
@@ -351,8 +342,6 @@ Response 1: (string) (len=14) "Hello laurence"
 // +ioc:autowire:type=singleton
 标记注入模型为 singleton 单例模型，还有 normal 多例模型，config 配置模型，grpc gRPC客户端模型等扩展。
 
-// +ioc:autowire:interface=Service
-标记实现了接口 Service，可被注入到 Service 类型的对象中。
 ```
 
 ###  更多

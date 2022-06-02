@@ -17,6 +17,7 @@ package grpc
 
 import (
 	"errors"
+	"fmt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -50,7 +51,7 @@ func (p *paramLoader) Load(_ *autowire.StructDescriptor, fi *autowire.FieldInfo)
 		return nil, errors.New("not supported")
 	}
 	grpcConfig := &Config{}
-	if err := config.LoadConfigByPrefix("autowire.grpc."+fi.TagValue, grpcConfig); err != nil {
+	if err := config.LoadConfigByPrefix(fmt.Sprintf("autowire%[1]sgrpc%[1]s%[2]s", config.YamlConfigSeparator, fi.TagValue), grpcConfig); err != nil {
 		return nil, err
 	}
 	return grpc.Dial(grpcConfig.Address, grpc.WithTransportCredentials(insecure.NewCredentials()))

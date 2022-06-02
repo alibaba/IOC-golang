@@ -28,6 +28,11 @@ import (
 	"sigs.k8s.io/controller-tools/pkg/markers"
 )
 
+const (
+	PackagePathSeparator = "/"
+	Dot                  = "."
+)
+
 type codeWriter struct {
 	out io.Writer
 }
@@ -179,13 +184,9 @@ func (c *copyMethodMaker) GenerateMethodsFor(root *loader.Package, imports *impo
 		}
 		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, alise, autowireAlise)
 
-		// 1. gen interface
-		if len(info.Markers["ioc:autowire:interface"]) != 0 {
-			c.Linef(`Interface: new (%s),`, info.Markers["ioc:autowire:interface"][0].(string))
-		} else if baseType {
-			c.Linef(`Interface: new (%s),`, info.Name)
-		} else {
-			c.Linef(`Interface: &%s{},`, info.Name)
+		// 0.gen alias
+		if len(info.Markers["ioc:autowire:alias"]) != 0 {
+			c.Linef(`Alias: "%s",`, info.Markers["ioc:autowire:alias"][0].(string))
 		}
 
 		// 2. gen struct factory and gen param
@@ -256,4 +257,29 @@ func firstCharLower(s string) string {
 		return strings.ToLower(string(s[0])) + s[1:]
 	}
 	return s
+}
+
+func parseInterfacePackage(serviceFullName string) string {
+	servicePackage := serviceFullName[:strings.LastIndex(serviceFullName, Dot)]
+
+	return servicePackage
+}
+
+func parseInterfaceName(serviceFullName string) string {
+	serviceName := serviceFullName[strings.LastIndex(serviceFullName, Dot)+1:]
+
+	return serviceName
+}
+
+func parseInterfacePackageAlias(c *copyMethodMaker, otherPackage string) string {
+	packageAlias := c.NeedImport(otherPackage)
+
+	return packageAlias
+}
+
+func isEligibleInterfaceReferencePath(interfaceReferencePath string) bool {
+	return strings.Contains(interfaceReferencePath, PackagePathSeparator) &&
+		strings.LastIndex(interfaceReferencePath, Dot) > 0 &&
+		strings.LastIndex(interfaceReferencePath, Dot) < len(interfaceReferencePath)-1 &&
+		(strings.LastIndex(interfaceReferencePath, PackagePathSeparator) < strings.LastIndex(interfaceReferencePath, Dot))
 }
