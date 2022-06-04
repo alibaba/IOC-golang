@@ -24,6 +24,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"sigs.k8s.io/controller-tools/pkg/genall"
+
 	"sigs.k8s.io/controller-tools/pkg/loader"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 )
@@ -139,10 +141,11 @@ type paramImplPair struct {
 
 // GenerateMethodsFor makes init method
 // for the given type, when appropriate
-func (c *copyMethodMaker) GenerateMethodsFor(root *loader.Package, imports *importsList, infos []*markers.TypeInfo) {
+func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root *loader.Package, imports *importsList, infos []*markers.TypeInfo) {
 	paramImplPairs := make([]paramImplPair, 0)
+	rpcServiceStructInfos := make([]*markers.TypeInfo, 0)
 	c.Line(`func init() {`)
-	autowireAlise := c.NeedImport("github.com/alibaba/ioc-golang/autowire")
+	autowireAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire")
 	for _, info := range infos {
 		if len(info.Markers["ioc:autowire"]) == 0 {
 			continue
@@ -179,13 +182,19 @@ func (c *copyMethodMaker) GenerateMethodsFor(root *loader.Package, imports *impo
 		alise := ""
 		if autowireType == "normal" || autowireType == "singleton" {
 			alise = c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/autowire/%s", autowireType))
+		} else if autowireType == "rpc" {
+			alise = c.NeedImport("github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_service")
+			rpcServiceStructInfos = append(rpcServiceStructInfos, info)
 		} else {
 			alise = c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/extension/autowire/%s", autowireType))
 		}
-		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, alise, autowireAlise)
+
+		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, alise, autowireAlias)
 
 		// 0.gen alias
-		if len(info.Markers["ioc:autowire:alias"]) != 0 {
+		if autowireType == "rpc" {
+			c.Linef(`Alias: "%s/api.%sIOCRPCClient",`, root.PkgPath, info.Name)
+		} else if len(info.Markers["ioc:autowire:alias"]) != 0 {
 			c.Linef(`Alias: "%s",`, info.Markers["ioc:autowire:alias"][0].(string))
 		}
 
@@ -241,11 +250,15 @@ func (c *copyMethodMaker) GenerateMethodsFor(root *loader.Package, imports *impo
 	}
 	c.Line(`}`)
 
+	// gen param interface
 	for _, paramImplPair := range paramImplPairs {
 		c.Linef(`type %s interface {
 			%s (impl *%s) (*%s,error)
 		}`, getParamInterfaceType(paramImplPair.paramName), paramImplPair.constructFuncName, paramImplPair.implName, paramImplPair.implName)
 	}
+
+	// gen iocRPC client
+	genIOCRPCClientStub(ctx, root, rpcServiceStructInfos)
 }
 
 func getParamInterfaceType(paramType string) string {

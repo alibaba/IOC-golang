@@ -88,10 +88,8 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}) (int
 
 // ImplWithoutParam is used to create param from field without param
 func (w *WrapperAutowireImpl) ImplWithoutParam(sdID string) (interface{}, error) {
-	param, err := w.ParseParam(sdID, nil)
-	if err != nil {
-		return nil, err
-	}
+	// FIXME: ignore parse param error, because of singleton with empty param also try to find property from config file
+	param, _ := w.ParseParam(sdID, nil)
 	return w.ImplWithParam(sdID, param)
 }
 
@@ -101,10 +99,8 @@ func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) 
 	if err != nil {
 		return nil, err
 	}
-	param, err := w.ParseParam(sdID, fi)
-	if err != nil {
-		return nil, err
-	}
+	// 	// FIXME: ignore parse param error, because of singleton with empty param also try to find property from config file
+	param, _ := w.ParseParam(sdID, fi)
 	return w.ImplWithParam(sdID, param)
 }
 
@@ -131,7 +127,7 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 		tagValue := ""
 		for _, aw := range w.allAutowires {
 			if val, ok := field.Tag.Lookup(aw.TagKey()); ok {
-				fieldType := buildFiledTypeFullName(field)
+				fieldType := buildFiledTypeFullName(field.Type)
 				fieldInfo := &FieldInfo{
 					FieldName: field.Name,
 					FieldType: fieldType,
@@ -156,7 +152,7 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 		subService := valueOfElem.Field(i)
 		if !(subService.IsValid() && subService.CanSet()) {
 			err := perrors.Errorf("Failed to autowire struct %s's impl %s service. It's field %s with tag '%s:\"%s\"', please check if the field is exported",
-				util.GetStructName(sd.ID()), util.GetStructName(impledPtr), field.Type.Name(), tagKey, tagValue)
+				sd.ID(), util.GetStructName(impledPtr), field.Type.Name(), tagKey, tagValue)
 			return err
 		}
 		subService.Set(reflect.ValueOf(subImpledPtr))
@@ -169,6 +165,9 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 	return nil
 }
 
-func buildFiledTypeFullName(field reflect.StructField) string {
-	return field.Type.PkgPath() + "." + field.Type.Name()
+func buildFiledTypeFullName(fieldType reflect.Type) string {
+	if fieldType.Kind() == reflect.Ptr {
+		return fieldType.Elem().PkgPath() + "." + fieldType.Elem().Name()
+	}
+	return fieldType.PkgPath() + "." + fieldType.Name()
 }

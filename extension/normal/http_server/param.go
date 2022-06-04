@@ -3,7 +3,7 @@ package http_server
 import "github.com/gorilla/mux"
 
 type HTTPServerConfig struct {
-	Port int `yaml:"port"`
+	Port string `yaml:"port"`
 }
 
 func (s *HTTPServerConfig) Create(impl *Impl) (*Impl, error) {

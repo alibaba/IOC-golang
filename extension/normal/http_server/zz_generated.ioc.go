@@ -7,11 +7,11 @@ package http_server
 
 import (
 	autowire "github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
+	normal "github.com/alibaba/ioc-golang/autowire/normal"
 )
 
 func init() {
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &Impl{}
 		},

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/alibaba/ioc-golang/example/helloworld/substruct"
+
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
@@ -12,9 +14,9 @@ import (
 // +ioc:autowire:type=singleton
 
 type App struct {
-	ServiceImpl1  Service        `singleton:"main.ServiceImpl1"`  // inject Service 's ServiceImpl1 implementation
-	ServiceImpl2  Service        `singleton:"main.ServiceImpl2"`  // inject Service 's ServiceImpl2 implementation
-	ServiceStruct *ServiceStruct `singleton:"main.ServiceStruct"` // inject ServiceStruct struct pointer
+	ServiceImpl1  Service        `singleton:"main.ServiceImpl1"` // inject Service 's ServiceImpl1 implementation
+	ServiceImpl2  Service        `singleton:"main.ServiceImpl2"` // inject Service 's ServiceImpl2 implementation
+	ServiceStruct *ServiceStruct `singleton:""`                  // inject ServiceStruct struct pointer
 }
 
 func (a *App) Run() {
@@ -23,7 +25,7 @@ func (a *App) Run() {
 		a.ServiceImpl1.Hello()
 		a.ServiceImpl2.Hello()
 
-		fmt.Println(a.ServiceStruct.GetString("laurence"))
+		fmt.Println(a.ServiceStruct.GetString("laurence", "", nil))
 	}
 }
 
@@ -53,12 +55,14 @@ func (s *ServiceImpl2) Hello() {
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
+// +ioc:autowire:isRPCService=true
 
 type ServiceStruct struct {
+	//MyName string
 }
 
-func (s *ServiceStruct) GetString(name string) string {
-	return fmt.Sprintf("Hello %s", name)
+func (s *ServiceStruct) GetString(name, name2 string, param *substruct.Param) (string, error) {
+	return fmt.Sprintf("Hello %s", name), nil
 }
 
 func main() {
