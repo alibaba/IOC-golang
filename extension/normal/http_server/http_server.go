@@ -3,20 +3,19 @@ package http_server
 import (
 	"context"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 
 	"github.com/alibaba/ioc-golang/autowire/singleton"
-	"github.com/alibaba/ioc-golang/extension/singleton/http_server/ghttp"
+	"github.com/alibaba/ioc-golang/extension/normal/http_server/ghttp"
 )
 
-const SDID = "HttpServer-Impl"
+const sdID = "github.com/alibaba/ioc-golang/extension/normal/http_server.Impl"
 
 type HttpServer interface {
 	RegisterRouter(path string, handler func(*ghttp.GRegisterController) error, req interface{},
-		rsp interface{}, method string, filters []ghttp.Filter)
+		rsp interface{}, method string, filters ...ghttp.Filter)
 	RegisterWSRouter(path string, handler func(*ghttp.GRegisterWSController))
 	RegisterRouterWithRawHttpHandler(path string, handler func(w http.ResponseWriter, r *http.Request), method string)
 
@@ -24,7 +23,7 @@ type HttpServer interface {
 }
 
 // +ioc:autowire=true
-// +ioc:autowire:type=singleton
+// +ioc:autowire:type=normal
 // +ioc:autowire:paramType=HTTPServerConfig
 // +ioc:autowire:constructFunc=Create
 
@@ -49,7 +48,7 @@ func (hs *Impl) Run(ctx context.Context) {
 		s.Use(handler)
 	}
 	s.UseHandler(hs.router)
-	s.Run(":" + strconv.Itoa(hs.config.Port))
+	s.Run(":" + hs.config.Port)
 }
 
 // RegisterRouterWithRawHttpHandler user API
@@ -59,7 +58,7 @@ func (hs *Impl) RegisterRouterWithRawHttpHandler(path string, handler func(w htt
 
 // RegisterRouter user API
 func (hs *Impl) RegisterRouter(path string, handler func(*ghttp.GRegisterController) error, req interface{},
-	rsp interface{}, method string, filters []ghttp.Filter) {
+	rsp interface{}, method string, filters ...ghttp.Filter) {
 	filters = append(hs.iocGolangMWs, filters...)
 	ghttp.RegisterRouter(path, hs.router, handler, req, rsp, method, filters)
 }
@@ -71,7 +70,7 @@ func (hs *Impl) RegisterWSRouter(path string, handler func(*ghttp.GRegisterWSCon
 
 // GetHTTPServer developr APi
 func GetHTTPServer() (HttpServer, error) {
-	appImpl, err := singleton.GetImpl(SDID)
+	appImpl, err := singleton.GetImpl(sdID)
 	if err != nil {
 		return nil, err
 	}

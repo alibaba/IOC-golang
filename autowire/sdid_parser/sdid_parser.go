@@ -34,8 +34,12 @@ func GetDefaultSDIDParser() autowire.SDIDParser {
 }
 
 func (p *defaultSDIDParser) Parse(fi *autowire.FieldInfo) (string, error) {
-	splitedTagValue := strings.Split(fi.TagValue, ",")
-	// fixme: out of range
-	injectStructName := splitedTagValue[0]
+	injectStructName := fi.FieldType
+	if fi.TagValue != "" {
+		splitedTagValue := strings.Split(fi.TagValue, ",")
+		if splitedTagValue[0] != "" {
+			injectStructName = splitedTagValue[0]
+		}
+	}
 	return autowire.GetSDIDByAliasIfNecessary(injectStructName), nil
 }
