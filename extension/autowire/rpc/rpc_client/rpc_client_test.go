@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package rpc_service
+package rpc_client
 
 import (
 	"testing"
@@ -26,10 +26,10 @@ import (
 type mockImpl struct {
 }
 
-const mockImplName = "github.com/alibaba/ioc-golang/extension/autowire/rpc.mockImpl"
+const mockImplName = "github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client.mockImpl"
 
 func TestAutowire_RegisterAndGetAllStructDescriptors(t *testing.T) {
-	t.Run("test config autowire register and get all struct descriptors", func(t *testing.T) {
+	t.Run("test register and get all struct descriptors", func(t *testing.T) {
 		sd := &autowire.StructDescriptor{
 			Factory: func() interface{} {
 				return &mockImpl{}

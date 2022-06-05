@@ -1,10 +1,24 @@
+/*
+ * Copyright (c) 2022, Alibaba Group;
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package main
 
 import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/dto"
 	"github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/service/api"
 
 	"github.com/alibaba/ioc-golang"
@@ -16,26 +30,17 @@ import (
 // +ioc:autowire:type=singleton
 
 type App struct {
-	ServiceStruct *api.ServiceStructIOCRPCClient `rpc-client:",address=localhost:2022"`
+	ServiceStruct *api.ServiceStructIOCRPCClient `rpc-client:",address=127.0.0.1:2022"`
 }
 
 func (a *App) Run() {
 	for {
 		time.Sleep(time.Second * 3)
-		age := 23
-		age32 := int32(23)
-		age64 := int64(23)
-		ageF32 := float32(23)
-		ageF64 := float64(23)
-		usr, paramUser, err := a.ServiceStruct.GetUser("laurence", 23, 23, 23, 23, 23, &age, &age32, &age64, &ageF32, &ageF64, &dto.User{
-			Name: "laurence",
-			Age:  18,
-		})
+		usr, err := a.ServiceStruct.GetUser("laurence", 23)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(usr, usr.Age)
-		fmt.Println(paramUser, paramUser.Age)
+		fmt.Printf("get user = %+v\n", usr)
 	}
 }
 

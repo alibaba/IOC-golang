@@ -13,8 +13,22 @@
  * limitations under the License.
  */
 
-package rpc_client
+package service
 
-type Param struct {
-	Address string
+import (
+	"github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/dto"
+)
+
+// +ioc:autowire=true
+// +ioc:autowire:type=rpc
+
+type SimpleService struct {
+}
+
+func (s *SimpleService) GetUser(name string, age int) (*dto.User, error) {
+	return &dto.User{
+		Id:   1,
+		Name: name,
+		Age:  age,
+	}, nil
 }

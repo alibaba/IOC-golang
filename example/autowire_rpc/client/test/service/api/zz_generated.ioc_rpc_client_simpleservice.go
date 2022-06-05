@@ -4,18 +4,18 @@ package api
 
 import (
 	"github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/dto"
+	"github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/dto"
 	"github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client"
 )
 
 func init() {
 	rpc_client.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ServiceStructIOCRPCClient{}
+			return &SimpleServiceIOCRPCClient{}
 		},
 	})
 }
 
-type ServiceStructIOCRPCClient struct {
+type SimpleServiceIOCRPCClient struct {
 	GetUser func(name string, age int) (*dto.User, error)
 }

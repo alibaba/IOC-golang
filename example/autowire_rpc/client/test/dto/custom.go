@@ -15,8 +15,27 @@
 
 package dto
 
-type User struct {
-	Id   int
-	Name string
-	Age  int
+type CustomStruct struct {
+	User                  // combination
+	CustomStructId        int64
+	IdPtr                 *int64
+	CustomStructName      string
+	NamePtr               *string
+	CustomStringMap       map[string]string
+	CustomIntMap          map[string]int
+	CustomSubStructPtrMap map[string]*User
+	CustomSubStructMap    map[string]User
+	StringSlice           []string
+	SubStructSlice        []User
+	SubStructPtrSlice     []*User
+	SubStruct             User
+	SubStructPtr          *User
+}
+
+func (c *CustomStruct) GetUser() User {
+	return c.SubStruct
+}
+
+type UserGetter interface {
+	GetUser() User
 }

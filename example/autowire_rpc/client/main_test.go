@@ -16,14 +16,35 @@
 package main
 
 import (
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
+
 	_ "github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/service"
 )
 
-func main() {
-	// start
+func (a *App) TestRun(t *testing.T) {
+	usr, err := a.ServiceStruct.GetUser("laurence", 23)
+	assert.Nil(t, err)
+	assert.NotNil(t, usr)
+	assert.Equal(t, 1, usr.Id)
+	assert.Equal(t, "laurence", usr.Name)
+	assert.Equal(t, 23, usr.Age)
+}
+
+func TestRPCClient(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	select {}
+	appInterface, err := singleton.GetImpl("github.com/alibaba/ioc-golang/example/autowire_rpc/client.App")
+	if err != nil {
+		panic(err)
+	}
+	time.Sleep(time.Second)
+	app := appInterface.(*App)
+	app.TestRun(t)
 }

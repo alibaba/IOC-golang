@@ -231,7 +231,6 @@ func writeOut(ctx *genall.GenerationContext, outputFile io.WriteCloser, root *lo
 			root.AddError(err)
 			return
 		}
-		defer outputFile.Close()
 	}
 	n, err := outputFile.Write(outBytes)
 	if err != nil {

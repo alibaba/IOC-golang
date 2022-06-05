@@ -25,8 +25,7 @@ import (
 
 // IOCProtocol fixme we can choose 'ioc:autowire:constructFunc' = Init or 'IOCGoParam.Init' some
 type IOCProtocol struct {
-	HttpServer http_server.HttpServer
-	inited     bool
+	httpServer http_server.HttpServer
 	address    string
 	exportPort string
 }
@@ -39,26 +38,38 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 		panic(err)
 	}
 	rspData, _ := ioutil.ReadAll(rsp.Body)
-	err = json.Unmarshal(rspData, invocation.Reply())
+	replyList := invocation.Reply().(*[]interface{})
+	finalIsError := false
+	finalErrorNotNil := false
+	if length := len(*replyList); length > 0 {
+		_, ok := (*replyList)[length-1].(*error)
+		if ok {
+			finalIsError = true
+		}
+	}
+	err = json.Unmarshal(rspData, replyList)
+	if err != nil && finalIsError {
+		// try to recover unmarshal failed caused by error not empty, first try to unmarshal to string
+		(*replyList)[len(*replyList)-1] = ""
+		err = json.Unmarshal(rspData, replyList)
+		if err == nil {
+			// previous unmarshal failed is caused by error not empty, mark final error not nil
+			finalErrorNotNil = true
+		}
+	}
 	if err != nil {
 		panic(err)
+	}
+	if finalErrorNotNil {
+		realErr := fmt.Errorf((*replyList)[len(*replyList)-1].(string))
+		(*replyList)[len(*replyList)-1] = &realErr
 	}
 	return nil
 }
 
 func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Exporter {
-	if !i.inited {
-		serverImpl, err := normal.GetImpl(`github.com/alibaba/ioc-golang/extension/normal/http_server.Impl`, &http_server.HTTPServerConfig{
-			Port: i.exportPort,
-		})
-		if err != nil {
-			panic(err)
-		}
-		i.HttpServer = serverImpl.(http_server.HttpServer)
-		go func() {
-			i.HttpServer.Run(context.Background())
-		}()
-		i.inited = true
+	if i.httpServer == nil {
+		i.httpServer = getHTTPServerSingleton(i.exportPort)
 	}
 
 	sdid := invoker.GetURL().GetParam(constant.InterfaceKey, "")
@@ -69,17 +80,19 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 	}
 
 	for methodName, methodType := range svc.Method() {
-		i.HttpServer.RegisterRouter(fmt.Sprintf("/%s/%s", clientStubFullName, methodName), func(controller *ghttp.GRegisterController) error {
+		argsType := methodType.ArgsType()
+		tempMethod := methodName
+		i.httpServer.RegisterRouter(fmt.Sprintf("/%s/%s", clientStubFullName, tempMethod), func(controller *ghttp.GRegisterController) error {
 			reqData, err := ioutil.ReadAll(controller.R.Body)
 			if err != nil {
 				return err
 			}
-			arguments, err := ParseArgs(methodType.ArgsType(), reqData)
+			arguments, err := ParseArgs(argsType, reqData)
 			if err != nil {
 				return err
 			}
 			controller.Rsp = invoker.Invoke(context.Background(),
-				invocation.NewRPCInvocation(methodName, arguments, nil)).Result()
+				invocation.NewRPCInvocation(tempMethod, arguments, nil)).Result()
 			return nil
 		}, nil, nil, http.MethodPost)
 	}

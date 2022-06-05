@@ -20,6 +20,7 @@ import (
 
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/normal"
+	"github.com/alibaba/ioc-golang/autowire/util"
 	"github.com/alibaba/ioc-golang/extension/autowire/rpc/protocol/protocol_impl"
 )
 
@@ -72,6 +73,11 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	rpcClientStructDescriptorMap[iocRPCClientSDID] = s
 }
 
-func GetImpl(key string) (interface{}, error) {
-	return autowire.Impl(Name, key, nil)
+func GetImpl(key string, param *Param) (interface{}, error) {
+	return autowire.Impl(Name, key, param)
+}
+
+func ImplClientStub(clientStubPtr interface{}, param *Param) (interface{}, error) {
+	clientStubType := util.GetTypeFromInterface(clientStubPtr)
+	return GetImpl(clientStubType.PkgPath()+"."+clientStubType.Name(), param)
 }

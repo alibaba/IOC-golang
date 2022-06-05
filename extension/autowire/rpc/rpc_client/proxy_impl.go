@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2022, Alibaba Group;
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package rpc_client
 
 import (
@@ -9,8 +24,6 @@ import (
 	"dubbo.apache.org/dubbo-go/v3/common/proxy"
 	invocation_impl "dubbo.apache.org/dubbo-go/v3/protocol/invocation"
 )
-
-var typError = reflect.Zero(reflect.TypeOf((*error)(nil)).Elem()).Type()
 
 // defaultProxyImplementFunc the default function for proxy impl
 func defaultProxyImplementFunc(p *proxy.Proxy, v common.RPCService) {
@@ -31,7 +44,7 @@ func defaultProxyImplementFunc(p *proxy.Proxy, v common.RPCService) {
 			}
 
 			replyInterface := make([]interface{}, 0)
-			reflectValues := make([]reflect.Value, 0)
+			outReflectValues := make([]reflect.Value, 0)
 			for _, o := range outs {
 				var reflectValue reflect.Value
 				if o.Kind() == reflect.Ptr {
@@ -39,7 +52,7 @@ func defaultProxyImplementFunc(p *proxy.Proxy, v common.RPCService) {
 				} else {
 					reflectValue = reflect.New(o)
 				}
-				reflectValues = append(reflectValues, reflectValue)
+				outReflectValues = append(outReflectValues, reflectValue)
 				replyInterface = append(replyInterface, reflectValue.Interface())
 			}
 
@@ -80,8 +93,16 @@ func defaultProxyImplementFunc(p *proxy.Proxy, v common.RPCService) {
 
 			p.GetInvoker().Invoke(invCtx, inv)
 
-			// todo deal with error
+			// interface -> reflectionValues
+			reflectValues := make([]reflect.Value, 0)
 			returnReflectValues := make([]reflect.Value, 0)
+			for idx, v := range replyInterface {
+				if v == nil {
+					reflectValues = append(reflectValues, outReflectValues[idx])
+				} else {
+					reflectValues = append(reflectValues, reflect.ValueOf(v))
+				}
+			}
 			for idx, reflectValue := range reflectValues {
 				if outs[idx].Kind() != reflect.Ptr {
 					returnReflectValues = append(returnReflectValues, reflectValue.Elem())
