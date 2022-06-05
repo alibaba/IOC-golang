@@ -35,7 +35,3 @@ type CustomStruct struct {
 func (c *CustomStruct) GetUser() User {
 	return c.SubStruct
 }
-
-type UserGetter interface {
-	GetUser() User
-}

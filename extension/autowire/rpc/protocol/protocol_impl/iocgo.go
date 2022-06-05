@@ -23,7 +23,7 @@ import (
 // +ioc:autowire:paramType=Param
 // +ioc:autowire:constructFunc=Init
 
-// IOCProtocol fixme we can choose 'ioc:autowire:constructFunc' = Init or 'IOCGoParam.Init' some
+// IOCProtocol is ioc protocol impl
 type IOCProtocol struct {
 	httpServer http_server.HttpServer
 	address    string

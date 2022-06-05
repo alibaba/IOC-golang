@@ -30,8 +30,7 @@ import (
 )
 
 func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rpcServiceStructInfos []*markers.TypeInfo) {
-	// apiRoot
-	//fmt.Println("pkgpath =", root.PkgPath)
+	// api folder root
 	loadedRoots, err := loader.LoadRoots(root.PkgPath + "/api")
 	if err != nil {
 		panic(err)
@@ -39,7 +38,6 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 
 	apiRoot := loadedRoots[0]
 
-	//fmt.Println("loaded roots go files = ", apiRoot.GoFiles)
 	apiRoot.NeedTypesInfo()
 
 	for _, info := range rpcServiceStructInfos {
@@ -74,10 +72,8 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 			importsAlias := m.GetImportAlias()
 			if len(importsAlias) != 0 {
 				for _, importAlias := range importsAlias {
-					//fmt.Println("import alias ", importAlias)
 					for _, rawFileImport := range info.RawFile.Imports {
 						var originAlias string
-						//fmt.Println(rawFileImport, splitedBySpace)
 						if rawFileImport.Name != nil {
 							originAlias = rawFileImport.Name.String()
 						} else {
@@ -85,10 +81,7 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 							originAlias = strings.TrimPrefix(splitedImport[len(splitedImport)-1], `"`)
 							originAlias = strings.TrimSuffix(originAlias, `"`)
 						}
-						//fmt.Println("origin ", originAlias)
 						if originAlias == importAlias {
-							//fmt.Println(rawFileImport.Name) // todo get alias
-							//fmt.Println("need import ", rawFileImport.Path.Value)
 							toImport := strings.TrimPrefix(rawFileImport.Path.Value, `"`)
 							toImport = strings.TrimSuffix(toImport, `"`)
 							clientStubAlias := c.NeedImport(toImport)
@@ -215,7 +208,6 @@ func parseMethodInfoFromGoFiles(structName string, goFilesPath []string) []metho
 	for _, filePath := range goFilesPath {
 		data, err := ioutil.ReadFile(filePath)
 		if err != nil {
-			//fmt.Printf("load file %s with error = %s\n", filePath, err)
 			continue
 		}
 		fileString := string(data)
