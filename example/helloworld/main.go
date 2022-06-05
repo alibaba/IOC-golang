@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/ioc-golang/example/helloworld/substruct"
-
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
@@ -25,7 +23,7 @@ func (a *App) Run() {
 		a.ServiceImpl1.Hello()
 		a.ServiceImpl2.Hello()
 
-		fmt.Println(a.ServiceStruct.GetString("laurence", "", nil))
+		fmt.Println(a.ServiceStruct.GetString("laurence"))
 	}
 }
 
@@ -61,8 +59,8 @@ type ServiceStruct struct {
 	//MyName string
 }
 
-func (s *ServiceStruct) GetString(name, name2 string, param *substruct.Param) (string, error) {
-	return fmt.Sprintf("Hello %s", name), nil
+func (s *ServiceStruct) GetString(name string) string {
+	return fmt.Sprintf("Hello %s", name)
 }
 
 func main() {
