@@ -53,10 +53,8 @@ func (s *ServiceImpl2) Hello() {
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:isRPCService=true
 
 type ServiceStruct struct {
-	//MyName string
 }
 
 func (s *ServiceStruct) GetString(name string) string {
