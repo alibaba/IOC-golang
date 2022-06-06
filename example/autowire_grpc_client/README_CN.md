@@ -76,36 +76,37 @@ autowire:
 
 2. 新开一个终端，启动客户端。
 
-   ```bash
-   % cd example/autowire_grpc_client/cmd
-   % go run .
-     ___    ___     ____            ____           _                         
-    |_ _|  / _ \   / ___|          / ___|   ___   | |   __ _   _ __     __ _ 
-     | |  | | | | | |      _____  | |  _   / _ \  | |  / _` | | '_ \   / _` |
-     | |  | |_| | | |___  |_____| | |_| | | (_) | | | | (_| | | | | | | (_| |
-    |___|  \___/   \____|          \____|  \___/  |_|  \__,_| |_| |_|  \__, |
-                                                                       |___/ 
-   Welcome to use ioc-golang!
-   [Boot] Start to load ioc-golang config
-   [Config] Load config file from ../conf/ioc_golang.yaml
-   [Boot] Start to load debug
-   [Debug] Debug mod is not enabled
-   [Boot] Start to load autowire
-   [Autowire Type] Found registered autowire type singleton
-   [Autowire Struct Descriptor] Found type singleton registered SD Service2-Impl1
-   [Autowire Struct Descriptor] Found type singleton registered SD Service2-Impl2
-   [Autowire Struct Descriptor] Found type singleton registered SD Struct1-Struct1
-   [Autowire Struct Descriptor] Found type singleton registered SD App-App
-   [Autowire Struct Descriptor] Found type singleton registered SD Service1-Impl1
-   [Autowire Type] Found registered autowire type grpc
-   [Autowire Struct Descriptor] Found type grpc registered SD HelloServiceClient-HelloServiceClient
-   create conn target  localhost:8080
-   App call grpc get: Hello laurence
-   ExampleService1Impl1 call grpc get :Hello laurence
-   ExampleService2Impl1 call grpc get :Hello laurence_service2_impl1
-   ExampleService2Impl2 call grpc get :Hello laurence_service2_impl2
-   ExampleStruct1 call grpc get :Hello laurence_service1_impl1
-   ```
+```bash
+% cd example/autowire_grpc_client/cmd
+% go run .
+  ___    ___     ____            ____           _                         
+ |_ _|  / _ \   / ___|          / ___|   ___   | |   __ _   _ __     __ _ 
+  | |  | | | | | |      _____  | |  _   / _ \  | |  / _` | | '_ \   / _` |
+  | |  | |_| | | |___  |_____| | |_| | | (_) | | | | (_| | | | | | | (_| |
+ |___|  \___/   \____|          \____|  \___/  |_|  \__,_| |_| |_|  \__, |
+                                                                    |___/ 
+Welcome to use ioc-golang!
+[Boot] Start to load ioc-golang config
+[Config] Load default config file from ../conf/ioc_golang.yaml
+[Config] merge config map, depth: [0]
+[Boot] Start to load debug
+[Debug] Debug mod is not enabled
+[Boot] Start to load autowire
+[Autowire Type] Found registered autowire type grpc
+[Autowire Struct Descriptor] Found type grpc registered SD github.com/alibaba/ioc-golang/example/autowire_grpc_client/api.HelloServiceClient
+[Autowire Type] Found registered autowire type singleton
+[Autowire Struct Descriptor] Found type singleton registered SD github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/struct1.Struct1
+[Autowire Struct Descriptor] Found type singleton registered SD main.App
+[Autowire Struct Descriptor] Found type singleton registered SD github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service1.Impl1
+[Autowire Struct Descriptor] Found type singleton registered SD github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service2.Impl1
+[Autowire Struct Descriptor] Found type singleton registered SD github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service2.Impl2
+create conn target  localhost:8080
+App call grpc get: Hello laurence
+ExampleService1Impl1 call grpc get :Hello laurence_service1_impl1
+ExampleService2Impl1 call grpc get :Hello laurence_service2_impl1
+ExampleService2Impl2 call grpc get :Hello laurence_service2_impl2
+ExampleStruct1 call grpc get :Hello laurence_struct
+```
    
 
 ### 小节

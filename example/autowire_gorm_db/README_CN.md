@@ -39,18 +39,18 @@ type App struct {
 
   例子中的 `normal:"github.com/alibaba/ioc-golang/extension/normal/mysql.Impl,my-mysql,mydata"` 的意义为，将配置文件内`autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/mysql.Impl>.my-mysql.param`定义的值作为参数。
 
-  ```yaml
-  autowire:
-    normal:
-        github.com/alibaba/ioc-golang/extension/normal/mysql.Impl:
-          my-mysql:
-            param:
-              host: "127.0.0.1"
-              port: 3306
-              username: "root"
-              password: "root"
-              dbname: "test"
-  ```
+```yaml
+autowire:
+  normal:
+    github.com/alibaba/ioc-golang/extension/normal/mysql.Impl:
+      my-mysql:
+        param:
+          host: "127.0.0.1"
+          port: 3306
+          username: "root"
+          password: "root"
+          dbname: "test"
+```
 
   例子会建立一个位于127.0.0.1:3306 的数据库连接，用户名为root、密码为 root、数据库名为test、表名为mydata。
 
