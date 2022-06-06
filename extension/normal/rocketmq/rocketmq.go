@@ -10,7 +10,7 @@ import (
 	"github.com/alibaba/ioc-golang/autowire/normal"
 )
 
-const SDID = "RocketMQClient-Impl"
+const SDID = "github.com/alibaba/ioc-golang/extension/normal/rocketmq.Impl"
 
 type RocketMQClient interface {
 	Subscribe(topic string, selector consumer.MessageSelector, f func(context.Context, ...*primitive.MessageExt) (consumer.ConsumeResult, error)) error

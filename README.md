@@ -58,27 +58,21 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
         - grpc: grpc client model definition
 
         - config: configure the model definition
-
     - config: configuration injection model extension structure
-
+    
         - string,int,map,slice
-
     - normal: multi-instance model extension structure
 
         - redis
+
+        - http_server
 
         - mysql
 
         - rocketmq
 
         - nacos
-
-    - singleton: singleton model extension structure
-
-        - http-server
-
 - **example:** example repository
-
 - **iocli:** code generation/program debugging tool
 
 ## Quick start
@@ -121,7 +115,7 @@ import (
 type App struct {
 	ServiceImpl1 Service `singleton:"main.ServiceImpl1"` // inject Service 's ServiceImpl1 implementation
 	ServiceImpl2 Service `singleton:"main.ServiceImpl2"` // inject Service 's ServiceImpl2 implementation
-	ServiceStruct *ServiceStruct `singleton:"main.ServiceStruct"` // inject ServiceStruct struct pointer
+	ServiceStruct *ServiceStruct `singleton:""` // inject ServiceStruct struct pointer
 }
 
 func (a*App) Run(){

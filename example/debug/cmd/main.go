@@ -61,7 +61,7 @@ type App struct {
 	ExampleService2Impl1 service2.Service2 `singleton:"github.com/alibaba/ioc-golang/example/debug/cmd/service2.Impl1"`
 	ExampleService2Impl2 service2.Service2 `singleton:"github.com/alibaba/ioc-golang/example/debug/cmd/service2.Impl2"`
 
-	ExampleStruct1 *struct1.Struct1 `singleton:"github.com/alibaba/ioc-golang/example/debug/cmd/struct1.Struct1"`
+	ExampleStruct1 *struct1.Struct1 `singleton:""`
 }
 
 func (a *App) Run() {

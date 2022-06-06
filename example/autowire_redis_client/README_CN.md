@@ -25,10 +25,10 @@ import(
 // +ioc:autowire:type=singleton
 
 type App struct {
-	NormalRedis    normalRedis.Redis `normal:"Impl"`
-	NormalDB1Redis normalRedis.Redis `normal:"Impl,db1-redis"`
-	NormalDB2Redis normalRedis.Redis `normal:"Impl,db2-redis"`
-	NormalDB3Redis normalRedis.Redis `normal:"Impl,address=127.0.0.1:6379&db=3"`
+	NormalRedis    normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl"`
+	NormalDB1Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,db1-redis"`
+	NormalDB2Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,db2-redis"`
+	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,address=127.0.0.1:6379&db=3"`
 }
 ```
 
@@ -40,32 +40,31 @@ type App struct {
 
   开发人员可以为 normalRedis.Redis 类型的字段增加 `normal:"Impl,$(configKey),$(tableName)" `标签。从而注入Redis  sdk。
 
-  例子中的 `normal:"Impl"` 的意义为，将配置文件内 `autowire.normal.Redis.Impl.param`定义的值作为参数。
+  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl"` 的意义为，将配置文件内 `autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/redis.Impl>.param`定义的值作为参数。
 
-  例子中的 `normal:"Impl,db1-redis"` 的意义为，将配置文件内 `autowire.normal.Redis.Impl.db1-redis.param`定义的值作为参数。
+  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,db1-redis"` 的意义为，将配置文件内 `autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/redis.Impl>.db1-redis.param`定义的值作为参数。
   
-  例子中的 `normal:"Impl,db2-redis"`的意义为，将配置文件内 `autowire.normal.Redis.Impl.db2-redis.param`定义的值作为参数。
+  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,db2-redis"`的意义为，将配置文件内 `autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/redis.Impl>.db2-redis.param`定义的值作为参数。
   
-  例子中的 `normal:"Impl,address=127.0.0.1:6379&db=3"` 的意义为，使用标签内定义的 key-value 作为参数配置。
+  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,address=127.0.0.1:6379&db=3"` 的意义为，使用标签内定义的 key-value 作为参数配置。
   
   默认参数加载策略详情请参阅[参数加载器](/docs/concept/param_loader/)
   
   ```yaml
   autowire:
     normal:
-      Redis:
-        Impl:
-          db1-redis:
-            param:
-              address: localhost:6379
-              db: 1
-          db2-redis:
-            param:
-              address: localhost:6379
-              db: 2
+      github.com/alibaba/ioc-golang/extension/normal/redis.Impl:
+        db1-redis:
           param:
             address: localhost:6379
-            db: 0
+            db: 1
+        db2-redis:
+          param:
+            address: localhost:6379
+            db: 2
+        param:
+          address: localhost:6379
+          db: 0
   ```
   
 
@@ -93,9 +92,9 @@ Welcome to use ioc-golang!
 [Debug] Debug mod is not enabled
 [Boot] Start to load autowire
 [Autowire Type] Found registered autowire type singleton
-[Autowire Struct Descriptor] Found type singleton registered SD App-App
+[Autowire Struct Descriptor] Found type singleton registered SD main.App
 [Autowire Type] Found registered autowire type normal
-[Autowire Struct Descriptor] Found type normal registered SD Redis-Impl
+[Autowire Struct Descriptor] Found type normal registered SD github.com/alibaba/ioc-golang/extension/normal/redis.Impl
 client0 get  db0
 client1 get  db1
 client2 get  db2

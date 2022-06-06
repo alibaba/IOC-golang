@@ -23,10 +23,10 @@ import (
 // +ioc:autowire:type=singleton
 
 type App struct {
-	DemoConfigString *config.ConfigString `config:"ConfigString,autowire.config.demo-config.string-value"`
-	DemoConfigInt    *config.ConfigInt    `config:"ConfigInt,autowire.config.demo-config.int-value"`
-	DemoConfigMap    *config.ConfigMap    `config:"ConfigMap,autowire.config.demo-config.map-value"`
-	DemoConfigSlice  *config.ConfigSlice  `config:"ConfigSlice,autowire.config.demo-config.slice-value"`
+	DemoConfigString *config.ConfigString `config:",autowire.config.demo-config.string-value"`
+	DemoConfigInt    *config.ConfigInt    `config:",autowire.config.demo-config.int-value"`
+	DemoConfigMap    *config.ConfigMap    `config:",autowire.config.demo-config.map-value"`
+	DemoConfigSlice  *config.ConfigSlice  `config:",autowire.config.demo-config.slice-value"`
 }
 ```
 
@@ -42,32 +42,34 @@ type App struct {
 
   例子中的
 
-  `config:"ConfigString,autowire.config.demo-config.string-value"`
+  `config:",autowire.config.demo-config.string-value"`
 
-  的意义为，将配置文件内 `autowire.config.demo-config.string-value` 的值以 string 的方式注入到该字段。
+  的意义为，将配置文件内 `autowire.config.demo-config.string-value` 的值注入到该字段。
 
   对应配置文件：ioc_golang.yaml 中的字符串 "stringValue"
 
-  ```yaml
-  autowire:
-    config:
-      demo-config:
-        int-value: 123
-        string-value: stringValue
-        map-value:
-          key1: value1
-          key2: value2
-          key3: value3
-          obj:
-            objkey1: objvalue1
-            objkey2: objvalue2
-            objkeyslice: objslicevalue
-        slice-value:
-          - sliceValue1
-          - sliceValue2
-          - sliceValue3
-          - sliceValue4
-  ```
+```yaml
+autowire:
+  config:
+    demo-config:
+      int-value: 123
+      int64-value: 130117537261158665
+      float64-value: 0.001
+      string-value: stringValue
+      map-value:
+        key1: value1
+        key2: value2
+        key3: value3
+        obj:
+          objkey1: objvalue1
+          objkey2: objvalue2
+          objkeyslice: objslicevalue
+      slice-value:
+        - sliceValue1
+        - sliceValue2
+        - sliceValue3
+        - sliceValue4
+ ```
 
 ### 运行示例
 
@@ -82,22 +84,34 @@ go run .
                                                                     |___/ 
 Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
-[Config] Load config file from ../conf/ioc_golang.yaml
+[Config] merge config map, depth: [0]
 [Boot] Start to load debug
 [Debug] Debug mod is not enabled
 [Boot] Start to load autowire
 [Autowire Type] Found registered autowire type singleton
-[Autowire Struct Descriptor] Found type singleton registered SD App-App
+[Autowire Struct Descriptor] Found type singleton registered SD main.App
 [Autowire Type] Found registered autowire type normal
 [Autowire Type] Found registered autowire type config
-[Autowire Struct Descriptor] Found type config registered SD ConfigInt-ConfigInt
-[Autowire Struct Descriptor] Found type config registered SD ConfigMap-ConfigMap
-[Autowire Struct Descriptor] Found type config registered SD ConfigSlice-ConfigSlice
-[Autowire Struct Descriptor] Found type config registered SD ConfigString-ConfigString
+[Autowire Struct Descriptor] Found type config registered SD github.com/alibaba/ioc-golang/extension/config.ConfigInt64
+[Autowire Struct Descriptor] Found type config registered SD github.com/alibaba/ioc-golang/extension/config.ConfigInt
+[Autowire Struct Descriptor] Found type config registered SD github.com/alibaba/ioc-golang/extension/config.ConfigMap
+[Autowire Struct Descriptor] Found type config registered SD github.com/alibaba/ioc-golang/extension/config.ConfigSlice
+[Autowire Struct Descriptor] Found type config registered SD github.com/alibaba/ioc-golang/extension/config.ConfigString
+[Autowire Struct Descriptor] Found type config registered SD github.com/alibaba/ioc-golang/extension/config.ConfigFloat64
+2022/06/06 18:01:22 load config path autowire.config#demo-config#float64-value error =  property [autowire config#demo-config#float64-value]'s key config#demo-config#float64-value not found
 stringValue
 123
 map[key1:value1 key2:value2 key3:value3 obj:map[objkey1:objvalue1 objkey2:objvalue2 objkeyslice:objslicevalue]]
 [sliceValue1 sliceValue2 sliceValue3 sliceValue4]
+130117537261158665
+0
+stringValue
+123
+map[key1:value1 key2:value2 key3:value3 obj:map[objkey1:objvalue1 objkey2:objvalue2 objkeyslice:objslicevalue]]
+[sliceValue1 sliceValue2 sliceValue3 sliceValue4]
+130117537261158665
+0
+
 ```
 
 可看到依次打印出了不同结构的注入配置。

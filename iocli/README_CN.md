@@ -81,10 +81,10 @@ Welcome to use ioc-golang!
 [Debug] Debug port is set to default :1999
 [Boot] Start to load autowire
 [Autowire Type] Found registered autowire type singleton
-[Autowire Struct Descriptor] Found type singleton registered SD App-App
-[Autowire Struct Descriptor] Found type singleton registered SD Service-ServiceImpl1
-[Autowire Struct Descriptor] Found type singleton registered SD Service-ServiceImpl2
-[Autowire Struct Descriptor] Found type singleton registered SD ServiceStruct-ServiceStruct
+[Autowire Struct Descriptor] Found type singleton registered SD main.App
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl1
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl2
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceStruct
 [Debug] Debug server listening at :1999
 This is ServiceImpl1, hello world
 This is ServiceImpl2, hello world
@@ -161,7 +161,6 @@ Response 1: (*api.HelloResponse)(0xc00050c980)(reply:"Hello laurence_service1_im
 
 Response 2: (interface {}) <nil>
 
-
 ```
 
 
@@ -213,6 +212,10 @@ iocli 可以识别以下注解：
   - grpc:
 
     grpc 模型是基于单例模型的封装扩展，基于 grpc 模型可以方便地从 yaml 配置文件中读取参数，生成 grpc 客户端。
+
+  - rpc:
+
+    rpc 模型会在代码生成阶段产生 rpc 服务端注册代码，以及 rpc 客户端调用存根。
 
 - ioc:autowire:interface（非必填）
 
@@ -288,7 +291,7 @@ iocli 可以识别以下注解：
 
   ```go
   type App struct {
-  	NormalDB3Redis normalRedis.Redis `normal:"Impl,address=127.0.0.1:6379&db=3"`
+  	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,address=127.0.0.1:6379&db=3"`
   }
   ```
 
@@ -296,7 +299,7 @@ iocli 可以识别以下注解：
 
   ```go
   type App struct {
-  	NormalDB3Redis normalRedis.Redis `normal:"Impl,db1-redis"`
+  	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,db1-redis"`
   }
   ```
 
@@ -305,35 +308,34 @@ iocli 可以识别以下注解：
   ```yaml
   autowire:
     normal:
-      Redis:
-        Impl:
-          db1-redis:
-            param:
-              address: localhost:6379
-              db: 1
+      github.com/alibaba/ioc-golang/extension/normal/redis.Impl:
+        db1-redis:
+          param:
+            address: localhost:6379
+            db: 1
   ```
-
   
-
+  
+  
   **我们提供了预置的参数加载器**
-
+  
   除非用户有强烈需求，我们更推荐用户直接使用我们预置的参数加载器：http://github.com/alibaba/ioc-golang/tree/master/autowire/param_loader。
-
+  
   我们会先后尝试：标签重定向到配置、标签读入参数、配置文件的默认位置读入参数。每个注册到框架的结构都有唯一的ID，因此也会在配置文件中拥有配置参数的位置，这一默认位置在这里定义：http://github.com/alibaba/ioc-golang/blob/master/autowire/param_loader/default_config.go#L21，我们更希望和用户约定好这一点。
-
+  
   当所有加载器都加载参数失败后，将会抛出错误。使用者应当查阅自己引入的结构加载器实现，并按照要求配置好参数。
-
+  
 - ioc:autowire:paramType（非必填）
 
   string类型，表示依赖参数的类型名，在上述例子，该类型名为 Config
 
 - ioc:autowire:constructFunc（非必填）
 
-  string类型，表示结构的构造方法名，作为依赖参数的一个函数。
+  string类型，表示结构的构造方法名
 
-  在上述例子中，该方法名为 New。
+  在给出 ioc:autowire:paramType 参数类型名的情况下，会使用参数的函数作为构造函数，例如在上述例子中，该构造方法为 Config 对象的 New 方法。
 
-  思路为：依赖参数是构造对象的前提，因此该方法放置在参数下，会被框架调用。对于不依赖外部传递参数，但拥有构造函数的对象，可以使用一个空Struct 作为参数，在这一Struct 内实现构造方法。
+  如果没有给出 ioc:autowire:paramType 参数类型名，则会直接使用这一方法作为构造函数。
 
   我们要求该构造方法的函数签名是固定的，即：
 
@@ -349,8 +351,7 @@ iocli 可以识别以下注解：
 
 - ioc:autowire:alias=MyAppAlias （非必填）
 
-  该类型的别名
-
+  该类型的别名，可在标签、API获取、配置中，通过该别名替代掉较长的类型全名来指定结构。
 
 
 

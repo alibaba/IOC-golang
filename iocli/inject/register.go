@@ -239,6 +239,8 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			impl := i.(*%s)
 			return param.%s(impl)
 		},`, getParamInterfaceType(paramType), info.Name, constructFunc)
+		} else if constructFunc != "" && paramType == "" {
+			c.Linef(`ConstructFunc: %s,`, constructFunc)
 		}
 
 		c.Line(`})`)

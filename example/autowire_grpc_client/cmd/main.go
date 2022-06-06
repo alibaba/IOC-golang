@@ -60,7 +60,7 @@ type App struct {
 	ExampleService2Impl1 service2.Service2 `singleton:"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service2.Impl1"`
 	ExampleService2Impl2 service2.Service2 `singleton:"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service2.Impl2"`
 
-	ExampleStruct1 *struct1.Struct1 `singleton:"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/struct1.Struct1"`
+	ExampleStruct1 *struct1.Struct1 `singleton:""`
 }
 
 func (a *App) Run() {
@@ -87,7 +87,7 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("App-App")
+	appInterface, err := singleton.GetImpl("App")
 	if err != nil {
 		panic(err)
 	}

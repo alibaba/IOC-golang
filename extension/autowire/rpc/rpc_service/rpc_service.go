@@ -53,19 +53,10 @@ var rpcStructDescriptorMap = make(map[string]*autowire.StructDescriptor)
 func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	s.SetAutowireType(Name)
 	sdID := s.ID()
-	s.ParamFactory = func() interface{} {
-		return &Param{}
-	}
-	s.ConstructFunc = func(impl interface{}, p interface{}) (interface{}, error) {
-		if p == nil {
-			// param not configured in server side, set default param
-			p = &Param{
-				ExportPort: "2022",
-			}
-		}
-		param := p.(*Param)
+	s.ConstructFunc = func(impl interface{}, _ interface{}) (interface{}, error) {
+		// param not configured in server side, set default param
 		iocProtocolImpl, err := protocol_impl.GetIOCProtocol(&protocol_impl.Param{
-			ExportPort: param.ExportPort,
+			ExportPort: defaultParam.ExportPort,
 		})
 		if err != nil {
 			return nil, err

@@ -15,14 +15,15 @@
 
 package rpc_service
 
-type Param struct {
-	ExportPort string
-}
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
-var defaultParam = &Param{
-	ExportPort: "2022",
-}
-
-func SetParam(param *Param) {
-	defaultParam = param
+func TestSetParam(t *testing.T) {
+	assert.Equal(t, "2022", defaultParam.ExportPort)
+	SetParam(&Param{
+		ExportPort: "2023",
+	})
+	assert.Equal(t, "2023", defaultParam.ExportPort)
 }
