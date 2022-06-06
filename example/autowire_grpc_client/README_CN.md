@@ -26,7 +26,7 @@
 
 ```go
 import(
-  "github.com/alibaba/ioc-golang/extension/autowire/grpc"
+	"github.com/alibaba/ioc-golang/extension/autowire/grpc"
 	googleGRPC "google.golang.org/grpc"
 )
 func init() {
