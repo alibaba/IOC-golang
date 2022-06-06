@@ -49,40 +49,33 @@ IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
 
 ## 项目结构
 
-- **autowire：** 提供单例模型、多例模型两种基本注入模型
-- **config：** 配置加载模块，负责解析用户yaml配置文件
+- **autowire：** 提供依赖注入内核，以及单例模型、多例模型两种基本自动装载模型
+- **config：** 配置加载模块，负责解析 yaml 格式的配置文件
 - **debug：** 调试模块：提供调试 API、提供调试注入层实现
 - **extension：** 组件扩展目录：提供基于多种注入模型的预置实现结构：
 
     - autowire：自动装载模型扩展
 
-        - grpc：grpc 客户端模型定义
+        - grpc：grpc 客户端模型
 
-        - config：配置模型定义
+        - config：配置模型
 
+        - rpc：远程过程调用模型
     - config：配置注入模型扩展结构
 
         - string,int,map,slice
-
     - normal：多例模型扩展结构
 
         - redis
 
+        - http_server
         - mysql
 
         - rocketmq
 
         - nacos
-
-    - singleton：单例模型扩展结构
-
-        - http-server
-
 - **example：** 示例仓库
-
 - **iocli：** 代码生成/程序调试 工具
-
-  提供基于注解的结构描述信息自动生成能力
 
 
 ## 快速开始
@@ -125,7 +118,7 @@ import (
 type App struct {
 	ServiceImpl1 Service `singleton:"main.ServiceImpl1"` // 要求注入Service 的 ServiceImpl1 实现
 	ServiceImpl2 Service `singleton:"main.ServiceImpl2"` // 要求注入Service 的 ServiceImpl2 实现
-	ServiceStruct *ServiceStruct `singleton:"main.ServiceStruct"` // 要求注入 ServiceStruct 指针
+	ServiceStruct *ServiceStruct `singleton:""` // 要求注入 ServiceStruct 指针
 }
 
 func (a*App) Run(){
@@ -297,7 +290,7 @@ Hello laurence
 [Debug] Debug server listening at :1999
 ```
 
-查看所有接口、实现和方法
+查看所有结构和方法
 
 ```bash
 % iocli list
@@ -340,7 +333,7 @@ Response 1: (string) (len=14) "Hello laurence"
 代码生成工具会识别到标有 +ioc:autowire=true 注解的对象
 
 // +ioc:autowire:type=singleton
-标记注入模型为 singleton 单例模型，还有 normal 多例模型，config 配置模型，grpc gRPC客户端模型等扩展。
+标记注入模型为 singleton 单例模型，还有 normal 多例模型等扩展
 
 ```
 

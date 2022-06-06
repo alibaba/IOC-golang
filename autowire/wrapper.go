@@ -20,8 +20,6 @@ import (
 	"reflect"
 	"runtime"
 
-	"github.com/fatih/color"
-
 	perrors "github.com/pkg/errors"
 
 	"github.com/alibaba/ioc-golang/autowire/util"
@@ -92,13 +90,7 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}) (int
 func (w *WrapperAutowireImpl) ImplWithoutParam(sdID string) (interface{}, error) {
 	param, err := w.ParseParam(sdID, nil)
 	if err != nil {
-		if w.Autowire.IsSingleton() {
-			// FIXME: ignore parse param error, because of singleton with empty param also try to find property from config file
-			color.Red("[Wrapper Autowire] Parse param from config file with sdid %s failed, error: %s, continue with nil param.", sdID, err)
-			return w.ImplWithParam(sdID, param)
-		} else {
-			return nil, err
-		}
+		return nil, err
 	}
 	return w.ImplWithParam(sdID, param)
 }
@@ -111,13 +103,7 @@ func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) 
 	}
 	param, err := w.ParseParam(sdID, fi)
 	if err != nil {
-		if w.Autowire.IsSingleton() {
-			// FIXME: ignore parse param error, because of singleton with empty param also try to find property from config file
-			color.Red("[Wrapper Autowire] Parse param from config file with sdid %s failed, error: %s, continue with nil param.", sdID, err)
-			return w.ImplWithParam(sdID, param)
-		} else {
-			return nil, err
-		}
+		return nil, err
 	}
 	return w.ImplWithParam(sdID, param)
 }
