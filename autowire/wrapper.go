@@ -173,7 +173,16 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 				sd.ID(), util.GetStructName(impledPtr), field.Type.Name(), tagKey, tagValue)
 			return err
 		}
-		subService.Set(reflect.ValueOf(subImpledPtr))
+		tosetInterface := subImpledPtr
+
+		if proxyFunction := GetProxyFunction(); proxyFunction != nil && subService.Kind() == reflect.Interface {
+			// if field is interface, try to inject proxy wrapped pointer
+			if proxyImpl, err := proxyFunction(subImpledPtr); err == nil {
+				tosetInterface = proxyImpl
+			}
+		}
+
+		subService.Set(reflect.ValueOf(tosetInterface))
 	}
 	// 3. monkey
 	if monkeyFunction := GetMonkeyFunction(); (os.Getenv("GOARCH") == "amd64" || runtime.GOARCH == "amd64") && monkeyFunction != nil {

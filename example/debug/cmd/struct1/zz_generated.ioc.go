@@ -7,13 +7,36 @@ package struct1
 
 import (
 	autowire "github.com/alibaba/ioc-golang/autowire"
+	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	singleton "github.com/alibaba/ioc-golang/autowire/singleton"
+	util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &struct1_{}
+		},
+	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &Struct1{}
 		},
 	})
+}
+
+type struct1_ struct {
+	Hello_ func(input string) string
+}
+
+func (s *struct1_) Hello(input string) string {
+	return s.Hello_(input)
+}
+func GetStruct1() (*Struct1, error) {
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Struct1)))
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*Struct1)
+	return impl, nil
 }

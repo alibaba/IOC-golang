@@ -8,9 +8,17 @@ package redis
 import (
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/normal"
+	util "github.com/alibaba/ioc-golang/autowire/util"
+	go_redisredis "github.com/go-redis/redis"
+	timex "time"
 )
 
 func init() {
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &impl_{}
+		},
+	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &Impl{}
@@ -29,4 +37,31 @@ func init() {
 
 type configInterface interface {
 	New(impl *Impl) (*Impl, error)
+}
+type impl_ struct {
+	GetRawClient_ func() *go_redisredis.Client
+	HGetAll_      func(key string) (map[string]string, error)
+	Get_          func(key string) (string, error)
+	Set_          func(key string, value interface{}, expiration timex.Duration) (string, error)
+}
+
+func (i *impl_) GetRawClient() *go_redisredis.Client {
+	return i.GetRawClient_()
+}
+func (i *impl_) HGetAll(key string) (map[string]string, error) {
+	return i.HGetAll_(key)
+}
+func (i *impl_) Get(key string) (string, error) {
+	return i.Get_(key)
+}
+func (i *impl_) Set(key string, value interface{}, expiration timex.Duration) (string, error) {
+	return i.Set_(key, value, expiration)
+}
+func GetImpl(p *Config) (*Impl, error) {
+	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(Impl)), p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*Impl)
+	return impl, nil
 }

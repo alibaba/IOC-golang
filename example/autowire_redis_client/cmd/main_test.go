@@ -21,7 +21,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/test/docker_compose"
 )
 
@@ -60,11 +59,10 @@ func TestRedisClient(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("AppAlias")
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 	app.TestRun(t)
 
 	assert.Nil(t, docker_compose.DockerComposeDown("../docker-compose/docker-compose.yaml"))

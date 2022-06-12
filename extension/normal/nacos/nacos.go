@@ -56,6 +56,70 @@ type Impl struct {
 	naming_client.INamingClient
 }
 
+func (i *Impl) GetConfig(param vo.ConfigParam) (string, error) {
+	return i.IConfigClient.GetConfig(param)
+}
+
+func (i *Impl) PublishConfig(param vo.ConfigParam) (bool, error) {
+	return i.IConfigClient.PublishConfig(param)
+}
+
+func (i *Impl) DeleteConfig(param vo.ConfigParam) (bool, error) {
+	return i.IConfigClient.DeleteConfig(param)
+}
+
+func (i *Impl) ListenConfig(params vo.ConfigParam) (err error) {
+	return i.IConfigClient.ListenConfig(params)
+}
+
+func (i *Impl) CancelListenConfig(params vo.ConfigParam) (err error) {
+	return i.IConfigClient.CancelListenConfig(params)
+}
+
+func (i *Impl) SearchConfig(param vo.SearchConfigParm) (*model.ConfigPage, error) {
+	return i.IConfigClient.SearchConfig(param)
+}
+
+func (i *Impl) RegisterInstance(param vo.RegisterInstanceParam) (bool, error) {
+	return i.INamingClient.RegisterInstance(param)
+}
+
+func (i *Impl) DeregisterInstance(param vo.DeregisterInstanceParam) (bool, error) {
+	return i.INamingClient.DeregisterInstance(param)
+}
+
+func (i *Impl) UpdateInstance(param vo.UpdateInstanceParam) (bool, error) {
+	return i.INamingClient.UpdateInstance(param)
+}
+
+func (i *Impl) GetService(param vo.GetServiceParam) (service model.Service, err error) {
+	return i.INamingClient.GetService(param)
+}
+
+func (i *Impl) GetAllServicesInfo(param vo.GetAllServiceInfoParam) (model.ServiceList, error) {
+	return i.INamingClient.GetAllServicesInfo(param)
+}
+
+func (i *Impl) SelectAllInstances(param vo.SelectAllInstancesParam) ([]model.Instance, error) {
+	return i.INamingClient.SelectAllInstances(param)
+}
+
+func (i *Impl) SelectInstances(param vo.SelectInstancesParam) ([]model.Instance, error) {
+	return i.INamingClient.SelectInstances(param)
+}
+
+func (i *Impl) SelectOneHealthyInstance(param vo.SelectOneHealthInstanceParam) (*model.Instance, error) {
+	return i.INamingClient.SelectOneHealthyInstance(param)
+}
+
+func (i *Impl) Subscribe(param *vo.SubscribeParam) error {
+	return i.INamingClient.Subscribe(param)
+}
+
+func (i *Impl) Unsubscribe(param *vo.SubscribeParam) (err error) {
+	return i.INamingClient.Unsubscribe(param)
+}
+
 var _ NacosClient = &Impl{}
 
 func GetNacosClient(config *Config) (NacosClient, error) {

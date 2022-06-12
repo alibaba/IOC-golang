@@ -42,7 +42,7 @@ func (s *ComplexService) RPCWithoutParam() (*dto.User, error) {
 	}, nil
 }
 
-func (s *ComplexService) RPCWithoutReturnValue(*dto.User) {
+func (s *ComplexService) RPCWithoutReturnValue(user *dto.User) {
 }
 
 func (s *ComplexService) RPCWithCustomValue(customStruct dto.CustomStruct, customStruct2 *dto.CustomStruct) (dto.CustomStruct, *dto.CustomStruct) {

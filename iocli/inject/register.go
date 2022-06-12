@@ -144,6 +144,8 @@ type paramImplPair struct {
 func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root *loader.Package, imports *importsList, infos []*markers.TypeInfo) {
 	paramImplPairs := make([]paramImplPair, 0)
 	rpcServiceStructInfos := make([]*markers.TypeInfo, 0)
+	needProxyStructInfos := make([]*markers.TypeInfo, 0)
+	getMethodGenerateCtxs := make([]getMethodGenerateCtx, 0)
 	c.Line(`func init() {`)
 	autowireAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire")
 	for _, info := range infos {
@@ -188,6 +190,15 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 		} else {
 			alise = c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/extension/autowire/%s", autowireType))
 		}
+
+		// gen proxy registry
+		needProxyStructInfos = append(needProxyStructInfos, info)
+		normalAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/normal")
+		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, normalAlias, autowireAlias)
+		c.Linef(`Factory: func() interface{} {
+			return &%s_{}
+		},`, toFirstCharLower(info.Name))
+		c.Line(`})`)
 
 		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, alise, autowireAlias)
 
@@ -240,10 +251,17 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			return param.%s(impl)
 		},`, getParamInterfaceType(paramType), info.Name, constructFunc)
 		} else if constructFunc != "" && paramType == "" {
+			// todo gen with specific construct function without param
 			c.Linef(`ConstructFunc: %s,`, constructFunc)
 		}
-
 		c.Line(`})`)
+
+		getMethodGenerateCtxs = append(getMethodGenerateCtxs, getMethodGenerateCtx{
+			paramTypeName:     paramType,
+			autowireTypeAlias: alise,
+			structName:        info.Name,
+			autowireType:      autowireType,
+		})
 
 		typeInfo := root.TypesInfo.TypeOf(info.RawSpec.Name)
 		if typeInfo == types.Typ[types.Invalid] {
@@ -257,6 +275,81 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 		c.Linef(`type %s interface {
 			%s (impl *%s) (*%s,error)
 		}`, getParamInterfaceType(paramImplPair.paramName), paramImplPair.constructFuncName, paramImplPair.implName, paramImplPair.implName)
+	}
+
+	// gen proxy struct
+	for _, info := range needProxyStructInfos {
+		// get all methods
+		c.Linef(`type %s_ struct {`, toFirstCharLower(info.Name))
+		methods := parseMethodInfoFromGoFiles(info.Name, root.GoFiles)
+		for idx := range methods {
+			importsAlias := methods[idx].GetImportAlias()
+			if len(importsAlias) != 0 {
+				for _, importAlias := range importsAlias {
+					for _, rawFileImport := range info.RawFile.Imports {
+						var originAlias string
+						if rawFileImport.Name != nil {
+							originAlias = rawFileImport.Name.String()
+						} else {
+							splitedImport := strings.Split(rawFileImport.Path.Value, "/")
+							originAlias = strings.TrimPrefix(splitedImport[len(splitedImport)-1], `"`)
+							originAlias = strings.TrimSuffix(originAlias, `"`)
+						}
+						if originAlias == importAlias {
+							toImport := strings.TrimPrefix(rawFileImport.Path.Value, `"`)
+							toImport = strings.TrimSuffix(toImport, `"`)
+							clientStubAlias := c.NeedImport(toImport)
+							methods[idx].swapAlias(importAlias, clientStubAlias)
+						}
+					}
+				}
+			}
+			c.Linef("%s_ func%s", methods[idx].name, methods[idx].body)
+		}
+		c.Line("}")
+
+		for _, m := range methods {
+			charDescriber := string(strings.ToLower(info.Name)[0])
+			c.Linef(`func (%s *%s_) %s%s{`, charDescriber, toFirstCharLower(info.Name), m.name, m.body)
+			if m.ReturnValueNum() > 0 {
+				c.Linef(`return %s.%s_(%s)`, charDescriber, m.name, m.GetParamValues())
+			} else {
+				c.Linef(`%s.%s_(%s)`, charDescriber, m.name, m.GetParamValues())
+			}
+			c.Linef(`}`)
+		}
+	}
+
+	// gen get method
+	for _, g := range getMethodGenerateCtxs {
+		if g.autowireType == "config" {
+			continue
+		}
+		if g.paramTypeName != "" && g.autowireType != "singleton" && g.autowireType != "rpc" {
+			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
+			c.Linef(`func Get%s(p *%s)(*%s, error){
+			i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)), p)
+			if err != nil {
+				return nil, err
+			}
+			impl := i.(*%s)
+			return impl, nil
+		}`, g.structName, g.paramTypeName, g.structName, g.autowireTypeAlias, utilAlias, g.structName, g.structName)
+		} else {
+			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
+			c.Linef(`func Get%s()(*%s, error){`, g.structName, g.structName)
+			if g.autowireType == "singleton" || g.autowireType == "rpc" {
+				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)))`, g.autowireTypeAlias, utilAlias, g.structName)
+			} else {
+				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s))), nil)`, g.autowireTypeAlias, utilAlias, g.structName)
+			}
+			c.Linef(`if err != nil {
+				return nil, err
+			}
+			impl := i.(*%s)
+			return impl, nil
+			}`, g.structName)
+		}
 	}
 
 	// gen iocRPC client
@@ -297,4 +390,15 @@ func isEligibleInterfaceReferencePath(interfaceReferencePath string) bool {
 		strings.LastIndex(interfaceReferencePath, Dot) > 0 &&
 		strings.LastIndex(interfaceReferencePath, Dot) < len(interfaceReferencePath)-1 &&
 		(strings.LastIndex(interfaceReferencePath, PackagePathSeparator) < strings.LastIndex(interfaceReferencePath, Dot))
+}
+
+type getMethodGenerateCtx struct {
+	paramTypeName     string
+	autowireTypeAlias string
+	structName        string
+	autowireType      string
+}
+
+func toFirstCharLower(input string) string {
+	return strings.ToLower(string(input[0])) + input[1:]
 }

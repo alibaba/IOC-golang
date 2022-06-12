@@ -1,5 +1,3 @@
-//go:build iocdebug
-
 /*
  * Copyright (c) 2022, Alibaba Group;
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +13,16 @@
  * limitations under the License.
  */
 
-package debug
+package autowire
 
-import "github.com/alibaba/ioc-golang/autowire"
+// proxy function
 
-func init() {
-	autowire.RegisterMonkeyFunction(implMonkey)
-	enable = true
+var pf func(interface{}) (interface{}, error)
+
+func RegisterProxyFunction(f func(interface{}) (interface{}, error)) {
+	pf = f
+}
+
+func GetProxyFunction() func(interface{}) (interface{}, error) {
+	return pf
 }

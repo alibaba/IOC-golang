@@ -25,7 +25,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 	normalNacos "github.com/alibaba/ioc-golang/extension/normal/nacos"
 	"github.com/alibaba/ioc-golang/test/docker_compose"
 )
@@ -80,9 +79,8 @@ func TestNacosClient(t *testing.T) {
 	}
 	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", time.Second*10))
 	assert.Nil(t, ioc.Load())
-	appInterface, err := singleton.GetImpl("AppAlias")
+	app, err := GetApp()
 	assert.Nil(t, err)
-	app := appInterface.(*App)
 	app.TestRun(t)
 
 	assert.Nil(t, docker_compose.DockerComposeDown("../docker-compose/docker-compose.yaml"))

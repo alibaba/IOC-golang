@@ -21,8 +21,6 @@ import (
 	"github.com/go-redis/redis"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
-
 	normalRedis "github.com/alibaba/ioc-golang/extension/normal/redis"
 )
 
@@ -99,11 +97,10 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("AppAlias")
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 
 	app.Run()
 }

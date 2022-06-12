@@ -22,8 +22,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
-
 	_ "github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/service"
 )
 
@@ -40,11 +38,10 @@ func TestRPCClient(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("github.com/alibaba/ioc-golang/example/autowire_rpc/client.App")
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
 	time.Sleep(time.Second)
-	app := appInterface.(*App)
 	app.TestRun(t)
 }

@@ -26,7 +26,6 @@ import (
 	"github.com/alibaba/ioc-golang/test/docker_compose"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 func (a *App) TestRun(t *testing.T) {
@@ -52,11 +51,10 @@ func TestGORM(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("AppAlias")
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 	app.TestRun(t)
 	assert.Nil(t, docker_compose.DockerComposeDown("../docker-compose/docker-compose.yaml"))
 }
