@@ -33,6 +33,12 @@ jobs:
     - name: gofmt
       run: |
         go fmt ./...
+    - name: build iocli
+      run : |
+        go build -o iocli ./iocli
+    - name: iocli gen
+      run : |
+        ./iocli gen
     - name: Unit Test
       run: |
         go test ./... -cover -p 1

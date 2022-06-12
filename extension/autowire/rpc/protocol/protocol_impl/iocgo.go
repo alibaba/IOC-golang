@@ -12,7 +12,6 @@ import (
 	dubboProtocol "dubbo.apache.org/dubbo-go/v3/protocol"
 	"dubbo.apache.org/dubbo-go/v3/protocol/invocation"
 
-	"github.com/alibaba/ioc-golang/autowire/normal"
 	"github.com/alibaba/ioc-golang/extension/autowire/rpc/protocol"
 	"github.com/alibaba/ioc-golang/extension/normal/http_server"
 	"github.com/alibaba/ioc-golang/extension/normal/http_server/ghttp"
@@ -101,15 +100,3 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 }
 
 var _ protocol.Protocol = &IOCProtocol{}
-
-// GetIOCProtocol get extended protocol from ioc-golang API
-func GetIOCProtocol(param *Param) (protocol.Protocol, error) {
-	iocProtocolImpl, err := normal.GetImpl("github.com/alibaba/ioc-golang/extension/autowire/rpc/protocol/protocol_impl.IOCProtocol", &Param{
-		Address:    param.Address,
-		ExportPort: param.ExportPort,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return iocProtocolImpl.(protocol.Protocol), nil
-}

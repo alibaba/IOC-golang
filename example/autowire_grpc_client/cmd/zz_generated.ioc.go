@@ -7,14 +7,37 @@ package main
 
 import (
 	"github.com/alibaba/ioc-golang/autowire"
+	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
+	util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &App_{}
+		},
+	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Alias: "App",
 		Factory: func() interface{} {
 			return &App{}
 		},
 	})
+}
+
+type App_ struct {
+	Run_ func()
+}
+
+func (a *App_) Run() {
+	a.Run_()
+}
+func GetApp() (*App, error) {
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(App)))
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*App)
+	return impl, nil
 }

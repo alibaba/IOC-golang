@@ -7,13 +7,25 @@ package main
 
 import (
 	autowire "github.com/alibaba/ioc-golang/autowire"
+	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
+	util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &App_{}
+		},
+	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &App{}
+		},
+	})
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &ServiceImpl1_{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -21,9 +33,19 @@ func init() {
 			return &ServiceImpl1{}
 		},
 	})
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &ServiceImpl2_{}
+		},
+	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
+		},
+	})
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &ServiceStruct_{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -31,4 +53,68 @@ func init() {
 			return &ServiceStruct{}
 		},
 	})
+}
+
+type App_ struct {
+	Run_ func()
+}
+
+func (a *App_) Run() {
+	a.Run_()
+}
+
+type ServiceImpl1_ struct {
+	Hello_ func()
+}
+
+func (s *ServiceImpl1_) Hello() {
+	s.Hello_()
+}
+
+type ServiceImpl2_ struct {
+	Hello_ func()
+}
+
+func (s *ServiceImpl2_) Hello() {
+	s.Hello_()
+}
+
+type ServiceStruct_ struct {
+	GetString_ func(name string) string
+}
+
+func (s *ServiceStruct_) GetString(name string) string {
+	return s.GetString_(name)
+}
+func GetApp() (*App, error) {
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(App)))
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*App)
+	return impl, nil
+}
+func GetServiceImpl1() (*ServiceImpl1, error) {
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceImpl1)))
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*ServiceImpl1)
+	return impl, nil
+}
+func GetServiceImpl2() (*ServiceImpl2, error) {
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceImpl2)))
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*ServiceImpl2)
+	return impl, nil
+}
+func GetServiceStruct() (*ServiceStruct, error) {
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceStruct)))
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*ServiceStruct)
+	return impl, nil
 }

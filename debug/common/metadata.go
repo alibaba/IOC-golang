@@ -21,11 +21,11 @@ import (
 	"github.com/glory-go/monkey"
 )
 
-type DebugMetadata struct {
-	GuardMap map[string]*GuardInfo
+type StructMetadata struct {
+	MethodMetadata map[string]*MethodMetadata
 }
 
-type GuardInfo struct {
+type MethodMetadata struct {
 	Guard *monkey.PatchGuard
 	Lock  sync.Mutex
 }

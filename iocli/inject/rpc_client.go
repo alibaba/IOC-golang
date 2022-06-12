@@ -128,6 +128,111 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 type method struct {
 	name string
 	body string // like '(name, param *substruct.Param) (string, error)'
+
+	params           []param
+	returnValueTypes []string
+	isVariadic       bool
+}
+
+func (m *method) parseParamAndReturnValues() {
+	m.isVariadic = strings.Contains(m.body, "...")
+
+	// split to params and values
+	deep := 0
+	tempStr := ""
+	paramsAndvalue := make([]string, 0)
+	for _, c := range m.body {
+		if c == '(' {
+			deep += 1
+			continue
+		}
+		if c == ')' {
+			deep -= 1
+			if deep == 0 {
+				paramsAndvalue = append(paramsAndvalue, tempStr)
+				tempStr = ""
+			}
+			continue
+		}
+		if deep <= 1 {
+			tempStr += string(c)
+		}
+	}
+	if tempStr != "" {
+		paramsAndvalue = append(paramsAndvalue, tempStr)
+	}
+
+	m.params = parseParam(paramsAndvalue[0])
+	if len(paramsAndvalue) > 1 {
+		m.returnValueTypes = parseReturnValueTypes(paramsAndvalue[1])
+	}
+}
+
+func parseReturnValueTypes(input string) []string {
+	if strings.TrimSpace(input) == "" {
+		return make([]string, 0)
+	}
+	return strings.Split(input, ",")
+}
+
+func parseParam(input string) []param {
+	params := make([]param, 0)
+	if strings.TrimSpace(input) == "" {
+		return params
+	}
+
+	parampairs := strings.Split(input, ",")
+
+	for _, paramPair := range parampairs {
+		allSplitedString := make([]string, 0)
+		allNoneEmptySplitedString := make([]string, 0)
+
+		items := strings.Split(paramPair, " ")
+		for _, item := range items {
+			allSplitedString = append(allSplitedString, strings.Split(item, "*")...)
+		}
+		for _, v := range allSplitedString {
+			if v != "" {
+				allNoneEmptySplitedString = append(allNoneEmptySplitedString, v)
+			}
+		}
+		if len(allNoneEmptySplitedString) == 1 {
+			params = append(params, param{
+				paramType: "",
+				value:     allNoneEmptySplitedString[0],
+			})
+		} else {
+			params = append(params, param{
+				paramType: allNoneEmptySplitedString[1],
+				value:     allNoneEmptySplitedString[0],
+			})
+		}
+	}
+	return params
+}
+
+type param struct {
+	value     string
+	paramType string
+}
+
+// func (hs *Impl) RegisterRouterWithRawHttpHandler(path string, handler func(w http.ResponseWriter, r *http.Request), method string) {
+
+func (m *method) GetParamValues() string {
+	// remove func( xxx ) in body
+	paramValues := make([]string, 0)
+	for _, v := range m.params {
+		paramValues = append(paramValues, v.value)
+	}
+	returnValues := strings.Join(paramValues, ",")
+	if m.isVariadic {
+		returnValues += "..."
+	}
+	return returnValues
+}
+
+func (m *method) ReturnValueNum() int {
+	return len(m.returnValueTypes)
 }
 
 func getTailLetter(input string) string {
@@ -146,6 +251,7 @@ func getTailLetter(input string) string {
 
 func (m *method) swapAlias(from, to string) {
 	m.body = strings.Replace(m.body, from+".", to+".", -1)
+	m.parseParamAndReturnValues()
 }
 
 func (m *method) GetImportAlias() []string {
@@ -188,10 +294,12 @@ func newMethodFromLine(structName, line string) (method, bool) {
 		funcName := strings.TrimSpace(splited[0])
 		// funcBody is like '() string', '(name, param *substruct.Param) (string, error)'
 		funcBody := strings.TrimSpace("(" + strings.Join(splited[1:], "("))
-		return method{
+		newMethod := method{
 			name: funcName,
 			body: funcBody,
-		}, true
+		}
+		newMethod.parseParamAndReturnValues()
+		return newMethod, true
 	}
 	return method{}, false
 }
@@ -201,8 +309,11 @@ func matchFunctionByStructName(functionSignature, structName string) (string, bo
 	if len(splitedFunctionSignature) <= 1 {
 		return "", false
 	}
+	if !strings.HasPrefix(strings.TrimSpace(splitedFunctionSignature[1]), ")") {
+		return "", false
+	}
 	// match func (
-	regString := "^func\\(\\w+\\*"
+	regString := "^func\\(\\w+\\*$"
 	signatureHeader := strings.Replace(splitedFunctionSignature[0], " ", "", -1)
 	ok, err := regexp.MatchString(regString, signatureHeader)
 	if err != nil || !ok {

@@ -36,6 +36,13 @@ func Test_matchFunctionByStructName(t *testing.T) {
 			},
 			want: false,
 		},
+		{
+			args: args{
+				functionSignature: "func   (  s    *     MyStruct2)(s*MyStruct){",
+				structName:        "MyStruct",
+			},
+			want: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -33,7 +33,7 @@ var sendRecvChWatchEditMap = make(map[string]sendRecvCh)
 type DebugServerImpl struct {
 	editInterceptor         *EditInterceptor
 	watchInterceptor        *WatchInterceptor
-	allInterfaceMetadataMap map[string]*common.DebugMetadata
+	allInterfaceMetadataMap map[string]*common.StructMetadata
 	boot.UnimplementedDebugServiceServer
 }
 
@@ -41,7 +41,7 @@ func (d *DebugServerImpl) ListServices(ctx context.Context, empty *emptypb.Empty
 	structsMetadatas := make(MetadataSorter, 0)
 	for key, v := range d.allInterfaceMetadataMap {
 		methods := make([]string, 0)
-		for key := range v.GuardMap {
+		for key := range v.MethodMetadata {
 			methods = append(methods, key)
 		}
 

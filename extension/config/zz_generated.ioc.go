@@ -7,10 +7,16 @@ package config
 
 import (
 	autowire "github.com/alibaba/ioc-golang/autowire"
+	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	autowireconfig "github.com/alibaba/ioc-golang/extension/autowire/config"
 )
 
 func init() {
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &ConfigFloat64_{}
+		},
+	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return new(ConfigFloat64)
@@ -22,6 +28,11 @@ func init() {
 			param := p.(configFloat64Interface)
 			impl := i.(*ConfigFloat64)
 			return param.New(impl)
+		},
+	})
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &ConfigInt64_{}
 		},
 	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -37,6 +48,11 @@ func init() {
 			return param.New(impl)
 		},
 	})
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &ConfigInt_{}
+		},
+	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return new(ConfigInt)
@@ -48,6 +64,11 @@ func init() {
 			param := p.(configIntInterface)
 			impl := i.(*ConfigInt)
 			return param.New(impl)
+		},
+	})
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &ConfigMap_{}
 		},
 	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -63,6 +84,11 @@ func init() {
 			return param.New(impl)
 		},
 	})
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &ConfigSlice_{}
+		},
+	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return new(ConfigSlice)
@@ -74,6 +100,11 @@ func init() {
 			param := p.(configSliceInterface)
 			impl := i.(*ConfigSlice)
 			return param.New(impl)
+		},
+	})
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &ConfigString_{}
 		},
 	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -108,4 +139,75 @@ type configSliceInterface interface {
 }
 type configStringInterface interface {
 	New(impl *ConfigString) (*ConfigString, error)
+}
+type ConfigFloat64_ struct {
+	Value_ func() float64
+	New_   func(impl *ConfigFloat64) (*ConfigFloat64, error)
+}
+
+func (c *ConfigFloat64_) Value() float64 {
+	return c.Value_()
+}
+func (c *ConfigFloat64_) New(impl *ConfigFloat64) (*ConfigFloat64, error) {
+	return c.New_(impl)
+}
+
+type ConfigInt64_ struct {
+	Value_ func() int64
+	New_   func(impl *ConfigInt64) (*ConfigInt64, error)
+}
+
+func (c *ConfigInt64_) Value() int64 {
+	return c.Value_()
+}
+func (c *ConfigInt64_) New(impl *ConfigInt64) (*ConfigInt64, error) {
+	return c.New_(impl)
+}
+
+type ConfigInt_ struct {
+	Value_ func() int
+	New_   func(impl *ConfigInt) (*ConfigInt, error)
+}
+
+func (c *ConfigInt_) Value() int {
+	return c.Value_()
+}
+func (c *ConfigInt_) New(impl *ConfigInt) (*ConfigInt, error) {
+	return c.New_(impl)
+}
+
+type ConfigMap_ struct {
+	Value_ func() map[string]interface{}
+	New_   func(impl *ConfigMap) (*ConfigMap, error)
+}
+
+func (c *ConfigMap_) Value() map[string]interface{} {
+	return c.Value_()
+}
+func (c *ConfigMap_) New(impl *ConfigMap) (*ConfigMap, error) {
+	return c.New_(impl)
+}
+
+type ConfigSlice_ struct {
+	Value_ func() []interface{}
+	New_   func(impl *ConfigSlice) (*ConfigSlice, error)
+}
+
+func (c *ConfigSlice_) Value() []interface{} {
+	return c.Value_()
+}
+func (c *ConfigSlice_) New(impl *ConfigSlice) (*ConfigSlice, error) {
+	return c.New_(impl)
+}
+
+type ConfigString_ struct {
+	Value_ func() string
+	New_   func(impl *ConfigString) (*ConfigString, error)
+}
+
+func (c *ConfigString_) Value() string {
+	return c.Value_()
+}
+func (c *ConfigString_) New(impl *ConfigString) (*ConfigString, error) {
+	return c.New_(impl)
 }

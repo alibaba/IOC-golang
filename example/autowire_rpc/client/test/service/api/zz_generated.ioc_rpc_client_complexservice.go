@@ -20,7 +20,7 @@ type ComplexServiceIOCRPCClient struct {
 	RPCBasicType                  func(name string, age int, age32 int32, age64 int64, ageF32 float32, ageF64 float64, namePtr *string, agePtr *int, age32Ptr *int32, age64Ptr *int64, ageF32Ptr *float32, ageF64Ptr *float64) (string, int, int32, int64, float32, float64, *string, *int, *int32, *int64, *float32, *float64)
 	RPCWithoutParamAndReturnValue func()
 	RPCWithoutParam               func() (*dto.User, error)
-	RPCWithoutReturnValue         func(*dto.User)
+	RPCWithoutReturnValue         func(user *dto.User)
 	RPCWithCustomValue            func(customStruct dto.CustomStruct, customStruct2 *dto.CustomStruct) (dto.CustomStruct, *dto.CustomStruct)
 	RPCWithError                  func() (*dto.User, error)
 	RPCWithParamCustomMethod      func(customStruct dto.CustomStruct) dto.User

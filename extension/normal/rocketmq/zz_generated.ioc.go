@@ -8,9 +8,15 @@ package rocketmq
 import (
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/normal"
+	util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &Impl_{}
+		},
+	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &Impl{}
@@ -29,4 +35,15 @@ func init() {
 
 type configInterface interface {
 	New(impl *Impl) (*Impl, error)
+}
+type Impl_ struct {
+}
+
+func GetImpl(p *Config) (*Impl, error) {
+	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(Impl)), p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*Impl)
+	return impl, nil
 }

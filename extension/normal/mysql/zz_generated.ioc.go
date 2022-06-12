@@ -8,9 +8,16 @@ package mysql
 import (
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/normal"
+	util "github.com/alibaba/ioc-golang/autowire/util"
+	"gorm.io/gorm"
 )
 
 func init() {
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &Impl_{}
+		},
+	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &Impl{}
@@ -30,4 +37,39 @@ func init() {
 
 type configInterface interface {
 	New(impl *Impl) (*Impl, error)
+}
+type Impl_ struct {
+	GetDB_       func() *gorm.DB
+	SelectWhere_ func(queryStr string, result interface{}, args ...interface{}) error
+	Insert_      func(toInsertLines UserDefinedModel) error
+	Update_      func(queryStr, field string, target interface{}, args ...interface{}) error
+	Delete_      func(toDeleteTarget UserDefinedModel) error
+	First_       func(queryStr string, findTarget UserDefinedModel, args ...interface{}) error
+}
+
+func (i *Impl_) GetDB() *gorm.DB {
+	return i.GetDB_()
+}
+func (i *Impl_) SelectWhere(queryStr string, result interface{}, args ...interface{}) error {
+	return i.SelectWhere_(queryStr, result, args...)
+}
+func (i *Impl_) Insert(toInsertLines UserDefinedModel) error {
+	return i.Insert_(toInsertLines)
+}
+func (i *Impl_) Update(queryStr, field string, target interface{}, args ...interface{}) error {
+	return i.Update_(queryStr, field, target, args...)
+}
+func (i *Impl_) Delete(toDeleteTarget UserDefinedModel) error {
+	return i.Delete_(toDeleteTarget)
+}
+func (i *Impl_) First(queryStr string, findTarget UserDefinedModel, args ...interface{}) error {
+	return i.First_(queryStr, findTarget, args...)
+}
+func GetImpl(p *Config) (*Impl, error) {
+	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(Impl)), p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*Impl)
+	return impl, nil
 }
