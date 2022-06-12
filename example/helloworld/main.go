@@ -67,8 +67,7 @@ func main() {
 		panic(err)
 	}
 
-	// 'App' is alias name
-	// We can get instance by ths id
+	// We can get objects by ths id '$(PkgName).$(StructName)'
 	appInterface, err := singleton.GetImpl("main.App")
 	if err != nil {
 		panic(err)

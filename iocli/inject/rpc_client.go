@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"sigs.k8s.io/controller-tools/pkg/genall"
@@ -172,10 +173,8 @@ func (s *ServiceStruct) GetString()  {
 */
 func newMethodFromLine(structName, line string) (method, bool) {
 	line = strings.TrimSpace(line)
-	funcPrefix := fmt.Sprintf("func (s *%s)", structName)
-	if strings.HasPrefix(line, funcPrefix) && strings.HasSuffix(line, "{") {
-		line = strings.TrimPrefix(line, funcPrefix)
-		line = strings.TrimSuffix(line, "{")
+	if funcBody, ok := matchFunctionByStructName(line, structName); ok {
+		line = strings.TrimSuffix(funcBody, "{")
 		/*
 			line can be
 			GetString(param *substruct.Param) string
@@ -195,6 +194,21 @@ func newMethodFromLine(structName, line string) (method, bool) {
 		}, true
 	}
 	return method{}, false
+}
+
+func matchFunctionByStructName(functionSignature, structName string) (string, bool) {
+	splitedFunctionSignature := strings.Split(functionSignature, structName)
+	if len(splitedFunctionSignature) <= 1 {
+		return "", false
+	}
+	// match func (
+	regString := "^func\\(\\w+\\*"
+	signatureHeader := strings.Replace(splitedFunctionSignature[0], " ", "", -1)
+	ok, err := regexp.MatchString(regString, signatureHeader)
+	if err != nil || !ok {
+		return "", false
+	}
+	return strings.TrimPrefix(strings.Join(splitedFunctionSignature[1:], structName), ")"), strings.HasSuffix(functionSignature, "{")
 }
 
 /*
