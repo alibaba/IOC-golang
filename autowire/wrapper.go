@@ -16,7 +16,6 @@
 package autowire
 
 import (
-	"fmt"
 	"os"
 	"reflect"
 	"runtime"
@@ -53,20 +52,6 @@ type WrapperAutowireImpl struct {
 
 // ImplWithParam is used to get impled struct with param
 func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}) (interface{}, error) {
-	if util.IsProxyStructSDID(sdID) {
-		sdID = util.ProxySDID2StructSDID(sdID)
-		if proxyFunction := GetProxyFunction(); proxyFunction == nil {
-			// never occur
-			return nil, fmt.Errorf("proxy function is nil")
-		} else {
-			ptr, err := w.ImplWithParam(sdID, param)
-			if err != nil {
-				return nil, err
-			}
-			// try to return with proxy wrapped pointer
-			return proxyFunction(ptr)
-		}
-	}
 	// 1. check singleton
 	if singletonImpledPtr, ok := w.singletonImpledMap[sdID]; w.Autowire.IsSingleton() && ok {
 		return singletonImpledPtr, nil

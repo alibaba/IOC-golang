@@ -35,10 +35,10 @@ jobs:
         go fmt ./...
     - name: build iocli
       run : |
-        go build -o iocli ./iocli
+        go build -o io-cli ./iocli
     - name: iocli gen
       run : |
-        ./iocli gen
+        ./io-cli gen
     - name: Unit Test
       run: |
         go test ./... -cover -p 1
