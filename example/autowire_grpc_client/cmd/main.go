@@ -23,7 +23,6 @@ import (
 
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/example/autowire_grpc_client/api"
 	"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service1"
 	"github.com/alibaba/ioc-golang/example/autowire_grpc_client/cmd/service2"
@@ -87,11 +86,10 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("App")
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 
 	app.Run()
 }

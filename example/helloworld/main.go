@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 // +ioc:autowire=true
@@ -67,11 +66,9 @@ func main() {
 		panic(err)
 	}
 
-	// We can get objects by ths id '$(PkgName).$(StructName)'
-	appInterface, err := singleton.GetImpl("main.App")
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 	app.Run()
 }

@@ -21,19 +21,16 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/normal"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/extension/normal/redis"
 	"github.com/alibaba/ioc-golang/test/docker_compose"
 )
 
 func (a *App) TestRun(t *testing.T) {
-	redisClientGetByNormalAPI, err := normal.GetImpl("github.com/alibaba/ioc-golang/extension/normal/redis.Impl", &redis.Config{
+	redisClientGetByNormalAPIImpl, err := redis.GetImpl(&redis.Config{
 		Address: "localhost:6379",
 		DB:      "0",
 	})
 	assert.Nil(t, err)
-	redisClientGetByNormalAPIImpl := redisClientGetByNormalAPI.(redis.Redis)
 	_, err = redisClientGetByNormalAPIImpl.Set("myKey", "myValue", -1)
 	assert.Nil(t, err)
 
@@ -52,11 +49,10 @@ func TestGetAPI(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("appalias")
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 	app.TestRun(t)
 	assert.Nil(t, docker_compose.DockerComposeDown("../docker-compose/docker-compose.yaml"))
 }

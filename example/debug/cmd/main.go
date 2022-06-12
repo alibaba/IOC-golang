@@ -22,7 +22,6 @@ import (
 
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/extension/autowire/grpc"
 
 	googleGRPC "google.golang.org/grpc"
@@ -88,11 +87,10 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("main.App")
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 
 	for {
 		time.Sleep(time.Second * 5)

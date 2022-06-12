@@ -22,7 +22,6 @@ import (
 	"github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/service/api"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 	_ "github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client"
 )
 
@@ -52,10 +51,9 @@ func main() {
 
 	// 'App' is alias name
 	// We can get instance by ths id
-	appInterface, err := singleton.GetImpl("main.App")
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 	app.Run()
 }

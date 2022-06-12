@@ -19,8 +19,6 @@ import (
 	"fmt"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
-
 	normalMysql "github.com/alibaba/ioc-golang/extension/normal/mysql"
 )
 
@@ -63,11 +61,10 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	appInterface, err := singleton.GetImpl("AppAlias")
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 
 	app.Run()
 }

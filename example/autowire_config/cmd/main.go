@@ -21,7 +21,6 @@ import (
 	"path/filepath"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 	conf "github.com/alibaba/ioc-golang/config"
 	"github.com/alibaba/ioc-golang/extension/config"
 )
@@ -62,19 +61,17 @@ func main() {
 
 func getImplByFullName() {
 	// Use the full name of the struct instead of App-App(${interfaceName}-${structName})
-	appInterface, err := singleton.GetImpl("main.App")
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 	app.Run()
 }
 
 func getImplByAlias() {
-	appInterface, err := singleton.GetImpl("AppAlias") // Use the alias name of the struct
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 	app.Run()
 }
