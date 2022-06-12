@@ -6,10 +6,11 @@
 package mysql
 
 import (
+	"gorm.io/gorm"
+
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
-	"gorm.io/gorm"
 )
 
 func init() {

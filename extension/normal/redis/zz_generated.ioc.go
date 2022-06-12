@@ -6,11 +6,13 @@
 package redis
 
 import (
+	timex "time"
+
+	go_redisredis "github.com/go-redis/redis"
+
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
-	go_redisredis "github.com/go-redis/redis"
-	timex "time"
 )
 
 func init() {

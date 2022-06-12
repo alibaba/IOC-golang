@@ -7,12 +7,14 @@ package http_server
 
 import (
 	contextx "context"
+	"net/http"
+
+	"github.com/urfave/negroni"
+
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
 	"github.com/alibaba/ioc-golang/extension/normal/http_server/ghttp"
-	"github.com/urfave/negroni"
-	"net/http"
 )
 
 func init() {
