@@ -16,8 +16,9 @@
 package rpc_service
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSetParam(t *testing.T) {
