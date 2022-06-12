@@ -255,12 +255,11 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			c.Linef(`ConstructFunc: %s,`, constructFunc)
 		}
 		c.Line(`})`)
-		utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
+
 		getMethodGenerateCtxs = append(getMethodGenerateCtxs, getMethodGenerateCtx{
 			paramTypeName:     paramType,
 			autowireTypeAlias: alise,
 			structName:        info.Name,
-			utilAlias:         utilAlias,
 			autowireType:      autowireType,
 		})
 
@@ -327,6 +326,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			continue
 		}
 		if g.paramTypeName != "" && g.autowireType != "singleton" && g.autowireType != "rpc" {
+			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
 			c.Linef(`func Get%s(p *%s)(*%s, error){
 			i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)), p)
 			if err != nil {
@@ -334,13 +334,14 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			}
 			impl := i.(*%s)
 			return impl, nil
-		}`, g.structName, g.paramTypeName, g.structName, g.autowireTypeAlias, g.utilAlias, g.structName, g.structName)
+		}`, g.structName, g.paramTypeName, g.structName, g.autowireTypeAlias, utilAlias, g.structName, g.structName)
 		} else {
+			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
 			c.Linef(`func Get%s()(*%s, error){`, g.structName, g.structName)
 			if g.autowireType == "singleton" || g.autowireType == "rpc" {
-				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)))`, g.autowireTypeAlias, g.utilAlias, g.structName)
+				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)))`, g.autowireTypeAlias, utilAlias, g.structName)
 			} else {
-				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s))), nil)`, g.autowireTypeAlias, g.utilAlias, g.structName)
+				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s))), nil)`, g.autowireTypeAlias, utilAlias, g.structName)
 			}
 			c.Linef(`if err != nil {
 				return nil, err
@@ -393,7 +394,6 @@ func isEligibleInterfaceReferencePath(interfaceReferencePath string) bool {
 
 type getMethodGenerateCtx struct {
 	paramTypeName     string
-	utilAlias         string
 	autowireTypeAlias string
 	structName        string
 	autowireType      string
