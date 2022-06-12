@@ -197,7 +197,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, normalAlias, autowireAlias)
 		c.Linef(`Factory: func() interface{} {
 			return &%s_{}
-		},`, info.Name)
+		},`, toFirstCharLower(info.Name))
 		c.Line(`})`)
 
 		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, alise, autowireAlias)
@@ -280,7 +280,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 	// gen proxy struct
 	for _, info := range needProxyStructInfos {
 		// get all methods
-		c.Linef(`type %s_ struct {`, info.Name)
+		c.Linef(`type %s_ struct {`, toFirstCharLower(info.Name))
 		methods := parseMethodInfoFromGoFiles(info.Name, root.GoFiles)
 		for idx := range methods {
 			importsAlias := methods[idx].GetImportAlias()
@@ -310,7 +310,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 
 		for _, m := range methods {
 			charDescriber := string(strings.ToLower(info.Name)[0])
-			c.Linef(`func (%s *%s_) %s%s{`, charDescriber, info.Name, m.name, m.body)
+			c.Linef(`func (%s *%s_) %s%s{`, charDescriber, toFirstCharLower(info.Name), m.name, m.body)
 			if m.ReturnValueNum() > 0 {
 				c.Linef(`return %s.%s_(%s)`, charDescriber, m.name, m.GetParamValues())
 			} else {
@@ -397,4 +397,8 @@ type getMethodGenerateCtx struct {
 	autowireTypeAlias string
 	structName        string
 	autowireType      string
+}
+
+func toFirstCharLower(input string) string {
+	return strings.ToLower(string(input[0])) + input[1:]
 }

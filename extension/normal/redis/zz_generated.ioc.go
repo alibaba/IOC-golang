@@ -6,19 +6,17 @@
 package redis
 
 import (
-	timex "time"
-
-	go_redisredis "github.com/go-redis/redis"
-
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
+	go_redisredis "github.com/go-redis/redis"
+	timex "time"
 )
 
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &Impl_{}
+			return &impl_{}
 		},
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -40,23 +38,23 @@ func init() {
 type configInterface interface {
 	New(impl *Impl) (*Impl, error)
 }
-type Impl_ struct {
+type impl_ struct {
 	GetRawClient_ func() *go_redisredis.Client
 	HGetAll_      func(key string) (map[string]string, error)
 	Get_          func(key string) (string, error)
 	Set_          func(key string, value interface{}, expiration timex.Duration) (string, error)
 }
 
-func (i *Impl_) GetRawClient() *go_redisredis.Client {
+func (i *impl_) GetRawClient() *go_redisredis.Client {
 	return i.GetRawClient_()
 }
-func (i *Impl_) HGetAll(key string) (map[string]string, error) {
+func (i *impl_) HGetAll(key string) (map[string]string, error) {
 	return i.HGetAll_(key)
 }
-func (i *Impl_) Get(key string) (string, error) {
+func (i *impl_) Get(key string) (string, error) {
 	return i.Get_(key)
 }
-func (i *Impl_) Set(key string, value interface{}, expiration timex.Duration) (string, error) {
+func (i *impl_) Set(key string, value interface{}, expiration timex.Duration) (string, error) {
 	return i.Set_(key, value, expiration)
 }
 func GetImpl(p *Config) (*Impl, error) {

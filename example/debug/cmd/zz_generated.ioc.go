@@ -8,14 +8,14 @@ package main
 import (
 	"github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
+	singleton "github.com/alibaba/ioc-golang/autowire/singleton"
 	util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &App_{}
+			return &app_{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -25,11 +25,11 @@ func init() {
 	})
 }
 
-type App_ struct {
+type app_ struct {
 	Run_ func()
 }
 
-func (a *App_) Run() {
+func (a *app_) Run() {
 	a.Run_()
 }
 func GetApp() (*App, error) {

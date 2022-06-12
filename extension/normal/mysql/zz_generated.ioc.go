@@ -6,17 +6,16 @@
 package mysql
 
 import (
-	"gorm.io/gorm"
-
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
+	"gorm.io/gorm"
 )
 
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &Impl_{}
+			return &impl_{}
 		},
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -39,7 +38,7 @@ func init() {
 type configInterface interface {
 	New(impl *Impl) (*Impl, error)
 }
-type Impl_ struct {
+type impl_ struct {
 	GetDB_       func() *gorm.DB
 	SelectWhere_ func(queryStr string, result interface{}, args ...interface{}) error
 	Insert_      func(toInsertLines UserDefinedModel) error
@@ -48,22 +47,22 @@ type Impl_ struct {
 	First_       func(queryStr string, findTarget UserDefinedModel, args ...interface{}) error
 }
 
-func (i *Impl_) GetDB() *gorm.DB {
+func (i *impl_) GetDB() *gorm.DB {
 	return i.GetDB_()
 }
-func (i *Impl_) SelectWhere(queryStr string, result interface{}, args ...interface{}) error {
+func (i *impl_) SelectWhere(queryStr string, result interface{}, args ...interface{}) error {
 	return i.SelectWhere_(queryStr, result, args...)
 }
-func (i *Impl_) Insert(toInsertLines UserDefinedModel) error {
+func (i *impl_) Insert(toInsertLines UserDefinedModel) error {
 	return i.Insert_(toInsertLines)
 }
-func (i *Impl_) Update(queryStr, field string, target interface{}, args ...interface{}) error {
+func (i *impl_) Update(queryStr, field string, target interface{}, args ...interface{}) error {
 	return i.Update_(queryStr, field, target, args...)
 }
-func (i *Impl_) Delete(toDeleteTarget UserDefinedModel) error {
+func (i *impl_) Delete(toDeleteTarget UserDefinedModel) error {
 	return i.Delete_(toDeleteTarget)
 }
-func (i *Impl_) First(queryStr string, findTarget UserDefinedModel, args ...interface{}) error {
+func (i *impl_) First(queryStr string, findTarget UserDefinedModel, args ...interface{}) error {
 	return i.First_(queryStr, findTarget, args...)
 }
 func GetImpl(p *Config) (*Impl, error) {

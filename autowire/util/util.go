@@ -41,14 +41,6 @@ func GetSDIDByStructPtr(v interface{}) string {
 	return fmt.Sprintf("%s.%s", typeOfInterface.PkgPath(), typeOfInterface.Name())
 }
 
-func IsProxyStructSDID(sdid string) bool {
-	return strings.HasSuffix(sdid, "_")
-}
-
-func ProxySDID2StructSDID(sdid string) string {
-	return strings.TrimSuffix(sdid, "_")
-}
-
 func IsProxyStructPtr(v interface{}) bool {
 	if v == nil {
 		return false
@@ -62,7 +54,7 @@ func GetProxySDIDByStructPtr(v interface{}) string {
 		return ""
 	}
 	typeOfInterface := GetTypeFromInterface(v)
-	return fmt.Sprintf("%s.%s_", typeOfInterface.PkgPath(), typeOfInterface.Name())
+	return fmt.Sprintf("%s.%s_", typeOfInterface.PkgPath(), strings.ToLower(string(typeOfInterface.Name()[0]))+typeOfInterface.Name()[1:])
 }
 
 func GetTypeFromInterface(v interface{}) reflect.Type {

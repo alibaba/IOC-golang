@@ -8,14 +8,14 @@ package main
 import (
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
+	singleton "github.com/alibaba/ioc-golang/autowire/singleton"
 	util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &App_{}
+			return &app_{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -25,7 +25,7 @@ func init() {
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ServiceImpl1_{}
+			return &serviceImpl1_{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -35,7 +35,7 @@ func init() {
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ServiceImpl2_{}
+			return &serviceImpl2_{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -45,7 +45,7 @@ func init() {
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ServiceStruct_{}
+			return &serviceStruct_{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -55,35 +55,35 @@ func init() {
 	})
 }
 
-type App_ struct {
+type app_ struct {
 	Run_ func()
 }
 
-func (a *App_) Run() {
+func (a *app_) Run() {
 	a.Run_()
 }
 
-type ServiceImpl1_ struct {
+type serviceImpl1_ struct {
 	Hello_ func()
 }
 
-func (s *ServiceImpl1_) Hello() {
+func (s *serviceImpl1_) Hello() {
 	s.Hello_()
 }
 
-type ServiceImpl2_ struct {
+type serviceImpl2_ struct {
 	Hello_ func()
 }
 
-func (s *ServiceImpl2_) Hello() {
+func (s *serviceImpl2_) Hello() {
 	s.Hello_()
 }
 
-type ServiceStruct_ struct {
+type serviceStruct_ struct {
 	GetString_ func(name string) string
 }
 
-func (s *ServiceStruct_) GetString(name string) string {
+func (s *serviceStruct_) GetString(name string) string {
 	return s.GetString_(name)
 }
 func GetApp() (*App, error) {

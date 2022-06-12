@@ -6,18 +6,17 @@
 package nacos
 
 import (
-	"github.com/nacos-group/nacos-sdk-go/v2/model"
-	"github.com/nacos-group/nacos-sdk-go/v2/vo"
-
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/nacos-group/nacos-sdk-go/v2/model"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 )
 
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &Impl_{}
+			return &impl_{}
 		},
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -39,7 +38,7 @@ func init() {
 type configInterface interface {
 	New(impl *Impl) (*Impl, error)
 }
-type Impl_ struct {
+type impl_ struct {
 	GetConfig_                func(param vo.ConfigParam) (string, error)
 	PublishConfig_            func(param vo.ConfigParam) (bool, error)
 	DeleteConfig_             func(param vo.ConfigParam) (bool, error)
@@ -58,52 +57,52 @@ type Impl_ struct {
 	Unsubscribe_              func(param *vo.SubscribeParam) (err error)
 }
 
-func (i *Impl_) GetConfig(param vo.ConfigParam) (string, error) {
+func (i *impl_) GetConfig(param vo.ConfigParam) (string, error) {
 	return i.GetConfig_(param)
 }
-func (i *Impl_) PublishConfig(param vo.ConfigParam) (bool, error) {
+func (i *impl_) PublishConfig(param vo.ConfigParam) (bool, error) {
 	return i.PublishConfig_(param)
 }
-func (i *Impl_) DeleteConfig(param vo.ConfigParam) (bool, error) {
+func (i *impl_) DeleteConfig(param vo.ConfigParam) (bool, error) {
 	return i.DeleteConfig_(param)
 }
-func (i *Impl_) ListenConfig(params vo.ConfigParam) (err error) {
+func (i *impl_) ListenConfig(params vo.ConfigParam) (err error) {
 	return i.ListenConfig_(params)
 }
-func (i *Impl_) CancelListenConfig(params vo.ConfigParam) (err error) {
+func (i *impl_) CancelListenConfig(params vo.ConfigParam) (err error) {
 	return i.CancelListenConfig_(params)
 }
-func (i *Impl_) SearchConfig(param vo.SearchConfigParm) (*model.ConfigPage, error) {
+func (i *impl_) SearchConfig(param vo.SearchConfigParm) (*model.ConfigPage, error) {
 	return i.SearchConfig_(param)
 }
-func (i *Impl_) RegisterInstance(param vo.RegisterInstanceParam) (bool, error) {
+func (i *impl_) RegisterInstance(param vo.RegisterInstanceParam) (bool, error) {
 	return i.RegisterInstance_(param)
 }
-func (i *Impl_) DeregisterInstance(param vo.DeregisterInstanceParam) (bool, error) {
+func (i *impl_) DeregisterInstance(param vo.DeregisterInstanceParam) (bool, error) {
 	return i.DeregisterInstance_(param)
 }
-func (i *Impl_) UpdateInstance(param vo.UpdateInstanceParam) (bool, error) {
+func (i *impl_) UpdateInstance(param vo.UpdateInstanceParam) (bool, error) {
 	return i.UpdateInstance_(param)
 }
-func (i *Impl_) GetService(param vo.GetServiceParam) (service model.Service, err error) {
+func (i *impl_) GetService(param vo.GetServiceParam) (service model.Service, err error) {
 	return i.GetService_(param)
 }
-func (i *Impl_) GetAllServicesInfo(param vo.GetAllServiceInfoParam) (model.ServiceList, error) {
+func (i *impl_) GetAllServicesInfo(param vo.GetAllServiceInfoParam) (model.ServiceList, error) {
 	return i.GetAllServicesInfo_(param)
 }
-func (i *Impl_) SelectAllInstances(param vo.SelectAllInstancesParam) ([]model.Instance, error) {
+func (i *impl_) SelectAllInstances(param vo.SelectAllInstancesParam) ([]model.Instance, error) {
 	return i.SelectAllInstances_(param)
 }
-func (i *Impl_) SelectInstances(param vo.SelectInstancesParam) ([]model.Instance, error) {
+func (i *impl_) SelectInstances(param vo.SelectInstancesParam) ([]model.Instance, error) {
 	return i.SelectInstances_(param)
 }
-func (i *Impl_) SelectOneHealthyInstance(param vo.SelectOneHealthInstanceParam) (*model.Instance, error) {
+func (i *impl_) SelectOneHealthyInstance(param vo.SelectOneHealthInstanceParam) (*model.Instance, error) {
 	return i.SelectOneHealthyInstance_(param)
 }
-func (i *Impl_) Subscribe(param *vo.SubscribeParam) error {
+func (i *impl_) Subscribe(param *vo.SubscribeParam) error {
 	return i.Subscribe_(param)
 }
-func (i *Impl_) Unsubscribe(param *vo.SubscribeParam) (err error) {
+func (i *impl_) Unsubscribe(param *vo.SubscribeParam) (err error) {
 	return i.Unsubscribe_(param)
 }
 func GetImpl(p *Config) (*Impl, error) {

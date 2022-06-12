@@ -16,7 +16,7 @@ import (
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ServiceStruct_{}
+			return &serviceStruct_{}
 		},
 	})
 	rpc_service.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -27,11 +27,11 @@ func init() {
 	})
 }
 
-type ServiceStruct_ struct {
+type serviceStruct_ struct {
 	GetUser_ func(name string, age int) (*dto.User, error)
 }
 
-func (s *ServiceStruct_) GetUser(name string, age int) (*dto.User, error) {
+func (s *serviceStruct_) GetUser(name string, age int) (*dto.User, error) {
 	return s.GetUser_(name, age)
 }
 func GetServiceStruct() (*ServiceStruct, error) {

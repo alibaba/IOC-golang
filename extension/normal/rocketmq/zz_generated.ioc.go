@@ -14,7 +14,7 @@ import (
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &Impl_{}
+			return &impl_{}
 		},
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -36,7 +36,7 @@ func init() {
 type configInterface interface {
 	New(impl *Impl) (*Impl, error)
 }
-type Impl_ struct {
+type impl_ struct {
 }
 
 func GetImpl(p *Config) (*Impl, error) {

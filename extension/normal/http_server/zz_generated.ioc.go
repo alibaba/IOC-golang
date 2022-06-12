@@ -7,20 +7,18 @@ package http_server
 
 import (
 	contextx "context"
-	"net/http"
-
-	"github.com/urfave/negroni"
-
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
 	"github.com/alibaba/ioc-golang/extension/normal/http_server/ghttp"
+	"github.com/urfave/negroni"
+	"net/http"
 )
 
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &Impl_{}
+			return &impl_{}
 		},
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -42,7 +40,7 @@ func init() {
 type hTTPServerConfigInterface interface {
 	Create(impl *Impl) (*Impl, error)
 }
-type Impl_ struct {
+type impl_ struct {
 	UseMW_                            func(filters ...negroni.Handler)
 	UseIOCGolangMW_                   func(filters ...ghttp.Filter)
 	Run_                              func(ctx contextx.Context)
@@ -50,19 +48,19 @@ type Impl_ struct {
 	RegisterWSRouter_                 func(path string, handler func(*ghttp.GRegisterWSController))
 }
 
-func (i *Impl_) UseMW(filters ...negroni.Handler) {
+func (i *impl_) UseMW(filters ...negroni.Handler) {
 	i.UseMW_(filters...)
 }
-func (i *Impl_) UseIOCGolangMW(filters ...ghttp.Filter) {
+func (i *impl_) UseIOCGolangMW(filters ...ghttp.Filter) {
 	i.UseIOCGolangMW_(filters...)
 }
-func (i *Impl_) Run(ctx contextx.Context) {
+func (i *impl_) Run(ctx contextx.Context) {
 	i.Run_(ctx)
 }
-func (i *Impl_) RegisterRouterWithRawHttpHandler(path string, handler func(w http.ResponseWriter, r *http.Request), method string) {
+func (i *impl_) RegisterRouterWithRawHttpHandler(path string, handler func(w http.ResponseWriter, r *http.Request), method string) {
 	i.RegisterRouterWithRawHttpHandler_(path, handler, method)
 }
-func (i *Impl_) RegisterWSRouter(path string, handler func(*ghttp.GRegisterWSController)) {
+func (i *impl_) RegisterWSRouter(path string, handler func(*ghttp.GRegisterWSController)) {
 	i.RegisterWSRouter_(path, handler)
 }
 func GetImpl(p *HTTPServerConfig) (*Impl, error) {

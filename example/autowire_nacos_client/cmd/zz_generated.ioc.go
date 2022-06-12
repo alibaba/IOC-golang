@@ -15,7 +15,7 @@ import (
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &App_{}
+			return &app_{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -38,11 +38,11 @@ func init() {
 type paramInterface interface {
 	Init(impl *App) (*App, error)
 }
-type App_ struct {
+type app_ struct {
 	Run_ func()
 }
 
-func (a *App_) Run() {
+func (a *app_) Run() {
 	a.Run_()
 }
 func GetApp() (*App, error) {

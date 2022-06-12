@@ -14,7 +14,7 @@ import (
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigFloat64_{}
+			return &configFloat64_{}
 		},
 	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -32,7 +32,7 @@ func init() {
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigInt64_{}
+			return &configInt64_{}
 		},
 	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -50,7 +50,7 @@ func init() {
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigInt_{}
+			return &configInt_{}
 		},
 	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -68,7 +68,7 @@ func init() {
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigMap_{}
+			return &configMap_{}
 		},
 	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -86,7 +86,7 @@ func init() {
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigSlice_{}
+			return &configSlice_{}
 		},
 	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -104,7 +104,7 @@ func init() {
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigString_{}
+			return &configString_{}
 		},
 	})
 	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -140,74 +140,74 @@ type configSliceInterface interface {
 type configStringInterface interface {
 	New(impl *ConfigString) (*ConfigString, error)
 }
-type ConfigFloat64_ struct {
+type configFloat64_ struct {
 	Value_ func() float64
 	New_   func(impl *ConfigFloat64) (*ConfigFloat64, error)
 }
 
-func (c *ConfigFloat64_) Value() float64 {
+func (c *configFloat64_) Value() float64 {
 	return c.Value_()
 }
-func (c *ConfigFloat64_) New(impl *ConfigFloat64) (*ConfigFloat64, error) {
+func (c *configFloat64_) New(impl *ConfigFloat64) (*ConfigFloat64, error) {
 	return c.New_(impl)
 }
 
-type ConfigInt64_ struct {
+type configInt64_ struct {
 	Value_ func() int64
 	New_   func(impl *ConfigInt64) (*ConfigInt64, error)
 }
 
-func (c *ConfigInt64_) Value() int64 {
+func (c *configInt64_) Value() int64 {
 	return c.Value_()
 }
-func (c *ConfigInt64_) New(impl *ConfigInt64) (*ConfigInt64, error) {
+func (c *configInt64_) New(impl *ConfigInt64) (*ConfigInt64, error) {
 	return c.New_(impl)
 }
 
-type ConfigInt_ struct {
+type configInt_ struct {
 	Value_ func() int
 	New_   func(impl *ConfigInt) (*ConfigInt, error)
 }
 
-func (c *ConfigInt_) Value() int {
+func (c *configInt_) Value() int {
 	return c.Value_()
 }
-func (c *ConfigInt_) New(impl *ConfigInt) (*ConfigInt, error) {
+func (c *configInt_) New(impl *ConfigInt) (*ConfigInt, error) {
 	return c.New_(impl)
 }
 
-type ConfigMap_ struct {
+type configMap_ struct {
 	Value_ func() map[string]interface{}
 	New_   func(impl *ConfigMap) (*ConfigMap, error)
 }
 
-func (c *ConfigMap_) Value() map[string]interface{} {
+func (c *configMap_) Value() map[string]interface{} {
 	return c.Value_()
 }
-func (c *ConfigMap_) New(impl *ConfigMap) (*ConfigMap, error) {
+func (c *configMap_) New(impl *ConfigMap) (*ConfigMap, error) {
 	return c.New_(impl)
 }
 
-type ConfigSlice_ struct {
+type configSlice_ struct {
 	Value_ func() []interface{}
 	New_   func(impl *ConfigSlice) (*ConfigSlice, error)
 }
 
-func (c *ConfigSlice_) Value() []interface{} {
+func (c *configSlice_) Value() []interface{} {
 	return c.Value_()
 }
-func (c *ConfigSlice_) New(impl *ConfigSlice) (*ConfigSlice, error) {
+func (c *configSlice_) New(impl *ConfigSlice) (*ConfigSlice, error) {
 	return c.New_(impl)
 }
 
-type ConfigString_ struct {
+type configString_ struct {
 	Value_ func() string
 	New_   func(impl *ConfigString) (*ConfigString, error)
 }
 
-func (c *ConfigString_) Value() string {
+func (c *configString_) Value() string {
 	return c.Value_()
 }
-func (c *ConfigString_) New(impl *ConfigString) (*ConfigString, error) {
+func (c *configString_) New(impl *ConfigString) (*ConfigString, error) {
 	return c.New_(impl)
 }

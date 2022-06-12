@@ -16,7 +16,7 @@ import (
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ComplexService_{}
+			return &complexService_{}
 		},
 	})
 	rpc_service.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -27,7 +27,7 @@ func init() {
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &SimpleService_{}
+			return &simpleService_{}
 		},
 	})
 	rpc_service.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -38,7 +38,7 @@ func init() {
 	})
 }
 
-type ComplexService_ struct {
+type complexService_ struct {
 	RPCBasicType_                  func(name string, age int, age32 int32, age64 int64, ageF32 float32, ageF64 float64, namePtr *string, agePtr *int, age32Ptr *int32, age64Ptr *int64, ageF32Ptr *float32, ageF64Ptr *float64) (string, int, int32, int64, float32, float64, *string, *int, *int32, *int64, *float32, *float64)
 	RPCWithoutParamAndReturnValue_ func()
 	RPCWithoutParam_               func() (*dto.User, error)
@@ -48,33 +48,33 @@ type ComplexService_ struct {
 	RPCWithParamCustomMethod_      func(customStruct dto.CustomStruct) dto.User
 }
 
-func (c *ComplexService_) RPCBasicType(name string, age int, age32 int32, age64 int64, ageF32 float32, ageF64 float64, namePtr *string, agePtr *int, age32Ptr *int32, age64Ptr *int64, ageF32Ptr *float32, ageF64Ptr *float64) (string, int, int32, int64, float32, float64, *string, *int, *int32, *int64, *float32, *float64) {
+func (c *complexService_) RPCBasicType(name string, age int, age32 int32, age64 int64, ageF32 float32, ageF64 float64, namePtr *string, agePtr *int, age32Ptr *int32, age64Ptr *int64, ageF32Ptr *float32, ageF64Ptr *float64) (string, int, int32, int64, float32, float64, *string, *int, *int32, *int64, *float32, *float64) {
 	return c.RPCBasicType_(name, age, age32, age64, ageF32, ageF64, namePtr, agePtr, age32Ptr, age64Ptr, ageF32Ptr, ageF64Ptr)
 }
-func (c *ComplexService_) RPCWithoutParamAndReturnValue() {
+func (c *complexService_) RPCWithoutParamAndReturnValue() {
 	c.RPCWithoutParamAndReturnValue_()
 }
-func (c *ComplexService_) RPCWithoutParam() (*dto.User, error) {
+func (c *complexService_) RPCWithoutParam() (*dto.User, error) {
 	return c.RPCWithoutParam_()
 }
-func (c *ComplexService_) RPCWithoutReturnValue(user *dto.User) {
+func (c *complexService_) RPCWithoutReturnValue(user *dto.User) {
 	c.RPCWithoutReturnValue_(user)
 }
-func (c *ComplexService_) RPCWithCustomValue(customStruct dto.CustomStruct, customStruct2 *dto.CustomStruct) (dto.CustomStruct, *dto.CustomStruct) {
+func (c *complexService_) RPCWithCustomValue(customStruct dto.CustomStruct, customStruct2 *dto.CustomStruct) (dto.CustomStruct, *dto.CustomStruct) {
 	return c.RPCWithCustomValue_(customStruct, customStruct2)
 }
-func (c *ComplexService_) RPCWithError() (*dto.User, error) {
+func (c *complexService_) RPCWithError() (*dto.User, error) {
 	return c.RPCWithError_()
 }
-func (c *ComplexService_) RPCWithParamCustomMethod(customStruct dto.CustomStruct) dto.User {
+func (c *complexService_) RPCWithParamCustomMethod(customStruct dto.CustomStruct) dto.User {
 	return c.RPCWithParamCustomMethod_(customStruct)
 }
 
-type SimpleService_ struct {
+type simpleService_ struct {
 	GetUser_ func(name string, age int) (*dto.User, error)
 }
 
-func (s *SimpleService_) GetUser(name string, age int) (*dto.User, error) {
+func (s *simpleService_) GetUser(name string, age int) (*dto.User, error) {
 	return s.GetUser_(name, age)
 }
 func GetComplexService() (*ComplexService, error) {

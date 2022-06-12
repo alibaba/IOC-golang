@@ -15,7 +15,7 @@ import (
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &Impl1_{}
+			return &impl1_{}
 		},
 	})
 	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -25,11 +25,11 @@ func init() {
 	})
 }
 
-type Impl1_ struct {
+type impl1_ struct {
 	Hello_ func(req string) string
 }
 
-func (i *Impl1_) Hello(req string) string {
+func (i *impl1_) Hello(req string) string {
 	return i.Hello_(req)
 }
 func GetImpl1() (*Impl1, error) {
