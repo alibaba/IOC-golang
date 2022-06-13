@@ -6,10 +6,11 @@
 package mysql
 
 import (
-	"github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/normal"
-	util "github.com/alibaba/ioc-golang/autowire/util"
 	"gorm.io/gorm"
+
+	"github.com/alibaba/ioc-golang/autowire"
+	normal "github.com/alibaba/ioc-golang/autowire/normal"
+	util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
@@ -65,6 +66,16 @@ func (i *impl_) Delete(toDeleteTarget UserDefinedModel) error {
 func (i *impl_) First(queryStr string, findTarget UserDefinedModel, args ...interface{}) error {
 	return i.First_(queryStr, findTarget, args...)
 }
+
+type ImplIOCInterface interface {
+	GetDB() *gorm.DB
+	SelectWhere(queryStr string, result interface{}, args ...interface{}) error
+	Insert(toInsertLines UserDefinedModel) error
+	Update(queryStr, field string, target interface{}, args ...interface{}) error
+	Delete(toDeleteTarget UserDefinedModel) error
+	First(queryStr string, findTarget UserDefinedModel, args ...interface{}) error
+}
+
 func GetImpl(p *Config) (*Impl, error) {
 	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(Impl)), p)
 	if err != nil {
@@ -72,4 +83,7 @@ func GetImpl(p *Config) (*Impl, error) {
 	}
 	impl := i.(*Impl)
 	return impl, nil
+}
+func GetImplIOCInterface(p *Config) (ImplIOCInterface, error) {
+	return GetImpl(p)
 }

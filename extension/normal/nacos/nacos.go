@@ -20,31 +20,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/model"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
-
-	"github.com/alibaba/ioc-golang/autowire/normal"
 )
-
-const sdid = "github.com/alibaba/ioc-golang/extension/normal/nacos.Impl"
-
-type NacosClient interface {
-	GetConfig(param vo.ConfigParam) (string, error)
-	PublishConfig(param vo.ConfigParam) (bool, error)
-	DeleteConfig(param vo.ConfigParam) (bool, error)
-	ListenConfig(params vo.ConfigParam) (err error)
-	CancelListenConfig(params vo.ConfigParam) (err error)
-	SearchConfig(param vo.SearchConfigParm) (*model.ConfigPage, error)
-
-	RegisterInstance(param vo.RegisterInstanceParam) (bool, error)
-	DeregisterInstance(param vo.DeregisterInstanceParam) (bool, error)
-	UpdateInstance(param vo.UpdateInstanceParam) (bool, error)
-	GetService(param vo.GetServiceParam) (service model.Service, err error)
-	GetAllServicesInfo(param vo.GetAllServiceInfoParam) (model.ServiceList, error)
-	SelectAllInstances(param vo.SelectAllInstancesParam) ([]model.Instance, error)
-	SelectInstances(param vo.SelectInstancesParam) ([]model.Instance, error)
-	SelectOneHealthyInstance(param vo.SelectOneHealthInstanceParam) (*model.Instance, error)
-	Subscribe(param *vo.SubscribeParam) error
-	Unsubscribe(param *vo.SubscribeParam) (err error)
-}
 
 // +ioc:autowire=true
 // +ioc:autowire:type=normal
@@ -118,14 +94,4 @@ func (i *Impl) Subscribe(param *vo.SubscribeParam) error {
 
 func (i *Impl) Unsubscribe(param *vo.SubscribeParam) (err error) {
 	return i.INamingClient.Unsubscribe(param)
-}
-
-var _ NacosClient = &Impl{}
-
-func GetNacosClient(config *Config) (NacosClient, error) {
-	nacosClientImpl, err := normal.GetImpl(sdid, config)
-	if err != nil {
-		return nil, err
-	}
-	return nacosClientImpl.(NacosClient), nil
 }

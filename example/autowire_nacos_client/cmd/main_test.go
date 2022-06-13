@@ -40,7 +40,7 @@ func (a *App) TestRun(t *testing.T) {
 	testGetAndSetService(t, a.createByAPINacosClient, "createByAPINacosClient-ioc-golang-debug-service")
 }
 
-func testGetAndSetService(t *testing.T, client normalNacos.NacosClient, serviceName string) {
+func testGetAndSetService(t *testing.T, client normalNacos.ImplIOCInterface, serviceName string) {
 	_, err := client.RegisterInstance(vo.RegisterInstanceParam{
 		Ip:          "127.0.0.1",
 		Port:        1999,
@@ -79,7 +79,10 @@ func TestNacosClient(t *testing.T) {
 	}
 	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", time.Second*10))
 	assert.Nil(t, ioc.Load())
-	app, err := GetApp()
+	app, err := GetApp(&Param{
+		NacosPort: 8848,
+		NacosAddr: "localhost",
+	})
 	assert.Nil(t, err)
 	app.TestRun(t)
 

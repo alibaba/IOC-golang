@@ -38,14 +38,14 @@ func (a *App) Run() {
 	if err != nil {
 		panic(err)
 	}
-	redisClientGetByNormalAPIImpl := redisClientGetyByNormalAPI.(redis.Redis)
+	redisClientGetByNormalAPIImpl := redisClientGetyByNormalAPI.(redis.ImplIOCInterface)
 	_, err = redisClientGetByNormalAPIImpl.Set("myKey", "myValue", -1)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Sprintln("redisClientByNormalAPIImpl set  myKey:myValue")
 
-	redisClientGetByRedisExtension, err := redis.GetRedis(&redis.Config{
+	redisClientGetByRedisExtension, err := redis.GetImplIOCInterface(&redis.Config{
 		Address: "localhost:6379",
 		DB:      "0",
 	})

@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/util"
 )
 
 type defaultSDIDParser struct {
@@ -35,10 +36,15 @@ func GetDefaultSDIDParser() autowire.SDIDParser {
 
 func (p *defaultSDIDParser) Parse(fi *autowire.FieldInfo) (string, error) {
 	injectStructName := fi.FieldType
-	if fi.TagValue != "" {
-		splitedTagValue := strings.Split(fi.TagValue, ",")
-		if splitedTagValue[0] != "" {
-			injectStructName = splitedTagValue[0]
+	splitedTagValue := strings.Split(fi.TagValue, ",")
+	if len(splitedTagValue) > 0 && splitedTagValue[0] != "" {
+		injectStructName = splitedTagValue[0]
+	} else {
+		// no struct sdid in tag
+		if !util.IsPointerField(fi.FieldReflectType) && strings.HasSuffix(injectStructName, "IOCInterface") {
+			// is interface field without valid sdid from tag value, and with 'IOCInterface' suffix
+			// load trim suffix as sdid
+			injectStructName = strings.TrimSuffix(fi.FieldType, "IOCInterface")
 		}
 	}
 	return autowire.GetSDIDByAliasIfNecessary(injectStructName), nil

@@ -32,11 +32,19 @@ type struct1_ struct {
 func (s *struct1_) Hello(name string) string {
 	return s.Hello_(name)
 }
+
+type Struct1IOCInterface interface {
+	Hello(name string) string
+}
+
 func GetStruct1() (*Struct1, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Struct1)))
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Struct1)), nil)
 	if err != nil {
 		return nil, err
 	}
 	impl := i.(*Struct1)
 	return impl, nil
+}
+func GetStruct1IOCInterface() (Struct1IOCInterface, error) {
+	return GetStruct1()
 }

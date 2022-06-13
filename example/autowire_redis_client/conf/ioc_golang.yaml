@@ -1,8 +1,4 @@
 autowire:
-  singleton:
-    AppAlias:
-      param:
-        RedisAddr: localhost:6379
   normal:
     github.com/alibaba/ioc-golang/extension/normal/redis.Impl:
       db1-redis:

@@ -31,10 +31,10 @@ import (
 // +ioc:autowire:alias=AppAlias
 
 type App struct {
-	NormalRedis    normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl"`
-	NormalDB1Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,db1-redis"`
-	NormalDB2Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,db2-redis"`
-	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,address=127.0.0.1:6379&db=3"`
+	NormalRedis    normalRedis.ImplIOCInterface `normal:""`
+	NormalDB1Redis normalRedis.ImplIOCInterface `normal:",db1-redis"`
+	NormalDB2Redis normalRedis.ImplIOCInterface `normal:",db2-redis"`
+	NormalDB3Redis normalRedis.ImplIOCInterface `normal:",address=127.0.0.1:6379&db=3"`
 
 	privateClient *redis.Client
 }
@@ -97,7 +97,9 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	app, err := GetApp()
+	app, err := GetApp(&Param{
+		RedisAddr: "localhost:6379",
+	})
 	if err != nil {
 		panic(err)
 	}

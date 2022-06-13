@@ -34,7 +34,7 @@ func (a *App) TestRun(t *testing.T) {
 	_, err = redisClientGetByNormalAPIImpl.Set("myKey", "myValue", -1)
 	assert.Nil(t, err)
 
-	redisClientGetByRedisExtension, err := redis.GetRedis(&redis.Config{
+	redisClientGetByRedisExtension, err := redis.GetImplIOCInterface(&redis.Config{
 		Address: "localhost:6379",
 		DB:      "0",
 	})

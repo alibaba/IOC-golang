@@ -146,6 +146,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 	rpcServiceStructInfos := make([]*markers.TypeInfo, 0)
 	needProxyStructInfos := make([]*markers.TypeInfo, 0)
 	getMethodGenerateCtxs := make([]getMethodGenerateCtx, 0)
+	constructFunctionInfoNames := make([]string, 0)
 	c.Line(`func init() {`)
 	autowireAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire")
 	for _, info := range infos {
@@ -251,8 +252,14 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			return param.%s(impl)
 		},`, getParamInterfaceType(paramType), info.Name, constructFunc)
 		} else if constructFunc != "" && paramType == "" {
-			// todo gen with specific construct function without param
-			c.Linef(`ConstructFunc: %s,`, constructFunc)
+			// gen specific construct function without param
+
+			c.Linef(`ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
+	impl := i.(*%s)
+	var constructFunc %sConstructFunc = %s
+	return constructFunc(impl)
+},`, info.Name, info.Name, constructFunc)
+			constructFunctionInfoNames = append(constructFunctionInfoNames, info.Name)
 		}
 		c.Line(`})`)
 
@@ -277,55 +284,23 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 		}`, getParamInterfaceType(paramImplPair.paramName), paramImplPair.constructFuncName, paramImplPair.implName, paramImplPair.implName)
 	}
 
-	// gen proxy struct
-	for _, info := range needProxyStructInfos {
-		// get all methods
-		c.Linef(`type %s_ struct {`, toFirstCharLower(info.Name))
-		methods := parseMethodInfoFromGoFiles(info.Name, root.GoFiles)
-		for idx := range methods {
-			importsAlias := methods[idx].GetImportAlias()
-			if len(importsAlias) != 0 {
-				for _, importAlias := range importsAlias {
-					for _, rawFileImport := range info.RawFile.Imports {
-						var originAlias string
-						if rawFileImport.Name != nil {
-							originAlias = rawFileImport.Name.String()
-						} else {
-							splitedImport := strings.Split(rawFileImport.Path.Value, "/")
-							originAlias = strings.TrimPrefix(splitedImport[len(splitedImport)-1], `"`)
-							originAlias = strings.TrimSuffix(originAlias, `"`)
-						}
-						if originAlias == importAlias {
-							toImport := strings.TrimPrefix(rawFileImport.Path.Value, `"`)
-							toImport = strings.TrimSuffix(toImport, `"`)
-							clientStubAlias := c.NeedImport(toImport)
-							methods[idx].swapAlias(importAlias, clientStubAlias)
-						}
-					}
-				}
-			}
-			c.Linef("%s_ func%s", methods[idx].name, methods[idx].body)
-		}
-		c.Line("}")
-
-		for _, m := range methods {
-			charDescriber := string(strings.ToLower(info.Name)[0])
-			c.Linef(`func (%s *%s_) %s%s{`, charDescriber, toFirstCharLower(info.Name), m.name, m.body)
-			if m.ReturnValueNum() > 0 {
-				c.Linef(`return %s.%s_(%s)`, charDescriber, m.name, m.GetParamValues())
-			} else {
-				c.Linef(`%s.%s_(%s)`, charDescriber, m.name, m.GetParamValues())
-			}
-			c.Linef(`}`)
-		}
+	// gen constructFunc signature
+	for _, name := range constructFunctionInfoNames {
+		c.Linef(`type %sConstructFunc func(impl *%s) (*%s, error)`, name, name, name)
 	}
 
-	// gen get method
+	// gen proxy struct
+	genProxyStruct("_", c, needProxyStructInfos, root)
+
+	// gen interface
+	genInterface("IOCInterface", c, needProxyStructInfos, root)
+
+	// gen get method and get interface method
 	for _, g := range getMethodGenerateCtxs {
 		if g.autowireType == "config" {
 			continue
 		}
-		if g.paramTypeName != "" && g.autowireType != "singleton" && g.autowireType != "rpc" {
+		if g.paramTypeName != "" && g.autowireType != "rpc" {
 			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
 			c.Linef(`func Get%s(p *%s)(*%s, error){
 			i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)), p)
@@ -335,13 +310,16 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			impl := i.(*%s)
 			return impl, nil
 		}`, g.structName, g.paramTypeName, g.structName, g.autowireTypeAlias, utilAlias, g.structName, g.structName)
+			c.Linef(`func Get%sIOCInterface(p *%s)(%sIOCInterface, error){
+				return Get%s(p)
+			}`, g.structName, g.paramTypeName, g.structName, g.structName)
 		} else {
 			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
 			c.Linef(`func Get%s()(*%s, error){`, g.structName, g.structName)
-			if g.autowireType == "singleton" || g.autowireType == "rpc" {
+			if g.autowireType == "rpc" {
 				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)))`, g.autowireTypeAlias, utilAlias, g.structName)
 			} else {
-				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s))), nil)`, g.autowireTypeAlias, utilAlias, g.structName)
+				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)), nil)`, g.autowireTypeAlias, utilAlias, g.structName)
 			}
 			c.Linef(`if err != nil {
 				return nil, err
@@ -349,6 +327,9 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			impl := i.(*%s)
 			return impl, nil
 			}`, g.structName)
+			c.Linef(`func Get%sIOCInterface()(%sIOCInterface, error){
+				return Get%s()
+			}`, g.structName, g.structName, g.structName)
 		}
 	}
 
@@ -401,4 +382,83 @@ type getMethodGenerateCtx struct {
 
 func toFirstCharLower(input string) string {
 	return strings.ToLower(string(input[0])) + input[1:]
+}
+
+func genProxyStruct(proxySuffix string, c *copyMethodMaker, needProxyStructInfos []*markers.TypeInfo, root *loader.Package) {
+	for _, info := range needProxyStructInfos {
+		// get all methods
+		c.Linef(`type %s%s struct {`, toFirstCharLower(info.Name), proxySuffix)
+		methods := parseMethodInfoFromGoFiles(info.Name, root.GoFiles)
+		for idx := range methods {
+			importsAlias := methods[idx].GetImportAlias()
+			if len(importsAlias) != 0 {
+				for _, importAlias := range importsAlias {
+					for _, rawFileImport := range info.RawFile.Imports {
+						var originAlias string
+						if rawFileImport.Name != nil {
+							originAlias = rawFileImport.Name.String()
+						} else {
+							splitedImport := strings.Split(rawFileImport.Path.Value, "/")
+							originAlias = strings.TrimPrefix(splitedImport[len(splitedImport)-1], `"`)
+							originAlias = strings.TrimSuffix(originAlias, `"`)
+						}
+						if originAlias == importAlias {
+							toImport := strings.TrimPrefix(rawFileImport.Path.Value, `"`)
+							toImport = strings.TrimSuffix(toImport, `"`)
+							clientStubAlias := c.NeedImport(toImport)
+							methods[idx].swapAlias(importAlias, clientStubAlias)
+						}
+					}
+				}
+			}
+			c.Linef("%s_ func%s", methods[idx].name, methods[idx].body)
+		}
+		c.Line("}")
+
+		for _, m := range methods {
+			charDescriber := string(strings.ToLower(info.Name)[0])
+			c.Linef(`func (%s *%s%s) %s%s{`, charDescriber, toFirstCharLower(info.Name), proxySuffix, m.name, m.body)
+			if m.ReturnValueNum() > 0 {
+				c.Linef(`return %s.%s_(%s)`, charDescriber, m.name, m.GetParamValues())
+			} else {
+				c.Linef(`%s.%s_(%s)`, charDescriber, m.name, m.GetParamValues())
+			}
+			c.Linef(`}`)
+		}
+	}
+	c.Linef("")
+}
+
+func genInterface(interfaceSuffix string, c *copyMethodMaker, needInterfaceStructInfos []*markers.TypeInfo, root *loader.Package) {
+	for _, info := range needInterfaceStructInfos {
+		// get all methods
+		c.Linef(`type %s%s interface {`, info.Name, interfaceSuffix)
+		methods := parseMethodInfoFromGoFiles(info.Name, root.GoFiles)
+		for idx := range methods {
+			importsAlias := methods[idx].GetImportAlias()
+			if len(importsAlias) != 0 {
+				for _, importAlias := range importsAlias {
+					for _, rawFileImport := range info.RawFile.Imports {
+						var originAlias string
+						if rawFileImport.Name != nil {
+							originAlias = rawFileImport.Name.String()
+						} else {
+							splitedImport := strings.Split(rawFileImport.Path.Value, "/")
+							originAlias = strings.TrimPrefix(splitedImport[len(splitedImport)-1], `"`)
+							originAlias = strings.TrimSuffix(originAlias, `"`)
+						}
+						if originAlias == importAlias {
+							toImport := strings.TrimPrefix(rawFileImport.Path.Value, `"`)
+							toImport = strings.TrimSuffix(toImport, `"`)
+							clientStubAlias := c.NeedImport(toImport)
+							methods[idx].swapAlias(importAlias, clientStubAlias)
+						}
+					}
+				}
+			}
+			c.Linef("%s %s", methods[idx].name, methods[idx].body)
+		}
+		c.Line("}")
+	}
+	c.Linef("")
 }

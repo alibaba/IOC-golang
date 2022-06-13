@@ -24,7 +24,7 @@ import (
 
 // IOCProtocol is ioc protocol impl
 type IOCProtocol struct {
-	httpServer http_server.HttpServer
+	httpServer http_server.ImplIOCInterface
 	address    string
 	exportPort string
 }

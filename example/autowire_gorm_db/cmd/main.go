@@ -27,7 +27,7 @@ import (
 // +ioc:autowire:alias=AppAlias
 
 type App struct {
-	MyDataTable normalMysql.Mysql `normal:"github.com/alibaba/ioc-golang/extension/normal/mysql.Impl,my-mysql,mydata"`
+	MyDataTable normalMysql.ImplIOCInterface `normal:",my-mysql,mydata"`
 }
 
 type MyDataDO struct {

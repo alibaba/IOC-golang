@@ -57,17 +57,26 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 			codeWriter:  &codeWriter{out: outContent},
 		}
 		autowireAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire")
+		normalAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/normal")
 		rpcClientAlias := c.NeedImport("github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client")
 
 		c.Line(`func init() {`)
 		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, rpcClientAlias, autowireAlias)
 		c.Linef(`Factory: func() interface{} {
 			return &%sIOCRPCClient{}
-		},`, info.Name)
+		},`, toFirstCharLower(info.Name))
+		c.Line(`})`)
+		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, normalAlias, autowireAlias)
+		c.Linef(`Factory: func() interface{} {
+			return &%sIOCRPCClient_{}
+		},`, toFirstCharLower(info.Name))
 		c.Line(`})`)
 		c.Line(`}`)
 
-		c.Linef("type %sIOCRPCClient struct {", info.Name)
+		genProxyStruct("IOCRPCClient_", c, []*markers.TypeInfo{info}, root)
+		genInterface("IOCRPCClient", c, []*markers.TypeInfo{info}, root)
+
+		c.Linef("type %sIOCRPCClient struct {", toFirstCharLower(info.Name))
 		methods := parseMethodInfoFromGoFiles(info.Name, root.GoFiles)
 		for _, m := range methods {
 			importsAlias := m.GetImportAlias()
@@ -135,8 +144,6 @@ type method struct {
 }
 
 func (m *method) parseParamAndReturnValues() {
-	m.isVariadic = strings.Contains(m.body, "...")
-
 	// split to params and values
 	deep := 0
 	tempStr := ""
@@ -165,6 +172,11 @@ func (m *method) parseParamAndReturnValues() {
 	m.params = parseParam(paramsAndvalue[0])
 	if len(paramsAndvalue) > 1 {
 		m.returnValueTypes = parseReturnValueTypes(paramsAndvalue[1])
+	}
+
+	if len(m.params) > 0 {
+		finalParam := m.params[len(m.params)-1]
+		m.isVariadic = strings.HasPrefix(finalParam.paramType, "...")
 	}
 }
 

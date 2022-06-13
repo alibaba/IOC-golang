@@ -45,14 +45,14 @@ var param = &rpc_client.Param{
 func TestRPCClientGetByAPI(t *testing.T) {
 	simpleClient, err := rpc_client.GetImpl("github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.SimpleServiceIOCRPCClient", param)
 	assert.Nil(t, err)
-	testSimpleClient(t, simpleClient.(*api.SimpleServiceIOCRPCClient))
+	testSimpleClient(t, simpleClient.(api.SimpleServiceIOCRPCClient))
 
-	simpleClient2, err := rpc_client.ImplClientStub(&api.SimpleServiceIOCRPCClient{}, param)
+	simpleClient2, err := rpc_client.ImplClientStub(new(api.SimpleServiceIOCRPCClient), param)
 	assert.Nil(t, err)
-	testSimpleClient(t, simpleClient2.(*api.SimpleServiceIOCRPCClient))
+	testSimpleClient(t, simpleClient2.(api.SimpleServiceIOCRPCClient))
 }
 
-func testSimpleClient(t *testing.T, simpleClientImpl *api.SimpleServiceIOCRPCClient) {
+func testSimpleClient(t *testing.T, simpleClientImpl api.SimpleServiceIOCRPCClient) {
 	usr, err := simpleClientImpl.GetUser("laurence", 23)
 	assert.Nil(t, err)
 	assertUser(t, usr)
@@ -146,9 +146,9 @@ func newComplexStruct() *dto.CustomStruct {
 }
 
 func TestComplexRPC(t *testing.T) {
-	complexClient, err := rpc_client.ImplClientStub(&api.ComplexServiceIOCRPCClient{}, param)
+	complexClient, err := rpc_client.ImplClientStub(new(api.ComplexServiceIOCRPCClient), param)
 	assert.Nil(t, err)
-	complexClientImpl := complexClient.(*api.ComplexServiceIOCRPCClient)
+	complexClientImpl := complexClient.(api.ComplexServiceIOCRPCClient)
 
 	testRPCBasicType(t, complexClientImpl)
 	testRPCWithoutSomething(t, complexClientImpl)
@@ -157,26 +157,26 @@ func TestComplexRPC(t *testing.T) {
 	testRPCWithParamCustomMethod(t, complexClientImpl)
 }
 
-func testRPCWithParamCustomMethod(t *testing.T, client *api.ComplexServiceIOCRPCClient) {
+func testRPCWithParamCustomMethod(t *testing.T, client api.ComplexServiceIOCRPCClient) {
 	usr := client.RPCWithParamCustomMethod(*newComplexStruct())
 	assertUser(t, &usr)
 }
 
-func testRPCWithError(t *testing.T, client *api.ComplexServiceIOCRPCClient) {
+func testRPCWithError(t *testing.T, client api.ComplexServiceIOCRPCClient) {
 	usr, err := client.RPCWithError()
 	assertUser(t, usr)
 	assert.NotNil(t, err)
 	assert.Equal(t, "custom error = custom", err.Error())
 }
 
-func testRPCWithCustomStruct(t *testing.T, client *api.ComplexServiceIOCRPCClient) {
+func testRPCWithCustomStruct(t *testing.T, client api.ComplexServiceIOCRPCClient) {
 	customStruct := newComplexStruct()
 	rspCustomStruct, rspCustomStructPtr := client.RPCWithCustomValue(*customStruct, customStruct)
 	assertComplexStruct(t, &rspCustomStruct)
 	assertComplexStruct(t, rspCustomStructPtr)
 }
 
-func testRPCWithoutSomething(t *testing.T, client *api.ComplexServiceIOCRPCClient) {
+func testRPCWithoutSomething(t *testing.T, client api.ComplexServiceIOCRPCClient) {
 	client.RPCWithoutParamAndReturnValue()
 	client.RPCWithoutReturnValue(&dto.User{})
 	usr, err := client.RPCWithoutParam()
@@ -184,7 +184,7 @@ func testRPCWithoutSomething(t *testing.T, client *api.ComplexServiceIOCRPCClien
 	assertUser(t, usr)
 }
 
-func testRPCBasicType(t *testing.T, client *api.ComplexServiceIOCRPCClient) {
+func testRPCBasicType(t *testing.T, client api.ComplexServiceIOCRPCClient) {
 	name := "laurence"
 	age := 23
 	age32 := int32(23)

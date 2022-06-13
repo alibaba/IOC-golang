@@ -43,6 +43,10 @@ func (a *Autowire) TagKey() string {
 	return Name
 }
 
+func (a *Autowire) CanBeEntrance() bool {
+	return true
+}
+
 // GetAllStructDescriptors re-write SingletonAutowire
 func (a *Autowire) GetAllStructDescriptors() map[string]*autowire.StructDescriptor {
 	return rpcStructDescriptorMap
@@ -53,7 +57,19 @@ var rpcStructDescriptorMap = make(map[string]*autowire.StructDescriptor)
 func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	s.SetAutowireType(Name)
 	sdID := s.ID()
+	var originConstructFunc func(impl interface{}, _ interface{}) (interface{}, error)
+	if s.ConstructFunc != nil {
+		originConstructFunc = s.ConstructFunc
+	}
 	s.ConstructFunc = func(impl interface{}, _ interface{}) (interface{}, error) {
+		if originConstructFunc != nil {
+			var err error
+			impl, err = originConstructFunc(impl, nil)
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		// param not configured in server side, set default param
 		iocProtocolImpl, err := protocol_impl.GetIOCProtocol(&protocol_impl.Param{
 			ExportPort: defaultParam.ExportPort,

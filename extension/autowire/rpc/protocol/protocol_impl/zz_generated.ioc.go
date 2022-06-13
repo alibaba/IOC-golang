@@ -7,8 +7,9 @@ package protocol_impl
 
 import (
 	"dubbo.apache.org/dubbo-go/v3/protocol"
+
 	autowire "github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/normal"
+	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
@@ -48,6 +49,12 @@ func (i *iOCProtocol_) Invoke(invocation protocol.Invocation) protocol.Result {
 func (i *iOCProtocol_) Export(invoker protocol.Invoker) protocol.Exporter {
 	return i.Export_(invoker)
 }
+
+type IOCProtocolIOCInterface interface {
+	Invoke(invocation protocol.Invocation) protocol.Result
+	Export(invoker protocol.Invoker) protocol.Exporter
+}
+
 func GetIOCProtocol(p *Param) (*IOCProtocol, error) {
 	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(IOCProtocol)), p)
 	if err != nil {
@@ -55,4 +62,7 @@ func GetIOCProtocol(p *Param) (*IOCProtocol, error) {
 	}
 	impl := i.(*IOCProtocol)
 	return impl, nil
+}
+func GetIOCProtocolIOCInterface(p *Param) (IOCProtocolIOCInterface, error) {
+	return GetIOCProtocol(p)
 }

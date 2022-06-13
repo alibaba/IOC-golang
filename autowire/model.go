@@ -16,6 +16,8 @@
 package autowire
 
 import (
+	"reflect"
+
 	"github.com/alibaba/ioc-golang/autowire/util"
 )
 
@@ -25,9 +27,8 @@ type Autowire interface {
 	// IsSingleton means struct can be boot entrance, and only have one impl globally, only created once.
 	IsSingleton() bool
 	/*
-		CanBeEntrance means the autowire sturct's param needs not to parse field tag value as param.
-		By default, singleton can be boot entrance, and normal can't, because normal needs to try to parse tag value to find config key.
-		But for grpc autowire, as singloton, can't be entrance because it needs to parse grpc type from cong tag.
+		CanBeEntrance means the struct is loaded at the start of application.
+		By default, only rpc-server can be entrance.
 	*/
 	CanBeEntrance() bool
 	Factory(sdID string) (interface{}, error)
@@ -72,10 +73,12 @@ func GetAllWrapperAutowires() map[string]WrapperAutowire {
 // FieldInfo
 
 type FieldInfo struct {
-	FieldName string
-	FieldType string
-	TagKey    string
-	TagValue  string
+	FieldName         string
+	FieldType         string
+	TagKey            string
+	TagValue          string
+	FieldReflectType  reflect.Type
+	FieldReflectValue reflect.Value
 }
 
 // StructDescriptor
