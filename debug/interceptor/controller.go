@@ -41,7 +41,7 @@ func Start(port string, allInterfaceMetadataMap map[string]*debugCommon.StructMe
 	}
 
 	go func() {
-		color.Blue("[Debug] Debug server listening at :%s", lst.Addr().(*net.TCPAddr).Port)
+		color.Blue("[Debug] Debug server listening at :%d", lst.Addr().(*net.TCPAddr).Port)
 		if err := grpcServer.Serve(lst); err != nil {
 			color.Red("[Debug] Debug server run with error = ", err)
 			return

@@ -10,10 +10,10 @@ import (
 func GetTCPListener(port string) (net.Listener, error) {
 	lst, err := net.Listen("tcp", ":"+port)
 	for err != nil {
-		portInt, err := strconv.Atoi(port)
-		if err != nil {
-			color.Blue("[Debug] Debug server listening with invalid port :%s, error = %s", port, err)
-			return nil, err
+		portInt, iToAError := strconv.Atoi(port)
+		if iToAError != nil {
+			color.Blue("[Debug] Debug server listening with invalid port :%s, error = %s", port, iToAError)
+			return nil, iToAError
 		}
 		color.Blue("[Debug] Debug server listening port :%s failed with error = %s, try to bind %d", port, err, portInt+1)
 		port = strconv.Itoa(portInt + 1)
