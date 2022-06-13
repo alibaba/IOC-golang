@@ -73,7 +73,7 @@ func (s *SingletonAutowire) IsSingleton() bool {
 }
 
 func (s *SingletonAutowire) CanBeEntrance() bool {
-	return true
+	return false
 }
 
 // developer APIs
@@ -87,6 +87,10 @@ func RegisterStructDescriptor(sd *autowire.StructDescriptor) {
 	}
 }
 
-func GetImpl(sdId string) (interface{}, error) {
-	return autowire.Impl(Name, sdId, nil)
+func GetImpl(sdId string, param interface{}) (interface{}, error) {
+	return autowire.Impl(Name, sdId, param)
+}
+
+func GetImplWithProxy(sdId string, param interface{}) (interface{}, error) {
+	return autowire.ImplWithProxy(Name, sdId, param)
 }

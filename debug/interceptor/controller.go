@@ -21,24 +21,27 @@ import (
 	"github.com/fatih/color"
 	"google.golang.org/grpc"
 
+	"github.com/alibaba/ioc-golang/common"
+
 	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
-	"github.com/alibaba/ioc-golang/debug/common"
+	debugCommon "github.com/alibaba/ioc-golang/debug/common"
 )
 
-func Start(port string, allInterfaceMetadataMap map[string]*common.StructMetadata) error {
+func Start(port string, allInterfaceMetadataMap map[string]*debugCommon.StructMetadata) error {
 	grpcServer := grpc.NewServer()
 	grpcServer.RegisterService(&boot.DebugService_ServiceDesc, &DebugServerImpl{
 		editInterceptor:         GetEditInterceptor(),
 		watchInterceptor:        GetWatchInterceptor(),
 		allInterfaceMetadataMap: allInterfaceMetadataMap,
 	})
-	lst, err := net.Listen("tcp", ":"+port)
+
+	lst, err := common.GetTCPListener(port)
 	if err != nil {
-		color.Red("[Debug] Debug server listening port :%s failed with error = %s", port, err)
 		return err
 	}
+
 	go func() {
-		color.Blue("[Debug] Debug server listening at :%s", port)
+		color.Blue("[Debug] Debug server listening at :%d", lst.Addr().(*net.TCPAddr).Port)
 		if err := grpcServer.Serve(lst); err != nil {
 			color.Red("[Debug] Debug server run with error = ", err)
 			return

@@ -58,6 +58,7 @@ func implProxy(rawServicePtr, proxyPtr interface{}, sdid string) error {
 	}
 
 	valueOfRaw := reflect.ValueOf(rawServicePtr)
+	valueOfRawElem := valueOfRaw.Elem()
 
 	numField := valueOfElem.NumField()
 	for i := 0; i < numField; i++ {
@@ -65,6 +66,9 @@ func implProxy(rawServicePtr, proxyPtr interface{}, sdid string) error {
 		f := valueOfElem.Field(i)
 		rawMethodName := strings.TrimSuffix(methodType.Name, "_")
 		funcRaw := valueOfRaw.MethodByName(rawMethodName)
+		if !funcRaw.IsValid() {
+			funcRaw = valueOfRawElem.FieldByName(rawMethodName)
+		}
 		// each method of one type should only injected once
 		if f.Kind() == reflect.Func && f.IsValid() && f.CanSet() {
 			debugMetadata[sdid].MethodMetadata[rawMethodName] = &common.MethodMetadata{}

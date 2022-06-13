@@ -17,20 +17,7 @@ package mysql
 
 import (
 	"gorm.io/gorm"
-
-	"github.com/alibaba/ioc-golang/autowire/normal"
 )
-
-type Mysql interface {
-	GetDB() *gorm.DB
-	SelectWhere(queryStr string, result interface{}, args ...interface{}) error
-	Insert(toInsertLines UserDefinedModel) error
-	Delete(toDeleteTarget UserDefinedModel) error
-	First(queryStr string, findTarget UserDefinedModel, args ...interface{}) error
-	Update(queryStr, field string, target interface{}, args ...interface{}) error
-}
-
-const SDID = "Mysql-Impl"
 
 // +ioc:autowire=true
 // +ioc:autowire:type=normal
@@ -96,14 +83,4 @@ func (mt *Impl) First(queryStr string, findTarget UserDefinedModel, args ...inte
 		return err
 	}
 	return nil
-}
-
-var _ Mysql = &Impl{}
-
-func GetMysql(config *Config) (Mysql, error) {
-	mysqlImpl, err := normal.GetImpl(SDID, config)
-	if err != nil {
-		return nil, err
-	}
-	return mysqlImpl.(Mysql), nil
 }

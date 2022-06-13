@@ -7,20 +7,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/extension/normal/http_server/ghttp"
 )
-
-const sdID = "github.com/alibaba/ioc-golang/extension/normal/http_server.Impl"
-
-type HttpServer interface {
-	RegisterRouter(path string, handler func(*ghttp.GRegisterController) error, req interface{},
-		rsp interface{}, method string, filters ...ghttp.Filter)
-	RegisterWSRouter(path string, handler func(*ghttp.GRegisterWSController))
-	RegisterRouterWithRawHttpHandler(path string, handler func(w http.ResponseWriter, r *http.Request), method string)
-
-	Run(ctx context.Context)
-}
 
 // +ioc:autowire=true
 // +ioc:autowire:type=normal
@@ -57,8 +45,7 @@ func (hs *Impl) RegisterRouterWithRawHttpHandler(path string, handler func(w htt
 }
 
 // RegisterRouter user API
-func (hs *Impl) RegisterRouter(path string, handler func(*ghttp.GRegisterController) error, req interface{},
-	rsp interface{}, method string, filters ...ghttp.Filter) {
+func (hs *Impl) RegisterRouter(path string, handler func(*ghttp.GRegisterController) error, req interface{}, rsp interface{}, method string, filters ...ghttp.Filter) {
 	filters = append(hs.iocGolangMWs, filters...)
 	ghttp.RegisterRouter(path, hs.router, handler, req, rsp, method, filters)
 }
@@ -66,13 +53,4 @@ func (hs *Impl) RegisterRouter(path string, handler func(*ghttp.GRegisterControl
 // RegisterWSRouter user API
 func (hs *Impl) RegisterWSRouter(path string, handler func(*ghttp.GRegisterWSController)) {
 	ghttp.RegisterWSRouter(path, hs.router, handler)
-}
-
-// GetHTTPServer developr APi
-func GetHTTPServer() (HttpServer, error) {
-	appImpl, err := singleton.GetImpl(sdID)
-	if err != nil {
-		return nil, err
-	}
-	return appImpl.(HttpServer), err
 }

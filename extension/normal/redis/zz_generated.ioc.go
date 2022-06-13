@@ -6,11 +6,13 @@
 package redis
 
 import (
-	autowire "github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/normal"
-	util "github.com/alibaba/ioc-golang/autowire/util"
-	go_redisredis "github.com/go-redis/redis"
 	timex "time"
+
+	go_redisredis "github.com/go-redis/redis"
+
+	autowire "github.com/alibaba/ioc-golang/autowire"
+	normal "github.com/alibaba/ioc-golang/autowire/normal"
+	util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
@@ -57,6 +59,14 @@ func (i *impl_) Get(key string) (string, error) {
 func (i *impl_) Set(key string, value interface{}, expiration timex.Duration) (string, error) {
 	return i.Set_(key, value, expiration)
 }
+
+type ImplIOCInterface interface {
+	GetRawClient() *go_redisredis.Client
+	HGetAll(key string) (map[string]string, error)
+	Get(key string) (string, error)
+	Set(key string, value interface{}, expiration timex.Duration) (string, error)
+}
+
 func GetImpl(p *Config) (*Impl, error) {
 	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(Impl)), p)
 	if err != nil {
@@ -64,4 +74,7 @@ func GetImpl(p *Config) (*Impl, error) {
 	}
 	impl := i.(*Impl)
 	return impl, nil
+}
+func GetImplIOCInterface(p *Config) (ImplIOCInterface, error) {
+	return GetImpl(p)
 }

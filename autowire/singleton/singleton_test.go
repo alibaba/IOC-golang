@@ -60,9 +60,9 @@ func TestAutowire_IsSingleton(t *testing.T) {
 }
 
 func TestAutowire_CanBeEntrance(t *testing.T) {
-	t.Run("test normal autowire can be entrance", func(t *testing.T) {
+	t.Run("test singleton autowire can't be entrance", func(t *testing.T) {
 		n := &SingletonAutowire{}
-		assert.Equal(t, true, n.CanBeEntrance())
+		assert.Equal(t, false, n.CanBeEntrance())
 	})
 }
 

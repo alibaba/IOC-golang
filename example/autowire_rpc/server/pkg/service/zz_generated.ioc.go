@@ -34,6 +34,11 @@ type serviceStruct_ struct {
 func (s *serviceStruct_) GetUser(name string, age int) (*dto.User, error) {
 	return s.GetUser_(name, age)
 }
+
+type ServiceStructIOCInterface interface {
+	GetUser(name string, age int) (*dto.User, error)
+}
+
 func GetServiceStruct() (*ServiceStruct, error) {
 	i, err := rpc_service.GetImpl(util.GetSDIDByStructPtr(new(ServiceStruct)))
 	if err != nil {
@@ -41,4 +46,7 @@ func GetServiceStruct() (*ServiceStruct, error) {
 	}
 	impl := i.(*ServiceStruct)
 	return impl, nil
+}
+func GetServiceStructIOCInterface() (ServiceStructIOCInterface, error) {
+	return GetServiceStruct()
 }

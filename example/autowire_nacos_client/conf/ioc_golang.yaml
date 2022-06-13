@@ -1,9 +1,4 @@
 autowire:
-  singleton:
-    AppAlias:
-      param:
-        nacosaddr: 127.0.0.1
-        nacosport: 8848
   normal:
     github.com/alibaba/ioc-golang/extension/normal/nacos.Impl:
       nacos-2:

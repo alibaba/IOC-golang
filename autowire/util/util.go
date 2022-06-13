@@ -92,3 +92,33 @@ func ToSnakeCase(src string) string {
 
 	return snakeCase
 }
+
+func IsPointerField(fieldType reflect.Type) bool {
+	return fieldType.Kind() == reflect.Ptr
+}
+
+func ToRPCClientStubInterfaceSDID(clientStubSDID string) (string, error) {
+	splitedClientStubSDID := strings.Split(clientStubSDID, ".")
+	if len(splitedClientStubSDID) < 2 {
+		return "", fmt.Errorf("invalid client stub sdid %s", clientStubSDID)
+	}
+	splitedClientStubSDID[len(splitedClientStubSDID)-1] = ToFirstCharUpper(splitedClientStubSDID[len(splitedClientStubSDID)-1])
+	return strings.Join(splitedClientStubSDID, "."), nil
+}
+
+func ToFirstCharLower(input string) string {
+	return strings.ToLower(string(input[0])) + input[1:]
+}
+
+func ToFirstCharUpper(input string) string {
+	return strings.ToUpper(string(input[0])) + input[1:]
+}
+
+func ToRPCClientStubSDID(clientStubInterfaceSDID string) (string, error) {
+	splitedClientStubInterfaceSDID := strings.Split(clientStubInterfaceSDID, ".")
+	if len(splitedClientStubInterfaceSDID) < 2 {
+		return "", fmt.Errorf("invalid client stub interface sdid %s", clientStubInterfaceSDID)
+	}
+	splitedClientStubInterfaceSDID[len(splitedClientStubInterfaceSDID)-1] = ToFirstCharLower(splitedClientStubInterfaceSDID[len(splitedClientStubInterfaceSDID)-1])
+	return strings.Join(splitedClientStubInterfaceSDID, "."), nil
+}

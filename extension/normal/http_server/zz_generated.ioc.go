@@ -7,12 +7,14 @@ package http_server
 
 import (
 	contextx "context"
+	"net/http"
+
+	"github.com/urfave/negroni"
+
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
 	"github.com/alibaba/ioc-golang/extension/normal/http_server/ghttp"
-	"github.com/urfave/negroni"
-	"net/http"
 )
 
 func init() {
@@ -45,6 +47,7 @@ type impl_ struct {
 	UseIOCGolangMW_                   func(filters ...ghttp.Filter)
 	Run_                              func(ctx contextx.Context)
 	RegisterRouterWithRawHttpHandler_ func(path string, handler func(w http.ResponseWriter, r *http.Request), method string)
+	RegisterRouter_                   func(path string, handler func(*ghttp.GRegisterController) error, req interface{}, rsp interface{}, method string, filters ...ghttp.Filter)
 	RegisterWSRouter_                 func(path string, handler func(*ghttp.GRegisterWSController))
 }
 
@@ -60,9 +63,22 @@ func (i *impl_) Run(ctx contextx.Context) {
 func (i *impl_) RegisterRouterWithRawHttpHandler(path string, handler func(w http.ResponseWriter, r *http.Request), method string) {
 	i.RegisterRouterWithRawHttpHandler_(path, handler, method)
 }
+func (i *impl_) RegisterRouter(path string, handler func(*ghttp.GRegisterController) error, req interface{}, rsp interface{}, method string, filters ...ghttp.Filter) {
+	i.RegisterRouter_(path, handler, req, rsp, method, filters...)
+}
 func (i *impl_) RegisterWSRouter(path string, handler func(*ghttp.GRegisterWSController)) {
 	i.RegisterWSRouter_(path, handler)
 }
+
+type ImplIOCInterface interface {
+	UseMW(filters ...negroni.Handler)
+	UseIOCGolangMW(filters ...ghttp.Filter)
+	Run(ctx contextx.Context)
+	RegisterRouterWithRawHttpHandler(path string, handler func(w http.ResponseWriter, r *http.Request), method string)
+	RegisterRouter(path string, handler func(*ghttp.GRegisterController) error, req interface{}, rsp interface{}, method string, filters ...ghttp.Filter)
+	RegisterWSRouter(path string, handler func(*ghttp.GRegisterWSController))
+}
+
 func GetImpl(p *HTTPServerConfig) (*Impl, error) {
 	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(Impl)), p)
 	if err != nil {
@@ -70,4 +86,7 @@ func GetImpl(p *HTTPServerConfig) (*Impl, error) {
 	}
 	impl := i.(*Impl)
 	return impl, nil
+}
+func GetImplIOCInterface(p *HTTPServerConfig) (ImplIOCInterface, error) {
+	return GetImpl(p)
 }

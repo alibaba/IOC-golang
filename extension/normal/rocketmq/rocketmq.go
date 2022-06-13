@@ -6,20 +6,7 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	rocketmq "github.com/cinience/go_rocketmq"
-
-	"github.com/alibaba/ioc-golang/autowire/normal"
 )
-
-const SDID = "github.com/alibaba/ioc-golang/extension/normal/rocketmq.Impl"
-
-type RocketMQClient interface {
-	Subscribe(topic string, selector consumer.MessageSelector, f func(context.Context, ...*primitive.MessageExt) (consumer.ConsumeResult, error)) error
-	Unsubscribe(topic string) error
-
-	SendSync(ctx context.Context, mq ...*primitive.Message) (*primitive.SendResult, error)
-	SendAsync(ctx context.Context, mq func(ctx context.Context, result *primitive.SendResult, err error), msg ...*primitive.Message) error
-	SendOneWay(ctx context.Context, mq ...*primitive.Message) error
-}
 
 // +ioc:autowire=true
 // +ioc:autowire:type=normal
@@ -31,12 +18,22 @@ type Impl struct {
 	rocketmq.Producer
 }
 
-var _ RocketMQClient = &Impl{}
+func (i *Impl) Subscribe(topic string, selector consumer.MessageSelector, f func(context.Context, ...*primitive.MessageExt) (consumer.ConsumeResult, error)) error {
+	return i.PushConsumer.Subscribe(topic, selector, f)
+}
 
-func GetRocketMQClient(config *Config) (RocketMQClient, error) {
-	rmqClientImpl, err := normal.GetImpl(SDID, config)
-	if err != nil {
-		return nil, err
-	}
-	return rmqClientImpl.(RocketMQClient), nil
+func (i *Impl) Unsubscribe(topic string) error {
+	return i.PushConsumer.Unsubscribe(topic)
+}
+
+func (i *Impl) SendSync(ctx context.Context, mq ...*primitive.Message) (*primitive.SendResult, error) {
+	return i.Producer.SendSync(ctx, mq...)
+}
+
+func (i *Impl) SendAsync(ctx context.Context, mq func(ctx context.Context, result *primitive.SendResult, err error), msg ...*primitive.Message) error {
+	return i.Producer.SendAsync(ctx, mq, msg...)
+}
+
+func (i *Impl) SendOneWay(ctx context.Context, mq ...*primitive.Message) error {
+	return i.Producer.SendOneWay(ctx, mq...)
 }

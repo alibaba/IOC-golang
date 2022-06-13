@@ -42,7 +42,7 @@ func Load() error {
 	for _, aw := range allWrapperAutowires {
 		for sdID := range aw.GetAllStructDescriptors() {
 			if aw.CanBeEntrance() {
-				_, err := aw.ImplWithoutParam(sdID)
+				_, err := aw.ImplWithoutParam(sdID, true)
 				if err != nil {
 					return fmt.Errorf("[Autowire] Impl sd %s failed, reason is %s", sdID, err)
 				}
@@ -53,11 +53,19 @@ func Load() error {
 }
 
 func Impl(autowireType, key string, param interface{}) (interface{}, error) {
+	return impl(autowireType, key, param, false)
+}
+
+func ImplWithProxy(autowireType, key string, param interface{}) (interface{}, error) {
+	return impl(autowireType, key, param, true)
+}
+
+func impl(autowireType, key string, param interface{}, withProxy bool) (interface{}, error) {
 	targetSDID := GetSDIDByAliasIfNecessary(key)
 
 	for _, wrapperAutowire := range allWrapperAutowires {
 		if wrapperAutowire.TagKey() == autowireType {
-			return wrapperAutowire.ImplWithParam(targetSDID, param)
+			return wrapperAutowire.ImplWithParam(targetSDID, param, withProxy)
 		}
 	}
 	return nil, nil

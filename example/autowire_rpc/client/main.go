@@ -29,7 +29,7 @@ import (
 // +ioc:autowire:type=singleton
 
 type App struct {
-	ServiceStruct *api.ServiceStructIOCRPCClient `rpc-client:",address=127.0.0.1:2022"`
+	ServiceStruct api.ServiceStructIOCRPCClient `rpc-client:",address=127.0.0.1:2022"`
 }
 
 func (a *App) Run() {

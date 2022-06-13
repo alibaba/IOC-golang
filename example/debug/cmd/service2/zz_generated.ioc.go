@@ -50,19 +50,33 @@ type impl2_ struct {
 func (i *impl2_) Hello(input string) string {
 	return i.Hello_(input)
 }
+
+type Impl1IOCInterface interface {
+	Hello(input string) string
+}
+type Impl2IOCInterface interface {
+	Hello(input string) string
+}
+
 func GetImpl1() (*Impl1, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Impl1)))
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Impl1)), nil)
 	if err != nil {
 		return nil, err
 	}
 	impl := i.(*Impl1)
 	return impl, nil
 }
+func GetImpl1IOCInterface() (Impl1IOCInterface, error) {
+	return GetImpl1()
+}
 func GetImpl2() (*Impl2, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Impl2)))
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Impl2)), nil)
 	if err != nil {
 		return nil, err
 	}
 	impl := i.(*Impl2)
 	return impl, nil
+}
+func GetImpl2IOCInterface() (Impl2IOCInterface, error) {
+	return GetImpl2()
 }

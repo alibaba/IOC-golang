@@ -33,10 +33,10 @@ import (
 // +ioc:autowire:alias=AppAlias
 
 type App struct {
-	NormalNacosClient  normalNacos.NacosClient `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl"`
-	NormalNacosClient2 normalNacos.NacosClient `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl,nacos-2"`
+	NormalNacosClient  normalNacos.ImplIOCInterface `normal:""`
+	NormalNacosClient2 normalNacos.ImplIOCInterface `normal:",nacos-2"`
 
-	createByAPINacosClient normalNacos.NacosClient
+	createByAPINacosClient normalNacos.ImplIOCInterface
 }
 
 func (a *App) Run() {
@@ -52,7 +52,7 @@ type Param struct {
 
 func (p *Param) Init(a *App) (*App, error) {
 	// create nacos client with api
-	createByAPINacosClient, err := normalNacos.GetNacosClient(&normalNacos.Config{
+	createByAPINacosClient, err := normalNacos.GetImplIOCInterface(&normalNacos.Config{
 		NacosClientParam: vo.NacosClientParam{
 			ServerConfigs: []constant.ServerConfig{
 				{
@@ -69,7 +69,7 @@ func (p *Param) Init(a *App) (*App, error) {
 	return a, nil
 }
 
-func getAndSetService(client normalNacos.NacosClient, serviceName string) {
+func getAndSetService(client normalNacos.ImplIOCInterface, serviceName string) {
 	_, err := client.RegisterInstance(vo.RegisterInstanceParam{
 		Ip:          "127.0.0.1",
 		Port:        1999,
@@ -92,7 +92,10 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	app, err := GetApp()
+	app, err := GetApp(&Param{
+		NacosAddr: "localhost",
+		NacosPort: 8848,
+	})
 	if err != nil {
 		panic(err)
 	}

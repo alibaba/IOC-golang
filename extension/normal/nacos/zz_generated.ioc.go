@@ -6,11 +6,12 @@
 package nacos
 
 import (
-	autowire "github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/normal"
-	util "github.com/alibaba/ioc-golang/autowire/util"
 	"github.com/nacos-group/nacos-sdk-go/v2/model"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+
+	autowire "github.com/alibaba/ioc-golang/autowire"
+	normal "github.com/alibaba/ioc-golang/autowire/normal"
+	util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
@@ -105,6 +106,26 @@ func (i *impl_) Subscribe(param *vo.SubscribeParam) error {
 func (i *impl_) Unsubscribe(param *vo.SubscribeParam) (err error) {
 	return i.Unsubscribe_(param)
 }
+
+type ImplIOCInterface interface {
+	GetConfig(param vo.ConfigParam) (string, error)
+	PublishConfig(param vo.ConfigParam) (bool, error)
+	DeleteConfig(param vo.ConfigParam) (bool, error)
+	ListenConfig(params vo.ConfigParam) (err error)
+	CancelListenConfig(params vo.ConfigParam) (err error)
+	SearchConfig(param vo.SearchConfigParm) (*model.ConfigPage, error)
+	RegisterInstance(param vo.RegisterInstanceParam) (bool, error)
+	DeregisterInstance(param vo.DeregisterInstanceParam) (bool, error)
+	UpdateInstance(param vo.UpdateInstanceParam) (bool, error)
+	GetService(param vo.GetServiceParam) (service model.Service, err error)
+	GetAllServicesInfo(param vo.GetAllServiceInfoParam) (model.ServiceList, error)
+	SelectAllInstances(param vo.SelectAllInstancesParam) ([]model.Instance, error)
+	SelectInstances(param vo.SelectInstancesParam) ([]model.Instance, error)
+	SelectOneHealthyInstance(param vo.SelectOneHealthInstanceParam) (*model.Instance, error)
+	Subscribe(param *vo.SubscribeParam) error
+	Unsubscribe(param *vo.SubscribeParam) (err error)
+}
+
 func GetImpl(p *Config) (*Impl, error) {
 	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(Impl)), p)
 	if err != nil {
@@ -112,4 +133,7 @@ func GetImpl(p *Config) (*Impl, error) {
 	}
 	impl := i.(*Impl)
 	return impl, nil
+}
+func GetImplIOCInterface(p *Config) (ImplIOCInterface, error) {
+	return GetImpl(p)
 }

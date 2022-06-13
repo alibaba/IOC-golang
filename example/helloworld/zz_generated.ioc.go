@@ -86,35 +86,61 @@ type serviceStruct_ struct {
 func (s *serviceStruct_) GetString(name string) string {
 	return s.GetString_(name)
 }
+
+type AppIOCInterface interface {
+	Run()
+}
+type ServiceImpl1IOCInterface interface {
+	Hello()
+}
+type ServiceImpl2IOCInterface interface {
+	Hello()
+}
+type ServiceStructIOCInterface interface {
+	GetString(name string) string
+}
+
 func GetApp() (*App, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(App)))
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(App)), nil)
 	if err != nil {
 		return nil, err
 	}
 	impl := i.(*App)
 	return impl, nil
 }
+func GetAppIOCInterface() (AppIOCInterface, error) {
+	return GetApp()
+}
 func GetServiceImpl1() (*ServiceImpl1, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceImpl1)))
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceImpl1)), nil)
 	if err != nil {
 		return nil, err
 	}
 	impl := i.(*ServiceImpl1)
 	return impl, nil
 }
+func GetServiceImpl1IOCInterface() (ServiceImpl1IOCInterface, error) {
+	return GetServiceImpl1()
+}
 func GetServiceImpl2() (*ServiceImpl2, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceImpl2)))
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceImpl2)), nil)
 	if err != nil {
 		return nil, err
 	}
 	impl := i.(*ServiceImpl2)
 	return impl, nil
 }
+func GetServiceImpl2IOCInterface() (ServiceImpl2IOCInterface, error) {
+	return GetServiceImpl2()
+}
 func GetServiceStruct() (*ServiceStruct, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceStruct)))
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceStruct)), nil)
 	if err != nil {
 		return nil, err
 	}
 	impl := i.(*ServiceStruct)
 	return impl, nil
+}
+func GetServiceStructIOCInterface() (ServiceStructIOCInterface, error) {
+	return GetServiceStruct()
 }

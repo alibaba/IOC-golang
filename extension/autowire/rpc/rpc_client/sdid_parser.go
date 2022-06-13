@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package sdid_parser
+package rpc_client
 
 import (
 	"strings"
@@ -22,29 +22,24 @@ import (
 	"github.com/alibaba/ioc-golang/autowire/util"
 )
 
-type defaultSDIDParser struct {
+type sdidParser struct {
 }
 
-var defaultSDIDParserSingleton autowire.SDIDParser
-
-func GetDefaultSDIDParser() autowire.SDIDParser {
-	if defaultSDIDParserSingleton == nil {
-		defaultSDIDParserSingleton = &defaultSDIDParser{}
-	}
-	return defaultSDIDParserSingleton
-}
-
-func (p *defaultSDIDParser) Parse(fi *autowire.FieldInfo) (string, error) {
+func (s *sdidParser) Parse(fi *autowire.FieldInfo) (string, error) {
 	injectStructName := fi.FieldType
 	splitedTagValue := strings.Split(fi.TagValue, ",")
 	if len(splitedTagValue) > 0 && splitedTagValue[0] != "" {
 		injectStructName = splitedTagValue[0]
 	} else {
 		// no struct sdid in tag
-		if !util.IsPointerField(fi.FieldReflectType) && strings.HasSuffix(injectStructName, "IOCInterface") {
+		if !util.IsPointerField(fi.FieldReflectType) && strings.HasSuffix(injectStructName, "IOCRPCClient") {
 			// is interface field without valid sdid from tag value, and with 'IOCInterface' suffix
 			// load trim suffix as sdid
-			injectStructName = strings.TrimSuffix(fi.FieldType, "IOCInterface")
+			var err error
+			injectStructName, err = util.ToRPCClientStubSDID(injectStructName)
+			if err != nil {
+				return "", err
+			}
 		}
 	}
 	return autowire.GetSDIDByAliasIfNecessary(injectStructName), nil

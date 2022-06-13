@@ -77,6 +77,20 @@ type simpleService_ struct {
 func (s *simpleService_) GetUser(name string, age int) (*dto.User, error) {
 	return s.GetUser_(name, age)
 }
+
+type ComplexServiceIOCInterface interface {
+	RPCBasicType(name string, age int, age32 int32, age64 int64, ageF32 float32, ageF64 float64, namePtr *string, agePtr *int, age32Ptr *int32, age64Ptr *int64, ageF32Ptr *float32, ageF64Ptr *float64) (string, int, int32, int64, float32, float64, *string, *int, *int32, *int64, *float32, *float64)
+	RPCWithoutParamAndReturnValue()
+	RPCWithoutParam() (*dto.User, error)
+	RPCWithoutReturnValue(user *dto.User)
+	RPCWithCustomValue(customStruct dto.CustomStruct, customStruct2 *dto.CustomStruct) (dto.CustomStruct, *dto.CustomStruct)
+	RPCWithError() (*dto.User, error)
+	RPCWithParamCustomMethod(customStruct dto.CustomStruct) dto.User
+}
+type SimpleServiceIOCInterface interface {
+	GetUser(name string, age int) (*dto.User, error)
+}
+
 func GetComplexService() (*ComplexService, error) {
 	i, err := rpc_service.GetImpl(util.GetSDIDByStructPtr(new(ComplexService)))
 	if err != nil {
@@ -85,6 +99,9 @@ func GetComplexService() (*ComplexService, error) {
 	impl := i.(*ComplexService)
 	return impl, nil
 }
+func GetComplexServiceIOCInterface() (ComplexServiceIOCInterface, error) {
+	return GetComplexService()
+}
 func GetSimpleService() (*SimpleService, error) {
 	i, err := rpc_service.GetImpl(util.GetSDIDByStructPtr(new(SimpleService)))
 	if err != nil {
@@ -92,4 +109,7 @@ func GetSimpleService() (*SimpleService, error) {
 	}
 	impl := i.(*SimpleService)
 	return impl, nil
+}
+func GetSimpleServiceIOCInterface() (SimpleServiceIOCInterface, error) {
+	return GetSimpleService()
 }

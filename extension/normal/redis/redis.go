@@ -19,18 +19,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-
-	"github.com/alibaba/ioc-golang/autowire/normal"
 )
-
-type Redis interface {
-	GetRawClient() *redis.Client
-	Set(key string, value interface{}, expiration time.Duration) (string, error)
-	Get(key string) (string, error)
-	HGetAll(key string) (map[string]string, error)
-}
-
-const sdid = "github.com/alibaba/ioc-golang/extension/normal/redis.Impl"
 
 // +ioc:autowire=true
 // +ioc:autowire:type=normal
@@ -55,14 +44,4 @@ func (i *Impl) Get(key string) (string, error) {
 
 func (i *Impl) Set(key string, value interface{}, expiration time.Duration) (string, error) {
 	return i.client.Set(key, value, expiration).Result()
-}
-
-var _ Redis = &Impl{}
-
-func GetRedis(config *Config) (Redis, error) {
-	mysqlImpl, err := normal.GetImpl(sdid, config)
-	if err != nil {
-		return nil, err
-	}
-	return mysqlImpl.(Redis), nil
 }

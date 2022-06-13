@@ -45,11 +45,19 @@ type app_ struct {
 func (a *app_) Run() {
 	a.Run_()
 }
-func GetApp() (*App, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(App)))
+
+type AppIOCInterface interface {
+	Run()
+}
+
+func GetApp(p *Param) (*App, error) {
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(App)), p)
 	if err != nil {
 		return nil, err
 	}
 	impl := i.(*App)
 	return impl, nil
+}
+func GetAppIOCInterface(p *Param) (AppIOCInterface, error) {
+	return GetApp(p)
 }

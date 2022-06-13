@@ -211,3 +211,28 @@ func (c *configString_) Value() string {
 func (c *configString_) New(impl *ConfigString) (*ConfigString, error) {
 	return c.New_(impl)
 }
+
+type ConfigFloat64IOCInterface interface {
+	Value() float64
+	New(impl *ConfigFloat64) (*ConfigFloat64, error)
+}
+type ConfigInt64IOCInterface interface {
+	Value() int64
+	New(impl *ConfigInt64) (*ConfigInt64, error)
+}
+type ConfigIntIOCInterface interface {
+	Value() int
+	New(impl *ConfigInt) (*ConfigInt, error)
+}
+type ConfigMapIOCInterface interface {
+	Value() map[string]interface{}
+	New(impl *ConfigMap) (*ConfigMap, error)
+}
+type ConfigSliceIOCInterface interface {
+	Value() []interface{}
+	New(impl *ConfigSlice) (*ConfigSlice, error)
+}
+type ConfigStringIOCInterface interface {
+	Value() string
+	New(impl *ConfigString) (*ConfigString, error)
+}

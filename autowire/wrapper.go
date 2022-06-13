@@ -30,8 +30,8 @@ import (
 type WrapperAutowire interface {
 	Autowire
 
-	ImplWithoutParam(sdID string) (interface{}, error)
-	ImplWithParam(sdID string, param interface{}) (interface{}, error)
+	ImplWithoutParam(sdID string, withProxy bool) (interface{}, error)
+	ImplWithParam(sdID string, param interface{}, withProxy bool) (interface{}, error)
 
 	implWithField(info *FieldInfo) (interface{}, error)
 }
@@ -51,7 +51,7 @@ type WrapperAutowireImpl struct {
 }
 
 // ImplWithParam is used to get impled struct with param
-func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}) (interface{}, error) {
+func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}, withProxy bool) (interface{}, error) {
 	// 1. check singleton
 	if singletonImpledPtr, ok := w.singletonImpledMap[sdID]; w.Autowire.IsSingleton() && ok {
 		return singletonImpledPtr, nil
@@ -69,7 +69,7 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}) (int
 		}
 	}
 
-	// 4. construct field
+	// 3. construct field
 	impledPtr, err = w.Autowire.Construct(sdID, impledPtr, param)
 	if err != nil {
 		return nil, err
@@ -81,6 +81,14 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}) (int
 		}
 	}
 
+	// 4. try to wrap proxy
+	if proxyFunction := GetProxyFunction(); proxyFunction != nil && withProxy {
+		// if field is interface, try to inject proxy wrapped pointer
+		if proxyImpl, err := proxyFunction(impledPtr); err == nil {
+			impledPtr = proxyImpl
+		}
+	}
+
 	// 5. record singleton ptr
 	if w.Autowire.IsSingleton() {
 		w.singletonImpledMap[sdID] = impledPtr
@@ -89,22 +97,27 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}) (int
 }
 
 // ImplWithoutParam is used to create param from field without param
-func (w *WrapperAutowireImpl) ImplWithoutParam(sdID string) (interface{}, error) {
+func (w *WrapperAutowireImpl) ImplWithoutParam(sdID string, withProxy bool) (interface{}, error) {
 	param, err := w.ParseParam(sdID, nil)
 	if err != nil {
 		if w.Autowire.IsSingleton() {
 			// FIXME: ignore parse param error, because of singleton with empty param also try to find property from config file
 			color.Red("[Wrapper Autowire] Parse param from config file with sdid %s failed, error: %s, continue with nil param.", sdID, err)
-			return w.ImplWithParam(sdID, param)
+			return w.ImplWithParam(sdID, param, withProxy)
 		} else {
 			return nil, err
 		}
 	}
-	return w.ImplWithParam(sdID, param)
+	return w.ImplWithParam(sdID, param, withProxy)
 }
 
 // ImplWithField is used to create param from field and call ImplWithParam
 func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) {
+	implWithProxy := false
+	if fi.FieldReflectValue.Kind() == reflect.Interface {
+		implWithProxy = true
+	}
+
 	sdID, err := w.ParseSDID(fi)
 	if err != nil {
 		return nil, err
@@ -114,12 +127,12 @@ func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) 
 		if w.Autowire.IsSingleton() {
 			// FIXME: ignore parse param error, because of singleton with empty param also try to find property from config file
 			color.Red("[Wrapper Autowire] Parse param from config file with sdid %s failed, error: %s, continue with nil param.", sdID, err)
-			return w.ImplWithParam(sdID, param)
+			return w.ImplWithParam(sdID, param, implWithProxy)
 		} else {
 			return nil, err
 		}
 	}
-	return w.ImplWithParam(sdID, param)
+	return w.ImplWithParam(sdID, param, implWithProxy)
 }
 
 // inject do tag autowire and monkey inject
@@ -141,48 +154,45 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 	for i := 0; i < numField; i++ {
 		field := typeOf.Field(i)
 		var subImpledPtr interface{}
+		var subService reflect.Value
 		tagKey := ""
 		tagValue := ""
 		for _, aw := range w.allAutowires {
 			if val, ok := field.Tag.Lookup(aw.TagKey()); ok {
+				// check field
+				subService = valueOfElem.Field(i)
+				tagKey = aw.TagKey()
+				tagValue = val
+				if !(subService.IsValid() && subService.CanSet()) {
+					err := perrors.Errorf("Failed to autowire struct %s's impl %s service. It's field %s with tag '%s:\"%s\"', please check if the field is exported",
+						sd.ID(), util.GetStructName(impledPtr), field.Type.Name(), tagKey, tagValue)
+					return err
+				}
+
 				fieldType := buildFiledTypeFullName(field.Type)
 				fieldInfo := &FieldInfo{
-					FieldName: field.Name,
-					FieldType: fieldType,
-					TagKey:    aw.TagKey(),
-					TagValue:  val,
+					FieldName:         field.Name,
+					FieldType:         fieldType,
+					TagKey:            aw.TagKey(),
+					TagValue:          val,
+					FieldReflectType:  field.Type,
+					FieldReflectValue: subService,
 				}
 				// create param from field info
 				var err error
+
 				subImpledPtr, err = aw.implWithField(fieldInfo)
 				if err != nil {
 					return err
 				}
-				tagKey = aw.TagKey()
-				tagValue = val
-				break // only one tag is support
+				break // only one tag is supported
 			}
 		}
 		if tagKey == "" && tagValue == "" {
 			continue
 		}
 		// set field
-		subService := valueOfElem.Field(i)
-		if !(subService.IsValid() && subService.CanSet()) {
-			err := perrors.Errorf("Failed to autowire struct %s's impl %s service. It's field %s with tag '%s:\"%s\"', please check if the field is exported",
-				sd.ID(), util.GetStructName(impledPtr), field.Type.Name(), tagKey, tagValue)
-			return err
-		}
-		tosetInterface := subImpledPtr
-
-		if proxyFunction := GetProxyFunction(); proxyFunction != nil && subService.Kind() == reflect.Interface {
-			// if field is interface, try to inject proxy wrapped pointer
-			if proxyImpl, err := proxyFunction(subImpledPtr); err == nil {
-				tosetInterface = proxyImpl
-			}
-		}
-
-		subService.Set(reflect.ValueOf(tosetInterface))
+		subService.Set(reflect.ValueOf(subImpledPtr))
 	}
 	// 3. monkey
 	if monkeyFunction := GetMonkeyFunction(); (os.Getenv("GOARCH") == "amd64" || runtime.GOARCH == "amd64") && monkeyFunction != nil {
@@ -193,7 +203,8 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 }
 
 func buildFiledTypeFullName(fieldType reflect.Type) string {
-	if fieldType.Kind() == reflect.Ptr {
+	// todo find unsupported type and log warning, like 'struct' field
+	if util.IsPointerField(fieldType) {
 		return fieldType.Elem().PkgPath() + "." + fieldType.Elem().Name()
 	}
 	return fieldType.PkgPath() + "." + fieldType.Name()
