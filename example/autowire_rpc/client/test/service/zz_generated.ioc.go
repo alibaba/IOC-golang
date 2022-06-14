@@ -100,7 +100,12 @@ func GetComplexService() (*ComplexService, error) {
 	return impl, nil
 }
 func GetComplexServiceIOCInterface() (ComplexServiceIOCInterface, error) {
-	return GetComplexService()
+	i, err := rpc_service.GetImplWithProxy(util.GetSDIDByStructPtr(new(ComplexService)))
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(ComplexServiceIOCInterface)
+	return impl, nil
 }
 func GetSimpleService() (*SimpleService, error) {
 	i, err := rpc_service.GetImpl(util.GetSDIDByStructPtr(new(SimpleService)))
@@ -111,5 +116,10 @@ func GetSimpleService() (*SimpleService, error) {
 	return impl, nil
 }
 func GetSimpleServiceIOCInterface() (SimpleServiceIOCInterface, error) {
-	return GetSimpleService()
+	i, err := rpc_service.GetImplWithProxy(util.GetSDIDByStructPtr(new(SimpleService)))
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(SimpleServiceIOCInterface)
+	return impl, nil
 }

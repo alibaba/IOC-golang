@@ -25,6 +25,8 @@ import (
 	invocation_impl "dubbo.apache.org/dubbo-go/v3/protocol/invocation"
 )
 
+var typError = reflect.Zero(reflect.TypeOf((*error)(nil)).Elem()).Type()
+
 // defaultProxyImplementFunc the default function for proxy impl
 func defaultProxyImplementFunc(p *proxy.Proxy, v common.RPCService) {
 	// check parameters, incoming interface must be a elem's pointer.
@@ -91,7 +93,7 @@ func defaultProxyImplementFunc(p *proxy.Proxy, v common.RPCService) {
 				invocation_impl.WithArguments(inIArr), invocation_impl.WithParameterValues(inVArr))
 			inv.SetReply(&replyInterface)
 
-			p.GetInvoker().Invoke(invCtx, inv)
+			rpcResult := p.GetInvoker().Invoke(invCtx, inv)
 
 			// interface -> reflectionValues
 			reflectValues := make([]reflect.Value, 0)
@@ -109,6 +111,10 @@ func defaultProxyImplementFunc(p *proxy.Proxy, v common.RPCService) {
 				} else {
 					returnReflectValues = append(returnReflectValues, reflectValue)
 				}
+			}
+
+			if rpcResult != nil && rpcResult.Error() != nil && len(outs) > 0 && outs[len(outs)-1] == typError {
+				returnReflectValues[len(returnReflectValues)-1] = reflect.ValueOf(rpcResult.Error())
 			}
 
 			return returnReflectValues

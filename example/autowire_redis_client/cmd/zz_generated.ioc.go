@@ -59,5 +59,10 @@ func GetApp(p *Param) (*App, error) {
 	return impl, nil
 }
 func GetAppIOCInterface(p *Param) (AppIOCInterface, error) {
-	return GetApp(p)
+	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(App)), p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(AppIOCInterface)
+	return impl, nil
 }

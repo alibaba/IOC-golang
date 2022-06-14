@@ -302,6 +302,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 		}
 		if g.paramTypeName != "" && g.autowireType != "rpc" {
 			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
+
 			c.Linef(`func Get%s(p *%s)(*%s, error){
 			i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)), p)
 			if err != nil {
@@ -310,11 +311,18 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			impl := i.(*%s)
 			return impl, nil
 		}`, g.structName, g.paramTypeName, g.structName, g.autowireTypeAlias, utilAlias, g.structName, g.structName)
+
 			c.Linef(`func Get%sIOCInterface(p *%s)(%sIOCInterface, error){
-				return Get%s(p)
-			}`, g.structName, g.paramTypeName, g.structName, g.structName)
+				i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)), p)
+				if err != nil {
+					return nil, err
+				}
+				impl := i.(%sIOCInterface)
+				return impl, nil
+			}`, g.structName, g.paramTypeName, g.structName, g.autowireTypeAlias, utilAlias, g.structName, g.structName)
 		} else {
 			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
+
 			c.Linef(`func Get%s()(*%s, error){`, g.structName, g.structName)
 			if g.autowireType == "rpc" {
 				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)))`, g.autowireTypeAlias, utilAlias, g.structName)
@@ -327,9 +335,19 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			impl := i.(*%s)
 			return impl, nil
 			}`, g.structName)
-			c.Linef(`func Get%sIOCInterface()(%sIOCInterface, error){
-				return Get%s()
-			}`, g.structName, g.structName, g.structName)
+
+			c.Linef(`func Get%sIOCInterface()(%sIOCInterface, error){`, g.structName, g.structName)
+			if g.autowireType == "rpc" {
+				c.Linef(`i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)))`, g.autowireTypeAlias, utilAlias, g.structName)
+			} else {
+				c.Linef(`i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)), nil)`, g.autowireTypeAlias, utilAlias, g.structName)
+			}
+			c.Linef(`if err != nil {
+				return nil, err
+			}
+			impl := i.(%sIOCInterface)
+			return impl, nil
+			}`, g.structName)
 		}
 	}
 

@@ -46,5 +46,10 @@ func GetStruct1() (*Struct1, error) {
 	return impl, nil
 }
 func GetStruct1IOCInterface() (Struct1IOCInterface, error) {
-	return GetStruct1()
+	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(Struct1)), nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(Struct1IOCInterface)
+	return impl, nil
 }

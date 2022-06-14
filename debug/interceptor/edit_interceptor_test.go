@@ -88,7 +88,7 @@ func TestEditInterceptorWithCondition(t *testing.T) {
 	assert.Equal(t, serviceFooStructID, info.ImplementationName)
 	assert.Equal(t, "Invoke", info.MethodName)
 	assert.Equal(t, true, info.IsParam)
-	assert.True(t, strings.Contains(info.Params[1], "lizhixin"))
+	assert.True(t, strings.Contains(info.Params[2], "lizhixin"))
 
 	assert.Nil(t, err)
 	assert.Equal(t, "laurence", rsp.Name)

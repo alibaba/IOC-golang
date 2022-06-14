@@ -67,7 +67,12 @@ func GetImpl1() (*Impl1, error) {
 	return impl, nil
 }
 func GetImpl1IOCInterface() (Impl1IOCInterface, error) {
-	return GetImpl1()
+	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(Impl1)), nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(Impl1IOCInterface)
+	return impl, nil
 }
 func GetImpl2() (*Impl2, error) {
 	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Impl2)), nil)
@@ -78,5 +83,10 @@ func GetImpl2() (*Impl2, error) {
 	return impl, nil
 }
 func GetImpl2IOCInterface() (Impl2IOCInterface, error) {
-	return GetImpl2()
+	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(Impl2)), nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(Impl2IOCInterface)
+	return impl, nil
 }

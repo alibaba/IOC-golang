@@ -18,6 +18,8 @@ package rpc_client
 import (
 	"testing"
 
+	"github.com/alibaba/ioc-golang/autowire/util"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang/autowire"
@@ -25,8 +27,6 @@ import (
 
 type mockImpl struct {
 }
-
-const mockImplName = "github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client.mockImpl"
 
 func TestAutowire_RegisterAndGetAllStructDescriptors(t *testing.T) {
 	t.Run("test register and get all struct descriptors", func(t *testing.T) {
@@ -39,7 +39,8 @@ func TestAutowire_RegisterAndGetAllStructDescriptors(t *testing.T) {
 		a := &Autowire{}
 		allStructDesc := a.GetAllStructDescriptors()
 		assert.NotNil(t, allStructDesc)
-		structDesc, ok := allStructDesc[mockImplName]
+		mockImplName := util.GetSDIDByStructPtr(&mockImpl{})
+		structDesc, ok := allStructDesc[util.GetSDIDByStructPtr(&mockImpl{})]
 		assert.True(t, ok)
 		assert.Equal(t, mockImplName, structDesc.ID())
 	})

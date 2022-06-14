@@ -6,11 +6,10 @@
 package mysql
 
 import (
-	"gorm.io/gorm"
-
 	"github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
+	"gorm.io/gorm"
 )
 
 func init() {
@@ -85,5 +84,10 @@ func GetImpl(p *Config) (*Impl, error) {
 	return impl, nil
 }
 func GetImplIOCInterface(p *Config) (ImplIOCInterface, error) {
-	return GetImpl(p)
+	i, err := normal.GetImplWithProxy(util.GetSDIDByStructPtr(new(Impl)), p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(ImplIOCInterface)
+	return impl, nil
 }

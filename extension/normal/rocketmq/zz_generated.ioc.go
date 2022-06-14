@@ -7,13 +7,11 @@ package rocketmq
 
 import (
 	contextx "context"
-
-	"github.com/apache/rocketmq-client-go/v2/consumer"
-	"github.com/apache/rocketmq-client-go/v2/primitive"
-
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/apache/rocketmq-client-go/v2/consumer"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
 )
 
 func init() {
@@ -82,5 +80,10 @@ func GetImpl(p *Config) (*Impl, error) {
 	return impl, nil
 }
 func GetImplIOCInterface(p *Config) (ImplIOCInterface, error) {
-	return GetImpl(p)
+	i, err := normal.GetImplWithProxy(util.GetSDIDByStructPtr(new(Impl)), p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(ImplIOCInterface)
+	return impl, nil
 }
