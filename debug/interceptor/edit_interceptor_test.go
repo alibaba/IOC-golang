@@ -53,7 +53,7 @@ func TestEditInterceptorWithCondition(t *testing.T) {
 		SendCh: sendCh,
 		RecvCh: recvCh,
 		FieldMatcher: &FieldMatcher{
-			FieldIndex: 2,
+			FieldIndex: 1,
 			MatchRule:  "User.Name=lizhixin",
 		},
 	})
@@ -68,14 +68,14 @@ func TestEditInterceptorWithCondition(t *testing.T) {
 	}
 	go func() {
 		controlRecvCh <- &EditData{
-			FieldIndex: 2,
+			FieldIndex: 1,
 			FieldPath:  "User.Name",
 			Value:      "laurence",
 		}
 	}()
 
 	editInterceptor.Invoke(interfaceImplId, methodName, true,
-		[]reflect.Value{reflect.ValueOf(service), reflect.ValueOf(ctx), reflect.ValueOf(param)})
+		[]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
 
 	rsp, err := service.Invoke(ctx, param)
 

@@ -48,5 +48,10 @@ func GetServiceStruct() (*ServiceStruct, error) {
 	return impl, nil
 }
 func GetServiceStructIOCInterface() (ServiceStructIOCInterface, error) {
-	return GetServiceStruct()
+	i, err := rpc_service.GetImplWithProxy(util.GetSDIDByStructPtr(new(ServiceStruct)))
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(ServiceStructIOCInterface)
+	return impl, nil
 }

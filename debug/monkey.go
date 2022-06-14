@@ -77,7 +77,7 @@ func makeCallProxy(tempInterfaceId, methodName string, isVariadic bool) func(in 
 		}()
 		// interceptor
 		for _, i := range paramInterceptors {
-			in = i.Invoke(tempInterfaceId, methodName, true, in)
+			in = i.Invoke(tempInterfaceId, methodName, true, in[1:])
 		}
 
 		if isVariadic {

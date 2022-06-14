@@ -82,3 +82,7 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 func GetImpl(sdID string, param interface{}) (interface{}, error) {
 	return autowire.Impl(Name, sdID, param)
 }
+
+func GetImplWithProxy(sdID string, param interface{}) (interface{}, error) {
+	return autowire.ImplWithProxy(Name, sdID, param)
+}

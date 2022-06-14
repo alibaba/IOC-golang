@@ -7,11 +7,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
+
+	"github.com/fatih/color"
 
 	"dubbo.apache.org/dubbo-go/v3/common/constant"
 	dubboProtocol "dubbo.apache.org/dubbo-go/v3/protocol"
 	"dubbo.apache.org/dubbo-go/v3/protocol/invocation"
 
+	"github.com/alibaba/ioc-golang/common"
 	"github.com/alibaba/ioc-golang/extension/autowire/rpc/protocol"
 	"github.com/alibaba/ioc-golang/extension/normal/http_server"
 	"github.com/alibaba/ioc-golang/extension/normal/http_server/ghttp"
@@ -27,14 +31,30 @@ type IOCProtocol struct {
 	httpServer http_server.ImplIOCInterface
 	address    string
 	exportPort string
+	timeout    string
 }
 
 func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.Result {
 	sdID, _ := invocation.GetAttachment("sdid")
 	data, _ := json.Marshal(invocation.Arguments())
-	rsp, err := http.Post(DefaultSchema+"://"+i.address+"/"+sdID+"/"+invocation.MethodName(), DefaultContentType, bytes.NewBuffer(data))
+	invokeURL := DefaultSchema + "://" + i.address + "/" + sdID + "/" + invocation.MethodName()
+
+	timeoutDuration, err := time.ParseDuration(i.timeout)
 	if err != nil {
-		panic(err)
+		timeoutDuration = time.Second * 3
+	}
+	requestCtx, cancel := context.WithTimeout(context.Background(), timeoutDuration)
+	defer cancel()
+	req, err := http.NewRequestWithContext(requestCtx, http.MethodPost, invokeURL, bytes.NewBuffer(data))
+	if err != nil {
+		return nil
+	}
+	rsp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		color.Red("[IOC Protocol] Invoke %s with error = %s", invokeURL, err)
+		return &dubboProtocol.RPCResult{
+			Err: err,
+		}
 	}
 	rspData, _ := ioutil.ReadAll(rsp.Body)
 	replyList := invocation.Reply().(*[]interface{})
@@ -72,7 +92,7 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 	}
 
 	sdid := invoker.GetURL().GetParam(constant.InterfaceKey, "")
-	clientStubFullName := invoker.GetURL().GetParam("alias", "")
+	clientStubFullName := invoker.GetURL().GetParam(common.AliasKey, "")
 	svc := ServiceMap.GetServiceByServiceKey(IOCProtocolName, sdid)
 	if svc == nil {
 		return nil

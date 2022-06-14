@@ -54,10 +54,6 @@ func sendValues(interfaceImplId, methodName string, isParam bool, values []refle
 		ImplementationName: interfaceImplId,
 	}
 	i := 0
-	if isParam {
-		// param first value is struct ptr, should skip it.
-		i = 1
-	}
 	for ; i < len(values); i++ {
 		if !values[i].IsValid() {
 			invokeDetail.Params = append(invokeDetail.Params, "nil")

@@ -28,7 +28,7 @@ func init() {
 	autowire.RegisterAutowire(func() autowire.Autowire {
 		rpcAutowire := &Autowire{}
 		// todo parse rpc param
-		rpcAutowire.Autowire = normal.NewNormalAutowire(&sdidParser{}, nil, rpcAutowire)
+		rpcAutowire.Autowire = normal.NewNormalAutowire(&sdidParser{}, getDefaultParamLoader(), rpcAutowire)
 		return rpcAutowire
 	}())
 }
@@ -64,6 +64,7 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 		param := p.(*Param)
 		iocProtocolImpl, err := protocol_impl.GetIOCProtocol(&protocol_impl.Param{
 			Address: param.Address,
+			Timeout: param.Timeout,
 		})
 		if err != nil {
 			return nil, err

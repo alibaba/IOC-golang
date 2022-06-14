@@ -7,14 +7,12 @@ package http_server
 
 import (
 	contextx "context"
-	"net/http"
-
-	"github.com/urfave/negroni"
-
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
 	"github.com/alibaba/ioc-golang/extension/normal/http_server/ghttp"
+	"github.com/urfave/negroni"
+	"net/http"
 )
 
 func init() {
@@ -88,5 +86,10 @@ func GetImpl(p *HTTPServerConfig) (*Impl, error) {
 	return impl, nil
 }
 func GetImplIOCInterface(p *HTTPServerConfig) (ImplIOCInterface, error) {
-	return GetImpl(p)
+	i, err := normal.GetImplWithProxy(util.GetSDIDByStructPtr(new(Impl)), p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(ImplIOCInterface)
+	return impl, nil
 }

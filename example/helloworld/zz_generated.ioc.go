@@ -109,7 +109,12 @@ func GetApp() (*App, error) {
 	return impl, nil
 }
 func GetAppIOCInterface() (AppIOCInterface, error) {
-	return GetApp()
+	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(App)), nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(AppIOCInterface)
+	return impl, nil
 }
 func GetServiceImpl1() (*ServiceImpl1, error) {
 	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceImpl1)), nil)
@@ -120,7 +125,12 @@ func GetServiceImpl1() (*ServiceImpl1, error) {
 	return impl, nil
 }
 func GetServiceImpl1IOCInterface() (ServiceImpl1IOCInterface, error) {
-	return GetServiceImpl1()
+	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(ServiceImpl1)), nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(ServiceImpl1IOCInterface)
+	return impl, nil
 }
 func GetServiceImpl2() (*ServiceImpl2, error) {
 	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceImpl2)), nil)
@@ -131,7 +141,12 @@ func GetServiceImpl2() (*ServiceImpl2, error) {
 	return impl, nil
 }
 func GetServiceImpl2IOCInterface() (ServiceImpl2IOCInterface, error) {
-	return GetServiceImpl2()
+	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(ServiceImpl2)), nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(ServiceImpl2IOCInterface)
+	return impl, nil
 }
 func GetServiceStruct() (*ServiceStruct, error) {
 	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceStruct)), nil)
@@ -142,5 +157,10 @@ func GetServiceStruct() (*ServiceStruct, error) {
 	return impl, nil
 }
 func GetServiceStructIOCInterface() (ServiceStructIOCInterface, error) {
-	return GetServiceStruct()
+	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(ServiceStruct)), nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(ServiceStructIOCInterface)
+	return impl, nil
 }

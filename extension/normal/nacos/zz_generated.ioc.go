@@ -6,12 +6,11 @@
 package nacos
 
 import (
-	"github.com/nacos-group/nacos-sdk-go/v2/model"
-	"github.com/nacos-group/nacos-sdk-go/v2/vo"
-
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/nacos-group/nacos-sdk-go/v2/model"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 )
 
 func init() {
@@ -135,5 +134,10 @@ func GetImpl(p *Config) (*Impl, error) {
 	return impl, nil
 }
 func GetImplIOCInterface(p *Config) (ImplIOCInterface, error) {
-	return GetImpl(p)
+	i, err := normal.GetImplWithProxy(util.GetSDIDByStructPtr(new(Impl)), p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(ImplIOCInterface)
+	return impl, nil
 }

@@ -16,11 +16,12 @@
 package rpc_service
 
 import (
-	"dubbo.apache.org/dubbo-go/v3/common"
+	dubboCommon "dubbo.apache.org/dubbo-go/v3/common"
 	"dubbo.apache.org/dubbo-go/v3/common/constant"
 
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/common"
 	"github.com/alibaba/ioc-golang/extension/autowire/rpc/protocol/protocol_impl"
 )
 
@@ -69,9 +70,15 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 				return nil, err
 			}
 		}
+		if proxyFunction := autowire.GetProxyFunction(); proxyFunction != nil {
+			// if field is interface, try to inject proxy wrapped pointer
+			if proxyImpl, err := proxyFunction(impl); err == nil {
+				impl = proxyImpl
+			}
+		}
 
 		// param not configured in server side, set default param
-		iocProtocolImpl, err := protocol_impl.GetIOCProtocol(&protocol_impl.Param{
+		iocProtocolInterface, err := protocol_impl.GetIOCProtocolIOCInterface(&protocol_impl.Param{
 			ExportPort: defaultParam.ExportPort,
 		})
 		if err != nil {
@@ -82,12 +89,12 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 			panic(err)
 		}
 
-		invURL, _ := common.NewURL(protocol_impl.IOCProtocolName+"://",
-			common.WithParamsValue(constant.InterfaceKey, sdID),
-			common.WithParamsValue("alias", s.Alias),
+		invURL, _ := dubboCommon.NewURL(protocol_impl.IOCProtocolName+"://",
+			dubboCommon.WithParamsValue(constant.InterfaceKey, sdID),
+			dubboCommon.WithParamsValue(common.AliasKey, s.Alias),
 		)
 		defaultProxyInvoker := newProxyInvoker(invURL)
-		iocProtocolImpl.Export(defaultProxyInvoker)
+		iocProtocolInterface.Export(defaultProxyInvoker)
 		return impl, nil
 	}
 	rpcStructDescriptorMap[sdID] = s
@@ -95,4 +102,8 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 
 func GetImpl(key string) (interface{}, error) {
 	return autowire.Impl(Name, key, nil)
+}
+
+func GetImplWithProxy(key string) (interface{}, error) {
+	return autowire.ImplWithProxy(Name, key, nil)
 }

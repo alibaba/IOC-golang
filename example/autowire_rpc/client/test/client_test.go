@@ -207,3 +207,30 @@ func testRPCBasicType(t *testing.T, client api.ComplexServiceIOCRPCClient) {
 	assert.Equal(t, ageF64, rspAgeF64)
 	assert.Equal(t, ageF64, *rspAgeF64Ptr)
 }
+
+func TestRPCWithConnectionTimeoutError(t *testing.T) {
+	// test default timeout
+	badparam := &rpc_client.Param{
+		Address: "1.1.1.1:8080",
+	}
+	complexClient, err := rpc_client.ImplClientStub(new(api.ComplexServiceIOCRPCClient), badparam)
+	assert.Nil(t, err)
+	complexClient.(api.ComplexServiceIOCRPCClient).RPCWithoutParamAndReturnValue()
+	timeStart := time.Now()
+	_, err = complexClient.(api.ComplexServiceIOCRPCClient).RPCWithoutParam()
+	duration := time.Since(timeStart)
+	assert.NotNil(t, err)
+	assert.True(t, err.Error() == `Post "http://1.1.1.1:8080/github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.ComplexServiceIOCRPCClient/RPCWithoutParam": context deadline exceeded`)
+	assert.True(t, duration < time.Second*4 && duration > time.Second*2)
+
+	// test timeout param is working
+	badparam.Timeout = "1s"
+	complexClient2, err := rpc_client.ImplClientStub(new(api.ComplexServiceIOCRPCClient), badparam)
+	assert.Nil(t, err)
+	timeStart = time.Now()
+	_, err = complexClient2.(api.ComplexServiceIOCRPCClient).RPCWithoutParam()
+	duration = time.Since(timeStart)
+	assert.NotNil(t, err)
+	assert.True(t, err.Error() == `Post "http://1.1.1.1:8080/github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.ComplexServiceIOCRPCClient/RPCWithoutParam": context deadline exceeded`)
+	assert.True(t, duration < time.Second*2)
+}
