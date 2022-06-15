@@ -62,14 +62,14 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	s.ConstructFunc = func(impl interface{}, p interface{}) (interface{}, error) {
 		// client side load as injection, meaningful
 		param := p.(*Param)
-		iocProtocolImpl, err := protocol_impl.GetIOCProtocol(&protocol_impl.Param{
+		iocProtocolInterface, err := protocol_impl.GetIOCProtocolIOCInterface(&protocol_impl.Param{
 			Address: param.Address,
 			Timeout: param.Timeout,
 		})
 		if err != nil {
 			return nil, err
 		}
-		newProxy := proxy.NewProxy(newProxyInvoker(iocProtocolImpl, toInvokeSDID), nil, nil)
+		newProxy := proxy.NewProxy(newProxyInvoker(iocProtocolInterface, toInvokeSDID), nil, nil)
 		defaultProxyImplementFunc(newProxy, impl)
 		return impl, nil
 	}

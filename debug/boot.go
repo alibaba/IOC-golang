@@ -18,37 +18,39 @@ package debug
 import (
 	"github.com/fatih/color"
 
+	"github.com/alibaba/ioc-golang/debug/interceptor"
+	tracer "github.com/alibaba/ioc-golang/debug/interceptor/trace"
+	"github.com/alibaba/ioc-golang/debug/interceptor/watch"
+
 	"github.com/alibaba/ioc-golang/config"
 
 	"github.com/alibaba/ioc-golang/debug/common"
-	"github.com/alibaba/ioc-golang/debug/interceptor"
+	"github.com/alibaba/ioc-golang/debug/interceptor/server"
 )
 
-var paramInterceptors = make([]interceptor.Interceptor, 0)
-var responseInterceptors = make([]interceptor.Interceptor, 0)
+var interceptors = make([]interceptor.Interceptor, 0)
+
+//var responseInterceptors = make([]interceptor.Interceptor, 0)
 
 const (
 	defaultDebugPort = "1999"
 )
 
 func init() {
-	paramInterceptors = append(paramInterceptors, interceptor.GetWatchInterceptor())
-	paramInterceptors = append(paramInterceptors, interceptor.GetEditInterceptor())
-
-	responseInterceptors = append(responseInterceptors, interceptor.GetWatchInterceptor())
-	responseInterceptors = append(responseInterceptors, interceptor.GetEditInterceptor())
+	interceptors = append(interceptors, watch.GetWatchInterceptor())
+	interceptors = append(interceptors, tracer.GetTraceInterceptor())
 }
 
 var debugMetadata = make(map[string]*common.StructMetadata)
 
 func Load() error {
-	bootConfig := &Config{}
-	_ = config.LoadConfigByPrefix("debug", bootConfig)
-	if bootConfig.Port == "" {
+	debugConfig := &common.Config{}
+	_ = config.LoadConfigByPrefix("debug", debugConfig)
+	if debugConfig.Port == "" {
 		color.Blue("[Debug] Debug port is set to default :%s", defaultDebugPort)
-		bootConfig.Port = defaultDebugPort
+		debugConfig.Port = defaultDebugPort
 	}
-	if err := interceptor.Start(bootConfig.Port, debugMetadata); err != nil {
+	if err := server.Start(debugConfig, debugMetadata); err != nil {
 		color.Red("[Debug] Start debug server error = %s", err)
 		return err
 	}

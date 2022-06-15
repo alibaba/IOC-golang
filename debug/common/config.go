@@ -13,34 +13,18 @@
  * limitations under the License.
  */
 
-package interceptor
+package common
 
-import "github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
-
-type MetadataSorter []*debug.ServiceMetadata
-
-func (m MetadataSorter) Len() int {
-	return len(m)
+type Config struct {
+	Port               string             `yaml:"port"`
+	AppName            string             `yaml:"app-name"`
+	InterceptorsConfig InterceptorsConfig `yaml:"interceptors"`
 }
 
-func (m MetadataSorter) Less(i, j int) bool {
-	return m[i].InterfaceName+m[i].ImplementationName < m[j].InterfaceName+m[j].ImplementationName
+type InterceptorsConfig struct {
+	Trace Trace `yaml:"trace"`
 }
 
-func (m MetadataSorter) Swap(i, j int) {
-	m[i], m[j] = m[j], m[i]
-}
-
-type MethodSorter []string
-
-func (m MethodSorter) Len() int {
-	return len(m)
-}
-
-func (m MethodSorter) Less(i, j int) bool {
-	return m[i] < m[j]
-}
-
-func (m MethodSorter) Swap(i, j int) {
-	m[i], m[j] = m[j], m[i]
+type Trace struct {
+	CollectorAddress string `yaml:"collector-address"`
 }

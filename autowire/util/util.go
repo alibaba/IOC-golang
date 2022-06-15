@@ -106,6 +106,11 @@ func ToRPCClientStubInterfaceSDID(clientStubSDID string) (string, error) {
 	return strings.Join(splitedClientStubSDID, "."), nil
 }
 
+func ToRPCServiceSDID(clientStubInterfaceSDID string) string {
+	trimedSuffix := strings.TrimSuffix(clientStubInterfaceSDID, "IOCRPCClient")
+	return strings.ReplaceAll(trimedSuffix, "/api.", ".")
+}
+
 func ToFirstCharLower(input string) string {
 	return strings.ToLower(string(input[0])) + input[1:]
 }

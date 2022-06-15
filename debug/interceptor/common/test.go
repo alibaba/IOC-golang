@@ -13,34 +13,27 @@
  * limitations under the License.
  */
 
-package interceptor
+package common
 
-import "github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
+import "context"
 
-type MetadataSorter []*debug.ServiceMetadata
-
-func (m MetadataSorter) Len() int {
-	return len(m)
+type User struct {
+	Name string
 }
 
-func (m MetadataSorter) Less(i, j int) bool {
-	return m[i].InterfaceName+m[i].ImplementationName < m[j].InterfaceName+m[j].ImplementationName
+type RequestParam struct {
+	User *User
 }
 
-func (m MetadataSorter) Swap(i, j int) {
-	m[i], m[j] = m[j], m[i]
+type Response struct {
+	Name string
 }
 
-type MethodSorter []string
-
-func (m MethodSorter) Len() int {
-	return len(m)
+type ServiceFoo struct {
 }
 
-func (m MethodSorter) Less(i, j int) bool {
-	return m[i] < m[j]
-}
-
-func (m MethodSorter) Swap(i, j int) {
-	m[i], m[j] = m[j], m[i]
+func (s *ServiceFoo) Invoke(ctx context.Context, param *RequestParam) (*Response, error) {
+	return &Response{
+		Name: param.User.Name,
+	}, nil
 }

@@ -13,29 +13,39 @@
  * limitations under the License.
  */
 
-package interceptor
+package server
 
 import (
 	"net"
+
+	"github.com/alibaba/ioc-golang/debug/interceptor/trace"
+
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
+	"github.com/alibaba/ioc-golang/debug/interceptor/watch"
 
 	"github.com/fatih/color"
 	"google.golang.org/grpc"
 
 	"github.com/alibaba/ioc-golang/common"
 
-	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
 	debugCommon "github.com/alibaba/ioc-golang/debug/common"
 )
 
-func Start(port string, allInterfaceMetadataMap map[string]*debugCommon.StructMetadata) error {
+func Start(debugConfig *debugCommon.Config, allInterfaceMetadataMap map[string]*debugCommon.StructMetadata) error {
+	if debugConfig.AppName != "" {
+		trace.SetAppName(debugConfig.AppName)
+	}
+	if collectorAddr := debugConfig.InterceptorsConfig.Trace.CollectorAddress; collectorAddr != "" {
+		trace.SetCollectorAddress(collectorAddr)
+	}
 	grpcServer := grpc.NewServer()
-	grpcServer.RegisterService(&boot.DebugService_ServiceDesc, &DebugServerImpl{
-		editInterceptor:         GetEditInterceptor(),
-		watchInterceptor:        GetWatchInterceptor(),
+	grpcServer.RegisterService(&debug.DebugService_ServiceDesc, &DebugServerImpl{
+		watchInterceptor:        watch.GetWatchInterceptor(),
+		traceInterceptor:        trace.GetTraceInterceptor(),
 		allInterfaceMetadataMap: allInterfaceMetadataMap,
 	})
 
-	lst, err := common.GetTCPListener(port)
+	lst, err := common.GetTCPListener(debugConfig.Port)
 	if err != nil {
 		return err
 	}
