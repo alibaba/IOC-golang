@@ -1,18 +1,18 @@
-# IOC-Golang: A golang dependency injection framework
+# IOC-golang: A golang dependency injection framework
 
 ```
-  ___    ___     ____            ____           _                         
- |_ _|  / _ \   / ___|          / ___|   ___   | |   __ _   _ __     __ _ 
-  | |  | | | | | |      _____  | |  _   / _ \  | |  / _` | | '_ \   / _` |
-  | |  | |_| | | |___  |_____| | |_| | | (_) | | | | (_| | | | | | | (_| |
- |___|  \___/   \____|          \____|  \___/  |_|  \__,_| |_| |_|  \__, |
-                                                                    |___/ 
+  ___    ___     ____                           _                         
+ |_ _|  / _ \   / ___|           __ _    ___   | |   __ _   _ __     __ _ 
+  | |  | | | | | |      _____   / _` |  / _ \  | |  / _` | | '_ \   / _` |
+  | |  | |_| | | |___  |_____| | (_| | | (_) | | | | (_| | | | | | | (_| |
+ |___|  \___/   \____|          \__, |  \___/  |_|  \__,_| |_| |_|  \__, |
+                                |___/                               |___/ 
 ```
 
-[![IOC-Golang CI](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml/badge.svg)](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml)
+[![IOC-golang CI](https://github.com/alibaba/IOC-golang/actions/workflows/github-actions.yml/badge.svg)](https://github.com/alibaba/IOC-golang/actions/workflows/github-actions.yml)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-[IOC-Golang Docs](https://ioc-golang.github.io)
+[IOC-golang Docs](https://ioc-golang.github.io)
 
 [中文 文档](https://ioc-golang.github.io/cn)
 
@@ -20,19 +20,17 @@
 
 ![demo gif](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/video/ioc-golang-demo.gif)
 
-IOC-Golang is a powerful golang dependency injection framework that provides a complete implementation of IoC containers. Its capabilities are as follows:
+IOC-golang is a powerful golang dependency injection framework that provides a complete implementation of IoC containers. Its capabilities are as follows:
 
 - [Dependency Injection](https://ioc-golang.github.io/docs/getting-started/tutorial/)
 
-  Supports dependency injection of any structure and interface.
-
-- Object life cycle management mechanism.
+  Supports dependency injection of any structure and interface, we also support object life cycle management mechanism.
 
   Can take over object creation, parameter injection, factory methods. Customizable object parameter source.
 
-- [Code debugging ability](https://ioc-golang.github.io/docs/examples/debug/)
+- [Struct Proxy Layer](https://ioc-golang.github.io/docs/examples/debug/)
 
-  Based on the idea of AOP, it provides runtime monitoring and debugging capabilities for object methods taken over by the framework.
+  Based on the idea of AOP, we provide struct proxy layer for all struct registered to ioc-golang. In the scene of interface oriented development, we can use many devlops features based on the extenablility of this proxy AOP layer. Such as interface listing, param value watching, method level tracing, performance badpoint analysis, fault injection, method level tracing in distributed system and so on.
 
 - [Automatic struct descriptor codes generation capability](https://ioc-golang.github.io/docs/reference/iocli/)
 
@@ -42,9 +40,9 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
 
   Support the extension of struct to be injected, the extension of autowire model, and the extension of the debug AOP layer.
 
-- [Complete prefabricated components](https://ioc-golang.github.io/cn/docs/examples/)
+- [Many pre-defined components](https://ioc-golang.github.io/cn/docs/examples/)
 
-  Provides prefabricated objects covering mainstream middleware sdk for injection.
+  Provides pre-defined objects and middleware sdk for injection directly.
 
 ## Project Structure
 
@@ -58,6 +56,10 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
         - grpc: grpc client model definition
 
         - config: configure the model definition
+        
+        - rpc: ioc-native rpc support
+        
+        - triple: support for Dubbo3 protocol.
     - config: configuration injection model extension structure
     
         - string,int,map,slice
@@ -68,9 +70,9 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
         - http_server
 
         - mysql
-
+    
         - rocketmq
-
+    
         - nacos
 - **example:** example repository
 - **iocli:** code generation/program debugging tool
@@ -80,7 +82,9 @@ IOC-Golang is a powerful golang dependency injection framework that provides a c
 ### Install code generation tools
 
 ```shell
-go install github.com/alibaba/ioc-golang/iocli@latest
+% go install github.com/alibaba/ioc-golang/iocli@latest
+% iocli
+hello
 ````
 
 ### Dependency Injection Tutorial
@@ -99,6 +103,21 @@ We will develop a project with the following topology, This tutorial can show:
 All the code the user needs to write: main.go
 
 ```go
+/*
+ * Copyright (c) 2022, Alibaba Group;
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package main
 
 import (
@@ -106,90 +125,101 @@ import (
 	"time"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 
 type App struct {
-	ServiceImpl1 Service `singleton:"main.ServiceImpl1"` // inject Service 's ServiceImpl1 implementation
-	ServiceImpl2 Service `singleton:"main.ServiceImpl2"` // inject Service 's ServiceImpl2 implementation
-	ServiceStruct *ServiceStruct `singleton:""` // inject ServiceStruct struct pointer
+	// inject main.ServiceImpl1 pointer to Service interface with proxy wrapper
+	ServiceImpl1 Service `singleton:"main.ServiceImpl1"`
+
+	// inject main.ServiceImpl2 pointer to Service interface with proxy wrapper
+	ServiceImpl2 Service `singleton:"main.ServiceImpl2"`
+
+	// inject ServiceImpl1 pointer to Service1 's own interface with proxy wrapper
+	// this interface belongs to ServiceImpl1, there is no need to mark 'main.ServiceImpl1' in tag
+	Service1OwnInterface ServiceImpl1IOCInterface `singleton:""`
+
+	// inject ServiceStruct struct pointer
+	ServiceStruct *ServiceStruct `singleton:""`
 }
 
-func (a*App) Run(){
+func (a *App) Run() {
 	for {
-		time.Sleep(time.Second*3)
-		a.ServiceImpl1.Hello()
-		a.ServiceImpl2.Hello()
+		time.Sleep(time.Second * 3)
+		fmt.Println(a.ServiceImpl1.GetHelloString("laurence"))
+		fmt.Println(a.ServiceImpl2.GetHelloString("laurence"))
+
+		fmt.Println(a.Service1OwnInterface.GetHelloString("laurence"))
 		
 		fmt.Println(a.ServiceStruct.GetString("laurence"))
-    }
+	}
 }
 
-
-type Service interface{
-	Hello()
+type Service interface {
+	GetHelloString(string) string
 }
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 
 type ServiceImpl1 struct {
-
 }
 
-func (s *ServiceImpl1) Hello(){
-	fmt.Println("This is ServiceImpl1, hello world")
+func (s *ServiceImpl1) GetHelloString(name string) string {
+	return fmt.Sprintf("This is ServiceImpl1, hello %s", name)
 }
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 
 type ServiceImpl2 struct {
-
 }
 
-func (s *ServiceImpl2) Hello(){
-	fmt.Println("This is ServiceImpl2, hello world")
+func (s *ServiceImpl2) GetHelloString(name string) string {
+	return fmt.Sprintf("This is ServiceImpl2, hello %s", name)
 }
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 
 type ServiceStruct struct {
-
 }
 
-func (s *ServiceStruct) GetString(name string)string{
-	return fmt.Sprintf("Hello %s", name)
+func (s *ServiceStruct) GetString(name string) string {
+	return fmt.Sprintf("This is ServiceStruct, hello %s", name)
 }
 
-func main(){
+func main() {
 	// start
-	if err := ioc.Load(); err != nil{
+	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
 
-	// We can get instance by this id: "${pkgName}.${structName}"
-	appInterface, err := singleton.GetImpl("main.App")
-	if err != nil{
+	// app, err := GetAppIOCInterface is also ok, to get proxy wrapped app struct.
+	app, err := GetApp()
+	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 	app.Run()
 }
+
+
 ```
+The proxy wrapped layer mentioned above, is a proxy layer injected by ioc-golang by default, when developer want to inject an object to interface field, or get with interface by API. Inject to interface is recommended by us. Every object injected with proxy wrapped layer would have devops feature.
+
 After writing, you can exec the following cli command to init go mod and generate codes.  (mac may require sudo due to permissions during code generation)
 
 ```bash
 % go mod init ioc-golang-demo
+% export GOPROXY="https://goproxy.cn"
 % go mod tidy
+% go get github.com/alibaba/ioc-golang@master
 % sudo iocli gen
 ````
 
-It will be generated in the current directory: zz_generated.ioc.go, developers **do not need to care about this file**, this file contains the description information of all interfaces,
+It will be generated in the current directory: zz_generated.ioc.go, developers **do not need to care about this file**, 'GetApp' method mentioned above is defined in generated code.
 
 ```go
 //go:build !ignore_autogenerated
@@ -200,32 +230,34 @@ It will be generated in the current directory: zz_generated.ioc.go, developers *
 package main
 
 import (
-	autowire "github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
+        autowire "github.com/alibaba/ioc-golang/autowire"
+        normal "github.com/alibaba/ioc-golang/autowire/normal"
+        "github.com/alibaba/ioc-golang/autowire/singleton"
+        util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &App{}
-		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &ServiceImpl1{}
-		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &ServiceImpl2{}
-		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &ServiceStruct{}
-		},
-	})
+        normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+                Factory: func() interface{} {
+                        return &app_{}
+                },
+        })
+        singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
+                Factory: func() interface{} {
+                        return &App{}
+                },
+        })
+  ...
+func GetServiceStructIOCInterface() (ServiceStructIOCInterface, error) {
+        i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(ServiceStruct)), nil)
+        if err != nil {
+                return nil, err
+        }
+        impl := i.(ServiceStructIOCInterface)
+        return impl, nil
 }
+
+
 ```
 
 See the file tree:
@@ -237,47 +269,52 @@ See the file tree:
 ├── go.sum
 ├── main.go
 └── zz_generated.ioc.go
+
+0 directories, 4 files
 ````
 
 #### Execute program
-
-**Run with general mode**
 
 `go run .`
 
 Console printout:
 
 ```sh
-  ___    ___     ____            ____           _                         
- |_ _|  / _ \   / ___|          / ___|   ___   | |   __ _   _ __     __ _ 
-  | |  | | | | | |      _____  | |  _   / _ \  | |  / _` | | '_ \   / _` |
-  | |  | |_| | | |___  |_____| | |_| | | (_) | | | | (_| | | | | | | (_| |
- |___|  \___/   \____|          \____|  \___/  |_|  \__,_| |_| |_|  \__, |
-                                                                    |___/ 
+  ___    ___     ____                           _                         
+ |_ _|  / _ \   / ___|           __ _    ___   | |   __ _   _ __     __ _ 
+  | |  | | | | | |      _____   / _` |  / _ \  | |  / _` | | '_ \   / _` |
+  | |  | |_| | | |___  |_____| | (_| | | (_) | | | | (_| | | | | | | (_| |
+ |___|  \___/   \____|          \__, |  \___/  |_|  \__,_| |_| |_|  \__, |
+                                |___/                               |___/ 
 Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
 [Config] Load default config file from ../conf/ioc_golang.yaml
-[Config] Load ioc-golang config file failed. open alibaba/IOC-Golang/example/conf/ioc_golang.yaml: no such file or directory
+[Config] Load ioc-golang config file failed. open /Users/laurence/Desktop/workplace/alibaba/conf/ioc_golang.yaml: no such file or directory
  The load procedure is continue
 [Boot] Start to load debug
-[Debug] Debug mod is not enabled
+[Debug] Debug port is set to default :1999
 [Boot] Start to load autowire
+[Autowire Type] Found registered autowire type normal
+[Autowire Struct Descriptor] Found type normal registered SD main.serviceStruct_
+[Autowire Struct Descriptor] Found type normal registered SD main.app_
+[Autowire Struct Descriptor] Found type normal registered SD main.serviceImpl1_
+[Autowire Struct Descriptor] Found type normal registered SD main.serviceImpl2_
 [Autowire Type] Found registered autowire type singleton
 [Autowire Struct Descriptor] Found type singleton registered SD main.App
 [Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl1
 [Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl2
 [Autowire Struct Descriptor] Found type singleton registered SD main.ServiceStruct
-This is ServiceImpl1, hello world
-This is ServiceImpl2, hello world
-Hello laurence
+[Debug] Debug server listening at :1999
+This is ServiceImpl1, hello laurence
+This is ServiceImpl2, hello laurence
+This is ServiceImpl1, hello laurence
+This is ServiceStruct, hello laurence
 ...
 ```
 
 It shows that the injection is successful and the program runs normally.
 
-**Run with debug mode**
-
-`GOARCH=amd64 go run -gcflags="-N -l" -tags iocdebug .`
+**Debug the app**
 
 Following logs can be found in console output:
 
@@ -285,36 +322,36 @@ Following logs can be found in console output:
 [Debug] Debug server listening at :1999
 ```
 
-List all interface, implementations and methods
+Open a new console, use iocli 's debug feature to list all structs with proxy layer, and their methods. Default port is 1999.
 
 ```
 % iocli list
-main.App
-[Run]
-
 main.ServiceImpl1
-[Hello]
+[GetHelloString]
 
 main.ServiceImpl2
-[Hello]
-
-main.ServiceStruct
-[GetString]
+[GetHelloString]
 ```
 
-Watch real-time param and return value. We take 'GetString' method as an example. The method would be called every  3s .
+Watch real-time param and return value. We take  main.ServiceImpl 's 'GetHelloString' method as an example. The method would be called twice every 3s :
 
 ```
-% iocli watch main.ServiceStruct GetString
-
+% iocli watch main.ServiceImpl1 GetHelloString
 ========== On Call ==========
-main.ServiceStruct.GetString()
+main.ServiceImpl1.GetHelloString()
 Param 1: (string) (len=8) "laurence"
 
+========== On Response ==========
+main.ServiceImpl1.GetHelloString()
+Response 1: (string) (len=36) "This is ServiceImpl1, hello laurence"
+
+========== On Call ==========
+main.ServiceImpl1.GetHelloString()
+Param 1: (string) (len=8) "laurence"
 
 ========== On Response ==========
-main.ServiceStruct.GetString()
-Response 1: (string) (len=14) "Hello laurence"
+main.ServiceImpl1.GetHelloString()
+Response 1: (string) (len=36) "This is ServiceImpl1, hello laurence"
 ...
 ```
 
@@ -332,11 +369,15 @@ The marker autowire model is the singleton, as well as the normal multi-instance
 
 ###  More
 
-More code generation annotations can be viewed at [ioc-golang-cli](https://github.com/alibaba/IOC-Golang/tree/master/iocli).
+More code generation annotations can be viewed at [ioc-golang-cli](https://github.com/alibaba/IOC-golang/tree/master/iocli).
 
-You can go to [ioc-golang-example](https://github.com/alibaba/IOC-Golang/tree/master/example) for more examples and advanced usage.
+You can go to [ioc-golang-example](https://github.com/alibaba/IOC-golang/tree/master/example) for more examples and advanced usage.
 
 ### License
 
-IOC-Golang developed by Alibaba and licensed under the Apache License (Version 2.0).
+IOC-golang developed by Alibaba and licensed under the Apache License (Version 2.0).
 See the NOTICE file for more information.
+
+### Connect to us
+
+Welcomd to join dingtalk group 44638289 if you are interest with the project.

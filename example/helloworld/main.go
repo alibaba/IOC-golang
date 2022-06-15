@@ -26,23 +26,34 @@ import (
 // +ioc:autowire:type=singleton
 
 type App struct {
-	ServiceImpl1  Service        `singleton:"main.ServiceImpl1"` // inject Service 's ServiceImpl1 implementation
-	ServiceImpl2  Service        `singleton:"main.ServiceImpl2"` // inject Service 's ServiceImpl2 implementation
-	ServiceStruct *ServiceStruct `singleton:""`                  // inject ServiceStruct struct pointer
+	// inject main.ServiceImpl1 pointer to Service interface with proxy wrapper
+	ServiceImpl1 Service `singleton:"main.ServiceImpl1"`
+
+	// inject main.ServiceImpl2 pointer to Service interface with proxy wrapper
+	ServiceImpl2 Service `singleton:"main.ServiceImpl2"`
+
+	// inject ServiceImpl1 pointer to Service1 's own interface with proxy wrapper
+	// this interface belongs to ServiceImpl1, there is no need to mark 'main.ServiceImpl1' in tag
+	Service1OwnInterface ServiceImpl1IOCInterface `singleton:""`
+
+	// inject ServiceStruct struct pointer
+	ServiceStruct *ServiceStruct `singleton:""`
 }
 
 func (a *App) Run() {
 	for {
 		time.Sleep(time.Second * 3)
-		a.ServiceImpl1.Hello()
-		a.ServiceImpl2.Hello()
+		fmt.Println(a.ServiceImpl1.GetHelloString("laurence"))
+		fmt.Println(a.ServiceImpl2.GetHelloString("laurence"))
+
+		fmt.Println(a.Service1OwnInterface.GetHelloString("laurence"))
 
 		fmt.Println(a.ServiceStruct.GetString("laurence"))
 	}
 }
 
 type Service interface {
-	Hello()
+	GetHelloString(string) string
 }
 
 // +ioc:autowire=true
@@ -51,8 +62,8 @@ type Service interface {
 type ServiceImpl1 struct {
 }
 
-func (s *ServiceImpl1) Hello() {
-	fmt.Println("This is ServiceImpl1, hello world")
+func (s *ServiceImpl1) GetHelloString(name string) string {
+	return fmt.Sprintf("This is ServiceImpl1, hello %s", name)
 }
 
 // +ioc:autowire=true
@@ -61,8 +72,8 @@ func (s *ServiceImpl1) Hello() {
 type ServiceImpl2 struct {
 }
 
-func (s *ServiceImpl2) Hello() {
-	fmt.Println("This is ServiceImpl2, hello world")
+func (s *ServiceImpl2) GetHelloString(name string) string {
+	return fmt.Sprintf("This is ServiceImpl2, hello %s", name)
 }
 
 // +ioc:autowire=true
@@ -72,7 +83,7 @@ type ServiceStruct struct {
 }
 
 func (s *ServiceStruct) GetString(name string) string {
-	return fmt.Sprintf("Hello %s", name)
+	return fmt.Sprintf("This is ServiceStruct, hello %s", name)
 }
 
 func main() {
@@ -81,6 +92,7 @@ func main() {
 		panic(err)
 	}
 
+	// app, err := GetAppIOCInterface
 	app, err := GetApp()
 	if err != nil {
 		panic(err)

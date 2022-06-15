@@ -1,15 +1,15 @@
-# IOC-Golang：一款 GO 语言依赖注入框架
+# IOC-golang：一款 GO 语言依赖注入框架
 
 ```
-  ___    ___     ____            ____           _                         
- |_ _|  / _ \   / ___|          / ___|   ___   | |   __ _   _ __     __ _ 
-  | |  | | | | | |      _____  | |  _   / _ \  | |  / _` | | '_ \   / _` |
-  | |  | |_| | | |___  |_____| | |_| | | (_) | | | | (_| | | | | | | (_| |
- |___|  \___/   \____|          \____|  \___/  |_|  \__,_| |_| |_|  \__, |
-                                                                    |___/ 
+  ___    ___     ____                           _                         
+ |_ _|  / _ \   / ___|           __ _    ___   | |   __ _   _ __     __ _ 
+  | |  | | | | | |      _____   / _` |  / _ \  | |  / _` | | '_ \   / _` |
+  | |  | |_| | | |___  |_____| | (_| | | (_) | | | | (_| | | | | | | (_| |
+ |___|  \___/   \____|          \__, |  \___/  |_|  \__,_| |_| |_|  \__, |
+                                |___/                               |___/ 
 ```
 
-[![IOC-Golang CI](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml/badge.svg)](https://github.com/alibaba/IOC-Golang/actions/workflows/github-actions.yml)
+[![IOC-golang CI](https://github.com/alibaba/IOC-golang/actions/workflows/github-actions.yml/badge.svg)](https://github.com/alibaba/IOC-golang/actions/workflows/github-actions.yml)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 [文档](https://ioc-golang.github.io/cn)
@@ -20,29 +20,27 @@
 
 ![demo gif](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/video/ioc-golang-demo.gif)
 
-IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完善的 IoC 容器。其能力如下：
+IOC-golang 是一款强大的 Go 语言依赖注入框架，提供了一套完善的 IoC 容器。其能力如下：
 
 - [依赖注入](https://ioc-golang.github.io/cn/docs/getting-started/tutorial/)
 
-  支持任何结构、接口的依赖注入。
-
-- 完善的对象生命周期管理机制。
+  支持任何结构、接口的依赖注入，具备完善的对象生命周期管理机制。
 
   可以接管对象的创建、参数注入、工厂方法。可定制化对象参数来源。
 
-- [代码调试能力](https://ioc-golang.github.io/cn/docs/examples/debug/)
+- [结构代理层](https://ioc-golang.github.io/cn/docs/examples/debug/)
 
-  基于 AOP 的思路，为由框架接管的对象方法提供运行时监控、调试能力。
+  基于 AOP 的思路，为由框架接管的对象提供默认的结构代理层，在面向接口编程的情景下，可以使用基于结构代理 AOP 层扩展的丰富运维能力。例如接口查询，参数动态监听，方法粒度链路追踪，性能瓶颈分析，分布式场景下全链路方法粒度追踪等。
 
-- [结构注册代码生成能力](https://ioc-golang.github.io/cn/docs/reference/iocli/#%E7%BB%93%E6%9E%84%E6%B3%A8%E8%A7%A3)
+- [代码生成能力](https://ioc-golang.github.io/cn/docs/reference/iocli/#%E7%BB%93%E6%9E%84%E6%B3%A8%E8%A7%A3)
 
-  我们提供了代码生成工具，开发者可以通过注解的方式标注结构，从而便捷地生成结构注册代码。
+  我们提供了代码生成工具，开发者可以通过注解的方式标注结构，从而便捷地生成结构注册代码、结构代理、结构专属接口等。
 
 - [可扩展能力](https://ioc-golang.github.io/cn/docs/contribution-guidelines/)
 
   支持被注入结构的扩展、自动装载模型的扩展、调试 AOP 层的扩展。
 
-- [完备的预制组件](https://ioc-golang.github.io/cn/docs/examples/)
+- [丰富的预置组件](https://ioc-golang.github.io/cn/docs/examples/)
 
   提供覆盖主流中间件的预制对象，方便直接注入使用。
 
@@ -61,18 +59,20 @@ IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
         - config：配置模型
 
         - rpc：远程过程调用模型
+        
+        - triple: Dubbo3 支持【待完善】
     - config：配置注入模型扩展结构
-
+    
         - string,int,map,slice
     - normal：多例模型扩展结构
 
         - redis
-
+    
         - http_server
         - mysql
 
         - rocketmq
-
+    
         - nacos
 - **example：** 示例仓库
 - **iocli：** 代码生成/程序调试 工具
@@ -83,7 +83,9 @@ IOC-Golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
 ### 安装代码生成工具
 
 ```shell
-go install github.com/alibaba/ioc-golang/iocli@latest
+% go install github.com/alibaba/ioc-golang/iocli@latest
+% iocli
+hello
 ```
 
 ### 依赖注入教程
@@ -94,7 +96,7 @@ go install github.com/alibaba/ioc-golang/iocli@latest
 2. 接口注入
 3. 对象指针注入
 4. API 获取对象
-5. 调试能力，查看运行中的接口、实现、方法；以及实时监听参数值、返回值。
+5. 调试能力，查看运行中的接口、方法；以及实时监听参数值、返回值。
 
 ![ioc-golang-quickstart-structure](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/img/ioc-golang-quickstart-structure.png)
 
@@ -102,6 +104,21 @@ go install github.com/alibaba/ioc-golang/iocli@latest
 用户所需编写的全部代码：main.go
 
 ```go
+/*
+ * Copyright (c) 2022, Alibaba Group;
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package main
 
 import (
@@ -109,91 +126,101 @@ import (
 	"time"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 )
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 
 type App struct {
-	ServiceImpl1 Service `singleton:"main.ServiceImpl1"` // 要求注入Service 的 ServiceImpl1 实现
-	ServiceImpl2 Service `singleton:"main.ServiceImpl2"` // 要求注入Service 的 ServiceImpl2 实现
-	ServiceStruct *ServiceStruct `singleton:""` // 要求注入 ServiceStruct 指针
+	// 将封装了代理层的 main.ServiceImpl1 指针注入到 Service 接口，单例模型，需要在标签中指定被注入结构
+	ServiceImpl1 Service `singleton:"main.ServiceImpl1"`
+
+	// 将封装了代理层的 main.ServiceImpl2 指针注入到 Service 接口，单例模型，需要在标签中指定被注入结构
+	ServiceImpl2 Service `singleton:"main.ServiceImpl2"`
+
+	// 将封装了代理层的 main.ServiceImpl1 指针注入到他的专属接口 'ServiceImpl1IOCInterface'
+  // 注入专属接口的命名规则是 '${结构名}IOCInterface'，注入专属接口无需指定被注入结构，标签值为空即可。
+	Service1OwnInterface ServiceImpl1IOCInterface `singleton:""`
+
+	// 将结构体指针注入当前字段
+	ServiceStruct *ServiceStruct `singleton:""`
 }
 
-func (a*App) Run(){
+func (a *App) Run() {
 	for {
-		time.Sleep(time.Second*3)
-		a.ServiceImpl1.Hello()
-		a.ServiceImpl2.Hello()
+		time.Sleep(time.Second * 3)
+		fmt.Println(a.ServiceImpl1.GetHelloString("laurence"))
+		fmt.Println(a.ServiceImpl2.GetHelloString("laurence"))
+
+		fmt.Println(a.Service1OwnInterface.GetHelloString("laurence"))
 		
 		fmt.Println(a.ServiceStruct.GetString("laurence"))
-    }
+	}
 }
 
-
-type Service interface{
-	Hello()
+type Service interface {
+	GetHelloString(string) string
 }
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 
 type ServiceImpl1 struct {
-
 }
 
-func (s *ServiceImpl1) Hello(){
-	fmt.Println("This is ServiceImpl1, hello world")
+func (s *ServiceImpl1) GetHelloString(name string) string {
+	return fmt.Sprintf("This is ServiceImpl1, hello %s", name)
 }
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 
 type ServiceImpl2 struct {
-
 }
 
-func (s *ServiceImpl2) Hello(){
-	fmt.Println("This is ServiceImpl2, hello world")
+func (s *ServiceImpl2) GetHelloString(name string) string {
+	return fmt.Sprintf("This is ServiceImpl2, hello %s", name)
 }
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 
 type ServiceStruct struct {
-
 }
 
-func (s *ServiceStruct) GetString(name string)string{
-	return fmt.Sprintf("Hello %s", name)
+func (s *ServiceStruct) GetString(name string) string {
+	return fmt.Sprintf("This is ServiceStruct, hello %s", name)
 }
 
-func main(){
-	// 框架启动
-	if err := ioc.Load(); err != nil{
+func main() {
+	// start
+	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
 
-	// 可通过这一 ID 获取实例: "包名.结构名"
-	appInterface, err := singleton.GetImpl("main.App")
-	if err != nil{
+	// app, err := GetAppIOCInterface 也可以，获取到的是封装了代理层的接口，如下获取到的是未封装的结构体指针。
+	app, err := GetApp()
+	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 	app.Run()
 }
+
 ```
 
-编写完毕后，当前目录执行以下命令，初始化 go mod ，生成结构注册代码。（mac 环境可能因权限原因需要sudo）：
+上述所说的“代理层”，是框架为“以接口形式注入/获取”的结构体，默认封装的代理，可以扩展一系列运维操作。我们推荐开发者在编写代码的过程中基于接口编程，则所有对象都可拥有运维能力。
+
+编写完毕后，当前目录执行以下命令，初始化 go mod ，拉取最新代码，生成结构注册代码。（mac 环境可能因权限原因需要sudo）：
 
 ```bash
 % go mod init ioc-golang-demo
+% export GOPROXY="https://goproxy.cn"
 % go mod tidy
+% go get github.com/alibaba/ioc-golang@master
 % sudo iocli gen
 ```
 
-会在当前目录生成：zz_generated.ioc.go，开发者无需关心这一文件，该文件包含了所有接口的描述信息，
+会在当前目录生成：zz_generated.ioc.go，开发者无需关心这一文件，这一文件中就包含了上面使用的 GetApp 方法
 
 ```go
 //go:build !ignore_autogenerated
@@ -204,31 +231,31 @@ func main(){
 package main
 
 import (
-	autowire "github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
+        autowire "github.com/alibaba/ioc-golang/autowire"
+        normal "github.com/alibaba/ioc-golang/autowire/normal"
+        "github.com/alibaba/ioc-golang/autowire/singleton"
+        util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &App{}
-		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &ServiceImpl1{}
-		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &ServiceImpl2{}
-		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &ServiceStruct{}
-		},
-	})
+        normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+                Factory: func() interface{} {
+                        return &app_{}
+                },
+        })
+        singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
+                Factory: func() interface{} {
+                        return &App{}
+                },
+        })
+  ...
+func GetServiceStructIOCInterface() (ServiceStructIOCInterface, error) {
+        i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(ServiceStruct)), nil)
+        if err != nil {
+                return nil, err
+        }
+        impl := i.(ServiceStructIOCInterface)
+        return impl, nil
 }
 
 ```
@@ -242,86 +269,90 @@ func init() {
 ├── go.sum
 ├── main.go
 └── zz_generated.ioc.go
+
+0 directories, 4 files
 ```
 
 #### 执行程序
-
-**正常方式启动程序**
 
 `go run .`
 
 控制台打印输出：
 
 ```sh
-  ___    ___     ____            ____           _                         
- |_ _|  / _ \   / ___|          / ___|   ___   | |   __ _   _ __     __ _ 
-  | |  | | | | | |      _____  | |  _   / _ \  | |  / _` | | '_ \   / _` |
-  | |  | |_| | | |___  |_____| | |_| | | (_) | | | | (_| | | | | | | (_| |
- |___|  \___/   \____|          \____|  \___/  |_|  \__,_| |_| |_|  \__, |
-                                                                    |___/ 
+  ___    ___     ____                           _                         
+ |_ _|  / _ \   / ___|           __ _    ___   | |   __ _   _ __     __ _ 
+  | |  | | | | | |      _____   / _` |  / _ \  | |  / _` | | '_ \   / _` |
+  | |  | |_| | | |___  |_____| | (_| | | (_) | | | | (_| | | | | | | (_| |
+ |___|  \___/   \____|          \__, |  \___/  |_|  \__,_| |_| |_|  \__, |
+                                |___/                               |___/ 
 Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
 [Config] Load default config file from ../conf/ioc_golang.yaml
-[Config] Load ioc-golang config file failed. open alibaba/IOC-Golang/example/conf/ioc_golang.yaml: no such file or directory
+[Config] Load ioc-golang config file failed. open /Users/laurence/Desktop/workplace/alibaba/conf/ioc_golang.yaml: no such file or directory
  The load procedure is continue
 [Boot] Start to load debug
-[Debug] Debug mod is not enabled
+[Debug] Debug port is set to default :1999
 [Boot] Start to load autowire
+[Autowire Type] Found registered autowire type normal
+[Autowire Struct Descriptor] Found type normal registered SD main.serviceStruct_
+[Autowire Struct Descriptor] Found type normal registered SD main.app_
+[Autowire Struct Descriptor] Found type normal registered SD main.serviceImpl1_
+[Autowire Struct Descriptor] Found type normal registered SD main.serviceImpl2_
 [Autowire Type] Found registered autowire type singleton
 [Autowire Struct Descriptor] Found type singleton registered SD main.App
 [Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl1
 [Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl2
 [Autowire Struct Descriptor] Found type singleton registered SD main.ServiceStruct
-This is ServiceImpl1, hello world
-This is ServiceImpl2, hello world
-Hello laurence
+[Debug] Debug server listening at :1999
+This is ServiceImpl1, hello laurence
+This is ServiceImpl2, hello laurence
+This is ServiceImpl1, hello laurence
+This is ServiceStruct, hello laurence
 ...
 ```
 
-可看到，注入成功，程序正常运行。
+可看到，依赖注入成功，程序正常运行。
 
-**以调试模式启动程序**
+### 调试程序
 
-`GOARCH=amd64 go run -gcflags="-N -l" -tags iocdebug .`
-
-可看到打印出的日志中包含
+可看到打印出的日志中包含，说明 Debug 服务已经启动。
 
 ```bash
 [Debug] Debug server listening at :1999
 ```
 
-查看所有结构和方法
+新开一个终端，使用 iocli 的调试功能，查看所有拥有代理层的结构和方法。默认端口为 1999。
 
 ```bash
 % iocli list
-main.App
-[Run]
-
 main.ServiceImpl1
-[Hello]
+[GetHelloString]
 
 main.ServiceImpl2
-[Hello]
-
-main.ServiceStruct
-[GetString]
-
+[GetHelloString]
 ```
 
-监听方法的参数和返回值。以监听 GetString 方法为例，每隔三秒钟函数被调用的时候，打印参数和返回值。
+监听方法的参数和返回值。以监听 main.ServiceImpl 结构的 GetHelloString 方法为例，每隔三秒钟，函数被调用两次，打印参数和返回值。
 
 ```bash
-% iocli watch main.ServiceStruct GetString
-
+% iocli watch main.ServiceImpl1 GetHelloString
 ========== On Call ==========
-main.ServiceStruct.GetString()
+main.ServiceImpl1.GetHelloString()
 Param 1: (string) (len=8) "laurence"
 
+========== On Response ==========
+main.ServiceImpl1.GetHelloString()
+Response 1: (string) (len=36) "This is ServiceImpl1, hello laurence"
+
+========== On Call ==========
+main.ServiceImpl1.GetHelloString()
+Param 1: (string) (len=8) "laurence"
 
 ========== On Response ==========
-main.ServiceStruct.GetString()
-Response 1: (string) (len=14) "Hello laurence"
-...
+main.ServiceImpl1.GetHelloString()
+Response 1: (string) (len=36) "This is ServiceImpl1, hello laurence"
+,,,
 ```
 
 
@@ -339,12 +370,16 @@ Response 1: (string) (len=14) "Hello laurence"
 
 ###  更多
 
-更多代码生成注解可以移步[ioc-golang-cli](https://github.com/alibaba/IOC-Golang/tree/master/iocli).查看。
+更多代码生成注解可以移步[ioc-golang-cli](https://github.com/alibaba/IOC-golang/tree/master/iocli).查看。
 
-可以移步 [ioc-golang-example](https://github.com/alibaba/IOC-Golang/tree/master/example)  查看更多例子和高级使用方法。
+可以移步 [ioc-golang-example](https://github.com/alibaba/IOC-golang/tree/master/example)  查看更多例子和高级使用方法。
 
 
 ### 证书
 
-IOC-Golang developed by Alibaba and licensed under the Apache License (Version 2.0).
+IOC-golang developed by Alibaba and licensed under the Apache License (Version 2.0).
 See the NOTICE file for more information.
+
+### 联系我们
+
+感兴趣的开发者可以加入钉钉群：44638289

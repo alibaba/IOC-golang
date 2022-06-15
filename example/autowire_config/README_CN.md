@@ -10,7 +10,7 @@ ioc-golang 框架提供了便捷的基于文件注入配置的能力，使开发
 
 ### 依赖注入模型
 
-[config 依赖注入模型](https://github.com/alibaba/IOC-Golang/tree/master/extension/config)
+[config 依赖注入模型](https://github.com/alibaba/IOC-golang/tree/master/extension/config)
 
 ### 关键代码：
 
