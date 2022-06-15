@@ -19,15 +19,16 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
+
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
 )
 
-const (
-	defaultDebugAddr = "localhost:1999"
+var (
+	debugHost string
+	debugPort int
 )
 
 var rootCmd = &cobra.Command{
@@ -37,12 +38,12 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func getDebugServiceClent(addr string) boot.DebugServiceClient {
+func getDebugServiceClent(addr string) debug.DebugServiceClient {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}
-	return boot.NewDebugServiceClient(conn)
+	return debug.NewDebugServiceClient(conn)
 }
 
 func main() {

@@ -20,36 +20,42 @@ import (
 	"fmt"
 
 	"github.com/fatih/color"
-	"github.com/spf13/cobra"
 
-	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
+
+	"github.com/spf13/cobra"
 )
 
 var watch = &cobra.Command{
 	Use: "watch",
 	Run: func(cmd *cobra.Command, args []string) {
-		debugServiceClient := getDebugServiceClent(defaultDebugAddr)
-		client, err := debugServiceClient.Watch(context.Background(), &boot.WatchRequest{
-			ImplementationName: args[0],
-			Method:             args[1],
-			Input:              true,
-			Output:             true,
+		debugServiceClient := getDebugServiceClent(fmt.Sprintf("%s:%d", debugHost, debugPort))
+		client, err := debugServiceClient.Watch(context.Background(), &debug.WatchRequest{
+			Sdid:   args[0],
+			Method: args[1],
 		})
 		if err != nil {
 			panic(err)
 		}
 		for {
-			msg, _ := client.Recv()
-			fmt.Println()
-			onToPrint := "Call"
-			paramOrResponse := "Param"
-			if !msg.IsParam {
-				onToPrint = "Response"
-				paramOrResponse = "Response"
+			msg, err := client.Recv()
+			if err != nil {
+				color.Red(err.Error())
+				return
 			}
+			paramOrResponse := "Param"
+			onToPrint := "Call"
 			color.Red("========== On %s ==========\n", onToPrint)
-			color.Red("%s.%s()", msg.ImplementationName, msg.MethodName)
+			color.Red("%s.%s()", msg.Sdid, msg.MethodName)
 			for index, p := range msg.GetParams() {
+				color.Cyan("%s %d: %s", paramOrResponse, index+1, p)
+			}
+
+			onToPrint = "Response"
+			paramOrResponse = "Response"
+			color.Red("========== On %s ==========\n", onToPrint)
+			color.Red("%s.%s()", msg.Sdid, msg.MethodName)
+			for index, p := range msg.GetReturnValues() {
 				color.Cyan("%s %d: %s", paramOrResponse, index+1, p)
 			}
 		}
@@ -58,4 +64,6 @@ var watch = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(watch)
+	watch.Flags().IntVarP(&debugPort, "port", "p", 1999, "debug port")
+	watch.Flags().StringVar(&debugHost, "host", "127.0.0.1", "debug host")
 }

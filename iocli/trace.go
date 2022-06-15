@@ -18,41 +18,37 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
-	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
 )
 
-// watchEdit todo
-var watchEdit = &cobra.Command{
-	Use: "watchEdit",
+var trace = &cobra.Command{
+	Use: "trace",
 	Run: func(cmd *cobra.Command, args []string) {
-		debugServiceClient := getDebugServiceClent(defaultDebugAddr)
-		watchEditClient, err := debugServiceClient.WatchEdit(context.Background())
+		debugServiceClient := getDebugServiceClent(fmt.Sprintf("%s:%d", debugHost, debugPort))
+		client, err := debugServiceClient.Trace(context.Background(), &debug.TraceRequest{
+			Sdid:   args[0],
+			Method: args[1],
+		})
 		if err != nil {
 			panic(err)
 		}
-		if err := watchEditClient.Send(&boot.WatchEditRequest{
-			InterfaceName:      args[0],
-			ImplementationName: args[1],
-			Method:             args[2],
-			IsEdit:             false,
-		}); err != nil {
-			panic(err)
-		}
 		for {
-			rsp, err := watchEditClient.Recv()
+			msg, err := client.Recv()
 			if err != nil {
-				log.Printf("recv error = %s\n", err)
+				color.Red(err.Error())
 				return
 			}
-			fmt.Println(rsp.Params)
+			color.Blue("Tracing data is sending to %s", msg.CollectorAddress)
 		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(watchEdit)
+	rootCmd.AddCommand(trace)
+	trace.Flags().IntVarP(&debugPort, "port", "p", 1999, "debug port")
+	trace.Flags().StringVar(&debugHost, "host", "127.0.0.1", "debug host")
 }

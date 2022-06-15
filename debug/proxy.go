@@ -82,8 +82,8 @@ func makeProxyFunction(rf reflect.Value, tempInterfaceId, methodName string, isV
 	rawFunction := rf
 	return func(in []reflect.Value) []reflect.Value {
 		// interceptor
-		for _, i := range paramInterceptors {
-			in = i.Invoke(tempInterfaceId, methodName, true, in)
+		for _, i := range interceptors {
+			in = i.BeforeInvoke(tempInterfaceId, methodName, in)
 		}
 
 		if isVariadic {
@@ -95,8 +95,8 @@ func makeProxyFunction(rf reflect.Value, tempInterfaceId, methodName string, isV
 		}
 
 		out := rawFunction.Call(in)
-		for _, i := range responseInterceptors {
-			out = i.Invoke(tempInterfaceId, methodName, false, out)
+		for _, i := range interceptors {
+			out = i.AfterInvoke(tempInterfaceId, methodName, out)
 		}
 		return out
 	}

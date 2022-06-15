@@ -13,8 +13,18 @@
  * limitations under the License.
  */
 
-package debug
+package common
 
 type Config struct {
-	Port string `yaml:"port"`
+	Port               string             `yaml:"port"`
+	AppName            string             `yaml:"app-name"`
+	InterceptorsConfig InterceptorsConfig `yaml:"interceptors"`
+}
+
+type InterceptorsConfig struct {
+	Trace Trace `yaml:"trace"`
+}
+
+type Trace struct {
+	CollectorAddress string `yaml:"collector-address"`
 }

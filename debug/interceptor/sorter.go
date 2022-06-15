@@ -15,11 +15,9 @@
 
 package interceptor
 
-import (
-	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/boot"
-)
+import "github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
 
-type MetadataSorter []*boot.ServiceMetadata
+type MetadataSorter []*debug.ServiceMetadata
 
 func (m MetadataSorter) Len() int {
 	return len(m)

@@ -19,6 +19,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/fatih/color"
+
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -26,10 +28,11 @@ import (
 var list = &cobra.Command{
 	Use: "list",
 	Run: func(cmd *cobra.Command, args []string) {
-		debugServiceClient := getDebugServiceClent(defaultDebugAddr)
+		debugServiceClient := getDebugServiceClent(fmt.Sprintf("%s:%d", debugHost, debugPort))
 		rsp, err := debugServiceClient.ListServices(context.Background(), &emptypb.Empty{})
 		if err != nil {
-			panic(err)
+			color.Red(err.Error())
+			return
 		}
 		for _, v := range rsp.ServiceMetadata {
 			fmt.Println(v.ImplementationName)
@@ -41,4 +44,6 @@ var list = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(list)
+	list.Flags().IntVarP(&debugPort, "port", "p", 1999, "debug port")
+	list.Flags().StringVar(&debugHost, "host", "127.0.0.1", "debug host")
 }

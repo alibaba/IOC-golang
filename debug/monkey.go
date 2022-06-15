@@ -76,8 +76,8 @@ func makeCallProxy(tempInterfaceId, methodName string, isVariadic bool) func(in 
 			debugMetadata[tempInterfaceId].MethodMetadata[methodName].Lock.Unlock()
 		}()
 		// interceptor
-		for _, i := range paramInterceptors {
-			in = i.Invoke(tempInterfaceId, methodName, true, in[1:])
+		for _, i := range interceptors {
+			in = i.BeforeInvoke(tempInterfaceId, methodName, in[1:])
 		}
 
 		if isVariadic {
@@ -89,8 +89,8 @@ func makeCallProxy(tempInterfaceId, methodName string, isVariadic bool) func(in 
 		}
 
 		out := in[0].MethodByName(methodName).Call(in[1:])
-		for _, i := range responseInterceptors {
-			out = i.Invoke(tempInterfaceId, methodName, false, out)
+		for _, i := range interceptors {
+			out = i.AfterInvoke(tempInterfaceId, methodName, out)
 		}
 		return out
 	}

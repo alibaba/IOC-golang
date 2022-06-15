@@ -9,6 +9,13 @@ import (
 	"net/http"
 	"time"
 
+	tracer2 "github.com/alibaba/ioc-golang/debug/interceptor/trace"
+
+	"github.com/opentracing/opentracing-go"
+
+	"github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/alibaba/ioc-golang/debug/interceptor/trace"
+
 	"github.com/fatih/color"
 
 	"dubbo.apache.org/dubbo-go/v3/common/constant"
@@ -49,6 +56,14 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 	if err != nil {
 		return nil
 	}
+
+	// inject tracing context if necessary
+	if currentSpan := tracer2.GetTraceInterceptor().GetCurrentSpan(); currentSpan != nil {
+		// current rpc invocation is in tracing link
+		carrier := opentracing.HTTPHeadersCarrier(req.Header)
+		_ = trace.GetGlobalTracer().Inject(currentSpan.Context(), opentracing.HTTPHeaders, carrier)
+	}
+
 	rsp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		color.Red("[IOC Protocol] Invoke %s with error = %s", invokeURL, err)
@@ -109,6 +124,18 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 			arguments, err := ParseArgs(argsType, reqData)
 			if err != nil {
 				return err
+			}
+
+			carrier := opentracing.HTTPHeadersCarrier(controller.R.Header)
+			clientContext, err := trace.GetGlobalTracer().Extract(opentracing.HTTPHeaders, carrier)
+			if err == nil {
+				traceCtx := &trace.Context{
+					SDID:              util.ToRPCServiceSDID(clientStubFullName),
+					MethodName:        tempMethod,
+					ClientSpanContext: clientContext,
+				}
+				trace.GetTraceInterceptor().TraceThisGR(traceCtx)
+				defer trace.GetTraceInterceptor().UnTrace(traceCtx)
 			}
 			controller.Rsp = invoker.Invoke(context.Background(),
 				invocation.NewRPCInvocation(tempMethod, arguments, nil)).Result()

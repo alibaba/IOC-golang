@@ -15,15 +15,15 @@ syntax = "proto3";
  * limitations under the License.
  */
 
-package ioc_golang.boot;
+package ioc_golang.debug;
 
 import "google/protobuf/empty.proto";
-option go_package = "ioc_golang/boot";
+option go_package = "ioc_golang/debug";
 
 service DebugService {
   rpc Watch (WatchRequest) returns (stream WatchResponse) {}
+  rpc Trace (TraceRequest) returns (stream TraceResponse) {}
   rpc ListServices (google.protobuf.Empty) returns (ListServiceResponse) {}
-  rpc WatchEdit (stream WatchEditRequest) returns (stream WatchResponse) {}
 }
 
 message ListServiceResponse{
@@ -36,30 +36,19 @@ message ServiceMetadata{
   repeated string methods = 3;
 }
 
-message WatchEditRequest{
-  string interfaceName = 1;
-  string implementationName = 2;
-  string method = 3;
-  bool isParam = 4;
-  bool isEdit = 5;
-  repeated Matcher matchers = 7;
-  repeated EditRequest editRequests = 8;
-}
 
 message WatchRequest{
-  string interfaceName = 1;
-  string implementationName = 2;
-  string method = 3;
-  bool input = 4;
-  bool output = 5;
-  repeated Matcher matchers = 6;
+  string sdid = 1;
+  string method = 2;
+  repeated Matcher matchers = 3;
 }
 
-message EditRequest{
-  int64 index = 1;
-  string path = 2;
-  string value = 3;
+message TraceRequest{
+  string sdid = 1;
+  string method = 2;
+  repeated Matcher matchers = 3;
 }
+
 
 message Matcher{
   int64 index = 1;
@@ -68,9 +57,24 @@ message Matcher{
 }
 
 message WatchResponse{
-  string interfaceName = 1;
-  string implementationName = 2;
-  string methodName = 3;
-  bool isParam = 4;
-  repeated string params = 5;
+  string sdid = 1;
+  string methodName = 2;
+  repeated string params = 3;
+  repeated string returnValues = 4;
+}
+
+message TraceResponse{
+  string collectorAddress = 1;
+}
+
+// todo return who span links, now it's usless
+message Span{
+  string sdid = 1;
+  string methodName = 2;
+  repeated string params = 3;
+  repeated string returnValues = 4;
+  int64 startTime = 7;
+  int64 endTime = 8;
+  repeated Span childSpans = 9;
+  Span parentSpan = 10;
 }

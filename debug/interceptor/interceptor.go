@@ -20,5 +20,6 @@ import (
 )
 
 type Interceptor interface {
-	Invoke(interfaceImplId, methodName string, isParam bool, value []reflect.Value) []reflect.Value
+	BeforeInvoke(interfaceImplId, methodName string, value []reflect.Value) []reflect.Value
+	AfterInvoke(interfaceImplId, methodName string, value []reflect.Value) []reflect.Value
 }
