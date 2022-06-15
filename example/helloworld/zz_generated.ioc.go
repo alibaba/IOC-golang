@@ -64,19 +64,19 @@ func (a *app_) Run() {
 }
 
 type serviceImpl1_ struct {
-	Hello_ func()
+	GetHelloString_ func(name string) string
 }
 
-func (s *serviceImpl1_) Hello() {
-	s.Hello_()
+func (s *serviceImpl1_) GetHelloString(name string) string {
+	return s.GetHelloString_(name)
 }
 
 type serviceImpl2_ struct {
-	Hello_ func()
+	GetHelloString_ func(name string) string
 }
 
-func (s *serviceImpl2_) Hello() {
-	s.Hello_()
+func (s *serviceImpl2_) GetHelloString(name string) string {
+	return s.GetHelloString_(name)
 }
 
 type serviceStruct_ struct {
@@ -91,10 +91,10 @@ type AppIOCInterface interface {
 	Run()
 }
 type ServiceImpl1IOCInterface interface {
-	Hello()
+	GetHelloString(name string) string
 }
 type ServiceImpl2IOCInterface interface {
-	Hello()
+	GetHelloString(name string) string
 }
 type ServiceStructIOCInterface interface {
 	GetString(name string) string

@@ -10,9 +10,9 @@ ioc-golang 框架提供了注入数据库连接的能力，开发者可以在配
 
 ### 注入模型与结构
 
-[多例（normal）依赖注入模型](https://github.com/alibaba/IOC-Golang/tree/master/extension/normal)
+[多例（normal）依赖注入模型](https://github.com/alibaba/IOC-golang/tree/master/extension/normal)
 
-[预定义的 mysql 结构](https://github.com/alibaba/IOC-Golang/tree/master/extension/normal/mysql)
+[预定义的 mysql 结构](https://github.com/alibaba/IOC-golang/tree/master/extension/normal/mysql)
 
 ### 关键代码
 

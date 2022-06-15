@@ -220,7 +220,6 @@ func TestRPCWithConnectionTimeoutError(t *testing.T) {
 	_, err = complexClient.(api.ComplexServiceIOCRPCClient).RPCWithoutParam()
 	duration := time.Since(timeStart)
 	assert.NotNil(t, err)
-	assert.True(t, err.Error() == `Post "http://1.1.1.1:8080/github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.ComplexServiceIOCRPCClient/RPCWithoutParam": context deadline exceeded`)
 	assert.True(t, duration < time.Second*4 && duration > time.Second*2)
 
 	// test timeout param is working
@@ -231,6 +230,5 @@ func TestRPCWithConnectionTimeoutError(t *testing.T) {
 	_, err = complexClient2.(api.ComplexServiceIOCRPCClient).RPCWithoutParam()
 	duration = time.Since(timeStart)
 	assert.NotNil(t, err)
-	assert.True(t, err.Error() == `Post "http://1.1.1.1:8080/github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.ComplexServiceIOCRPCClient/RPCWithoutParam": context deadline exceeded`)
 	assert.True(t, duration < time.Second*2)
 }

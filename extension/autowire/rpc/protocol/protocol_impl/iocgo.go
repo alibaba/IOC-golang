@@ -92,7 +92,9 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 		}
 	}
 	if err != nil {
-		panic(err)
+		return &dubboProtocol.RPCResult{
+			Err: err,
+		}
 	}
 	if finalErrorNotNil {
 		realErr := fmt.Errorf((*replyList)[len(*replyList)-1].(string))

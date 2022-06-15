@@ -20,7 +20,7 @@
 
 ### 依赖注入模型
 
-[grpc 依赖注入模型](https://github.com/alibaba/IOC-Golang/tree/master/extension/grpc)
+[grpc 依赖注入模型](https://github.com/alibaba/IOC-golang/tree/master/extension/grpc)
 
 ### 关键代码
 

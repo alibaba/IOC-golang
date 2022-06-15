@@ -102,9 +102,9 @@ func init() {
 
 var genCMD = &cobra.Command{
 	Use:   "gen",
-	Short: "Generate IOC-Golang register codes.",
-	Long:  "Generate IOC-Golang register codes.",
-	Example: `Generate IOC-Golang register codes.,
+	Short: "Generate IOC-golang register codes.",
+	Long:  "Generate IOC-golang register codes.",
+	Example: `Generate IOC-golang register codes.,
 
 	# Run all the generators for a given project
 	iocli gen 
