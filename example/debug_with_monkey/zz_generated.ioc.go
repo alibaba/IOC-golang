@@ -43,16 +43,6 @@ func init() {
 			return &ServiceImpl2{}
 		},
 	})
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &serviceStruct_{}
-		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &ServiceStruct{}
-		},
-	})
 }
 
 type app_ struct {
@@ -79,14 +69,6 @@ func (s *serviceImpl2_) GetHelloString(name string) string {
 	return s.GetHelloString_(name)
 }
 
-type serviceStruct_ struct {
-	GetString_ func(name string) string
-}
-
-func (s *serviceStruct_) GetString(name string) string {
-	return s.GetString_(name)
-}
-
 type AppIOCInterface interface {
 	Run()
 }
@@ -95,9 +77,6 @@ type ServiceImpl1IOCInterface interface {
 }
 type ServiceImpl2IOCInterface interface {
 	GetHelloString(name string) string
-}
-type ServiceStructIOCInterface interface {
-	GetString(name string) string
 }
 
 func GetApp() (*App, error) {
@@ -146,21 +125,5 @@ func GetServiceImpl2IOCInterface() (ServiceImpl2IOCInterface, error) {
 		return nil, err
 	}
 	impl := i.(ServiceImpl2IOCInterface)
-	return impl, nil
-}
-func GetServiceStruct() (*ServiceStruct, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ServiceStruct)), nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(*ServiceStruct)
-	return impl, nil
-}
-func GetServiceStructIOCInterface() (ServiceStructIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(ServiceStruct)), nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(ServiceStructIOCInterface)
 	return impl, nil
 }

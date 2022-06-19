@@ -1,3 +1,5 @@
+//go:build !iocMonkeydebug
+
 /*
  * Copyright (c) 2022, Alibaba Group;
  * Licensed under the Apache License, Version 2.0 (the "License");

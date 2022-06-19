@@ -1,4 +1,4 @@
-//go:build iocdebug
+//go:build iocMonkeydebug
 
 /*
  * Copyright (c) 2022, Alibaba Group;
@@ -77,7 +77,14 @@ func makeCallProxy(tempInterfaceId, methodName string, isVariadic bool) func(in 
 		}()
 		// interceptor
 		for _, i := range interceptors {
-			in = i.BeforeInvoke(tempInterfaceId, methodName, in[1:])
+			if len(in) > 1 {
+				params := i.BeforeInvoke(tempInterfaceId, methodName, in[1:])
+				for idx, p := range params {
+					in[idx+1] = p
+				}
+			} else {
+				i.BeforeInvoke(tempInterfaceId, methodName, []reflect.Value{})
+			}
 		}
 
 		if isVariadic {
@@ -88,7 +95,13 @@ func makeCallProxy(tempInterfaceId, methodName string, isVariadic bool) func(in 
 			}
 		}
 
-		out := in[0].MethodByName(methodName).Call(in[1:])
+		out := make([]reflect.Value, 0)
+		if len(in) > 1 {
+			out = in[0].MethodByName(methodName).Call(in[1:])
+		} else {
+			out = in[0].MethodByName(methodName).Call([]reflect.Value{})
+		}
+
 		for _, i := range interceptors {
 			out = i.AfterInvoke(tempInterfaceId, methodName, out)
 		}
