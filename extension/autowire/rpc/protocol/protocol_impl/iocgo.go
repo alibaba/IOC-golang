@@ -54,7 +54,9 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 	defer cancel()
 	req, err := http.NewRequestWithContext(requestCtx, http.MethodPost, invokeURL, bytes.NewBuffer(data))
 	if err != nil {
-		return nil
+		return &dubboProtocol.RPCResult{
+			Err: err,
+		}
 	}
 
 	// inject tracing context if necessary
@@ -83,13 +85,17 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 	}
 	err = json.Unmarshal(rspData, replyList)
 	if err != nil && finalIsError {
-		// try to recover unmarshal failed caused by error not empty, first try to unmarshal to string
+		// error message must be returned
+		finalErrorNotNil = true
+
+		// calculate error message detail, try to recover unmarshal failed caused by error not empty, first try to unmarshal to string
 		(*replyList)[len(*replyList)-1] = ""
 		err = json.Unmarshal(rspData, replyList)
-		if err == nil {
-			// previous unmarshal failed is caused by error not empty, mark final error not nil
-			finalErrorNotNil = true
+		if err != nil {
+			// error is not nil, means previous unmarshal failed because of invalid response, write error message
+			(*replyList)[len(*replyList)-1] = fmt.Sprintf("[IOC Protocol] Unmarshal response from %s with error %s, response data details is %s", invokeURL, err, string(rspData))
 		}
+		// error is nil means final return value error is returned from server side, and the response is valid
 	}
 	if err != nil {
 		return &dubboProtocol.RPCResult{
