@@ -2,206 +2,121 @@
 
 ### 简介
 
-本示例展示了 ioc-golang 框架提供的代码调试能力
+本示例展示了 ioc-golang 框架提供的代码调试能力。代码调试能力以及其他运维能力，都是基于代理层实现的。
 
-调试能力对于程序性能有损耗，请您不要在追求性能的场景下开启调试能力。 debug 模式下，框架基于 AOP 的思路，为每个注册在框架的结构方法都封装了一组拦截器。基于这些拦截器，可以实现具有扩展能力的调试功能。
+所有在调用中流量经过代理层的结构，都具备调试能力，我们可以通过 iocli 工具，动态监听所有包含代理层的接口、方法、以及实时的参数/返回值内容。
 
-调试能力包括：
+### 专属接口
 
-- 基于 ioc-debug 协议，暴露调试端口
-- 查看所有接口、实现、方法列表
-- 监听、修改任意方法的入参和返回值
-- 性能瓶颈分析【开发中】
-- 可观测性【开发中】
+iocli 会为任何期望注册在框架的结构，生成专属接口，在本例子中，在 zz_generated.ioc.go 为 ServiceImpl1 生成了ServiceImpl1IOCInterface 接口，该接口会包含 ServiceImpl1 结构的全部方法。为 ServiceImpl2 结构也生成了 ServiceImpl2IOCInterface 专属接口。
 
-### 示例介绍
+专属接口的命名规则为 $(结构名)IOCInterface
 
-本示例实现了以下拓扑
+### 为注入结构封装代理层
 
-![debug](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/img/debug-topology.png)
+任何被注入到接口的字段，都会被框架自动封装代理 AOP 层，即注入到接口的结构体指针，并非真实结构体指针，而是封装了结构体的代理指针。例如：
 
-在这个例子中，App 结构会依此调用所有依赖对象，进而调用一个单例模型注入的 gRPC 客户端，该客户端发起网络请求，并获得结果。
+```go
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
 
-我们将开启 debug 模式，通过 iocli 工具查看接口、实现、方法，并监听通过 gRPC Client 发送的所有请求和返回值。 
+type App struct {
+	ServiceImpl2 Service `singleton:"main.ServiceImpl2"`
+  
+	Service1OwnInterface ServiceImpl1IOCInterface `singleton:""`
+}
+```
 
-### 运行示例
+例子中的 App.ServiceImpl2 字段，标签中指定的注入结构是 main.ServiceImpl2 是期望将 main.ServiceImpl2 结构体注入至 Service 接口，这个过程被框架注入的接口即包含代理层。
 
-1. 启动 grpc Server
+例子中的 ServiceImpl1IOCInterface 字段，是期望注入 ServiceImpl1 结构至它的专属接口，专属接口的注入就不需要在标签中指定结构体ID了。只需要填写空 `singleton:""` 即可。
 
-   ```bash
-   % cd example/denbug/grpc_server
-   % go run .
-   ```
+### 通过 API 获取代理接口
 
-2. 新开一个终端，启动客户端。
+就像通过 API 的方式获取结构体指针一样，也可以通过 API 的形式获得封装了代理层的接口。如例子中的：
 
-   ```go
-   % cd example/debug/cmd
-   % GOARCH=amd64 go run -gcflags="-N -l" -tags iocdebug .
-   ```
+```go
+// app, err := GetApp() 获取真实结构体指针
+app, err := GetAppIOCInterface()
+if err != nil {
+  panic(err)
+}
+```
 
-   **GOARCH=amd64：amd64 架构下无需指定 GOARCH 环境变量, arm64 架构需要指定为amd64**
+我们可以调用 iocli 为结构生成的 Get 方法：GetAppIOCInterface，来获取封装了代理层的对象。
 
-   **-gcflags="-N -l"： 注意要包含  -gcflags 编译参数**
-
-   **-tags iocdebug：注意编译标签 -tags iocdebug 用于开启 debug 模式**
-
-   启动后，会打印`[Debug] Debug port is set to default :1999 `  日志，表明 debug 模式启动成功。
+### 运行例子：
 
 ```bash
-% cd example/debug/cmd
-% GOARCH=amd64 go run -gcflags="-N -l" -tags iocdebug .
-  ___    ___     ____            ____           _                         
- |_ _|  / _ \   / ___|          / ___|   ___   | |   __ _   _ __     __ _ 
-  | |  | | | | | |      _____  | |  _   / _ \  | |  / _` | | '_ \   / _` |
-  | |  | |_| | | |___  |_____| | |_| | | (_) | | | | (_| | | | | | | (_| |
- |___|  \___/   \____|          \____|  \___/  |_|  \__,_| |_| |_|  \__, |
-                                                                    |___/ 
+% sudo iocli gen
+% go run .
+  ___    ___     ____                           _                         
+ |_ _|  / _ \   / ___|           __ _    ___   | |   __ _   _ __     __ _ 
+  | |  | | | | | |      _____   / _` |  / _ \  | |  / _` | | '_ \   / _` |
+  | |  | |_| | | |___  |_____| | (_| | | (_) | | | | (_| | | | | | | (_| |
+ |___|  \___/   \____|          \__, |  \___/  |_|  \__,_| |_| |_|  \__, |
+                                |___/                               |___/ 
 Welcome to use ioc-golang!
 [Boot] Start to load ioc-golang config
 [Config] Load default config file from ../conf/ioc_golang.yaml
-[Config] merge config map, depth: [0]
+[Config] Load ioc-golang config file failed. open /Users/laurence/Desktop/workplace/alibaba/IOC-Golang/example/conf/ioc_golang.yaml: no such file or directory
+ The load procedure is continue
 [Boot] Start to load debug
 [Debug] Debug port is set to default :1999
 [Boot] Start to load autowire
+[Autowire Type] Found registered autowire type normal
+[Autowire Struct Descriptor] Found type normal registered SD main.app_
+[Autowire Struct Descriptor] Found type normal registered SD main.serviceImpl1_
+[Autowire Struct Descriptor] Found type normal registered SD main.serviceImpl2_
 [Autowire Type] Found registered autowire type singleton
-[Autowire Struct Descriptor] Found type singleton registered SD github.com/alibaba/ioc-golang/example/debug/cmd/service2.Impl2
-[Autowire Struct Descriptor] Found type singleton registered SD github.com/alibaba/ioc-golang/example/debug/cmd/struct1.Struct1
 [Autowire Struct Descriptor] Found type singleton registered SD main.App
-[Autowire Struct Descriptor] Found type singleton registered SD github.com/alibaba/ioc-golang/example/debug/cmd/service1.Impl1
-[Autowire Struct Descriptor] Found type singleton registered SD github.com/alibaba/ioc-golang/example/debug/cmd/service2.Impl1
-[Autowire Type] Found registered autowire type grpc
-[Autowire Struct Descriptor] Found type grpc registered SD github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl1
+[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl2
 [Debug] Debug server listening at :1999
-create conn target  localhost:8080
-App call grpc get: Hello laurence
-ExampleService1Impl1 call grpc get :Hello laurence_service1_impl1
-ExampleService2Impl1 call grpc get :Hello laurence_service2_impl1
-ExampleService2Impl2 call grpc get :Hello laurence_service2_impl2
-ExampleStruct1 call grpc get :Hello laurence_service1_impl1
+This is ServiceImpl1, hello laurence
+This is ServiceImpl2, hello laurence
+This is ServiceImpl1, hello laurence
+This is ServiceImpl2, hello laurence
+...
+```
+
+可看到每隔三秒钟，ServiceImpl1 和 ServiceImpl2 的方法就会被调用。下面我们新启动一个终端，使用 iocli 工具调试这个程序: 
+
+查看所有接口和方法：
+
+```bash
+% iocli list
+main.App
+[Run]
+
+main.ServiceImpl1
+[GetHelloString]
+
+main.ServiceImpl2
+[GetHelloString]
 
 ```
 
-   每隔 5s，所有的对象都会发起一次 gRPC 请求。
+监听接口参数和返回值：
 
-3. 新开一个终端，查看所有接口、实现和方法。
+```bash
+% iocli watch main.ServiceImpl1 GetHelloString
+========== On Call ==========
+main.ServiceImpl1.GetHelloString()
+Param 1: (string) (len=8) "laurence"
 
-   ```bash
-   github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient
-   [SayHello]
-   
-   github.com/alibaba/ioc-golang/example/debug/cmd/service1.Impl1
-   [Hello]
-   
-   github.com/alibaba/ioc-golang/example/debug/cmd/service2.Impl1
-   [Hello]
-   
-   github.com/alibaba/ioc-golang/example/debug/cmd/service2.Impl2
-   [Hello]
-   
-   github.com/alibaba/ioc-golang/example/debug/cmd/struct1.Struct1
-   [Hello]
-   
-   main.App
-   [Run]
+========== On Response ==========
+main.ServiceImpl1.GetHelloString()
+Response 1: (string) (len=36) "This is ServiceImpl1, hello laurence"
 
-   ```
+========== On Call ==========
+main.ServiceImpl1.GetHelloString()
+Param 1: (string) (len=8) "laurence"
 
-4. 监听 gRPC Client 的所有流量，每隔 5s 会打印出相关的请求、返回值信息。
+========== On Response ==========
+main.ServiceImpl1.GetHelloString()
+Response 1: (string) (len=36) "This is ServiceImpl1, hello laurence"
+...
+```
 
-   ```bash
-   % iocli watch github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient  SayHello
-   
-   ========== On Call ==========
-   github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient.SayHello()
-   Param 1: (*context.emptyCtx)(0xc0000280e0)(context.Background)
-   
-   Param 2: (*api.HelloRequest)(0xc000260280)(name:"laurence")
-   
-   Param 3: ([]grpc.CallOption) (len=2 cap=2) {
-   (grpc.MaxRecvMsgSizeCallOption) {
-   MaxRecvMsgSize: (int) 1024
-   },
-   (grpc.MaxRecvMsgSizeCallOption) {
-   MaxRecvMsgSize: (int) 1024
-   }
-   }
-   
-   
-   ========== On Response ==========
-   github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient.SayHello()
-   Response 1: (*api.HelloResponse)(0xc000260380)(reply:"Hello laurence")
-   
-   Response 2: (interface {}) <nil>
-   
-   
-   ========== On Call ==========
-   github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient.SayHello()
-   Param 1: (*context.emptyCtx)(0xc0000280e0)(context.Background)
-   
-   Param 2: (*api.HelloRequest)(0xc0003988c0)(name:"laurence_service1_impl1")
-   
-   Param 3: ([]grpc.CallOption) <nil>
-   
-   
-   ========== On Response ==========
-   github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient.SayHello()
-   Response 1: (*api.HelloResponse)(0xc000398980)(reply:"Hello laurence_service1_impl1")
-   
-   Response 2: (interface {}) <nil>
-   
-   
-   ========== On Call ==========
-   github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient.SayHello()
-   Param 1: (*context.emptyCtx)(0xc0000280e0)(context.Background)
-   
-   Param 2: (*api.HelloRequest)(0xc000260480)(name:"laurence_service2_impl1")
-   
-   Param 3: ([]grpc.CallOption) <nil>
-   
-   
-   ========== On Response ==========
-   github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient.SayHello()
-   Response 1: (*api.HelloResponse)(0xc000260540)(reply:"Hello laurence_service2_impl1")
-   
-   Response 2: (interface {}) <nil>
-   
-   
-   ========== On Call ==========
-   github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient.SayHello()
-   Param 1: (*context.emptyCtx)(0xc0000280e0)(context.Background)
-   
-   Param 2: (*api.HelloRequest)(0xc00041c200)(name:"laurence_service2_impl2")
-   
-   Param 3: ([]grpc.CallOption) <nil>
-   
-   
-   ========== On Response ==========
-   github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient.SayHello()
-   Response 1: (*api.HelloResponse)(0xc00041c2c0)(reply:"Hello laurence_service2_impl2")
-   
-   Response 2: (interface {}) <nil>
-   
-   
-   ========== On Call ==========
-   github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient.SayHello()
-   Param 1: (*context.emptyCtx)(0xc0000280e0)(context.Background)
-   
-   Param 2: (*api.HelloRequest)(0xc000260700)(name:"laurence_service1_impl1")
-   
-   Param 3: ([]grpc.CallOption) <nil>
-   
-   
-   ========== On Response ==========
-   github.com/alibaba/ioc-golang/example/debug/api.HelloServiceClient.SayHello()
-   Response 1: (*api.HelloResponse)(0xc0002607c0)(reply:"Hello laurence_service1_impl1")
-   
-   Response 2: (interface {}) <nil>
-   ...
-   ```
-
-### 小结
-
-通过 Debug 能力，开发人员可以在测试环境内动态地监控流量，帮助排查问题。
-
-也可以基于 ioc-golang 提供的拦截器层，注册任何自己期望的流量拦截器，扩展调试、可观测、运维能力。
+可看到每隔三秒钟，就会监听到方法调用的参数和返回值。

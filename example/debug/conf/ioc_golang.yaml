@@ -1,4 +1,0 @@
-autowire:
-  grpc:
-    hello-service:
-      address: localhost:8080
