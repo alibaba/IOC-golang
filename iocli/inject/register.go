@@ -311,6 +311,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			impl := i.(*%s)
 			return impl, nil
 		}`, g.structName, g.paramTypeName, g.structName, g.autowireTypeAlias, utilAlias, g.structName, g.structName)
+			c.Line("")
 
 			c.Linef(`func Get%sIOCInterface(p *%s)(%sIOCInterface, error){
 				i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)), p)
@@ -320,6 +321,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 				impl := i.(%sIOCInterface)
 				return impl, nil
 			}`, g.structName, g.paramTypeName, g.structName, g.autowireTypeAlias, utilAlias, g.structName, g.structName)
+			c.Line("")
 		} else {
 			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
 
@@ -335,6 +337,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			impl := i.(*%s)
 			return impl, nil
 			}`, g.structName)
+			c.Line("")
 
 			c.Linef(`func Get%sIOCInterface()(%sIOCInterface, error){`, g.structName, g.structName)
 			if g.autowireType == "rpc" {
@@ -348,6 +351,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			impl := i.(%sIOCInterface)
 			return impl, nil
 			}`, g.structName)
+			c.Line("")
 		}
 	}
 
@@ -364,31 +368,6 @@ func firstCharLower(s string) string {
 		return strings.ToLower(string(s[0])) + s[1:]
 	}
 	return s
-}
-
-func parseInterfacePackage(serviceFullName string) string {
-	servicePackage := serviceFullName[:strings.LastIndex(serviceFullName, Dot)]
-
-	return servicePackage
-}
-
-func parseInterfaceName(serviceFullName string) string {
-	serviceName := serviceFullName[strings.LastIndex(serviceFullName, Dot)+1:]
-
-	return serviceName
-}
-
-func parseInterfacePackageAlias(c *copyMethodMaker, otherPackage string) string {
-	packageAlias := c.NeedImport(otherPackage)
-
-	return packageAlias
-}
-
-func isEligibleInterfaceReferencePath(interfaceReferencePath string) bool {
-	return strings.Contains(interfaceReferencePath, PackagePathSeparator) &&
-		strings.LastIndex(interfaceReferencePath, Dot) > 0 &&
-		strings.LastIndex(interfaceReferencePath, Dot) < len(interfaceReferencePath)-1 &&
-		(strings.LastIndex(interfaceReferencePath, PackagePathSeparator) < strings.LastIndex(interfaceReferencePath, Dot))
 }
 
 type getMethodGenerateCtx struct {
@@ -432,6 +411,7 @@ func genProxyStruct(proxySuffix string, c *copyMethodMaker, needProxyStructInfos
 			c.Linef("%s_ func%s", methods[idx].name, methods[idx].body)
 		}
 		c.Line("}")
+		c.Line("")
 
 		for _, m := range methods {
 			charDescriber := string(strings.ToLower(info.Name)[0])
@@ -442,6 +422,7 @@ func genProxyStruct(proxySuffix string, c *copyMethodMaker, needProxyStructInfos
 				c.Linef(`%s.%s_(%s)`, charDescriber, m.name, m.GetParamValues())
 			}
 			c.Linef(`}`)
+			c.Line("")
 		}
 	}
 	c.Linef("")
@@ -477,6 +458,7 @@ func genInterface(interfaceSuffix string, c *copyMethodMaker, needInterfaceStruc
 			c.Linef("%s %s", methods[idx].name, methods[idx].body)
 		}
 		c.Line("}")
+		c.Line("")
 	}
 	c.Linef("")
 }
