@@ -2,9 +2,9 @@ package app
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire/singleton"
 	conf "github.com/alibaba/ioc-golang/config"
 	"github.com/alibaba/ioc-golang/extension/config"
 )
@@ -13,12 +13,48 @@ import (
 // +ioc:autowire:type=singleton
 
 type App struct {
-	Name *config.ConfigString  `config:",autowire.singleton.<{{ .Mod.Name }}/cmd/app.App>.param.name"`
+	// inject {{ .Mod.Name }}/cmd/app.ServiceImpl1 pointer to Service interface with proxy wrapper
+	ServiceImpl1 Service `singleton:"{{ .Mod.Name }}/cmd/app.ServiceImpl1"`
+
+	// inject {{ .Mod.Name }}/cmd/app.ServiceImpl2 pointer to Service interface with proxy wrapper
+	ServiceImpl2 Service `singleton:"{{ .Mod.Name }}/cmd/app.ServiceImpl2"`
+
+	// inject ServiceImpl1 pointer to Service1 's own interface with proxy wrapper
+	// this interface belongs to ServiceImpl1, there is no need to mark '{{ .Mod.Name }}/cmd/app.ServiceImpl1' in tag
+	Service1OwnInterface ServiceImpl1IOCInterface `singleton:""`
+
+	// inject ServiceStruct struct pointer
+	ServiceStruct *ServiceStruct `singleton:""`
+
+	AliasStruct  *AliasStruct  `singleton:""`
+	AliasStruct2 *AliasStruct2 `singleton:"AliasStruct2"`
+
+	Name *config.ConfigString `config:",autowire.singleton.<{{ .Mod.Name }}/cmd/app.App>.param.name"`
 }
 
 func (a *App) Run() {
-	fmt.Println("Hello world")
+	fmt.Println("---------------------------------------------------------------- config")
 	fmt.Printf("app.name: %s \n", a.Name.Value())
+	for count := 1; ; count++ {
+		time.Sleep(time.Second * 3)
+		fmt.Printf("---------------------------------------------------------------- %d \n", count)
+
+		fmt.Println(a.ServiceImpl1.GetHelloString("laurence"))
+		fmt.Println(a.ServiceImpl2.GetHelloString("laurence"))
+
+		fmt.Println("----------------------------------------")
+
+		fmt.Println(a.Service1OwnInterface.GetHelloString("laurence"))
+
+		fmt.Println("----------------------------------------")
+
+		fmt.Println(a.ServiceStruct.GetString("laurence"))
+
+		fmt.Println("----------------------------------------")
+
+		fmt.Println(a.AliasStruct.GetString("laurence"))
+		fmt.Println(a.AliasStruct2.GetString("laurence"))
+	}
 }
 
 func Run() {
@@ -26,12 +62,10 @@ func Run() {
 		panic(err)
 	}
 
-	// We can get objects by ths id '$(PkgName).$(StructName)'
-	appInterface, err := singleton.GetImpl("{{ .Mod.Name }}/cmd/app.App", nil)
+	app, err := GetApp()
 	if err != nil {
 		panic(err)
 	}
-	app := appInterface.(*App)
 	app.Run()
 }
 
