@@ -1,6 +1,6 @@
 autowire:
   normal:
-    github.com/alibaba/ioc-golang/extension/normal/mysql.Impl:
+    github.com/alibaba/ioc-golang/extension/normal/mysql.GORMDB:
       my-mysql:
         param:
           host: "127.0.0.1"
