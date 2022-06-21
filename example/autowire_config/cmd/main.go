@@ -35,7 +35,7 @@ type App struct {
 	DemoConfigMap     *config.ConfigMap     `config:",autowire.config.demo-config.map-value"`
 	DemoConfigSlice   *config.ConfigSlice   `config:",autowire.config.demo-config.slice-value"`
 	DemoConfigInt64   *config.ConfigInt64   `config:",autowire.config.demo-config.int64-value"`
-	DemoConfigFloat64 *config.ConfigFloat64 `config:",autowire.config#demo-config#float64-value"`
+	DemoConfigFloat64 *config.ConfigFloat64 `config:",autowire.config.demo-config.float64-value"`
 }
 
 func (a *App) Run() {

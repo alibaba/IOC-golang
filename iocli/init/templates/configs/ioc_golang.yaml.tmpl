@@ -1,0 +1,5 @@
+autowire:
+  singleton:
+    {{ .Mod.Name }}/cmd/app.App:
+      param:
+       name: "{{ .Name }}"
