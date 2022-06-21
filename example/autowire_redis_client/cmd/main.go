@@ -17,7 +17,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
+	conf "github.com/alibaba/ioc-golang/config"
 	"github.com/go-redis/redis"
 
 	"github.com/alibaba/ioc-golang"
@@ -35,12 +38,17 @@ type App struct {
 	NormalDB1Redis normalRedis.RedisIOCInterface `normal:",db1-redis"`
 	NormalDB2Redis normalRedis.RedisIOCInterface `normal:",db2-redis"`
 	NormalDB3Redis normalRedis.RedisIOCInterface `normal:",address=127.0.0.1:6379&db=3"`
+	NormalDB4Redis normalRedis.RedisIOCInterface `normal:",address=${REDIS_ADDRESS_EXPAND}&db=5"`
 
 	privateClient *redis.Client
 }
 
 type Param struct {
 	RedisAddr string
+}
+
+func init() {
+	_ = os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
 }
 
 func (p *Param) Init(a *App) (*App, error) {
@@ -68,6 +76,10 @@ func (a *App) Run() {
 		panic(err)
 	}
 
+	if _, err := a.NormalDB4Redis.Set("mykey", "db5", -1).Result(); err != nil {
+		panic(err)
+	}
+
 	val1, err := a.NormalRedis.Get("mykey").Result()
 	if err != nil {
 		panic(err)
@@ -91,10 +103,19 @@ func (a *App) Run() {
 		panic(err)
 	}
 	fmt.Println("client3 get ", val4)
+
+	val5, err := a.NormalDB4Redis.Get("mykey").Result()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("client4 get ", val5)
 }
 
 func main() {
-	if err := ioc.Load(); err != nil {
+	wd, _ := os.Getwd()
+	absPathOpt := conf.WithAbsPath(filepath.Join(wd, "./example/autowire_redis_client/conf/ioc_golang.yaml"))
+
+	if err := ioc.Load(absPathOpt); err != nil {
 		panic(err)
 	}
 	app, err := GetApp(&Param{

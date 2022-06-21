@@ -17,12 +17,17 @@ package config
 
 import (
 	"os"
+	"strings"
 
 	"github.com/fatih/color"
 )
 
-const ConfigSourceKey = "_ioc_golang_config_source"
-const ConfigSourceEnvFlag = "env"
+const (
+	ConfigSourceKey     = "_ioc_golang_config_source"
+	ConfigSourceEnvFlag = "env"
+	ConfigEnvKeyPrefix  = "${"
+	ConfigEnvKeySuffix  = "}"
+)
 
 func parseConfigSource(config Config) {
 	envFlag := false
@@ -34,6 +39,11 @@ func parseConfigSource(config Config) {
 	}
 	for k, v := range config {
 		if val, ok := v.(string); ok {
+			if expandValue, expand := ExpandConfigValueIfNecessary(val); expand {
+				config[k] = expandValue
+				continue
+			}
+
 			if envFlag {
 				if envVal := os.Getenv(val); envVal != "" {
 					config[k] = envVal
@@ -45,4 +55,17 @@ func parseConfigSource(config Config) {
 			parseConfigSource(subConfig)
 		}
 	}
+}
+
+func ExpandConfigValueIfNecessary(targetValue interface{}) (interface{}, bool) {
+	if tv, ok := targetValue.(string); ok {
+		if strings.HasPrefix(tv, ConfigEnvKeyPrefix) && strings.HasSuffix(tv, ConfigEnvKeySuffix) {
+			expandValue := os.ExpandEnv(tv)
+			if expandValue != "" {
+				return expandValue, true
+			}
+		}
+	}
+
+	return targetValue, false
 }

@@ -32,12 +32,17 @@ func Test_parseConfigSource(t *testing.T) {
 	defer clearEnv()
 	assert.Nil(t, os.Setenv(EnvKeyIOCGolangConfigPath, "./test/ioc_golang-config-source-env.yaml"))
 	assert.Nil(t, os.Setenv("REDIS_ADDRESS", "localhost:16379"))
+	assert.Nil(t, os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6388"))
 
 	assert.Nil(t, Load())
 
 	t.Run("test with env source ", func(t *testing.T) {
 
 		redisConfig := &redisConfig{}
+
+		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/redis.Impl>.expand", redisConfig))
+		assert.Equal(t, "0", redisConfig.DB)
+		assert.Equal(t, "localhost:6388", redisConfig.Address)
 
 		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/redis.Impl>.param", redisConfig))
 		assert.Equal(t, "0", redisConfig.DB)

@@ -16,6 +16,7 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 	"strings"
 
@@ -30,11 +31,11 @@ const (
 	YmlExtension            = "yml"
 	YamlExtension           = "yaml"
 	DefaultSearchConfigName = "config"
-	DefaultSearchConfigType = YmlExtension // yaml
+	DefaultSearchConfigType = YmlExtension // || yaml
+	YamlConfigSeparator     = "."
+	And                     = "&"
 
 	emptySlice = 0
-
-	YamlConfigSeparator = "."
 )
 
 var (
@@ -202,10 +203,32 @@ func LoadConfigByPrefix(prefix string, configStructPtr interface{}) error {
 	realConfigProperties := make([]string, 0)
 	for _, v := range configProperties {
 		if v != "" {
+			v = expandIfNecessary(v)
 			realConfigProperties = append(realConfigProperties, v)
 		}
 	}
 	return loadProperty(realConfigProperties, 0, config, configStructPtr)
+}
+
+func expandIfNecessary(targetValue string) string {
+	// address=${REDIS_ADDRESS_EXPAND}&db=5
+	if strings.Contains(targetValue, ConfigEnvKeyPrefix) && strings.Contains(targetValue, ConfigEnvKeySuffix) {
+		kvs := strings.Split(targetValue, And)
+		kvz := make([]string, 0, len(kvs))
+		for _, kv := range kvs {
+			splitedKV := strings.Split(kv, "=")
+			if len(splitedKV) != 2 {
+				kvz = append(kvz, kv)
+				continue
+			}
+			subKey := splitedKV[0]
+			expandValue, _ := ExpandConfigValueIfNecessary(splitedKV[1])
+			kvz = append(kvz, fmt.Sprintf("%s=%s", subKey, expandValue))
+		}
+		targetValue = strings.Join(kvz, And)
+	}
+
+	return targetValue
 }
 
 // ----------------------------------------------------------------

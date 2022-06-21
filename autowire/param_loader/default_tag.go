@@ -20,6 +20,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/alibaba/ioc-golang/config"
 	"github.com/pkg/errors"
 
 	"github.com/alibaba/ioc-golang/autowire"
@@ -68,7 +69,9 @@ func (p *defaultTag) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo)
 		if len(splitedKV) != 2 {
 			return nil, errors.New("not supported")
 		}
-		kvMaps[splitedKV[0]] = splitedKV[1]
+
+		expandValue, _ := config.ExpandConfigValueIfNecessary(splitedKV[1])
+		kvMaps[splitedKV[0]] = expandValue
 	}
 	data, err := json.Marshal(kvMaps)
 	if err != nil {
