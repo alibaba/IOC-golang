@@ -272,12 +272,16 @@ func (m *method) GetImportAlias() []string {
 	if len(splitedByDot) == 1 {
 		return result
 	}
+
+	aliasMap := make(map[string]bool)
 	splitedByDotIgnoreFinal := splitedByDot[:len(splitedByDot)-1]
 
 	for _, v := range splitedByDotIgnoreFinal {
-		result = append(result, getTailLetter(v))
+		aliasMap[getTailLetter(v)] = true
 	}
-
+	for k := range aliasMap {
+		result = append(result, k)
+	}
 	return result
 }
 

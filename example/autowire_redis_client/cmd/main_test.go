@@ -25,31 +25,31 @@ import (
 )
 
 func (a *App) TestRun(t *testing.T) {
-	_, err := a.NormalRedis.Set("mykey", "db0", -1)
+	_, err := a.NormalRedis.Set("mykey", "db0", -1).Result()
 	assert.Nil(t, err)
 
-	_, err = a.NormalDB1Redis.Set("mykey", "db1", -1)
+	_, err = a.NormalDB1Redis.Set("mykey", "db1", -1).Result()
 	assert.Nil(t, err)
 
-	_, err = a.NormalDB2Redis.Set("mykey", "db2", -1)
+	_, err = a.NormalDB2Redis.Set("mykey", "db2", -1).Result()
 	assert.Nil(t, err)
 
-	_, err = a.NormalDB3Redis.Set("mykey", "db3", -1)
+	_, err = a.NormalDB3Redis.Set("mykey", "db3", -1).Result()
 	assert.Nil(t, err)
 
-	val1, err := a.NormalRedis.Get("mykey")
+	val1, err := a.NormalRedis.Get("mykey").Result()
 	assert.Nil(t, err)
 	assert.Equal(t, "db0", val1)
 
-	val2, err := a.NormalDB1Redis.Get("mykey")
+	val2, err := a.NormalDB1Redis.Get("mykey").Result()
 	assert.Nil(t, err)
 	assert.Equal(t, "db1", val2)
 
-	val3, err := a.NormalDB2Redis.Get("mykey")
+	val3, err := a.NormalDB2Redis.Get("mykey").Result()
 	assert.Nil(t, err)
 	assert.Equal(t, "db2", val3)
 
-	val4, err := a.NormalDB3Redis.Get("mykey")
+	val4, err := a.NormalDB3Redis.Get("mykey").Result()
 	assert.Nil(t, err)
 	assert.Equal(t, "db3", val4)
 }

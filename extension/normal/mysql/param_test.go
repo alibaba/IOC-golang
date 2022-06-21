@@ -17,14 +17,9 @@ package mysql
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/config"
 )
 
 func Test_getMysqlLinkStr(t *testing.T) {
@@ -37,22 +32,4 @@ func Test_getMysqlLinkStr(t *testing.T) {
 	}
 	got := getMysqlLinkStr(conf)
 	assert.Equal(t, fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", conf.Username, conf.Password, conf.Host, conf.Port, conf.DBName), got)
-}
-
-func Test_paramLoader_Load(t *testing.T) {
-	p := &paramLoader{}
-	assert.Nil(t, os.Setenv(config.EnvKeyIOCGolangConfigPath, "./test/ioc_golang.yaml"))
-	assert.Nil(t, ioc.Load())
-	got, err := p.Load(nil, &autowire.FieldInfo{
-		TagValue: "xxx,my-mysql,tableName",
-	})
-	assert.Nil(t, err)
-	config, ok := got.(*Config)
-	assert.True(t, ok)
-	assert.Equal(t, "192.168.1.1", config.Host)
-	assert.Equal(t, "1234", config.Port)
-	assert.Equal(t, "admin", config.Username)
-	assert.Equal(t, "admin", config.Password)
-	assert.Equal(t, "tableName", config.TableName)
-	assert.Equal(t, "mydb", config.DBName)
 }

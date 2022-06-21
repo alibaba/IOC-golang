@@ -27,7 +27,7 @@ import (
 // +ioc:autowire:alias=AppAlias
 
 type App struct {
-	MyDataTable normalMysql.ImplIOCInterface `normal:",my-mysql,mydata"`
+	MyDB normalMysql.GORMDBIOCInterface `normal:",my-mysql"`
 }
 
 type MyDataDO struct {
@@ -41,17 +41,17 @@ func (a *MyDataDO) TableName() string {
 
 func (a *App) Run() {
 	// create table
-	if err := a.MyDataTable.GetDB().Model(&MyDataDO{}).AutoMigrate(&MyDataDO{}); err != nil {
+	if err := a.MyDB.Model(&MyDataDO{}).AutoMigrate(&MyDataDO{}); err != nil {
 		panic(err)
 	}
 	toInsertMyData := &MyDataDO{
 		Value: "first value",
 	}
-	if err := a.MyDataTable.Insert(toInsertMyData); err != nil {
+	if err := a.MyDB.Model(&MyDataDO{}).Create(toInsertMyData).Error(); err != nil {
 		panic(err)
 	}
 	myDataDOs := make([]MyDataDO, 0)
-	if err := a.MyDataTable.SelectWhere("id = ?", &myDataDOs, 1); err != nil {
+	if err := a.MyDB.Model(&MyDataDO{}).Where("id = ?", 1).Find(&myDataDOs).Error(); err != nil {
 		panic(err)
 	}
 	fmt.Println(myDataDOs)

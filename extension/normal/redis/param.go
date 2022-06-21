@@ -27,7 +27,7 @@ type Config struct {
 	DB       string
 }
 
-func (c *Config) New(impl *Impl) (*Impl, error) {
+func (c *Config) New(impl *Redis) (*Redis, error) {
 	dbInt, err := strconv.Atoi(c.DB)
 	if err != nil {
 		return impl, err
