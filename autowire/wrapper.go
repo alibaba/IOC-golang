@@ -82,11 +82,9 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}, with
 	}
 
 	// 4. try to wrap proxy
-	if proxyFunction := GetProxyFunction(); proxyFunction != nil && withProxy {
+	if withProxy {
 		// if field is interface, try to inject proxy wrapped pointer
-		if proxyImpl, err := proxyFunction(impledPtr); err == nil {
-			impledPtr = proxyImpl
-		}
+		impledPtr = GetProxyFunction()(impledPtr)
 	}
 
 	// 5. record singleton ptr

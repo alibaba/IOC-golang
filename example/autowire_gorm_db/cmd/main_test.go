@@ -30,13 +30,13 @@ import (
 
 func (a *App) TestRun(t *testing.T) {
 	// create table
-	assert.Nil(t, a.MyDataTable.GetDB().Model(&MyDataDO{}).AutoMigrate(&MyDataDO{}))
+	assert.Nil(t, a.MyDB.Model(&MyDataDO{}).AutoMigrate(&MyDataDO{}))
 	toInsertMyData := &MyDataDO{
 		Value: "first value",
 	}
-	assert.Nil(t, a.MyDataTable.Insert(toInsertMyData))
+	assert.Nil(t, a.MyDB.Model(&MyDataDO{}).Create(toInsertMyData).Error())
 	myDataDOs := make([]MyDataDO, 0)
-	assert.Nil(t, a.MyDataTable.SelectWhere("id = ?", &myDataDOs, 1))
+	assert.Nil(t, a.MyDB.Model(&MyDataDO{}).Where("id = ?", 1).Find(&myDataDOs).Error())
 	assert.Equal(t, 1, len(myDataDOs))
 	assert.Equal(t, int32(1), myDataDOs[0].Id)
 	assert.Equal(t, "first value", myDataDOs[0].Value)

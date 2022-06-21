@@ -26,20 +26,20 @@ import (
 )
 
 func (a *App) TestRun(t *testing.T) {
-	redisClientGetByNormalAPIImpl, err := redis.GetImpl(&redis.Config{
+	redisClientGetByNormalAPIImpl, err := redis.GetRedisIOCInterface(&redis.Config{
 		Address: "localhost:6379",
 		DB:      "0",
 	})
 	assert.Nil(t, err)
-	_, err = redisClientGetByNormalAPIImpl.Set("myKey", "myValue", -1)
+	_, err = redisClientGetByNormalAPIImpl.Set("myKey", "myValue", -1).Result()
 	assert.Nil(t, err)
 
-	redisClientGetByRedisExtension, err := redis.GetImplIOCInterface(&redis.Config{
+	redisClientGetByRedisExtension, err := redis.GetRedisIOCInterface(&redis.Config{
 		Address: "localhost:6379",
 		DB:      "0",
 	})
 	assert.Nil(t, err)
-	val, err := redisClientGetByRedisExtension.Get("myKey")
+	val, err := redisClientGetByRedisExtension.Get("myKey").Result()
 	assert.Nil(t, err)
 	assert.Equal(t, "myValue", val)
 }

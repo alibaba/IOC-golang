@@ -16,49 +16,28 @@
 package mysql
 
 import (
-	"fmt"
-	"strings"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-
-	"github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/config"
 )
 
 type Config struct {
-	Host      string `yaml:"host"`
-	Port      string `yaml:"port"`
-	Username  string `yaml:"username"`
-	Password  string `yaml:"password"`
-	DBName    string `yaml:"dbname"`
-	TableName string
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	DBName   string `yaml:"dbname"`
 }
 
-func (c *Config) New(mysqlImpl *Impl) (*Impl, error) {
-	var err error
-	mysqlImpl.db, err = gorm.Open(mysql.Open(getMysqlLinkStr(c)), &gorm.Config{})
-	mysqlImpl.tableName = c.TableName
+func (c *Config) New(mysqlImpl *GORMDB) (*GORMDB, error) {
+	rawDB, err := gorm.Open(mysql.Open(getMysqlLinkStr(c)), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	mysqlImpl.db = rawDB
 	return mysqlImpl, err
 }
 
 func getMysqlLinkStr(conf *Config) string {
 	return conf.Username + ":" + conf.Password + "@tcp(" + conf.Host + ":" + conf.Port + ")/" + conf.DBName +
 		"?charset=utf8&parseTime=True&loc=Local"
-}
-
-type paramLoader struct {
-}
-
-func (p *paramLoader) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo) (interface{}, error) {
-	splitedTagValue := strings.Split(fi.TagValue, ",")
-	param := &Config{}
-	if len(splitedTagValue) <= 2 {
-		return nil, fmt.Errorf("file info %s doesn't contains param information, create param from sd paramLoader failed", fi)
-	}
-	if err := config.LoadConfigByPrefix(fmt.Sprintf("autowire%[1]snormal%[1]s<github.com/alibaba/ioc-golang/extension/normal/mysql.Impl>%[1]s%[2]s%[1]sparam", config.YamlConfigSeparator, splitedTagValue[1]), param); err != nil {
-		return nil, err
-	}
-	param.TableName = splitedTagValue[2]
-	return param, nil
 }

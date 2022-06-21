@@ -32,18 +32,18 @@ func init() {
 	autowire.RegisterProxyFunction(proxyFunction)
 }
 
-func proxyFunction(rawPtr interface{}) (interface{}, error) {
+func proxyFunction(rawPtr interface{}) interface{} {
 	sdid := util.GetSDIDByStructPtr(rawPtr)
 	proxySDID := util.GetProxySDIDByStructPtr(rawPtr)
 	proxyStructPtr, err := normal.GetImpl(proxySDID, nil)
 	if err != nil {
-		return nil, err
+		return rawPtr
 	}
 
 	if err := implProxy(rawPtr, proxyStructPtr, sdid); err != nil {
-		return nil, err
+		return rawPtr
 	}
-	return proxyStructPtr, nil
+	return proxyStructPtr
 }
 
 func implProxy(rawServicePtr, proxyPtr interface{}, sdid string) error {

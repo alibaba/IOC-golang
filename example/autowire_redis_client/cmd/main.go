@@ -31,10 +31,10 @@ import (
 // +ioc:autowire:alias=AppAlias
 
 type App struct {
-	NormalRedis    normalRedis.ImplIOCInterface `normal:""`
-	NormalDB1Redis normalRedis.ImplIOCInterface `normal:",db1-redis"`
-	NormalDB2Redis normalRedis.ImplIOCInterface `normal:",db2-redis"`
-	NormalDB3Redis normalRedis.ImplIOCInterface `normal:",address=127.0.0.1:6379&db=3"`
+	NormalRedis    normalRedis.RedisIOCInterface `normal:""`
+	NormalDB1Redis normalRedis.RedisIOCInterface `normal:",db1-redis"`
+	NormalDB2Redis normalRedis.RedisIOCInterface `normal:",db2-redis"`
+	NormalDB3Redis normalRedis.RedisIOCInterface `normal:",address=127.0.0.1:6379&db=3"`
 
 	privateClient *redis.Client
 }
@@ -52,41 +52,41 @@ func (p *Param) Init(a *App) (*App, error) {
 }
 
 func (a *App) Run() {
-	if _, err := a.NormalRedis.Set("mykey", "db0", -1); err != nil {
+	if _, err := a.NormalRedis.Set("mykey", "db0", -1).Result(); err != nil {
 		panic(err)
 	}
 
-	if _, err := a.NormalDB1Redis.Set("mykey", "db1", -1); err != nil {
+	if _, err := a.NormalDB1Redis.Set("mykey", "db1", -1).Result(); err != nil {
 		panic(err)
 	}
 
-	if _, err := a.NormalDB2Redis.Set("mykey", "db2", -1); err != nil {
+	if _, err := a.NormalDB2Redis.Set("mykey", "db2", -1).Result(); err != nil {
 		panic(err)
 	}
 
-	if _, err := a.NormalDB3Redis.Set("mykey", "db3", -1); err != nil {
+	if _, err := a.NormalDB3Redis.Set("mykey", "db3", -1).Result(); err != nil {
 		panic(err)
 	}
 
-	val1, err := a.NormalRedis.Get("mykey")
+	val1, err := a.NormalRedis.Get("mykey").Result()
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("client0 get ", val1)
 
-	val2, err := a.NormalDB1Redis.Get("mykey")
+	val2, err := a.NormalDB1Redis.Get("mykey").Result()
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("client1 get ", val2)
 
-	val3, err := a.NormalDB2Redis.Get("mykey")
+	val3, err := a.NormalDB2Redis.Get("mykey").Result()
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("client2 get ", val3)
 
-	val4, err := a.NormalDB3Redis.Get("mykey")
+	val4, err := a.NormalDB3Redis.Get("mykey").Result()
 	if err != nil {
 		panic(err)
 	}

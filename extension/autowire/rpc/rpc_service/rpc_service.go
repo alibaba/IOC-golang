@@ -70,12 +70,8 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 				return nil, err
 			}
 		}
-		if proxyFunction := autowire.GetProxyFunction(); proxyFunction != nil {
-			// if field is interface, try to inject proxy wrapped pointer
-			if proxyImpl, err := proxyFunction(impl); err == nil {
-				impl = proxyImpl
-			}
-		}
+		// if field is interface, try to inject proxy wrapped pointer
+		impl = autowire.GetProxyFunction()(impl)
 
 		// param not configured in server side, set default param
 		iocProtocolInterface, err := protocol_impl.GetIOCProtocolIOCInterface(&protocol_impl.Param{
