@@ -93,7 +93,8 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 		err = json.Unmarshal(rspData, replyList)
 		if err != nil {
 			// error is not nil, means previous unmarshal failed because of invalid response, write error message
-			(*replyList)[len(*replyList)-1] = fmt.Sprintf("[IOC Protocol] Unmarshal response from %s with error %s, response data details is %s", invokeURL, err, string(rspData))
+			err = fmt.Errorf("[IOC Protocol] Unmarshal response from %s with error %s, response data details is %s", invokeURL, err, string(rspData))
+			(*replyList)[len(*replyList)-1] = err
 		}
 		// error is nil means final return value error is returned from server side, and the response is valid
 	}
