@@ -15,7 +15,9 @@
 
 package interceptor
 
-import "github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
+import (
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
+)
 
 type MetadataSorter []*debug.ServiceMetadata
 

@@ -86,7 +86,7 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	app, err := GetApp()
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

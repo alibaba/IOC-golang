@@ -23,9 +23,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/alibaba/ioc-golang/test/docker_compose"
-
 	"github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/test/docker_compose"
 )
 
 func (a *App) TestRun(t *testing.T) {
@@ -51,7 +50,7 @@ func TestGORM(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	app, err := GetApp()
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

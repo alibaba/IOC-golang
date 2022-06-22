@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 
 	"github.com/alibaba/ioc-golang"
+
 	conf "github.com/alibaba/ioc-golang/config"
 	"github.com/alibaba/ioc-golang/extension/config"
 )
@@ -28,7 +29,6 @@ import (
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 // +ioc:autowire:alias=AppAlias
-
 type App struct {
 	DemoConfigString  *config.ConfigString  `config:",autowire.config.demo-config.string-value"`
 	DemoConfigInt     *config.ConfigInt     `config:",autowire.config.demo-config.int-value"`
@@ -61,7 +61,7 @@ func main() {
 
 func getImplByFullName() {
 	// Use the full name of the struct instead of App-App(${interfaceName}-${structName})
-	app, err := GetApp()
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +69,7 @@ func getImplByFullName() {
 }
 
 func getImplByAlias() {
-	app, err := GetApp()
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

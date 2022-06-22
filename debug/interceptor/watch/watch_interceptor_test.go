@@ -21,11 +21,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/alibaba/ioc-golang/autowire/util"
 	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
 	"github.com/alibaba/ioc-golang/debug/interceptor/common"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestWatchInterceptor(t *testing.T) {

@@ -9,23 +9,24 @@ import (
 	"net/http"
 	"time"
 
-	tracer2 "github.com/alibaba/ioc-golang/debug/interceptor/trace"
+	"dubbo.apache.org/dubbo-go/v3/protocol/invocation"
+	"github.com/gin-gonic/gin"
+
+	"github.com/alibaba/ioc-golang/autowire/util"
 
 	"github.com/opentracing/opentracing-go"
 
-	"github.com/alibaba/ioc-golang/autowire/util"
+	tracer2 "github.com/alibaba/ioc-golang/debug/interceptor/trace"
+
 	"github.com/alibaba/ioc-golang/debug/interceptor/trace"
 
 	"github.com/fatih/color"
 
 	"dubbo.apache.org/dubbo-go/v3/common/constant"
 	dubboProtocol "dubbo.apache.org/dubbo-go/v3/protocol"
-	"dubbo.apache.org/dubbo-go/v3/protocol/invocation"
 
 	"github.com/alibaba/ioc-golang/common"
 	"github.com/alibaba/ioc-golang/extension/autowire/rpc/protocol"
-	"github.com/alibaba/ioc-golang/extension/normal/http_server"
-	"github.com/alibaba/ioc-golang/extension/normal/http_server/ghttp"
 )
 
 // +ioc:autowire=true
@@ -35,7 +36,6 @@ import (
 
 // IOCProtocol is ioc protocol impl
 type IOCProtocol struct {
-	httpServer http_server.ImplIOCInterface
 	address    string
 	exportPort string
 	timeout    string
@@ -111,9 +111,7 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 }
 
 func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Exporter {
-	if i.httpServer == nil {
-		i.httpServer = getHTTPServerSingleton(i.exportPort)
-	}
+	httpServer := getSingletonGinEngion(i.exportPort)
 
 	sdid := invoker.GetURL().GetParam(constant.InterfaceKey, "")
 	clientStubFullName := invoker.GetURL().GetParam(common.AliasKey, "")
@@ -125,17 +123,21 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 	for methodName, methodType := range svc.Method() {
 		argsType := methodType.ArgsType()
 		tempMethod := methodName
-		i.httpServer.RegisterRouter(fmt.Sprintf("/%s/%s", clientStubFullName, tempMethod), func(controller *ghttp.GRegisterController) error {
-			reqData, err := ioutil.ReadAll(controller.R.Body)
+		httpServer.POST(fmt.Sprintf("/%s/%s", clientStubFullName, tempMethod), func(c *gin.Context) {
+			reqData, err := ioutil.ReadAll(c.Request.Body)
 			if err != nil {
-				return err
+				c.Writer.WriteHeader(500)
+				_, _ = c.Writer.Write([]byte(err.Error()))
+				return
 			}
 			arguments, err := ParseArgs(argsType, reqData)
 			if err != nil {
-				return err
+				c.Writer.WriteHeader(500)
+				_, _ = c.Writer.Write([]byte(err.Error()))
+				return
 			}
 
-			carrier := opentracing.HTTPHeadersCarrier(controller.R.Header)
+			carrier := opentracing.HTTPHeadersCarrier(c.Request.Header)
 			clientContext, err := trace.GetGlobalTracer().Extract(opentracing.HTTPHeaders, carrier)
 			if err == nil {
 				traceCtx := &trace.Context{
@@ -146,13 +148,34 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 				trace.GetTraceInterceptor().TraceThisGR(traceCtx)
 				defer trace.GetTraceInterceptor().UnTrace(traceCtx)
 			}
-			controller.Rsp = invoker.Invoke(context.Background(),
+			rsp := invoker.Invoke(context.Background(),
 				invocation.NewRPCInvocation(tempMethod, arguments, nil)).Result()
-			return nil
-		}, nil, nil, http.MethodPost)
+			data, err := json.Marshal(rsp)
+			if err != nil {
+				c.Writer.WriteHeader(500)
+				_, _ = c.Writer.Write([]byte(err.Error()))
+				return
+			}
+			_, _ = c.Writer.Write(data)
+		})
 	}
 
 	return dubboProtocol.NewBaseExporter(sdid, invoker, nil)
 }
+
+func getSingletonGinEngion(exportPort string) *gin.Engine {
+	if ginEngionSingleton == nil {
+		ginEngionSingleton = gin.Default()
+		go func() {
+			if err := ginEngionSingleton.Run(":" + exportPort); err != nil {
+				// FIXME, should throw error gracefully
+				panic(err)
+			}
+		}()
+	}
+	return ginEngionSingleton
+}
+
+var ginEngionSingleton *gin.Engine
 
 var _ protocol.Protocol = &IOCProtocol{}

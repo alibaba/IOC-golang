@@ -39,7 +39,7 @@ type ServiceStructIOCInterface interface {
 	GetUser(name string, age int) (*dto.User, error)
 }
 
-func GetServiceStruct() (*ServiceStruct, error) {
+func GetServiceStructRpc() (*ServiceStruct, error) {
 	i, err := rpc_service.GetImpl(util.GetSDIDByStructPtr(new(ServiceStruct)))
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func GetServiceStruct() (*ServiceStruct, error) {
 	return impl, nil
 }
 
-func GetServiceStructIOCInterface() (ServiceStructIOCInterface, error) {
+func GetServiceStructIOCInterfaceRpc() (ServiceStructIOCInterface, error) {
 	i, err := rpc_service.GetImplWithProxy(util.GetSDIDByStructPtr(new(ServiceStruct)))
 	if err != nil {
 		return nil, err

@@ -22,9 +22,9 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"gopkg.in/yaml.v3"
 
 	perrors "github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 const (

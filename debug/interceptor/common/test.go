@@ -15,7 +15,9 @@
 
 package common
 
-import "context"
+import (
+	"context"
+)
 
 type User struct {
 	Name string

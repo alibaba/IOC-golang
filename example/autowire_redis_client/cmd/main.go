@@ -21,7 +21,8 @@ import (
 	"github.com/go-redis/redis"
 
 	"github.com/alibaba/ioc-golang"
-	normalRedis "github.com/alibaba/ioc-golang/extension/normal/redis"
+
+	normalRedis "github.com/alibaba/ioc-golang/extension/state/redis"
 )
 
 // +ioc:autowire=true
@@ -29,7 +30,6 @@ import (
 // +ioc:autowire:paramType=Param
 // +ioc:autowire:constructFunc=Init
 // +ioc:autowire:alias=AppAlias
-
 type App struct {
 	NormalRedis    normalRedis.RedisIOCInterface `normal:""`
 	NormalDB1Redis normalRedis.RedisIOCInterface `normal:",db1-redis"`
@@ -97,7 +97,7 @@ func main() {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	app, err := GetApp(&Param{
+	app, err := GetAppSingleton(&Param{
 		RedisAddr: "localhost:6379",
 	})
 	if err != nil {

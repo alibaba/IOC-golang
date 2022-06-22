@@ -18,14 +18,13 @@ package debug
 import (
 	"github.com/fatih/color"
 
+	"github.com/alibaba/ioc-golang/config"
+	"github.com/alibaba/ioc-golang/debug/common"
 	"github.com/alibaba/ioc-golang/debug/interceptor"
+	"github.com/alibaba/ioc-golang/debug/interceptor/server"
+
 	tracer "github.com/alibaba/ioc-golang/debug/interceptor/trace"
 	"github.com/alibaba/ioc-golang/debug/interceptor/watch"
-
-	"github.com/alibaba/ioc-golang/config"
-
-	"github.com/alibaba/ioc-golang/debug/common"
-	"github.com/alibaba/ioc-golang/debug/interceptor/server"
 )
 
 var interceptors = make([]interceptor.Interceptor, 0)

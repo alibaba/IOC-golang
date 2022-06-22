@@ -92,8 +92,8 @@ func main() {
 		panic(err)
 	}
 
-	// app, err := GetAppIOCInterface
-	app, err := GetApp()
+	// app, err := GetAppIOCInterfaceSingleton is ok too
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

@@ -72,7 +72,7 @@ func main() {
 		panic(err)
 	}
 
-	app, err := GetAppIOCInterface()
+	app, err := GetAppIOCInterfaceSingleton()
 	if err != nil {
 		panic(err)
 	}

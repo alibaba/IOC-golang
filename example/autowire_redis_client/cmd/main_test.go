@@ -59,7 +59,7 @@ func TestRedisClient(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	app, err := GetApp(&Param{
+	app, err := GetAppSingleton(&Param{
 		RedisAddr: "localhost:6379",
 	})
 	if err != nil {

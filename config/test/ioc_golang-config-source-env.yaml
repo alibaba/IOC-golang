@@ -1,6 +1,6 @@
 autowire:
   normal:
-    github.com/alibaba/ioc-golang/extension/normal/redis.Impl:
+    github.com/alibaba/ioc-golang/extension/state/redis.Redis:
       env-redis:
         param:
           _ioc_golang_config_source: env

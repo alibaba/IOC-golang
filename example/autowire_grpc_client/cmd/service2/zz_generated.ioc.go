@@ -59,7 +59,7 @@ type Impl2IOCInterface interface {
 	Hello(name string) string
 }
 
-func GetImpl1() (*Impl1, error) {
+func GetImpl1Singleton() (*Impl1, error) {
 	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Impl1)), nil)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func GetImpl1() (*Impl1, error) {
 	return impl, nil
 }
 
-func GetImpl1IOCInterface() (Impl1IOCInterface, error) {
+func GetImpl1IOCInterfaceSingleton() (Impl1IOCInterface, error) {
 	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(Impl1)), nil)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func GetImpl1IOCInterface() (Impl1IOCInterface, error) {
 	return impl, nil
 }
 
-func GetImpl2() (*Impl2, error) {
+func GetImpl2Singleton() (*Impl2, error) {
 	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Impl2)), nil)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func GetImpl2() (*Impl2, error) {
 	return impl, nil
 }
 
-func GetImpl2IOCInterface() (Impl2IOCInterface, error) {
+func GetImpl2IOCInterfaceSingleton() (Impl2IOCInterface, error) {
 	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(Impl2)), nil)
 	if err != nil {
 		return nil, err

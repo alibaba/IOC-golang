@@ -16,8 +16,9 @@
 package main
 
 import (
-	new "github.com/alibaba/ioc-golang/iocli/init"
 	"github.com/spf13/cobra"
+
+	new "github.com/alibaba/ioc-golang/iocli/init"
 )
 
 var (

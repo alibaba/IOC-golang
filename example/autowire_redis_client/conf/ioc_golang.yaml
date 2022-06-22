@@ -1,6 +1,6 @@
 autowire:
   normal:
-    github.com/alibaba/ioc-golang/extension/normal/redis.Redis:
+    github.com/alibaba/ioc-golang/extension/state/redis.Redis:
       db1-redis:
         param:
           address: localhost:6379

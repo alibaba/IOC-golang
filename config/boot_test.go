@@ -68,15 +68,15 @@ func TestLoadConfigByPrefix(t *testing.T) {
 	t.Run("test with multi redis config prefix", func(t *testing.T) {
 		redisConfig := &redisConfig{}
 
-		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/redis.Impl>.param", redisConfig))
+		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/state/redis.Redis>.param", redisConfig))
 		assert.Equal(t, "0", redisConfig.DB)
 		assert.Equal(t, "localhost:6379", redisConfig.Address)
 
-		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/redis.Impl>.db1-redis.param", redisConfig))
+		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/state/redis.Redis>.db1-redis.param", redisConfig))
 		assert.Equal(t, "1", redisConfig.DB)
 		assert.Equal(t, "localhost:16379", redisConfig.Address)
 
-		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/redis.Impl>.db2-redis.param", redisConfig))
+		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/state/redis.Redis>.db2-redis.param", redisConfig))
 		assert.Equal(t, "2", redisConfig.DB)
 		assert.Equal(t, "localhost:26379", redisConfig.Address)
 	})

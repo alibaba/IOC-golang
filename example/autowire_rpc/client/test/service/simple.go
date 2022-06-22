@@ -21,7 +21,6 @@ import (
 
 // +ioc:autowire=true
 // +ioc:autowire:type=rpc
-
 type SimpleService struct {
 }
 
