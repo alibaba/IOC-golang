@@ -126,14 +126,12 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 		httpServer.POST(fmt.Sprintf("/%s/%s", clientStubFullName, tempMethod), func(c *gin.Context) {
 			reqData, err := ioutil.ReadAll(c.Request.Body)
 			if err != nil {
-				c.Writer.WriteHeader(500)
-				_, _ = c.Writer.Write([]byte(err.Error()))
+				c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 				return
 			}
 			arguments, err := ParseArgs(argsType, reqData)
 			if err != nil {
-				c.Writer.WriteHeader(500)
-				_, _ = c.Writer.Write([]byte(err.Error()))
+				c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 				return
 			}
 
@@ -150,13 +148,7 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 			}
 			rsp := invoker.Invoke(context.Background(),
 				invocation.NewRPCInvocation(tempMethod, arguments, nil)).Result()
-			data, err := json.Marshal(rsp)
-			if err != nil {
-				c.Writer.WriteHeader(500)
-				_, _ = c.Writer.Write([]byte(err.Error()))
-				return
-			}
-			_, _ = c.Writer.Write(data)
+			c.PureJSON(http.StatusOK, rsp)
 		})
 	}
 

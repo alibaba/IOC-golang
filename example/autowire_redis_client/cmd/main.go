@@ -18,6 +18,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/alibaba/ioc-golang/config"
+
 	"github.com/go-redis/redis"
 
 	"github.com/alibaba/ioc-golang"
@@ -94,7 +96,10 @@ func (a *App) Run() {
 }
 
 func main() {
-	if err := ioc.Load(); err != nil {
+	if err := ioc.Load(
+		config.WithSearchPath("../conf"),
+		config.WithConfigName("ioc_golang"),
+		config.WithConfigType("yaml")); err != nil {
 		panic(err)
 	}
 	app, err := GetAppSingleton(&Param{

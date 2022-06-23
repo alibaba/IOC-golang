@@ -8,12 +8,14 @@ package gorm
 import (
 	contextx "context"
 	"database/sql"
+
+	gorm_iogormx "gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
 	"github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	singleton "github.com/alibaba/ioc-golang/autowire/singleton"
 	util "github.com/alibaba/ioc-golang/autowire/util"
-	gorm_iogormx "gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 func init() {

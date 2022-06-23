@@ -18,6 +18,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/alibaba/ioc-golang/config"
+
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 
@@ -30,6 +32,7 @@ import (
 // +ioc:autowire:paramType=Param
 // +ioc:autowire:constructFunc=Init
 // +ioc:autowire:alias=AppAlias
+
 type App struct {
 	NormalNacosClient  nacos.NamingClientIOCInterface `normal:""`
 	NormalNacosClient2 nacos.NamingClientIOCInterface `normal:",nacos-2"`
@@ -87,7 +90,10 @@ func getAndSetService(client nacos.NamingClientIOCInterface, serviceName string)
 }
 
 func main() {
-	if err := ioc.Load(); err != nil {
+	if err := ioc.Load(
+		config.WithSearchPath("../conf"),
+		config.WithConfigName("ioc_golang"),
+		config.WithConfigType("yaml")); err != nil {
 		panic(err)
 	}
 	app, err := GetAppSingleton(&Param{

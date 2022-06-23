@@ -18,6 +18,8 @@ package main
 import (
 	"testing"
 
+	"github.com/alibaba/ioc-golang/config"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
@@ -56,7 +58,10 @@ func (a *App) TestRun(t *testing.T) {
 
 func TestRedisClient(t *testing.T) {
 	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", 0))
-	if err := ioc.Load(); err != nil {
+	if err := ioc.Load(
+		config.WithSearchPath("../conf"),
+		config.WithConfigName("ioc_golang"),
+		config.WithConfigType("yaml")); err != nil {
 		panic(err)
 	}
 	app, err := GetAppSingleton(&Param{

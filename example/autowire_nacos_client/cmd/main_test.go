@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alibaba/ioc-golang/config"
+
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"github.com/stretchr/testify/assert"
 
@@ -78,7 +80,10 @@ func TestNacosClient(t *testing.T) {
 		return
 	}
 	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", time.Second*10))
-	assert.Nil(t, ioc.Load())
+	assert.Nil(t, ioc.Load(
+		config.WithSearchPath("../conf"),
+		config.WithConfigName("ioc_golang"),
+		config.WithConfigType("yaml")))
 	app, err := GetAppSingleton(&Param{
 		NacosPort: 8848,
 		NacosAddr: "localhost",

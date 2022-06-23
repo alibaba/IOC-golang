@@ -28,6 +28,9 @@ type Param struct {
 }
 
 func (c *Param) New(impl *Redis) (*Redis, error) {
+	if c.DB == "" {
+		c.DB = "0"
+	}
 	dbInt, err := strconv.Atoi(c.DB)
 	if err != nil {
 		return impl, err

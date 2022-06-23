@@ -18,6 +18,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/alibaba/ioc-golang/config"
+
 	"github.com/alibaba/ioc-golang"
 	normalMysql "github.com/alibaba/ioc-golang/extension/db/gorm"
 )
@@ -25,6 +27,7 @@ import (
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 // +ioc:autowire:alias=AppAlias
+
 type App struct {
 	MyDB normalMysql.GORMDBIOCInterface `normal:",my-mysql"`
 }
@@ -57,7 +60,10 @@ func (a *App) Run() {
 }
 
 func main() {
-	if err := ioc.Load(); err != nil {
+	if err := ioc.Load(
+		config.WithSearchPath("../conf"),
+		config.WithConfigName("ioc_golang"),
+		config.WithConfigType("yaml")); err != nil {
 		panic(err)
 	}
 	app, err := GetAppSingleton()

@@ -27,42 +27,11 @@ type redisConfig struct {
 	DB      string
 }
 
-func TestLoad(t *testing.T) {
-	defer clearEnv()
-	tests := []struct {
-		name                string
-		iocGolangConfigPath string
-		wantErr             bool
-	}{
-		{
-			"test load from file",
-			"./test/ioc_golang.yaml",
-			false,
-		},
-		{
-			"test load from file",
-			"./test/none-exist.yaml",
-			false,
-		},
-		{
-			"test load from invalid file with error",
-			"./test/ioc_golang-bad-config.yaml",
-			true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Nil(t, os.Setenv("IOC_GOLANG_CONFIG_PATH", tt.iocGolangConfigPath))
-			if err := Load(); (err != nil) != tt.wantErr {
-				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
 func TestLoadConfigByPrefix(t *testing.T) {
 	defer clearEnv()
-	assert.Nil(t, os.Setenv("IOC_GOLANG_CONFIG_PATH", "./test/ioc_golang.yaml"))
+	assert.Nil(t, os.Setenv(SearchPathEnvKey, "./test"))
+	assert.Nil(t, os.Setenv(TypeEnvKey, "yaml"))
+	assert.Nil(t, os.Setenv(NameEnvKey, "ioc_golang"))
 	assert.Nil(t, Load())
 
 	t.Run("test with multi redis config prefix", func(t *testing.T) {
