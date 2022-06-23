@@ -21,9 +21,8 @@ import (
 
 	"github.com/petermattis/goid"
 
-	"github.com/alibaba/ioc-golang/debug/interceptor/common"
-
 	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
+	"github.com/alibaba/ioc-golang/debug/interceptor/common"
 )
 
 type Interceptor struct {

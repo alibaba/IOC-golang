@@ -22,6 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
+
 	_ "github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/service"
 )
 
@@ -38,7 +39,7 @@ func TestRPCClient(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-	app, err := GetApp()
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

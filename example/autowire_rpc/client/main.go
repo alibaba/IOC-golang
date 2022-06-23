@@ -19,15 +19,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/service/api"
-
 	"github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/service/api"
 	_ "github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client"
 )
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-
 type App struct {
 	ServiceStruct api.ServiceStructIOCRPCClient `rpc-client:",address=127.0.0.1:2022"`
 }
@@ -51,7 +49,7 @@ func main() {
 
 	// 'App' is alias name
 	// We can get instance by ths id
-	app, err := GetApp()
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

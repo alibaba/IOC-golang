@@ -183,8 +183,8 @@ func main() {
 		panic(err)
 	}
 
-	// app, err := GetAppIOCInterface 也可以，获取到的是封装了代理层的接口，如下获取到的是未封装的结构体指针。
-	app, err := GetApp()
+	// app, err := GetAppIOCInterfaceSingleton 也可以，获取到的是封装了代理层的接口，如下获取到的是未封装的结构体指针。
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

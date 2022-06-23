@@ -18,17 +18,15 @@ package server
 import (
 	"net"
 
-	"github.com/alibaba/ioc-golang/debug/interceptor/trace"
-
-	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
-	"github.com/alibaba/ioc-golang/debug/interceptor/watch"
-
 	"github.com/fatih/color"
 	"google.golang.org/grpc"
 
 	"github.com/alibaba/ioc-golang/common"
+	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
 
 	debugCommon "github.com/alibaba/ioc-golang/debug/common"
+	"github.com/alibaba/ioc-golang/debug/interceptor/trace"
+	"github.com/alibaba/ioc-golang/debug/interceptor/watch"
 )
 
 func Start(debugConfig *debugCommon.Config, allInterfaceMetadataMap map[string]*debugCommon.StructMetadata) error {

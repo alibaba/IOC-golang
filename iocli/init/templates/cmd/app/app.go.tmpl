@@ -62,7 +62,7 @@ func Run() {
 		panic(err)
 	}
 
-	app, err := GetApp()
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

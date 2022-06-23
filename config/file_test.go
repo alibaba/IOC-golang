@@ -23,64 +23,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetConfigPath(t *testing.T) {
-	defer clearEnv()
-	tests := []struct {
-		iocGolangConfigPath string
-		isDefault           bool
-		env                 string
-		name                string
-		want                string
-	}{
-		{
-			isDefault: true,
-			name:      "default config path",
-			want:      DefaultConfigPath,
-		},
-		{
-			isDefault: true,
-			name:      "default config path with en",
-			env:       "dev",
-			want:      "../conf/ioc_golang_dev.yaml",
-		},
-		{
-			isDefault:           false,
-			iocGolangConfigPath: "./test/ioc_golang.yaml",
-			name:                "given config path with env ",
-			env:                 "dev",
-			want:                "./test/ioc_golang_dev.yaml",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if !tt.isDefault {
-				assert.Nil(t, os.Setenv(EnvKeyIOCGolangConfigPath, tt.iocGolangConfigPath))
-			}
-			if tt.env != "" {
-				assert.Nil(t, os.Setenv(EnvKeyIOCGolangEnv, tt.env))
-			}
-			assert.Equalf(t, tt.want, GetConfigPath(), "GetConfigPath()")
-		})
-	}
-}
-
-func TestGetIOCGolangEnv(t *testing.T) {
-	defer clearEnv()
-	tests := []struct {
-		name string
-		want string
-	}{
-		{
-			"test set env",
-			"dev",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Nil(t, os.Setenv(EnvKeyIOCGolangEnv, tt.want))
-			assert.Equalf(t, tt.want, GetEnv(), "GetEnv()")
-		})
-	}
+func clearEnv() {
+	os.Unsetenv("REDIS_ADDRESS")
+	os.Unsetenv(TypeEnvKey)
+	os.Unsetenv(SearchPathEnvKey)
+	os.Unsetenv(NameEnvKey)
+	os.Unsetenv(ActiveProfileEnvKey)
 }
 
 func Test_searchConfigFiles(t *testing.T) {

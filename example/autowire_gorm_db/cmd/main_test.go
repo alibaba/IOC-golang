@@ -21,11 +21,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alibaba/ioc-golang/config"
+
 	"github.com/stretchr/testify/assert"
 
-	"github.com/alibaba/ioc-golang/test/docker_compose"
-
 	"github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/test/docker_compose"
 )
 
 func (a *App) TestRun(t *testing.T) {
@@ -48,10 +49,13 @@ func TestGORM(t *testing.T) {
 		return
 	}
 	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", time.Second*10))
-	if err := ioc.Load(); err != nil {
+	if err := ioc.Load(
+		config.WithSearchPath("../conf"),
+		config.WithConfigName("ioc_golang"),
+		config.WithConfigType("yaml")); err != nil {
 		panic(err)
 	}
-	app, err := GetApp()
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

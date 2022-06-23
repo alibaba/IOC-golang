@@ -17,11 +17,10 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/alibaba/ioc-golang"
-	conf "github.com/alibaba/ioc-golang/config"
+	iocConfig "github.com/alibaba/ioc-golang/config"
+
 	"github.com/alibaba/ioc-golang/extension/config"
 )
 
@@ -48,10 +47,10 @@ func (a *App) Run() {
 }
 
 func main() {
-	wd, _ := os.Getwd()
-	absPathOpt := conf.WithAbsPath(filepath.Join(wd, "./example/autowire_config/conf/ioc_golang.yaml"))
-
-	if err := ioc.Load(absPathOpt); err != nil {
+	if err := ioc.Load(
+		iocConfig.WithSearchPath("../conf"),
+		iocConfig.WithConfigName("ioc_golang"),
+		iocConfig.WithConfigType("yaml")); err != nil {
 		panic(err)
 	}
 
@@ -61,7 +60,7 @@ func main() {
 
 func getImplByFullName() {
 	// Use the full name of the struct instead of App-App(${interfaceName}-${structName})
-	app, err := GetApp()
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +68,7 @@ func getImplByFullName() {
 }
 
 func getImplByAlias() {
-	app, err := GetApp()
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

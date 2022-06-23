@@ -30,11 +30,6 @@ import (
 	"sigs.k8s.io/controller-tools/pkg/markers"
 )
 
-const (
-	PackagePathSeparator = "/"
-	Dot                  = "."
-)
-
 type codeWriter struct {
 	out io.Writer
 }
@@ -139,6 +134,11 @@ type paramImplPair struct {
 	constructFuncName string
 }
 
+type autowireTypeAliasPair struct {
+	autowireType      string
+	autowireTypeAlias string
+}
+
 // GenerateMethodsFor makes init method
 // for the given type, when appropriate
 func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root *loader.Package, imports *importsList, infos []*markers.TypeInfo) {
@@ -160,7 +160,12 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 		if len(info.Markers["ioc:autowire:type"]) == 0 {
 			continue
 		}
-		autowireType := info.Markers["ioc:autowire:type"][0].(string)
+		autowireTypes := make([]string, 0)
+		for _, v := range info.Markers["ioc:autowire:type"] {
+			if autowireType, ok := v.(string); ok {
+				autowireTypes = append(autowireTypes, autowireType)
+			}
+		}
 
 		baseType := false
 		if len(info.Markers["ioc:autowire:baseType"]) != 0 {
@@ -182,14 +187,28 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			constructFunc = info.Markers["ioc:autowire:constructFunc"][0].(string)
 		}
 
-		alise := ""
-		if autowireType == "normal" || autowireType == "singleton" {
-			alise = c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/autowire/%s", autowireType))
-		} else if autowireType == "rpc" {
-			alise = c.NeedImport("github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_service")
-			rpcServiceStructInfos = append(rpcServiceStructInfos, info)
-		} else {
-			alise = c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/extension/autowire/%s", autowireType))
+		autowireTypesAliasPairs := make([]autowireTypeAliasPair, 0)
+		for _, autowireType := range autowireTypes {
+			if autowireType == "normal" || autowireType == "singleton" {
+				autowireTypesAliasPairs = append(autowireTypesAliasPairs,
+					autowireTypeAliasPair{
+						autowireTypeAlias: c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/autowire/%s", autowireType)),
+						autowireType:      autowireType,
+					})
+			} else if autowireType == "rpc" {
+				autowireTypesAliasPairs = append(autowireTypesAliasPairs,
+					autowireTypeAliasPair{
+						autowireTypeAlias: c.NeedImport("github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_service"),
+						autowireType:      autowireType,
+					})
+				rpcServiceStructInfos = append(rpcServiceStructInfos, info)
+			} else {
+				autowireTypesAliasPairs = append(autowireTypesAliasPairs,
+					autowireTypeAliasPair{
+						autowireTypeAlias: c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/extension/autowire/%s", autowireType)),
+						autowireType:      autowireType,
+					})
+			}
 		}
 
 		// gen proxy registry
@@ -201,73 +220,76 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 		},`, toFirstCharLower(info.Name))
 		c.Line(`})`)
 
-		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, alise, autowireAlias)
+		for _, pair := range autowireTypesAliasPairs {
+			c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, pair.autowireTypeAlias, autowireAlias)
 
-		// 0.gen alias
-		if autowireType == "rpc" {
-			c.Linef(`Alias: "%s/api.%sIOCRPCClient",`, root.PkgPath, info.Name)
-		} else if len(info.Markers["ioc:autowire:alias"]) != 0 {
-			c.Linef(`Alias: "%s",`, info.Markers["ioc:autowire:alias"][0].(string))
-		}
+			// 0.gen alias
+			if pair.autowireType == "rpc" {
+				c.Linef(`Alias: "%s/api.%sIOCRPCClient",`, root.PkgPath, info.Name)
+			} else if len(info.Markers["ioc:autowire:alias"]) != 0 {
+				c.Linef(`Alias: "%s",`, info.Markers["ioc:autowire:alias"][0].(string))
+			}
 
-		// 2. gen struct factory and gen param
-		if !baseType {
-			c.Linef(`Factory: func() interface{} {
+			// 2. gen struct factory and gen param
+			if !baseType {
+				c.Linef(`Factory: func() interface{} {
 			return &%s{}
 		},`, info.Name)
-			if paramType != "" {
-				c.Line(`ParamFactory: func() interface{} {`)
-				if constructFunc != "" && paramType != "" {
-					c.Linef(`var _ %s = &%s{}`, getParamInterfaceType(paramType), paramType)
-				}
-				c.Linef(`return &%s{}
+				if paramType != "" {
+					c.Line(`ParamFactory: func() interface{} {`)
+					if constructFunc != "" && paramType != "" {
+						c.Linef(`var _ %s = &%s{}`, getParamInterfaceType(paramType), paramType)
+					}
+					c.Linef(`return &%s{}
 		},`, paramType)
-			}
-		} else {
-			c.Linef(`Factory: func() interface{} {
+				}
+			} else {
+				c.Linef(`Factory: func() interface{} {
 			return new(%s)
 		},`, info.Name)
-			if paramType != "" {
-				c.Linef(`ParamFactory: func() interface{} {
+				if paramType != "" {
+					c.Linef(`ParamFactory: func() interface{} {
 			return new(%s)
 		},`, paramType)
+				}
 			}
-		}
 
-		// 3. gen param loader
-		if paramLoader != "" {
-			c.Linef(`ParamLoader: &%s{},`, paramLoader)
-		}
+			// 3. gen param loader
+			if paramLoader != "" {
+				c.Linef(`ParamLoader: &%s{},`, paramLoader)
+			}
 
-		// 4. gen constructor
+			// 4. gen constructor
+			if constructFunc != "" && paramType != "" {
+				c.Linef(`ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
+			param := p.(%s)
+			impl := i.(*%s)
+			return param.%s(impl)
+		},`, getParamInterfaceType(paramType), info.Name, constructFunc)
+			} else if constructFunc != "" && paramType == "" {
+				// gen specific construct function without param
+
+				c.Linef(`ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
+	impl := i.(*%s)
+	var constructFunc %sConstructFunc = %s
+	return constructFunc(impl)
+},`, info.Name, info.Name, constructFunc)
+				constructFunctionInfoNames = append(constructFunctionInfoNames, info.Name)
+			}
+			c.Line(`})`)
+		}
 		if constructFunc != "" && paramType != "" {
 			paramImplPairs = append(paramImplPairs, paramImplPair{
 				implName:          info.Name,
 				paramName:         paramType,
 				constructFuncName: constructFunc,
 			})
-			c.Linef(`ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(%s)
-			impl := i.(*%s)
-			return param.%s(impl)
-		},`, getParamInterfaceType(paramType), info.Name, constructFunc)
-		} else if constructFunc != "" && paramType == "" {
-			// gen specific construct function without param
-
-			c.Linef(`ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
-	impl := i.(*%s)
-	var constructFunc %sConstructFunc = %s
-	return constructFunc(impl)
-},`, info.Name, info.Name, constructFunc)
-			constructFunctionInfoNames = append(constructFunctionInfoNames, info.Name)
 		}
-		c.Line(`})`)
 
 		getMethodGenerateCtxs = append(getMethodGenerateCtxs, getMethodGenerateCtx{
-			paramTypeName:     paramType,
-			autowireTypeAlias: alise,
-			structName:        info.Name,
-			autowireType:      autowireType,
+			paramTypeName:          paramType,
+			structName:             info.Name,
+			autowireTypeAliasPairs: autowireTypesAliasPairs,
 		})
 
 		typeInfo := root.TypesInfo.TypeOf(info.RawSpec.Name)
@@ -297,61 +319,68 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 
 	// gen get method and get interface method
 	for _, g := range getMethodGenerateCtxs {
-		if g.autowireType == "config" {
-			continue
-		}
-		if g.paramTypeName != "" && g.autowireType != "rpc" {
-			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
+		for _, autowireAliasPair := range g.autowireTypeAliasPairs {
+			if autowireAliasPair.autowireType == "config" {
+				continue
+			}
+			getterSuffix := firstCharUpper(autowireAliasPair.autowireType)
+			if autowireAliasPair.autowireType == "normal" {
+				getterSuffix = ""
+			}
 
-			c.Linef(`func Get%s(p *%s)(*%s, error){
+			if g.paramTypeName != "" && autowireAliasPair.autowireType != "rpc" {
+				utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
+
+				c.Linef(`func Get%s%s(p *%s)(*%s, error){
 			i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)), p)
 			if err != nil {
 				return nil, err
 			}
 			impl := i.(*%s)
 			return impl, nil
-		}`, g.structName, g.paramTypeName, g.structName, g.autowireTypeAlias, utilAlias, g.structName, g.structName)
-			c.Line("")
+		}`, g.structName, getterSuffix, g.paramTypeName, g.structName, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName, g.structName)
+				c.Line("")
 
-			c.Linef(`func Get%sIOCInterface(p *%s)(%sIOCInterface, error){
+				c.Linef(`func Get%sIOCInterface%s(p *%s)(%sIOCInterface, error){
 				i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)), p)
 				if err != nil {
 					return nil, err
 				}
 				impl := i.(%sIOCInterface)
 				return impl, nil
-			}`, g.structName, g.paramTypeName, g.structName, g.autowireTypeAlias, utilAlias, g.structName, g.structName)
-			c.Line("")
-		} else {
-			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
-
-			c.Linef(`func Get%s()(*%s, error){`, g.structName, g.structName)
-			if g.autowireType == "rpc" {
-				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)))`, g.autowireTypeAlias, utilAlias, g.structName)
+			}`, g.structName, getterSuffix, g.paramTypeName, g.structName, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName, g.structName)
+				c.Line("")
 			} else {
-				c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)), nil)`, g.autowireTypeAlias, utilAlias, g.structName)
-			}
-			c.Linef(`if err != nil {
+				utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
+
+				c.Linef(`func Get%s%s()(*%s, error){`, g.structName, getterSuffix, g.structName)
+				if autowireAliasPair.autowireType == "rpc" {
+					c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)))`, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName)
+				} else {
+					c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)), nil)`, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName)
+				}
+				c.Linef(`if err != nil {
 				return nil, err
 			}
 			impl := i.(*%s)
 			return impl, nil
 			}`, g.structName)
-			c.Line("")
+				c.Line("")
 
-			c.Linef(`func Get%sIOCInterface()(%sIOCInterface, error){`, g.structName, g.structName)
-			if g.autowireType == "rpc" {
-				c.Linef(`i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)))`, g.autowireTypeAlias, utilAlias, g.structName)
-			} else {
-				c.Linef(`i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)), nil)`, g.autowireTypeAlias, utilAlias, g.structName)
-			}
-			c.Linef(`if err != nil {
+				c.Linef(`func Get%sIOCInterface%s()(%sIOCInterface, error){`, g.structName, getterSuffix, g.structName)
+				if autowireAliasPair.autowireType == "rpc" {
+					c.Linef(`i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)))`, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName)
+				} else {
+					c.Linef(`i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)), nil)`, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName)
+				}
+				c.Linef(`if err != nil {
 				return nil, err
 			}
 			impl := i.(%sIOCInterface)
 			return impl, nil
 			}`, g.structName)
-			c.Line("")
+				c.Line("")
+			}
 		}
 	}
 
@@ -363,6 +392,13 @@ func getParamInterfaceType(paramType string) string {
 	return fmt.Sprintf("%sInterface", firstCharLower(paramType))
 }
 
+func firstCharUpper(s string) string {
+	if len(s) > 0 {
+		return strings.ToUpper(string(s[0])) + s[1:]
+	}
+	return s
+}
+
 func firstCharLower(s string) string {
 	if len(s) > 0 {
 		return strings.ToLower(string(s[0])) + s[1:]
@@ -371,10 +407,9 @@ func firstCharLower(s string) string {
 }
 
 type getMethodGenerateCtx struct {
-	paramTypeName     string
-	autowireTypeAlias string
-	structName        string
-	autowireType      string
+	paramTypeName          string
+	structName             string
+	autowireTypeAliasPairs []autowireTypeAliasPair
 }
 
 func toFirstCharLower(input string) string {

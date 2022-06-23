@@ -18,7 +18,7 @@ ioc-golang 框架提供了注入数据库连接的能力，开发者可以在配
 
 ```go
 import(
-	normalMysql "github.com/alibaba/ioc-golang/extension/normal/mysql"
+	normalMysql "github.com/alibaba/ioc-golang/extension/db/gorm"
 )
 
 // +ioc:autowire=true
@@ -35,14 +35,14 @@ type App struct {
 
 - 标签
 
-  开发人员可以为 normalMysql.Mysql 类型的字段增加 `normal:"github.com/alibaba/ioc-golang/extension/normal/mysql.Impl,$(configKey),$(tableName)" `标签。从而注入指定数据库的指定表 sdk。
+  开发人员可以为 normalMysql.Mysql 类型的字段增加 `normal:"github.com/alibaba/ioc-golang/extension/db/gorm.GORMDB,$(configKey),$(tableName)" `标签。从而注入指定数据库的指定表 sdk。
 
-  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/normal/mysql.Impl,my-mysql,mydata"` 的意义为，将配置文件内`autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/mysql.Impl>.my-mysql.param`定义的值作为参数。
+  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/db/gorm.GORMDB,my-mysql,mydata"` 的意义为，将配置文件内`autowire.normal.<github.com/alibaba/ioc-golang/extension/db/gorm.GORMDB>.my-mysql.param`定义的值作为参数。
 
 ```yaml
 autowire:
   normal:
-    github.com/alibaba/ioc-golang/extension/normal/mysql.Impl:
+    github.com/alibaba/ioc-golang/extension/db/gorm.GORMDB:
       my-mysql:
         param:
           host: "127.0.0.1"

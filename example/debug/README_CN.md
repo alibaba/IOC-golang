@@ -36,8 +36,8 @@ type App struct {
 就像通过 API 的方式获取结构体指针一样，也可以通过 API 的形式获得封装了代理层的接口。如例子中的：
 
 ```go
-// app, err := GetApp() 获取真实结构体指针
-app, err := GetAppIOCInterface()
+// app, err := GetAppSingleton() 获取真实结构体指针
+app, err := GetAppIOCInterfaceSingleton()
 if err != nil {
   panic(err)
 }

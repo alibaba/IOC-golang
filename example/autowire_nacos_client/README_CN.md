@@ -18,17 +18,17 @@ ioc-golang 框架提供了注入 Redis 连接的能力，开发者可以在配�
 
 ```go
 import(
-	normalMysql "github.com/alibaba/ioc-golang/extension/normal/mysql"
+	normalMysql "github.com/alibaba/ioc-golang/extension/db/gorm"
 )
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 
 type App struct {
-	NormalRedis    normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl"`
-	NormalDB1Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl,db1-redis"`
-	NormalDB2Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl,db2-redis"`
-	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl,address=127.0.0.1:6379&db=3"`
+	NormalRedis    normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient"`
+	NormalDB1Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient,db1-redis"`
+	NormalDB2Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient,db2-redis"`
+	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient,address=127.0.0.1:6379&db=3"`
 }
 ```
 
@@ -38,22 +38,22 @@ type App struct {
 
 - 标签
 
-  开发人员可以为 normalRedis.Redis 类型的字段增加 `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl,$(configKey),$(tableName)" `标签。从而注入Redis  sdk。
+  开发人员可以为 normalRedis.Redis 类型的字段增加 `normal:"github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient,$(configKey),$(tableName)" `标签。从而注入Redis  sdk。
 
-  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl"` 的意义为，将配置文件内 `autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/nacos.Impl>.param`定义的值作为参数。
+  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient"` 的意义为，将配置文件内 `autowire.normal.<github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient>.param`定义的值作为参数。
 
-  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl,db1-redis"` 的意义为，将配置文件内 `autowire.normal.<github.com/alibaba/ioc-golang/extension/normal/nacos.Impl>.db1-redis#param`定义的值作为参数。
+  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient,db1-redis"` 的意义为，将配置文件内 `autowire.normal.<github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient>.db1-redis#param`定义的值作为参数。
   
-  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl,db2-redis"`的意义为，将配置文件内 `autowire#normal.<github.com/alibaba/ioc-golang/extension/normal/nacos.Impl>.db2-redis#param`定义的值作为参数。
+  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient,db2-redis"`的意义为，将配置文件内 `autowire#normal.<github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient>.db2-redis#param`定义的值作为参数。
   
-  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/normal/nacos.Impl,address=127.0.0.1:6379&db=3"` 的意义为，使用标签内定义的 key-value 作为参数配置。
+  例子中的 `normal:"github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient,address=127.0.0.1:6379&db=3"` 的意义为，使用标签内定义的 key-value 作为参数配置。
   
   默认参数加载策略详情请参阅[参数加载器](/docs/concept/param_loader/)
   
   ```yaml
   autowire:
     normal:
-        github.com/alibaba/ioc-golang/extension/normal/nacos.Impl:
+        github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient:
           db1-redis:
             param:
               address: localhost:6379

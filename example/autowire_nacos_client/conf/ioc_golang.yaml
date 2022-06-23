@@ -1,6 +1,6 @@
 autowire:
   normal:
-    github.com/alibaba/ioc-golang/extension/normal/nacos.Impl:
+    github.com/alibaba/ioc-golang/extension/registry/nacos.NamingClient:
       nacos-2:
         param:
           nacosclientparam:

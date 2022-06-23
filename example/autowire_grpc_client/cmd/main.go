@@ -19,6 +19,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/alibaba/ioc-golang/config"
+
 	googleGRPC "google.golang.org/grpc"
 
 	"github.com/alibaba/ioc-golang"
@@ -83,10 +85,13 @@ func (a *App) Run() {
 }
 
 func main() {
-	if err := ioc.Load(); err != nil {
+	if err := ioc.Load(
+		config.WithSearchPath("../conf"),
+		config.WithConfigName("ioc_golang"),
+		config.WithConfigType("yaml")); err != nil {
 		panic(err)
 	}
-	app, err := GetApp()
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

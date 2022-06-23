@@ -24,6 +24,7 @@ import (
 
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/dto"
+
 	_ "github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service"
 	"github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api"
 	"github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client"

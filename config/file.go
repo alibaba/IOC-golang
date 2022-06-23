@@ -21,56 +21,15 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fatih/color"
-	"gopkg.in/yaml.v3"
-
 	perrors "github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 const (
-
-	// EnvKeyIOCGolangConfigPath is absolute/relate path to ioc_golang.yaml
-	EnvKeyIOCGolangConfigPath = "IOC_GOLANG_CONFIG_PATH" // default val is "../conf/ioc_golang.yaml"
-
-	// EnvKeyIOCGolangEnv if is set to dev,then:
-	// 1. choose config center with namespace dev
-	// 2. choose config path like "config/ioc_golang_dev.yaml
-	EnvKeyIOCGolangEnv = "IOC_GOLANG_ENV" //
-
-	DefaultConfigPath = "../conf/ioc_golang.yaml"
-
 	PathSeparator = string(os.PathSeparator)
 	emptyString   = ""
 	dotSeparator  = "."
 )
-
-func GetEnv() string {
-	return os.Getenv(EnvKeyIOCGolangEnv)
-}
-
-func GetConfigPath() string {
-	configPath := ""
-	env := GetEnv()
-
-	configFilePath := DefaultConfigPath
-	if iocGolangConfigPath := os.Getenv(EnvKeyIOCGolangConfigPath); iocGolangConfigPath != "" {
-		color.Blue("[Config] Environment %s is set to %s", EnvKeyIOCGolangConfigPath, iocGolangConfigPath)
-		configFilePath = iocGolangConfigPath
-	}
-	prefix := strings.Split(configFilePath, ".yaml")
-	// prefix == ["config/ioc_golang", ""]
-	if len(prefix) != 2 {
-		panic("Invalid config file path = " + configFilePath)
-	}
-	// get target env yaml file
-	if env != "" {
-		color.Blue("[Config] Environment %s is set to %s", EnvKeyIOCGolangEnv, env)
-		configPath = prefix[0] + "_" + env + ".yaml"
-	} else {
-		configPath = configFilePath
-	}
-	return configPath
-}
 
 func loadProperty(splitedConfigName []string, index int, tempConfigMap Config, configStructPtr interface{}) error {
 	subConfig, ok := tempConfigMap[splitedConfigName[index]]
@@ -130,10 +89,6 @@ func searchConfigFiles(opts *Options) []string {
 
 func isBlankString(src string) bool {
 	return "" == src || "" == strings.TrimSpace(src)
-}
-
-func isNotBlankString(src string) bool {
-	return !isBlankString(src)
 }
 
 func isEmptyStringSlice(src []string) bool {

@@ -182,8 +182,8 @@ func main() {
 		panic(err)
 	}
 
-	// app, err := GetAppIOCInterface is also ok, to get proxy wrapped app struct.
-	app, err := GetApp()
+	// app, err := GetAppIOCInterfaceSingleton is also ok, to get proxy wrapped app struct.
+	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}

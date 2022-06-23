@@ -17,6 +17,7 @@ package config
 
 import (
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/fatih/color"
@@ -32,9 +33,13 @@ const (
 	DefaultSearchConfigName = "config"
 	DefaultSearchConfigType = YmlExtension // yaml
 
-	emptySlice = 0
+	SearchPathEnvKey    = "IOC_GOLANG_CONFIG_SEARCH_PATH"
+	TypeEnvKey          = "IOC_GOLANG_CONFIG_TYPE"
+	NameEnvKey          = "IOC_GOLANG_CONFIG_NAME"
+	ActiveProfileEnvKey = "IOC_GOLANG_CONFIG_ACTIVE_PROFILE"
 
 	YamlConfigSeparator = "."
+	EnvValueSeparator   = ","
 )
 
 var (
@@ -70,6 +75,17 @@ type Options struct {
 	MergeDepth uint8
 }
 
+func (opts *Options) printLogs() {
+	color.Blue("[Config] Config files load options is %+v", *opts)
+}
+
+func (opts *Options) loadFromEnv() {
+	opts.SearchPath = loadSplitedStringsFromEnvWith(SearchPathEnvKey)
+	opts.ConfigType = os.Getenv(TypeEnvKey)
+	opts.ConfigName = os.Getenv(NameEnvKey)
+	opts.ProfilesActive = loadSplitedStringsFromEnvWith(ActiveProfileEnvKey)
+}
+
 func (opts *Options) validate() {
 	if isBlankString(opts.ConfigName) {
 		opts.ConfigName = DefaultSearchConfigName
@@ -100,15 +116,11 @@ func Load(opts ...Option) error {
 
 	targetMap := make(Config)
 
+	options.printLogs()
 	configFiles := searchConfigFiles(options)
-	if len(opts) == emptySlice {
-		defaultConfigFile := loadDefaultConfigFileIfNecessary()
-		if isNotBlankString(defaultConfigFile) {
-			configFiles = append(configFiles, defaultConfigFile)
-		}
-	}
 
 	for _, cf := range configFiles {
+		color.Blue("[Config] Loading config file %s", cf)
 		contents, err := ioutil.ReadFile(cf)
 		if err != nil {
 			color.Red("[Config] Load ioc-golang config file failed. %v\n The load procedure is continue", err)
@@ -128,20 +140,7 @@ func Load(opts ...Option) error {
 
 	}
 	config = targetMap
-	parseConfigSource(config)
-
 	return nil
-}
-
-func loadDefaultConfigFileIfNecessary() string {
-	configPath := GetConfigPath()
-	color.Blue("[Config] Load default config file from %s", configPath)
-	if isBlankString(configPath) {
-		return configPath
-	}
-	absPath := determineAbsPath(configPath)
-
-	return absPath
 }
 
 // ----------------------------------------------------------------
@@ -219,6 +218,7 @@ func newOptions() *Options {
 
 func initOptions(opts ...Option) *Options {
 	options := newOptions()
+	options.loadFromEnv()
 	for _, opt := range opts {
 		opt(options)
 	}
@@ -239,4 +239,13 @@ func stringSliceContains(haystack []string, needle string) bool {
 	}
 
 	return false
+}
+
+func loadSplitedStringsFromEnvWith(envKey string) []string {
+	val := os.Getenv(envKey)
+	if isBlankString(val) {
+		return []string{}
+	} else {
+		return strings.Split(val, EnvValueSeparator)
+	}
 }

@@ -291,7 +291,7 @@ iocli 可以识别以下注解：
 
   ```go
   type App struct {
-  	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,address=127.0.0.1:6379&db=3"`
+  	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/state/redis.Redis,address=127.0.0.1:6379&db=3"`
   }
   ```
 
@@ -299,7 +299,7 @@ iocli 可以识别以下注解：
 
   ```go
   type App struct {
-  	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/normal/redis.Impl,db1-redis"`
+  	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/state/redis.Redis,db1-redis"`
   }
   ```
 
@@ -308,7 +308,7 @@ iocli 可以识别以下注解：
   ```yaml
   autowire:
     normal:
-      github.com/alibaba/ioc-golang/extension/normal/redis.Impl:
+      github.com/alibaba/ioc-golang/extension/state/redis.Redis:
         db1-redis:
           param:
             address: localhost:6379

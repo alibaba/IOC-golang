@@ -11,7 +11,7 @@ autowire:
       - sliceStr2
       - sliceStr3
   normal:
-    github.com/alibaba/ioc-golang/extension/normal/redis.Impl:
+    github.com/alibaba/ioc-golang/extension/state/redis.Redis:
       db1-redis:
         param:
           address: localhost:16379
