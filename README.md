@@ -330,9 +330,9 @@ The marker autowire model is the singleton
 
 ###  More
 
-More code generation annotations can be viewed at [ioc-golang-cli](https://github.com/alibaba/IOC-golang/tree/master/iocli).
+More code generation annotations can be viewed at [iocli](https://github.com/alibaba/IOC-golang/tree/master/iocli).
 
-You can go to [ioc-golang-example](https://github.com/alibaba/IOC-golang/tree/master/example) for more examples and advanced usage.
+You can go to [ioc-golang/example](https://github.com/alibaba/IOC-golang/tree/master/example) for more examples and advanced usage.
 
 You can go to [E-commercial system demo based on ioc-golang](https://github.com/ioc-golang/shopping-system) to refer to applications system on distributed scene.
 
@@ -344,3 +344,7 @@ See the NOTICE file for more information.
 ### Connect to us
 
 Welcome to join dingtalk group 44638289 if you are interested with the project.
+
+<div align="center">
+	<img src="https://github.com/ioc-golang/ioc-golang-website/blob/main/resources/img/dingtalk_group.png?raw=true" width="30%">
+</div>

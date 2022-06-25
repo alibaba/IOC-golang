@@ -332,9 +332,9 @@ Response 1: (string) (len=36) "This is ServiceImpl1, hello laurence"
 
 ###  更多
 
-更多代码生成注解可以移步[ioc-golang-cli](https://github.com/alibaba/IOC-golang/tree/master/iocli).查看。
+更多代码生成注解可以移步[iocli](https://github.com/alibaba/IOC-golang/tree/master/iocli).查看。
 
-可以移步 [ioc-golang-example](https://github.com/alibaba/IOC-golang/tree/master/example)  查看更多例子
+可以移步 [ioc-golang/example](https://github.com/alibaba/IOC-golang/tree/master/example)  查看更多例子
 
 可以参考 [基于 IOC-golang 的电商系统demo](https://github.com/ioc-golang/shopping-system)  查看分布式场景下的应用系统示例
 
@@ -347,3 +347,7 @@ See the NOTICE file for more information.
 ### 联系我们
 
 感兴趣的开发者可以加入钉钉群：44638289
+
+<div align="center">
+	<img src="https://github.com/ioc-golang/ioc-golang-website/blob/main/resources/img/dingtalk_group.png?raw=true" width="30%">
+</div>
