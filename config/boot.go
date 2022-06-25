@@ -31,7 +31,7 @@ const (
 	YmlExtension            = "yml"
 	YamlExtension           = "yaml"
 	DefaultSearchConfigName = "config"
-	DefaultSearchConfigType = YmlExtension // yaml
+	DefaultSearchConfigType = YamlExtension // yaml
 
 	SearchPathEnvKey    = "IOC_GOLANG_CONFIG_SEARCH_PATH"
 	TypeEnvKey          = "IOC_GOLANG_CONFIG_TYPE"

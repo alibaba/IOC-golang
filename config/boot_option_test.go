@@ -68,7 +68,6 @@ func TestLoad_options(t *testing.T) {
 			args: args{
 				opts: []Option{
 					WithConfigName("ioc_golang"),
-					WithConfigType("yaml"),
 					WithSearchPath("./test"),
 				},
 			},
@@ -102,7 +101,6 @@ func TestLoad_profile_active(t *testing.T) {
 			args: args{
 				opts: []Option{
 					WithConfigName("ioc_golang"),
-					WithConfigType("yaml"),
 					WithSearchPath("./test"),
 					WithProfilesActive("dev"),
 				},

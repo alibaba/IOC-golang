@@ -71,7 +71,6 @@ func Run() {
 
 func loadIoC() error {
 	nameOpt := conf.WithConfigName("ioc_golang")
-	typeOpt := conf.WithConfigType("yaml")
 	err := ioc.Load(nameOpt, typeOpt)
 
 	return err

@@ -49,8 +49,7 @@ func (a *App) Run() {
 func main() {
 	if err := ioc.Load(
 		iocConfig.WithSearchPath("../conf"),
-		iocConfig.WithConfigName("ioc_golang"),
-		iocConfig.WithConfigType("yaml")); err != nil {
+		iocConfig.WithConfigName("ioc_golang")); err != nil {
 		panic(err)
 	}
 
