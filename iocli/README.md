@@ -6,176 +6,17 @@ iocli 是一款命令行工具，提供了以下能力：
 
   开发者可以配置启动 ioc-go 内核提供的调试能力，iocli 作为调试客户端。
 
-- 结构描述注册信息生成
+- 结构相关代码生成
 
-  开发者可以为需要依赖注入的结构体增加注解，iocli 会识别这些注解，并产生结构描述符，注册在 ioc-go 框架内。
+  开发者可以为需要依赖注入的结构体增加注解，iocli 会识别这些注解，并产生符合要求的结构相关代码。包括结构描述信息、结构代理层、结构专属接口、结构 Get 方法等。
 
-## 代码调试能力
+## 调试能力
 
-ioc-golang 框架拥有首创的基于 AOP 思路的 Go 运行时程序调试能力。
+ioc-golang 框架拥有基于结构代理层的 Go 运行时程序调试能力，帮助故障排查，性能分析，提高应用可观测能力。在 [README](https://github.com/alibaba/ioc-golang#ioc-golang-a-golang-dependency-injection-framework)  Quickstart 中展示了接口信息的查看、参数监听能力。在 [基于 IOC-golang 的电商系统demo](https://github.com/ioc-golang/shopping-system)  中，可以展示基于 ioc-golang 的，业务无侵入的，方法粒度全链路追踪能力。
 
-### 开启代码调试能力
+## 注解详情
 
-我们以的 demo 为基础，开启代码调试能力，并使用 iocli 进行调试。
-
-修改 main 函数 Run 方法调用方式为隔 5s 调用一次
-
-```go
-func main(){
-	// 框架启动
-	if err := ioc.Load(); err != nil{
-		panic(err)
-	}
-
-    // 可通过这一 ID 获取实例: "包名.结构名"
-	appInterface, err := singleton.GetImpl("main.App")
-	if err != nil{
-		panic(err)
-	}
-	app := appInterface.(*App)
-	for{
-		time.Sleep(time.Second*5) // 5s 调用一次
-		app.Run()
-	}
-}
-```
-
-指定配置文件环境变量
-
-```bash
-export IOC_GOLANG_CONFIG_PATH=./ioc_golang.yaml
-```
-
-ioc_golang.yaml:
-
-```yaml
-debug:
-  enable: true # 开启调试模式
-```
-
-```bash
-% tree .
-.
-├── ioc_golang.yaml
-├── go.mod
-├── go.sum
-├── main.go
-└── zz_generated.ioc.go
-```
-
-启动程序：非amd64 机器需要指定架构，GOARCH=amd64。-gcflags="-N -l" 关闭编译器优化内联。
-
-```bash
- %  GOARCH=amd64 go run -gcflags "-N -l" .
-  ___    ___     ____            ____           _                         
- |_ _|  / _ \   / ___|          / ___|   ___   | |   __ _   _ __     __ _ 
-  | |  | | | | | |      _____  | |  _   / _ \  | |  / _` | | '_ \   / _` |
-  | |  | |_| | | |___  |_____| | |_| | | (_) | | | | (_| | | | | | | (_| |
- |___|  \___/   \____|          \____|  \___/  |_|  \__,_| |_| |_|  \__, |
-                                                                    |___/ 
-Welcome to use ioc-golang!
-[Boot] Start to load ioc-golan config
-[Config] Environment IOC_GOLANG_CONFIG_PATH is set to ./ioc_golang.yaml
-[Config] Load config file from ./ioc-golang.yaml
-[Boot] Start to load debug
-[Debug] Debug port is set to default :1999
-[Boot] Start to load autowire
-[Autowire Type] Found registered autowire type singleton
-[Autowire Struct Descriptor] Found type singleton registered SD main.App
-[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl1
-[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl2
-[Autowire Struct Descriptor] Found type singleton registered SD main.ServiceStruct
-[Debug] Debug server listening at :1999
-This is ServiceImpl1, hello world
-This is ServiceImpl2, hello world
-This is ServiceStruct, hello world
-```
-
-可看到 debug 端口监听1999
-
-新启动一个终端，查看所有接口实现和方法：
-
-```bash
-% iocli list
-main.App
-[Run]
-
-main.ServiceImpl1
-[Hello]
-
-main.ServiceImpl2
-[Hello]
-
-main.ServiceStruct
-[GetString]
-```
-
-监听一个实现类的方法：
-
-```bash
-% iocli watch main.ServiceStruct GetString
-
-========== On Call ==========
-main.ServiceStruct.GetString()
-Param 1: (string) (len=8) "laurence"
-```
-
-对于有入参和返回值的参数，可以监听到具体参数类型和值。一个监听 grpc 客户端的例子如下：
-
-```bash
-========== On Call ==========
-HelloServiceClient.(HelloServiceClient).SayHello()
-Param 1: (*context.emptyCtx)(0xc0000a0000)(context.Background)
-
-Param 2: (*api.HelloRequest)(0xc00050c640)(name:"laurence")
-
-Param 3: ([]grpc.CallOption) (len=2 cap=2) {
- (grpc.MaxRecvMsgSizeCallOption) {
-  MaxRecvMsgSize: (int) 1024
- },
- (grpc.MaxRecvMsgSizeCallOption) {
-  MaxRecvMsgSize: (int) 1024
- }
-}
-
-
-========== On Response ==========
-HelloServiceClient.(HelloServiceClient).SayHello()
-Response 1: (*api.HelloResponse)(0xc00050c700)(reply:"Hello laurence")
-
-Response 2: (interface {}) <nil>
-
-
-========== On Call ==========
-HelloServiceClient.(HelloServiceClient).SayHello()
-Param 1: (*context.emptyCtx)(0xc0000a0000)(context.Background)
-
-Param 2: (*api.HelloRequest)(0xc00050c8c0)(name:"laurence_service1_impl1")
-
-Param 3: ([]grpc.CallOption) <nil>
-
-
-========== On Response ==========
-HelloServiceClient.(HelloServiceClient).SayHello()
-Response 1: (*api.HelloResponse)(0xc00050c980)(reply:"Hello laurence_service1_impl1")
-
-Response 2: (interface {}) <nil>
-
-```
-
-
-
-基于该思路，我们可以扩展更丰富的调试能力，例如：
-
-- 流量过滤、监控
-- 参数编辑
-- 故障注入
-- 耗时瓶颈分析
-- ...
-
-
-
-## 结构注解
+注解是以特定字符串开头的注释，标注在期望注入的结构前。注解只具备静态意义，即在代码生成阶段，被iocli工具扫描识别到，从而获取结构相关信息。注解本身不具备程序运行时的意义。
 
 iocli 可以识别以下注解：
 
@@ -195,31 +36,38 @@ iocli 可以识别以下注解：
 
 - ioc:autowire:type
 
-  string类型，表示依赖注入模型，目前支持四种：
+  string类型，表示依赖注入模型，目前支持以下五种，结构提供者可以选择五种中的一种或多种进行标注，从而生成相关的结构信息与 API，供结构使用者选用。
+
+  ```go
+  // +ioc:autowire:type=singleton
+  // +ioc:autowire:type=normal
+  
+  type MyStruct struct{
+  
+  }
+  ```
 
   - singleton
 
-    单例模型，该结构体全局只能产生一个对象，无论是 API 获取还是字段注入。
+    单例模型，使用该注入模型获取到的结构体，全局只存在一个对象。
 
   - normal
 
-    多例模型，每一个标签注入字段、每一次 API 获取，都会产生一个新的对象。
+    多例模型，使用该注入模型，每一个标签注入字段、每一次 API 获取，都会产生一个新的对象。
 
   - config:
 
-    配置模型是基于多例模型的封装扩展，基于配置模型定义的结构体方便从 yaml 配置文件中注入信息。
+    配置模型是基于多例模型的封装扩展，基于配置模型定义的结构体方便从 yaml 配置文件中注入信息。参考例子 [example/autowire_config](https://github.com/alibaba/IOC-golang/tree/master/example/autowire_config)
 
   - grpc:
 
-    grpc 模型是基于单例模型的封装扩展，基于 grpc 模型可以方便地从 yaml 配置文件中读取参数，生成 grpc 客户端。
+    grpc 模型是基于单例模型的封装扩展，基于 grpc 模型可以方便地从 yaml 配置文件中读取参数，生成 grpc 客户端。参考例子[example/autowire_grpc_client](https://github.com/alibaba/IOC-golang/tree/master/example/autowire_grpc_client)
 
   - rpc:
 
-    rpc 模型会在代码生成阶段产生 rpc 服务端注册代码，以及 rpc 客户端调用存根。
+    rpc 模型会在代码生成阶段产生 rpc 服务端注册代码，以及 rpc 客户端调用存根。参考例子 [example/autowire_rpc](https://github.com/alibaba/IOC-golang/tree/master/example/autowire_rpc)
 
-- ioc:autowire:interface（非必填）
-
-  string类型，表示实现的接口名，如果不存在这个标注，将作为结构体指针注入给使用方。
+  
 
 - ioc:autowire:paramLoader（非必填）
 
@@ -353,7 +201,29 @@ iocli 可以识别以下注解：
 
   该类型的别名，可在标签、API获取、配置中，通过该别名替代掉较长的类型全名来指定结构。
 
+## iocli 操作命令文档
 
+- `iocli init`
+
+  生成初始化工程
+
+- `iocli gen`
+
+  递归遍历当前目录下的所有 go pkg ，根据注解生成结构体相关代码。
+
+- `iocli list`
+
+  查看应用所有接口和方法信息，默认端口 :1999
+
+- `iocli watch [structID] [methodName]`
+
+  监听一个方法的实时调用信息
+
+- `iocli trace [structID] [methodName]`
+
+  以当前方法为入口，开启调用链路追踪
+
+具体操作参数可通过 -h 查看。
 
 
 
