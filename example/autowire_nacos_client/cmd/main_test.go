@@ -82,8 +82,7 @@ func TestNacosClient(t *testing.T) {
 	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", time.Second*10))
 	assert.Nil(t, ioc.Load(
 		config.WithSearchPath("../conf"),
-		config.WithConfigName("ioc_golang"),
-		config.WithConfigType("yaml")))
+		config.WithConfigName("ioc_golang")))
 	app, err := GetAppSingleton(&Param{
 		NacosPort: 8848,
 		NacosAddr: "localhost",

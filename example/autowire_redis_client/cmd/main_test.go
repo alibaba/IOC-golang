@@ -60,8 +60,7 @@ func TestRedisClient(t *testing.T) {
 	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", 0))
 	if err := ioc.Load(
 		config.WithSearchPath("../conf"),
-		config.WithConfigName("ioc_golang"),
-		config.WithConfigType("yaml")); err != nil {
+		config.WithConfigName("ioc_golang")); err != nil {
 		panic(err)
 	}
 	app, err := GetAppSingleton(&Param{

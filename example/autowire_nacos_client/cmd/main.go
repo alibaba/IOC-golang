@@ -92,8 +92,7 @@ func getAndSetService(client nacos.NamingClientIOCInterface, serviceName string)
 func main() {
 	if err := ioc.Load(
 		config.WithSearchPath("../conf"),
-		config.WithConfigName("ioc_golang"),
-		config.WithConfigType("yaml")); err != nil {
+		config.WithConfigName("ioc_golang")); err != nil {
 		panic(err)
 	}
 	app, err := GetAppSingleton(&Param{
