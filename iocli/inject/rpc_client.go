@@ -254,7 +254,7 @@ func getTailLetter(input string) string {
 	}
 	for ; i >= 0; i-- {
 		r := input[i]
-		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || r == '_') {
+		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_') {
 			return input[i+1:]
 		}
 	}
