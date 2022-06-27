@@ -29,7 +29,7 @@ jobs:
 
     - name: Get dependencies
       run: |
-        go mod tidy -compat=1.17
+        make tidy-all
     - name: gofmt
       run: |
         go fmt ./...
