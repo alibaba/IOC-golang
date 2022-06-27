@@ -29,13 +29,13 @@ jobs:
 
     - name: Get dependencies
       run: |
-        go mod tidy -compat=1.17
+        make tidy-all
     - name: gofmt
       run: |
         go fmt ./...
     - name: build iocli
       run : |
-        go build -o io-cli ./iocli
+        cd ./iocli && go build -o ../io-cli .
     - name: iocli gen
       run : |
         ./io-cli gen
