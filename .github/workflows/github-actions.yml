@@ -35,7 +35,7 @@ jobs:
         go fmt ./...
     - name: build iocli
       run : |
-        go build -o io-cli ./iocli
+        cd ./iocli && go build -o ../io-cli .
     - name: iocli gen
       run : |
         ./io-cli gen
