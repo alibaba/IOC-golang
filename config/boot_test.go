@@ -32,9 +32,11 @@ func TestLoadConfigByPrefix(t *testing.T) {
 	assert.Nil(t, os.Setenv(SearchPathEnvKey, "./test"))
 	assert.Nil(t, os.Setenv(TypeEnvKey, "yaml"))
 	assert.Nil(t, os.Setenv(NameEnvKey, "ioc_golang"))
+	assert.Nil(t, os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6388"))
 	assert.Nil(t, Load())
 
 	t.Run("test with multi redis config prefix", func(t *testing.T) {
+		nestedRedisConfig := &redisConfig{}
 		redisConfig := &redisConfig{}
 
 		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/state/redis.Redis>.param", redisConfig))
@@ -48,6 +50,14 @@ func TestLoadConfigByPrefix(t *testing.T) {
 		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/state/redis.Redis>.db2-redis.param", redisConfig))
 		assert.Equal(t, "2", redisConfig.DB)
 		assert.Equal(t, "localhost:26379", redisConfig.Address)
+
+		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/state/redis.Redis>.expand", redisConfig))
+		assert.Equal(t, "15", redisConfig.DB)
+		assert.Equal(t, "localhost:6388", redisConfig.Address)
+
+		assert.Nil(t, LoadConfigByPrefix("autowire.normal.<github.com/alibaba/ioc-golang/extension/state/redis.Redis>.nested", nestedRedisConfig))
+		assert.Equal(t, "15", nestedRedisConfig.DB)
+		assert.Equal(t, "localhost:6388", nestedRedisConfig.Address)
 	})
 
 	t.Run("test with int value", func(t *testing.T) {

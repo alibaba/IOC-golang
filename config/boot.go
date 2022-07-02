@@ -140,6 +140,9 @@ func Load(opts ...Option) error {
 
 	}
 	config = targetMap
+
+	parseEvnIfNecessary(config)
+
 	return nil
 }
 
@@ -201,6 +204,7 @@ func LoadConfigByPrefix(prefix string, configStructPtr interface{}) error {
 	realConfigProperties := make([]string, 0)
 	for _, v := range configProperties {
 		if v != "" {
+			v := expandIfNecessary(v)
 			realConfigProperties = append(realConfigProperties, v)
 		}
 	}
