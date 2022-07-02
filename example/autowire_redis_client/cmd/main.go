@@ -37,7 +37,7 @@ type App struct {
 	NormalRedis    normalRedis.RedisIOCInterface `normal:""`
 	NormalDB1Redis normalRedis.RedisIOCInterface `normal:",db1-redis"`
 	NormalDB2Redis normalRedis.RedisIOCInterface `normal:",db2-redis"`
-	NormalDB3Redis normalRedis.RedisIOCInterface `normal:",address=127.0.0.1&db=3"`
+	NormalDB3Redis normalRedis.RedisIOCInterface `normal:",address=127.0.0.1:6379&db=3"`
 	NormalDB4Redis normalRedis.RedisIOCInterface `normal:",address=${REDIS_ADDRESS_EXPAND}&db=5"`
 	NormalDB5Redis normalRedis.RedisIOCInterface `normal:",address=${autowire.normal.<github.com/alibaba/ioc-golang/extension/state/redis.Redis>.nested.address}&db=15"`
 
@@ -117,7 +117,7 @@ func (a *App) Run() {
 }
 
 func init() {
-	_ = os.Setenv("REDIS_ADDRESS_EXPAND", "192.168.1.11:6379")
+	_ = os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
 }
 
 func main() {
