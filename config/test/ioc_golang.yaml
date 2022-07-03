@@ -23,3 +23,9 @@ autowire:
       param:
         address: localhost:6379
         db: 0
+      expand:
+        address: ${REDIS_ADDRESS_EXPAND}
+        db: 15
+      nested:
+        address: ${autowire.normal.<github.com/alibaba/ioc-golang/extension/state/redis.Redis>.expand.address}
+        db: ${autowire.normal.<github.com/alibaba/ioc-golang/extension/state/redis.Redis>.expand.db}
