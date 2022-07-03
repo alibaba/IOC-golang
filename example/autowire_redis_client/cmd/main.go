@@ -121,9 +121,6 @@ func init() {
 }
 
 func main() {
-	// wd, _ := os.Getwd()
-	// wd = filepath.Join(wd, "./autowire_redis_client/cmd")
-	// wd = filepath.Join(wd, "../conf")
 	if err := ioc.Load(
 		config.WithSearchPath("../conf"),
 		config.WithConfigName("ioc_golang")); err != nil {
