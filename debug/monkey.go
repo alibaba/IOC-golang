@@ -20,6 +20,8 @@ package debug
 import (
 	"reflect"
 
+	"github.com/alibaba/ioc-golang/debug/interceptor"
+
 	"github.com/glory-go/monkey"
 
 	"github.com/alibaba/ioc-golang/autowire"
@@ -46,6 +48,7 @@ func implMonkey(servicePtr interface{}, tempInterfaceId string) {
 	valueOfElem := valueOf.Elem()
 	typeOfElem := valueOfElem.Type()
 	if typeOfElem.Kind() != reflect.Struct {
+		// Fixme: handle the error gracefully
 		panic("invalid struct ptr")
 	}
 
@@ -67,23 +70,27 @@ func implMonkey(servicePtr interface{}, tempInterfaceId string) {
 }
 
 // nolint
-func makeCallProxy(tempInterfaceId, methodName string, isVariadic bool) func(in []reflect.Value) []reflect.Value {
+func makeCallProxy(sdid, methodName string, isVariadic bool) func(in []reflect.Value) []reflect.Value {
 	return func(in []reflect.Value) []reflect.Value {
-		debugMetadata[tempInterfaceId].MethodMetadata[methodName].Lock.Lock()
-		debugMetadata[tempInterfaceId].MethodMetadata[methodName].Guard.Unpatch()
+		debugMetadata[sdid].MethodMetadata[methodName].Lock.Lock()
+		debugMetadata[sdid].MethodMetadata[methodName].Guard.Unpatch()
 		defer func() {
-			debugMetadata[tempInterfaceId].MethodMetadata[methodName].Guard.Restore()
-			debugMetadata[tempInterfaceId].MethodMetadata[methodName].Lock.Unlock()
+			debugMetadata[sdid].MethodMetadata[methodName].Guard.Restore()
+			debugMetadata[sdid].MethodMetadata[methodName].Lock.Unlock()
 		}()
 		// interceptor
+
+		invocationCtx := &interceptor.InvocationContext{}
 		for _, i := range interceptors {
 			if len(in) > 1 {
-				params := i.BeforeInvoke(tempInterfaceId, methodName, in[1:])
-				for idx, p := range params {
+				invocationCtx = interceptor.NewInvocationContext(nil, sdid, methodName, in[1:])
+				i.BeforeInvoke(invocationCtx)
+				for idx, p := range invocationCtx.Params {
 					in[idx+1] = p
 				}
 			} else {
-				i.BeforeInvoke(tempInterfaceId, methodName, []reflect.Value{})
+				invocationCtx = interceptor.NewInvocationContext(nil, sdid, methodName, []reflect.Value{})
+				i.BeforeInvoke(invocationCtx)
 			}
 		}
 
@@ -102,8 +109,9 @@ func makeCallProxy(tempInterfaceId, methodName string, isVariadic bool) func(in 
 			out = in[0].MethodByName(methodName).Call([]reflect.Value{})
 		}
 
+		invocationCtx.SetReturnValues(out)
 		for _, i := range interceptors {
-			out = i.AfterInvoke(tempInterfaceId, methodName, out)
+			i.AfterInvoke(invocationCtx)
 		}
 		return out
 	}

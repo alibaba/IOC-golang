@@ -56,7 +56,6 @@ func (a *Autowire) GetAllStructDescriptors() map[string]*autowire.StructDescript
 var rpcStructDescriptorMap = make(map[string]*autowire.StructDescriptor)
 
 func RegisterStructDescriptor(s *autowire.StructDescriptor) {
-	s.SetAutowireType(Name)
 	sdID := s.ID()
 	var originConstructFunc func(impl interface{}, _ interface{}) (interface{}, error)
 	if s.ConstructFunc != nil {
@@ -94,6 +93,7 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 		return impl, nil
 	}
 	rpcStructDescriptorMap[sdID] = s
+	autowire.RegisterStructDescriptor(sdID, s)
 }
 
 func GetImpl(key string) (interface{}, error) {

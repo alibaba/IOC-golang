@@ -28,12 +28,12 @@ import (
 type defaultConfig struct {
 }
 
-func getDefaultConfigPrefix(sd *autowire.StructDescriptor) string {
+func getDefaultConfigPrefix(autowireType string, sd *autowire.StructDescriptor) string {
 	structConfigPathKey := sd.Alias
 	if structConfigPathKey == "" {
 		structConfigPathKey = util.GetSDIDByStructPtr(sd.Factory())
 	}
-	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s<%[3]s>%[1]sparam", config.YamlConfigSeparator, sd.AutowireType(), structConfigPathKey)
+	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s<%[3]s>%[1]sparam", config.YamlConfigSeparator, autowireType, structConfigPathKey)
 }
 
 var defaultConfigParamLoaderSingleton autowire.ParamLoader
@@ -88,7 +88,7 @@ func (p *defaultConfig) Load(sd *autowire.StructDescriptor, fi *autowire.FieldIn
 		return nil, errors.New("not supporterd")
 	}
 	param := sd.ParamFactory()
-	prefix := getDefaultConfigPrefix(sd)
+	prefix := getDefaultConfigPrefix(fi.TagKey, sd)
 	if err := config.LoadConfigByPrefix(prefix, param); err != nil {
 		return nil, err
 	}

@@ -90,17 +90,17 @@ type StructDescriptor struct {
 	ConstructFunc func(impl interface{}, param interface{}) (interface{}, error) // injected
 	DestroyFunc   func(impl interface{})
 	Alias         string // alias of SDID
+	/*
+		TransactionMethodsMap stores map from "transactionMethodName" -> "transactionRollBackMethodName"
+
+		transactionMethodName means all invocation of the method should be handled as a transaction, and all successful
+		sub-method's rollback function should be called when a sub-method throws an error.
+
+		empty transactionRollBackMethodName value means transactionMethodName have no rollback method.
+	*/
+	TransactionMethodsMap map[string]string
 
 	impledStructPtr interface{} // impledStructPtr is only used to get name
-	autowireType    string
-}
-
-func (ed *StructDescriptor) SetAutowireType(autowireType string) {
-	ed.autowireType = autowireType
-}
-
-func (ed *StructDescriptor) AutowireType() string {
-	return ed.autowireType
 }
 
 func (ed *StructDescriptor) ID() string {

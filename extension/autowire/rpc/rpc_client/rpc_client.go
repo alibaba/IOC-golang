@@ -51,7 +51,6 @@ func (a *Autowire) GetAllStructDescriptors() map[string]*autowire.StructDescript
 var rpcClientStructDescriptorMap = make(map[string]*autowire.StructDescriptor)
 
 func RegisterStructDescriptor(s *autowire.StructDescriptor) {
-	s.SetAutowireType(Name)
 	toInvokeSDID, err := util.ToRPCClientStubInterfaceSDID(s.ID())
 	if err != nil {
 		panic(err)
@@ -75,6 +74,7 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	}
 
 	rpcClientStructDescriptorMap[s.ID()] = s
+	autowire.RegisterStructDescriptor(s.ID(), s)
 }
 
 /*

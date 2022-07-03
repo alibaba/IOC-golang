@@ -7,14 +7,12 @@ package rocketmq
 
 import (
 	contextx "context"
-
-	"github.com/apache/rocketmq-client-go/v2/consumer"
-	"github.com/apache/rocketmq-client-go/v2/primitive"
-
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	singleton "github.com/alibaba/ioc-golang/autowire/singleton"
 	util "github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/apache/rocketmq-client-go/v2/consumer"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
 )
 
 func init() {
@@ -23,7 +21,7 @@ func init() {
 			return &impl_{}
 		},
 	})
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+	implStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &Impl{}
 		},
@@ -36,21 +34,9 @@ func init() {
 			impl := i.(*Impl)
 			return param.New(impl)
 		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &Impl{}
-		},
-		ParamFactory: func() interface{} {
-			var _ paramInterface = &Param{}
-			return &Param{}
-		},
-		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(paramInterface)
-			impl := i.(*Impl)
-			return param.New(impl)
-		},
-	})
+	}
+	normal.RegisterStructDescriptor(implStructDescriptor)
+	singleton.RegisterStructDescriptor(implStructDescriptor)
 }
 
 type paramInterface interface {

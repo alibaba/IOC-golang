@@ -18,12 +18,13 @@ func init() {
 			return &app_{}
 		},
 	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
+	appStructDescriptor := &autowire.StructDescriptor{
 		Alias: "AppAlias",
 		Factory: func() interface{} {
 			return &App{}
 		},
-	})
+	}
+	singleton.RegisterStructDescriptor(appStructDescriptor)
 }
 
 type app_ struct {

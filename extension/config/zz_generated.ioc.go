@@ -17,7 +17,7 @@ func init() {
 			return &configFloat64_{}
 		},
 	})
-	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
+	configFloat64StructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return new(ConfigFloat64)
 		},
@@ -29,13 +29,14 @@ func init() {
 			impl := i.(*ConfigFloat64)
 			return param.New(impl)
 		},
-	})
+	}
+	autowireconfig.RegisterStructDescriptor(configFloat64StructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &configInt64_{}
 		},
 	})
-	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
+	configInt64StructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return new(ConfigInt64)
 		},
@@ -47,13 +48,14 @@ func init() {
 			impl := i.(*ConfigInt64)
 			return param.New(impl)
 		},
-	})
+	}
+	autowireconfig.RegisterStructDescriptor(configInt64StructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &configInt_{}
 		},
 	})
-	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
+	configIntStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return new(ConfigInt)
 		},
@@ -65,13 +67,14 @@ func init() {
 			impl := i.(*ConfigInt)
 			return param.New(impl)
 		},
-	})
+	}
+	autowireconfig.RegisterStructDescriptor(configIntStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &configMap_{}
 		},
 	})
-	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
+	configMapStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return new(ConfigMap)
 		},
@@ -83,13 +86,14 @@ func init() {
 			impl := i.(*ConfigMap)
 			return param.New(impl)
 		},
-	})
+	}
+	autowireconfig.RegisterStructDescriptor(configMapStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &configSlice_{}
 		},
 	})
-	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
+	configSliceStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return new(ConfigSlice)
 		},
@@ -101,13 +105,14 @@ func init() {
 			impl := i.(*ConfigSlice)
 			return param.New(impl)
 		},
-	})
+	}
+	autowireconfig.RegisterStructDescriptor(configSliceStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &configString_{}
 		},
 	})
-	autowireconfig.RegisterStructDescriptor(&autowire.StructDescriptor{
+	configStringStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return new(ConfigString)
 		},
@@ -119,7 +124,8 @@ func init() {
 			impl := i.(*ConfigString)
 			return param.New(impl)
 		},
-	})
+	}
+	autowireconfig.RegisterStructDescriptor(configStringStructDescriptor)
 }
 
 type configFloat64Interface interface {

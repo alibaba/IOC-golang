@@ -7,7 +7,7 @@ package main
 
 import (
 	autowire "github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/normal"
+	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	singleton "github.com/alibaba/ioc-golang/autowire/singleton"
 	util "github.com/alibaba/ioc-golang/autowire/util"
 )
@@ -19,7 +19,6 @@ func init() {
 		},
 	})
 	appStructDescriptor := &autowire.StructDescriptor{
-		Alias: "appalias",
 		Factory: func() interface{} {
 			return &App{}
 		},
@@ -28,7 +27,12 @@ func init() {
 }
 
 type app_ struct {
-	Run_ func()
+	printMoney_ func()
+	Run_        func()
+}
+
+func (a *app_) printMoney() {
+	a.printMoney_()
 }
 
 func (a *app_) Run() {
@@ -36,6 +40,7 @@ func (a *app_) Run() {
 }
 
 type AppIOCInterface interface {
+	printMoney()
 	Run()
 }
 

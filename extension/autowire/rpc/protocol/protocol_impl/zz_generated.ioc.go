@@ -7,7 +7,6 @@ package protocol_impl
 
 import (
 	"dubbo.apache.org/dubbo-go/v3/protocol"
-
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	"github.com/alibaba/ioc-golang/autowire/util"
@@ -19,7 +18,7 @@ func init() {
 			return &iOCProtocol_{}
 		},
 	})
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+	iOCProtocolStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &IOCProtocol{}
 		},
@@ -32,7 +31,8 @@ func init() {
 			impl := i.(*IOCProtocol)
 			return param.Init(impl)
 		},
-	})
+	}
+	normal.RegisterStructDescriptor(iOCProtocolStructDescriptor)
 }
 
 type paramInterface interface {

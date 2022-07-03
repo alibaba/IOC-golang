@@ -18,11 +18,12 @@ func init() {
 			return &impl1_{}
 		},
 	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
+	impl1StructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &Impl1{}
 		},
-	})
+	}
+	singleton.RegisterStructDescriptor(impl1StructDescriptor)
 }
 
 type impl1_ struct {

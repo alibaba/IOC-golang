@@ -7,12 +7,14 @@ tidy-all:
 	cd iocli && go mod tidy -compat=1.17
 	go mod tidy -compat=1.17
 
-.PHONY:test
-test:
-	go test ./... -cover -p 1
-
 imports:
 	goimports -local github.com/alibaba/ioc-golang -w .
 
 lint: tidy-all
 	golangci-lint run
+
+test-all:
+	go test ./... -cover -p 1
+	cd extension && go test ./... -cover -p 1
+	cd example && go test ./... -cover -p 1
+	cd iocli && go test ./... -cover -p 1

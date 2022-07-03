@@ -6,13 +6,12 @@
 package nacos
 
 import (
-	"github.com/nacos-group/nacos-sdk-go/v2/model"
-	"github.com/nacos-group/nacos-sdk-go/v2/vo"
-
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	singleton "github.com/alibaba/ioc-golang/autowire/singleton"
 	util "github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/nacos-group/nacos-sdk-go/v2/model"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 )
 
 func init() {
@@ -21,7 +20,7 @@ func init() {
 			return &namingClient_{}
 		},
 	})
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+	namingClientStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &NamingClient{}
 		},
@@ -34,21 +33,9 @@ func init() {
 			impl := i.(*NamingClient)
 			return param.New(impl)
 		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &NamingClient{}
-		},
-		ParamFactory: func() interface{} {
-			var _ paramInterface = &Param{}
-			return &Param{}
-		},
-		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(paramInterface)
-			impl := i.(*NamingClient)
-			return param.New(impl)
-		},
-	})
+	}
+	normal.RegisterStructDescriptor(namingClientStructDescriptor)
+	singleton.RegisterStructDescriptor(namingClientStructDescriptor)
 }
 
 type paramInterface interface {

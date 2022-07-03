@@ -79,9 +79,9 @@ func (s *SingletonAutowire) CanBeEntrance() bool {
 // developer APIs
 
 func RegisterStructDescriptor(sd *autowire.StructDescriptor) {
-	sd.SetAutowireType(Name)
 	sdID := sd.ID()
 	singletonStructDescriptorsMap[sdID] = sd
+	autowire.RegisterStructDescriptor(sdID, sd)
 	if sd.Alias != "" {
 		autowire.RegisterAlias(sd.Alias, sdID)
 	}

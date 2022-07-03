@@ -15,7 +15,25 @@
 
 package interceptor
 
-type Interceptor interface {
-	BeforeInvoke(ctx *InvocationContext)
-	AfterInvoke(ctx *InvocationContext)
+import "reflect"
+
+type InvocationContext struct {
+	ProxyServicePtr interface{}
+	SDID            string
+	MethodName      string
+	Params          []reflect.Value
+	ReturnValues    []reflect.Value
+}
+
+func (c *InvocationContext) SetReturnValues(returnValues []reflect.Value) {
+	c.ReturnValues = returnValues
+}
+
+func NewInvocationContext(proxyServicePtr interface{}, sdid, methodName string, params []reflect.Value) *InvocationContext {
+	return &InvocationContext{
+		ProxyServicePtr: proxyServicePtr,
+		SDID:            sdid,
+		MethodName:      methodName,
+		Params:          params,
+	}
 }

@@ -18,7 +18,7 @@ func init() {
 			return &app_{}
 		},
 	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
+	appStructDescriptor := &autowire.StructDescriptor{
 		Alias: "AppAlias",
 		Factory: func() interface{} {
 			return &App{}
@@ -32,7 +32,8 @@ func init() {
 			impl := i.(*App)
 			return param.Init(impl)
 		},
-	})
+	}
+	singleton.RegisterStructDescriptor(appStructDescriptor)
 }
 
 type paramInterface interface {
