@@ -17,10 +17,11 @@ package watch
 
 import (
 	"context"
-	"github.com/alibaba/ioc-golang/debug/interceptor"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/alibaba/ioc-golang/debug/interceptor"
 
 	"github.com/stretchr/testify/assert"
 
