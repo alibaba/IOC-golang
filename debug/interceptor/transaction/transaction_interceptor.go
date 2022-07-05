@@ -48,24 +48,10 @@ func (t *Interceptor) BeforeInvoke(ctx *interceptor.InvocationContext) {
 	}
 	if _, ok := sd.TransactionMethodsMap[ctx.MethodName]; ok {
 		// current method wants to start a transaction
-		txCtx := &Context{
-			entranceMethod: common.CurrentCallingMethodName(),
-		}
-		t.transactionGrIDMap.Store(grID, txCtx)
+		t.transactionGrIDMap.Store(grID, newContext(common.CurrentCallingMethodName()))
 		return
 	}
 	// not in transaction, don't want to start a transaction
-}
-
-func isInvocationFailed(returnValues []reflect.Value) (bool, error) {
-	if len(returnValues) == 0 {
-		return false, nil
-	}
-	finalReturnValue := returnValues[len(returnValues)-1]
-	if err, ok := finalReturnValue.Interface().(error); ok && err != nil {
-		return true, err
-	}
-	return false, nil
 }
 
 func (t *Interceptor) AfterInvoke(ctx *interceptor.InvocationContext) {
@@ -73,7 +59,7 @@ func (t *Interceptor) AfterInvoke(ctx *interceptor.InvocationContext) {
 	grID := goid.Get()
 	if val, ok := t.transactionGrIDMap.Load(grID); ok {
 		// this goRoutine is in the transaction
-		txCtx := val.(*Context)
+		txCtx := val.(*context)
 
 		// if invocation failed
 		invocationFailed, err := isInvocationFailed(ctx.ReturnValues)
@@ -85,22 +71,34 @@ func (t *Interceptor) AfterInvoke(ctx *interceptor.InvocationContext) {
 			t.transactionGrIDMap.Delete(grID)
 			// if the transaction failed ?
 			if invocationFailed {
-				txCtx.Failed(err)
+				txCtx.failed(err)
 				return
 			}
-			txCtx.Finish()
+			txCtx.finish()
+			return
 		}
 		// current invocation is not the entrance of transaction
 		// if the invocation is success ?
 		if !invocationFailed {
 			// the invocation is success, try to add to context
-			txCtx.AddSuccessfullyCalledInvocationCtx(ctx)
+			txCtx.addSuccessfullyCalledInvocationCtx(ctx)
 			return
 		}
 		// the invocation failed
 		return
 	}
 	// the goRoutine is not in the transaction
+}
+
+func isInvocationFailed(returnValues []reflect.Value) (bool, error) {
+	if len(returnValues) == 0 {
+		return false, nil
+	}
+	finalReturnValue := returnValues[len(returnValues)-1]
+	if err, ok := finalReturnValue.Interface().(error); ok && err != nil {
+		return true, err
+	}
+	return false, nil
 }
 
 var transactionInterceptorSingleton *Interceptor

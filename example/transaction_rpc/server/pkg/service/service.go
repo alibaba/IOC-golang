@@ -20,7 +20,7 @@ import (
 )
 
 // +ioc:autowire=true
-// +ioc:autowire:type=singleton
+// +ioc:autowire:type=rpc
 // +ioc:autowire:constructFunc=InitBankService
 // +ioc:tx:func=AddMoney-AddMoneyRollout
 // +ioc:tx:func=RemoveMoney-RemoveMoneyRollout

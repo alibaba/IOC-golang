@@ -16,42 +16,14 @@
 package main
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/service/api"
+	_ "github.com/alibaba/ioc-golang/example/transaction_rpc/server/pkg/service"
 )
-
-// +ioc:autowire=true
-// +ioc:autowire:type=singleton
-
-type App struct {
-	ServiceStruct api.ServiceStructIOCRPCClient `rpc-client:",address=127.0.0.1:2022"`
-}
-
-func (a *App) Run() {
-	for {
-		time.Sleep(time.Second * 3)
-		usr, err := a.ServiceStruct.GetUser("laurence", 23)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("get user = %+v\n", usr)
-	}
-}
 
 func main() {
 	// start
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-
-	// 'App' is alias name
-	// We can get instance by ths id
-	app, err := GetAppSingleton()
-	if err != nil {
-		panic(err)
-	}
-	app.Run()
+	select {}
 }

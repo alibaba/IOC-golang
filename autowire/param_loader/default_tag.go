@@ -20,8 +20,9 @@ import (
 	"log"
 	"strings"
 
-	"github.com/alibaba/ioc-golang/config"
 	"github.com/pkg/errors"
+
+	"github.com/alibaba/ioc-golang/config"
 
 	"github.com/alibaba/ioc-golang/autowire"
 )

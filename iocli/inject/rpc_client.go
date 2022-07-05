@@ -60,12 +60,42 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 		normalAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/normal")
 		rpcClientAlias := c.NeedImport("github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client")
 
+		// calculation tx pairs
+		txFunctionPairs := make([]txFunctionPair, 0)
+		for _, v := range info.Markers["ioc:tx:func"] {
+			if txFuncMark, ok := v.(string); ok {
+				txFuncPairRawStrings := strings.Split(txFuncMark, "-")
+				if len(txFuncPairRawStrings) == 1 {
+					txFunctionPairs = append(txFunctionPairs, txFunctionPair{
+						Name: txFuncPairRawStrings[0],
+					})
+				} else if len(txFuncPairRawStrings) == 2 {
+					txFunctionPairs = append(txFunctionPairs, txFunctionPair{
+						Name:         txFuncPairRawStrings[0],
+						RollbackName: txFuncPairRawStrings[1],
+					})
+				}
+			}
+		}
+
 		c.Line(`func init() {`)
+		// generate client stub factory
 		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, rpcClientAlias, autowireAlias)
 		c.Linef(`Factory: func() interface{} {
 			return &%sIOCRPCClient{}
 		},`, toFirstCharLower(info.Name))
+
+		// generate TransactionMethodsMap
+		if len(txFunctionPairs) > 0 {
+			c.Linef(`TransactionMethodsMap: map[string]string{`)
+			for _, pair := range txFunctionPairs {
+				c.Linef(`"%s":"%s",`, pair.Name, pair.RollbackName)
+			}
+			c.Linef(`},`)
+		}
 		c.Line(`})`)
+
+		// generate client stub proxy factory
 		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, normalAlias, autowireAlias)
 		c.Linef(`Factory: func() interface{} {
 			return &%sIOCRPCClient_{}

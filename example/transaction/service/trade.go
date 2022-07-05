@@ -15,56 +15,48 @@
 
 package service
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:constructFunc=InitBankService
-// +ioc:tx:func=AddMoney-AddMoneyRollout
-// +ioc:tx:func=RemoveMoney-RemoveMoneyRollout
+// +ioc:tx:func=DoTradeWithTxAddMoneyFailed
+// +ioc:tx:func=DoTradeWithTxFinallyFailed
+// +ioc:tx:func=DoTradeWithTxSuccess
 
-type BankService struct {
-	Money map[int]int
+type TradeService struct {
+	BankService BankServiceIOCInterface `singleton:""`
 }
 
-func InitBankService(b *BankService) (*BankService, error) {
-	b.Money = make(map[int]int)
-	b.Money[1] = 100
-	b.Money[2] = 100
-	return b, nil
-}
-
-func (b *BankService) GetMoney(id int) int {
-	return b.Money[id]
-}
-
-func (b *BankService) AddMoney(id, num int) error {
-	if num <= 0 {
-		// raise error, this would call all previous succeed branches: RemoveMoneyRollout function
-		return fmt.Errorf("add money num %d is not positive", num)
+func (b *TradeService) DoTradeWithTxAddMoneyFailed(id1, id2, num int) error {
+	if err := b.BankService.RemoveMoney(id1, 100); err != nil {
+		return err
 	}
-	b.Money[id] += num
-	return nil
-}
 
-func (b *BankService) AddMoneyRollout(id, num int, err error) error {
-	b.Money[id] -= num
-	fmt.Printf("Transaction is failed, real cause is '%s'\n method BankService.AddMoney is rolling back, sub num %d\n", err, num)
-	return nil
-}
-
-func (b *BankService) RemoveMoney(id, num int) error {
-	if num <= 0 {
-		return fmt.Errorf("remove money num %d is not positive", num)
+	if err := b.BankService.AddMoney(id2, -1); err != nil {
+		// -1 num cause error, previous succeeded branch b.BankService.RemoveMoneyRollout() would be called
+		return err
 	}
-	b.Money[id] -= num
 	return nil
 }
+func (b *TradeService) DoTradeWithTxFinallyFailed(id1, id2, num int) error {
+	if err := b.BankService.RemoveMoney(id1, 100); err != nil {
+		return err
+	}
 
-func (b *BankService) RemoveMoneyRollout(id, num int, err error) error {
-	b.Money[id] += num
-	fmt.Printf("Transaction is failed, real cause is '%s'\nmethod BankService.RemoveMoney is rolling back, add num %d\n", err, num)
+	if err := b.BankService.AddMoney(id2, 100); err != nil {
+		return err
+	}
+	// previous succeeded branch b.BankService.AddMoneyRollout() and b.BankService.RemoveMoneyRollout() would be called in order
+	return fmt.Errorf("finally failed")
+}
+
+func (b *TradeService) DoTradeWithTxSuccess(id1, id2, num int) error {
+	if err := b.BankService.RemoveMoney(id1, 100); err != nil {
+		return err
+	}
+
+	if err := b.BankService.AddMoney(id2, 100); err != nil {
+		return err
+	}
 	return nil
 }
