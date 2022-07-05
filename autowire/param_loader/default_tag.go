@@ -70,7 +70,7 @@ func (p *defaultTag) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo)
 		if len(splitedKV) != 2 {
 			return nil, errors.New("not supported")
 		}
-		expandValue, _ := config.ExpandConfigValueIfNecessary(splitedKV[1])
+		expandValue := config.ExpandConfigValueIfNecessary(splitedKV[1])
 		kvMaps[splitedKV[0]] = expandValue
 	}
 	data, err := json.Marshal(kvMaps)

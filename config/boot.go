@@ -141,7 +141,7 @@ func Load(opts ...Option) error {
 	}
 	config = targetMap
 
-	parseEvnIfNecessary(config)
+	parseConfigIfNecessary(config)
 
 	return nil
 }
