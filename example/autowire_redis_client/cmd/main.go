@@ -17,9 +17,8 @@ package main
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/alibaba/ioc-golang/config"
+	"os"
 
 	"github.com/go-redis/redis"
 
@@ -116,11 +115,8 @@ func (a *App) Run() {
 	fmt.Println("client5 get ", val6)
 }
 
-func init() {
-	_ = os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
-}
-
 func main() {
+	_ = os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
 	if err := ioc.Load(
 		config.WithSearchPath("../conf"),
 		config.WithConfigName("ioc_golang")); err != nil {
