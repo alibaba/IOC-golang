@@ -32,6 +32,7 @@ import (
 // +ioc:autowire:paramType=Param
 // +ioc:autowire:constructFunc=Init
 // +ioc:autowire:alias=AppAlias
+
 type App struct {
 	NormalRedis    normalRedis.RedisIOCInterface `normal:""`
 	NormalDB1Redis normalRedis.RedisIOCInterface `normal:",db1-redis"`
@@ -115,8 +116,14 @@ func (a *App) Run() {
 	fmt.Println("client5 get ", val6)
 }
 
+func init() {
+	err := os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
+	for err != nil {
+		err = os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
+	}
+}
+
 func main() {
-	_ = os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
 	if err := ioc.Load(
 		config.WithSearchPath("../conf"),
 		config.WithConfigName("ioc_golang")); err != nil {
