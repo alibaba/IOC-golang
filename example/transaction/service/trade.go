@@ -58,5 +58,6 @@ func (b *TradeService) DoTradeWithTxSuccess(id1, id2, num int) error {
 	if err := b.BankService.AddMoney(id2, 100); err != nil {
 		return err
 	}
+
 	return nil
 }

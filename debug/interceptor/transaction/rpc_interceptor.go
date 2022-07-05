@@ -13,18 +13,36 @@
  * limitations under the License.
  */
 
-package autowire
+package transaction
 
-var structDescriptorsMap = make(map[string]*StructDescriptor)
+import (
+	"net/http"
 
-func RegisterStructDescriptor(sdid string, descriptor *StructDescriptor) {
-	structDescriptorsMap[sdid] = descriptor
+	"github.com/gin-gonic/gin"
+
+	"github.com/alibaba/ioc-golang/debug/interceptor"
+)
+
+// todo support distributed rpc scene transaction
+type rpcInterceptor struct {
 }
 
-func GetStructDescriptor(sdid string) *StructDescriptor {
-	return structDescriptorsMap[sdid]
+func (r *rpcInterceptor) BeforeServerInvoke(c *gin.Context) error {
+	return nil
 }
 
-func GetStructDescriptorsMap() map[string]*StructDescriptor {
-	return structDescriptorsMap
+func (r *rpcInterceptor) AfterServerInvoke(c *gin.Context) error {
+	return nil
+}
+
+func (r *rpcInterceptor) BeforeClientInvoke(req *http.Request) error {
+	return nil
+}
+
+func (r *rpcInterceptor) AfterClientInvoke(rsp *http.Response) error {
+	return nil
+}
+
+func init() {
+	interceptor.RegisterRPCInterceptor(&rpcInterceptor{})
 }

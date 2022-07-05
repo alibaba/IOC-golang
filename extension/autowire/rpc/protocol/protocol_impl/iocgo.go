@@ -9,16 +9,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alibaba/ioc-golang/debug/interceptor"
+
 	"dubbo.apache.org/dubbo-go/v3/protocol/invocation"
 	"github.com/gin-gonic/gin"
-
-	"github.com/alibaba/ioc-golang/autowire/util"
-
-	"github.com/opentracing/opentracing-go"
-
-	tracer2 "github.com/alibaba/ioc-golang/debug/interceptor/trace"
-
-	"github.com/alibaba/ioc-golang/debug/interceptor/trace"
 
 	"github.com/fatih/color"
 
@@ -59,11 +53,13 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 		}
 	}
 
-	// inject tracing context if necessary
-	if currentSpan := tracer2.GetTraceInterceptor().GetCurrentSpan(); currentSpan != nil {
-		// current rpc invocation is in tracing link
-		carrier := opentracing.HTTPHeadersCarrier(req.Header)
-		_ = trace.GetGlobalTracer().Inject(currentSpan.Context(), opentracing.HTTPHeaders, carrier)
+	allRPCInterceptors := interceptor.GetAllRPCInterceptors()
+	for _, rpcInterceptor := range allRPCInterceptors {
+		if err := rpcInterceptor.BeforeClientInvoke(req); err != nil {
+			return &dubboProtocol.RPCResult{
+				Err: err,
+			}
+		}
 	}
 
 	rsp, err := http.DefaultClient.Do(req)
@@ -73,6 +69,15 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 			Err: err,
 		}
 	}
+
+	for _, rpcInterceptor := range allRPCInterceptors {
+		if err := rpcInterceptor.AfterClientInvoke(rsp); err != nil {
+			return &dubboProtocol.RPCResult{
+				Err: err,
+			}
+		}
+	}
+
 	rspData, _ := ioutil.ReadAll(rsp.Body)
 	replyList := invocation.Reply().(*[]interface{})
 	finalIsError := false
@@ -124,6 +129,13 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 		argsType := methodType.ArgsType()
 		tempMethod := methodName
 		httpServer.POST(fmt.Sprintf("/%s/%s", clientStubFullName, tempMethod), func(c *gin.Context) {
+			allRPCInterceptors := interceptor.GetAllRPCInterceptors()
+			for _, rpcInterceptor := range allRPCInterceptors {
+				if err := rpcInterceptor.BeforeServerInvoke(c); err != nil {
+					c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+				}
+			}
+
 			reqData, err := ioutil.ReadAll(c.Request.Body)
 			if err != nil {
 				c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
@@ -134,21 +146,15 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 				c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 				return
 			}
-
-			carrier := opentracing.HTTPHeadersCarrier(c.Request.Header)
-			clientContext, err := trace.GetGlobalTracer().Extract(opentracing.HTTPHeaders, carrier)
-			if err == nil {
-				traceCtx := &trace.Context{
-					SDID:              util.ToRPCServiceSDID(clientStubFullName),
-					MethodName:        tempMethod,
-					ClientSpanContext: clientContext,
-				}
-				trace.GetTraceInterceptor().TraceThisGR(traceCtx)
-				defer trace.GetTraceInterceptor().UnTrace(traceCtx)
-			}
 			rsp := invoker.Invoke(context.Background(),
 				invocation.NewRPCInvocation(tempMethod, arguments, nil)).Result()
 			c.PureJSON(http.StatusOK, rsp)
+
+			for _, rpcInterceptor := range allRPCInterceptors {
+				if err := rpcInterceptor.AfterServerInvoke(c); err != nil {
+					c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+				}
+			}
 		})
 	}
 

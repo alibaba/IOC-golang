@@ -32,7 +32,7 @@ import (
 )
 
 type DebugServerImpl struct {
-	traceInterceptor        *trace.Interceptor
+	traceInterceptor        *trace.MethodTraceInterceptor
 	watchInterceptor        *watch.Interceptor
 	allInterfaceMetadataMap map[string]*debugCommon.StructMetadata
 	debug.UnimplementedDebugServiceServer
@@ -112,13 +112,8 @@ func (d *DebugServerImpl) Trace(req *debug.TraceRequest, traceServer debug.Debug
 		}
 	}
 
-	traceCtx := &trace.Context{
-		SDID:         sdid,
-		MethodName:   method,
-		Ch:           sendCh,
-		FieldMatcher: fieldMatcher,
-	}
-	d.traceInterceptor.Trace(traceCtx)
+	traceCtx := trace.NewTraceByMethodContext(sdid, method, sendCh, fieldMatcher)
+	d.traceInterceptor.StartTraceByMethod(traceCtx)
 
 	done := traceServer.Context().Done()
 	if err := traceServer.Send(&debug.TraceResponse{
@@ -128,7 +123,7 @@ func (d *DebugServerImpl) Trace(req *debug.TraceRequest, traceServer debug.Debug
 	}
 
 	<-done
-	d.traceInterceptor.UnTrace(traceCtx)
+	d.traceInterceptor.StopTraceByMethod(traceCtx)
 
 	// todo return trace info to cli
 	//case traceRsp := <-sendCh:

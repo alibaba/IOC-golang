@@ -35,7 +35,7 @@ func (a *App) Run() {
 		time.Sleep(time.Second * 3)
 		usr, err := a.ServiceStruct.GetUser("laurence", 23)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
 		}
 		fmt.Printf("get user = %+v\n", usr)
 	}

@@ -10,7 +10,7 @@ import (
 
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
-	"github.com/alibaba/ioc-golang/autowire/util"
+	util "github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {

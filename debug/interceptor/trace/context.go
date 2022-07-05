@@ -18,44 +18,60 @@ package trace
 import (
 	"sync"
 
+	"github.com/petermattis/goid"
+
 	"github.com/opentracing/opentracing-go"
 
 	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
 	"github.com/alibaba/ioc-golang/debug/interceptor/common"
 )
 
-type Context struct {
-	SDID         string
-	MethodName   string
-	Ch           chan *debug.TraceResponse
-	FieldMatcher *common.FieldMatcher
+type methodTracingContext struct {
+	methodName   string
+	sdid         string
+	ch           chan *debug.TraceResponse // not useless
+	fieldMatcher *common.FieldMatcher
+	tracesMap    sync.Map // goroutine-id -> *goRoutineTracingContext
+}
 
-	// trace all gr
-	tracesMap sync.Map // goroutine-id -> *trace
+func NewTraceByMethodContext(sdid, method string, ch chan *debug.TraceResponse, fieldMatcher *common.FieldMatcher) *methodTracingContext {
+	return &methodTracingContext{
+		sdid:         sdid,
+		methodName:   method,
+		ch:           ch,
+		fieldMatcher: fieldMatcher,
+	}
+}
 
-	// trace single gr
-	targetGR          bool
+func (t *methodTracingContext) addGoroutineTraceContext(grCtx *goRoutineTracingContext) {
+	grID := goid.Get()
+	t.tracesMap.Store(grID, grCtx)
+}
+
+type goRoutineTracingContext struct {
+	MethodName        string
 	grID              int64
 	ClientSpanContext opentracing.SpanContext
+	trace             *trace
 }
 
-func (t *Context) finish(grID int64) {
-	t.tracesMap.Delete(grID)
-}
-
-func (t *Context) getTrace(grID int64) *trace {
-	val, ok := t.tracesMap.Load(grID)
-	if !ok {
-		// todo handle not ok
-		return nil
+func newGoRoutineTracingContextWithClientSpan(entranceMethod string, clientSpan opentracing.SpanContext) *goRoutineTracingContext {
+	grID := goid.Get()
+	return &goRoutineTracingContext{
+		trace:             newTraceWithClientSpanContext(grID, entranceMethod, clientSpan),
+		grID:              grID,
+		ClientSpanContext: clientSpan,
 	}
-	return val.(*trace)
 }
 
-func (t *Context) createTrace(grID int64, entranceMethod string) {
-	if !t.targetGR {
-		t.tracesMap.Store(grID, newTrace(grID, entranceMethod))
-		return
+func newGoRoutineTracingContext(entranceMethod string) *goRoutineTracingContext {
+	grID := goid.Get()
+	return &goRoutineTracingContext{
+		trace: newTrace(grID, entranceMethod),
+		grID:  grID,
 	}
-	t.tracesMap.Store(grID, newTraceWithClientSpanContext(grID, entranceMethod, t.ClientSpanContext))
+}
+
+func (g *goRoutineTracingContext) getTrace() *trace {
+	return g.trace
 }

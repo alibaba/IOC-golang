@@ -13,18 +13,27 @@
  * limitations under the License.
  */
 
-package autowire
+package interceptor
 
-var structDescriptorsMap = make(map[string]*StructDescriptor)
+import (
+	"net/http"
 
-func RegisterStructDescriptor(sdid string, descriptor *StructDescriptor) {
-	structDescriptorsMap[sdid] = descriptor
+	"github.com/gin-gonic/gin"
+)
+
+type RPCInterceptor interface {
+	BeforeClientInvoke(req *http.Request) error
+	AfterClientInvoke(rsp *http.Response) error
+	BeforeServerInvoke(c *gin.Context) error
+	AfterServerInvoke(c *gin.Context) error
 }
 
-func GetStructDescriptor(sdid string) *StructDescriptor {
-	return structDescriptorsMap[sdid]
+var rpcInterceptors []RPCInterceptor
+
+func RegisterRPCInterceptor(interceptor RPCInterceptor) {
+	rpcInterceptors = append(rpcInterceptors, interceptor)
 }
 
-func GetStructDescriptorsMap() map[string]*StructDescriptor {
-	return structDescriptorsMap
+func GetAllRPCInterceptors() []RPCInterceptor {
+	return rpcInterceptors
 }
