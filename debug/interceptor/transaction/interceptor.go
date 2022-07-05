@@ -48,7 +48,7 @@ func (t *Interceptor) BeforeInvoke(ctx *interceptor.InvocationContext) {
 	}
 	if _, ok := sd.TransactionMethodsMap[ctx.MethodName]; ok {
 		// current method wants to start a transaction
-		txCtx := &Context{
+		txCtx := &context{
 			entranceMethod: common.CurrentCallingMethodName(),
 		}
 		t.transactionGrIDMap.Store(grID, txCtx)
@@ -73,7 +73,7 @@ func (t *Interceptor) AfterInvoke(ctx *interceptor.InvocationContext) {
 	grID := goid.Get()
 	if val, ok := t.transactionGrIDMap.Load(grID); ok {
 		// this goRoutine is in the transaction
-		txCtx := val.(*Context)
+		txCtx := val.(*context)
 
 		// if invocation failed
 		invocationFailed, err := isInvocationFailed(ctx.ReturnValues)
@@ -85,16 +85,16 @@ func (t *Interceptor) AfterInvoke(ctx *interceptor.InvocationContext) {
 			t.transactionGrIDMap.Delete(grID)
 			// if the transaction failed ?
 			if invocationFailed {
-				txCtx.Failed(err)
+				txCtx.failed(err)
 				return
 			}
-			txCtx.Finish()
+			txCtx.finish()
 		}
 		// current invocation is not the entrance of transaction
 		// if the invocation is success ?
 		if !invocationFailed {
 			// the invocation is success, try to add to context
-			txCtx.AddSuccessfullyCalledInvocationCtx(ctx)
+			txCtx.addSuccessfullyCalledInvocationCtx(ctx)
 			return
 		}
 		// the invocation failed
