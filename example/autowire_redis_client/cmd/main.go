@@ -17,8 +17,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/alibaba/ioc-golang/config"
 	"os"
+
+	"github.com/alibaba/ioc-golang/config"
 
 	"github.com/go-redis/redis"
 
@@ -117,10 +118,7 @@ func (a *App) Run() {
 }
 
 func init() {
-	err := os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
-	for err != nil {
-		err = os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
-	}
+	_ = os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
 }
 
 func main() {
