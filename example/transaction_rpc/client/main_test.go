@@ -16,42 +16,38 @@
 package main
 
 import (
-	"fmt"
+	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/service/api"
+
+	_ "github.com/alibaba/ioc-golang/example/transaction_rpc/server/pkg/service"
 )
 
-// +ioc:autowire=true
-// +ioc:autowire:type=singleton
+func (a *App) TestRun(t *testing.T) {
+	assert.NotNil(t, a.TradeService.DoTradeWithTxFinallyFailed(1, 2, 100))
+	assert.Equal(t, 100, a.BankRPCService.GetMoney(1))
+	assert.Equal(t, 100, a.BankRPCService.GetMoney(2))
 
-type App struct {
-	ServiceStruct api.ServiceStructIOCRPCClient `rpc-client:",address=127.0.0.1:2022"`
+	assert.NotNil(t, a.TradeService.DoTradeWithTxAddMoneyFailed(1, 2, 100))
+	assert.Equal(t, 100, a.BankRPCService.GetMoney(1))
+	assert.Equal(t, 100, a.BankRPCService.GetMoney(2))
+
+	assert.Nil(t, a.TradeService.DoTradeWithTxSuccess(1, 2, 100))
+	assert.Equal(t, 0, a.BankRPCService.GetMoney(1))
+	assert.Equal(t, 200, a.BankRPCService.GetMoney(2))
 }
 
-func (a *App) Run() {
-	for {
-		time.Sleep(time.Second * 3)
-		usr, err := a.ServiceStruct.GetUser("laurence", 23)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Printf("get user = %+v\n", usr)
-	}
-}
-
-func main() {
-	// start
+func TestRPCClient(t *testing.T) {
 	if err := ioc.Load(); err != nil {
 		panic(err)
 	}
-
-	// 'App' is alias name
-	// We can get instance by ths id
 	app, err := GetAppSingleton()
 	if err != nil {
 		panic(err)
 	}
-	app.Run()
+	time.Sleep(time.Second)
+	app.TestRun(t)
 }

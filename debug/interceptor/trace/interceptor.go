@@ -37,7 +37,7 @@ func (m *MethodTraceInterceptor) BeforeInvoke(ctx *interceptor.InvocationContext
 	// match method tracing context found
 
 	// 3.start goroutine tracing
-	grCtx := NewGoRoutineTracingContext(common.CurrentCallingMethodName())
+	grCtx := newGoRoutineTracingContext(common.CurrentCallingMethodName())
 	methodTracingCtx.addGoroutineTraceContext(grCtx)
 	m.goRoutineInterceptor.AddCurrentGRTracingContext(grCtx)
 	m.goRoutineInterceptor.BeforeInvoke(ctx)

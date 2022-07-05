@@ -27,6 +27,13 @@ type context struct {
 	entranceMethod                 string
 }
 
+func newContext(entranceMethod string) *context {
+	return &context{
+		rollbackAbleInvocationContexts: make([]rollbackAbleInvocationCtx, 0),
+		entranceMethod:                 entranceMethod,
+	}
+}
+
 func (c *context) finish() {
 
 }
@@ -62,6 +69,6 @@ func (c *rollbackAbleInvocationCtx) rollback(err error) {
 	valueOfElem := valueOf.Elem()
 	funcRaw := valueOfElem.FieldByName(c.rollbackMethodName + "_")
 	rollbackParam := c.invocationCtx.Params
-	rollbackParam = append(rollbackParam, reflect.ValueOf(err))
+	rollbackParam = append(rollbackParam, reflect.ValueOf(err.Error()))
 	funcRaw.Call(rollbackParam)
 }

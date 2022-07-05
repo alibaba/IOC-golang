@@ -17,9 +17,8 @@ package main
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/alibaba/ioc-golang/config"
+	"os"
 
 	"github.com/go-redis/redis"
 
@@ -33,6 +32,7 @@ import (
 // +ioc:autowire:paramType=Param
 // +ioc:autowire:constructFunc=Init
 // +ioc:autowire:alias=AppAlias
+
 type App struct {
 	NormalRedis    normalRedis.RedisIOCInterface `normal:""`
 	NormalDB1Redis normalRedis.RedisIOCInterface `normal:",db1-redis"`
@@ -117,7 +117,10 @@ func (a *App) Run() {
 }
 
 func init() {
-	_ = os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
+	err := os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
+	for err != nil {
+		err = os.Setenv("REDIS_ADDRESS_EXPAND", "localhost:6379")
+	}
 }
 
 func main() {

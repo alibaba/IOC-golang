@@ -15,22 +15,6 @@ import (
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &tradeService_{}
-		},
-	})
-	tradeServiceStructDescriptor := &autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &TradeService{}
-		},
-		TransactionMethodsMap: map[string]string{
-			"DoTradeWithTxAddMoneyFailed": "",
-			"DoTradeWithTxFinallyFailed":  "",
-			"DoTradeWithTxSuccess":        "",
-		},
-	}
-	singleton.RegisterStructDescriptor(tradeServiceStructDescriptor)
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
 			return &bankService_{}
 		},
 	})
@@ -49,9 +33,53 @@ func init() {
 		},
 	}
 	singleton.RegisterStructDescriptor(bankServiceStructDescriptor)
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &tradeService_{}
+		},
+	})
+	tradeServiceStructDescriptor := &autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &TradeService{}
+		},
+		TransactionMethodsMap: map[string]string{
+			"DoTradeWithTxAddMoneyFailed": "",
+			"DoTradeWithTxFinallyFailed":  "",
+			"DoTradeWithTxSuccess":        "",
+		},
+	}
+	singleton.RegisterStructDescriptor(tradeServiceStructDescriptor)
 }
 
 type BankServiceConstructFunc func(impl *BankService) (*BankService, error)
+type bankService_ struct {
+	GetMoney_           func(id int) int
+	AddMoney_           func(id, num int) error
+	AddMoneyRollout_    func(id, num int, errMsg string) error
+	RemoveMoney_        func(id, num int) error
+	RemoveMoneyRollout_ func(id, num int, errMsg string) error
+}
+
+func (b *bankService_) GetMoney(id int) int {
+	return b.GetMoney_(id)
+}
+
+func (b *bankService_) AddMoney(id, num int) error {
+	return b.AddMoney_(id, num)
+}
+
+func (b *bankService_) AddMoneyRollout(id, num int, errMsg string) error {
+	return b.AddMoneyRollout_(id, num, errMsg)
+}
+
+func (b *bankService_) RemoveMoney(id, num int) error {
+	return b.RemoveMoney_(id, num)
+}
+
+func (b *bankService_) RemoveMoneyRollout(id, num int, errMsg string) error {
+	return b.RemoveMoneyRollout_(id, num, errMsg)
+}
+
 type tradeService_ struct {
 	DoTradeWithTxAddMoneyFailed_ func(id1, id2, num int) error
 	DoTradeWithTxFinallyFailed_  func(id1, id2, num int) error
@@ -70,64 +98,18 @@ func (t *tradeService_) DoTradeWithTxSuccess(id1, id2, num int) error {
 	return t.DoTradeWithTxSuccess_(id1, id2, num)
 }
 
-type bankService_ struct {
-	GetMoney_           func(id int) int
-	AddMoney_           func(id, num int) error
-	AddMoneyRollout_    func(id, num int, err error) error
-	RemoveMoney_        func(id, num int) error
-	RemoveMoneyRollout_ func(id, num int, err error) error
-}
-
-func (b *bankService_) GetMoney(id int) int {
-	return b.GetMoney_(id)
-}
-
-func (b *bankService_) AddMoney(id, num int) error {
-	return b.AddMoney_(id, num)
-}
-
-func (b *bankService_) AddMoneyRollout(id, num int, err error) error {
-	return b.AddMoneyRollout_(id, num, err)
-}
-
-func (b *bankService_) RemoveMoney(id, num int) error {
-	return b.RemoveMoney_(id, num)
-}
-
-func (b *bankService_) RemoveMoneyRollout(id, num int, err error) error {
-	return b.RemoveMoneyRollout_(id, num, err)
+type BankServiceIOCInterface interface {
+	GetMoney(id int) int
+	AddMoney(id, num int) error
+	AddMoneyRollout(id, num int, errMsg string) error
+	RemoveMoney(id, num int) error
+	RemoveMoneyRollout(id, num int, errMsg string) error
 }
 
 type TradeServiceIOCInterface interface {
 	DoTradeWithTxAddMoneyFailed(id1, id2, num int) error
 	DoTradeWithTxFinallyFailed(id1, id2, num int) error
 	DoTradeWithTxSuccess(id1, id2, num int) error
-}
-
-type BankServiceIOCInterface interface {
-	GetMoney(id int) int
-	AddMoney(id, num int) error
-	AddMoneyRollout(id, num int, err error) error
-	RemoveMoney(id, num int) error
-	RemoveMoneyRollout(id, num int, err error) error
-}
-
-func GetTradeServiceSingleton() (*TradeService, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(TradeService)), nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(*TradeService)
-	return impl, nil
-}
-
-func GetTradeServiceIOCInterfaceSingleton() (TradeServiceIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(TradeService)), nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(TradeServiceIOCInterface)
-	return impl, nil
 }
 
 func GetBankServiceSingleton() (*BankService, error) {
@@ -145,5 +127,23 @@ func GetBankServiceIOCInterfaceSingleton() (BankServiceIOCInterface, error) {
 		return nil, err
 	}
 	impl := i.(BankServiceIOCInterface)
+	return impl, nil
+}
+
+func GetTradeServiceSingleton() (*TradeService, error) {
+	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(TradeService)), nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*TradeService)
+	return impl, nil
+}
+
+func GetTradeServiceIOCInterfaceSingleton() (TradeServiceIOCInterface, error) {
+	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(TradeService)), nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(TradeServiceIOCInterface)
 	return impl, nil
 }

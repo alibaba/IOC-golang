@@ -13,22 +13,17 @@
  * limitations under the License.
  */
 
-package service
+package main
 
 import (
-	"github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/dto"
+	"github.com/alibaba/ioc-golang"
+	_ "github.com/alibaba/ioc-golang/example/transaction_rpc/server/pkg/service"
 )
 
-// +ioc:autowire=true
-// +ioc:autowire:type=rpc
-
-type SimpleService struct {
-}
-
-func (s *SimpleService) GetUser(name string, age int) (*dto.User, error) {
-	return &dto.User{
-		Id:   1,
-		Name: name,
-		Age:  age,
-	}, nil
+func main() {
+	// start
+	if err := ioc.Load(); err != nil {
+		panic(err)
+	}
+	select {}
 }

@@ -43,7 +43,7 @@ func (r *rpcInterceptor) BeforeServerInvoke(c *gin.Context) error {
 		}
 		method := splitedPath[len(splitedPath)-1]
 
-		traceByGrContext := NewGoRoutineTracingContextWithClientSpan(method, clientContext)
+		traceByGrContext := newGoRoutineTracingContextWithClientSpan(method, clientContext)
 		GetTraceInterceptor().TraceCurrentGR(traceByGrContext)
 		r.tracingGRIDMap[goid.Get()] = struct{}{}
 	}

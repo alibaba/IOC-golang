@@ -55,7 +55,7 @@ type goRoutineTracingContext struct {
 	trace             *trace
 }
 
-func NewGoRoutineTracingContextWithClientSpan(entranceMethod string, clientSpan opentracing.SpanContext) *goRoutineTracingContext {
+func newGoRoutineTracingContextWithClientSpan(entranceMethod string, clientSpan opentracing.SpanContext) *goRoutineTracingContext {
 	grID := goid.Get()
 	return &goRoutineTracingContext{
 		trace:             newTraceWithClientSpanContext(grID, entranceMethod, clientSpan),
@@ -64,7 +64,7 @@ func NewGoRoutineTracingContextWithClientSpan(entranceMethod string, clientSpan 
 	}
 }
 
-func NewGoRoutineTracingContext(entranceMethod string) *goRoutineTracingContext {
+func newGoRoutineTracingContext(entranceMethod string) *goRoutineTracingContext {
 	grID := goid.Get()
 	return &goRoutineTracingContext{
 		trace: newTrace(grID, entranceMethod),
