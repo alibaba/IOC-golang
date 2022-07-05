@@ -23,14 +23,14 @@ import (
 )
 
 type context struct {
-	successfullyInvokedRollbackAbleMethodsSnapshot []invokedMethodSnapshot
-	entranceMethod                                 string
+	rollbackAbleInvocationContexts []rollbackAbleInvocationCtx
+	entranceMethod                 string
 }
 
 func newContext(entranceMethod string) *context {
 	return &context{
-		successfullyInvokedRollbackAbleMethodsSnapshot: make([]invokedMethodSnapshot, 0),
-		entranceMethod: entranceMethod,
+		rollbackAbleInvocationContexts: make([]rollbackAbleInvocationCtx, 0),
+		entranceMethod:                 entranceMethod,
 	}
 }
 
@@ -39,8 +39,8 @@ func (c *context) finish() {
 }
 
 func (c *context) failed(err error) {
-	for i := len(c.successfullyInvokedRollbackAbleMethodsSnapshot) - 1; i >= 0; i-- {
-		snapshot := c.successfullyInvokedRollbackAbleMethodsSnapshot[i]
+	for i := len(c.rollbackAbleInvocationContexts) - 1; i >= 0; i-- {
+		snapshot := c.rollbackAbleInvocationContexts[i]
 		snapshot.rollback(err)
 	}
 }
@@ -52,23 +52,23 @@ func (c *context) addSuccessfullyCalledInvocationCtx(ctx *interceptor.Invocation
 		return
 	}
 	if rollbackMethodName, ok := sd.TransactionMethodsMap[ctx.MethodName]; ok && rollbackMethodName != "" {
-		c.successfullyInvokedRollbackAbleMethodsSnapshot = append(c.successfullyInvokedRollbackAbleMethodsSnapshot, invokedMethodSnapshot{
+		c.rollbackAbleInvocationContexts = append(c.rollbackAbleInvocationContexts, rollbackAbleInvocationCtx{
 			invocationCtx:      ctx,
 			rollbackMethodName: rollbackMethodName,
 		})
 	}
 }
 
-type invokedMethodSnapshot struct {
+type rollbackAbleInvocationCtx struct {
 	invocationCtx      *interceptor.InvocationContext
 	rollbackMethodName string
 }
 
-func (snapshot *invokedMethodSnapshot) rollback(err error) {
-	valueOf := reflect.ValueOf(snapshot.invocationCtx.ProxyServicePtr)
+func (c *rollbackAbleInvocationCtx) rollback(err error) {
+	valueOf := reflect.ValueOf(c.invocationCtx.ProxyServicePtr)
 	valueOfElem := valueOf.Elem()
-	funcRaw := valueOfElem.FieldByName(snapshot.rollbackMethodName + "_")
-	rollbackParam := snapshot.invocationCtx.Params
+	funcRaw := valueOfElem.FieldByName(c.rollbackMethodName + "_")
+	rollbackParam := c.invocationCtx.Params
 	rollbackParam = append(rollbackParam, reflect.ValueOf(err.Error()))
 	funcRaw.Call(rollbackParam)
 }
