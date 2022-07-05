@@ -41,4 +41,4 @@ jobs:
         ./io-cli gen
     - name: Unit Test
       run: |
-        go test ./... -cover -p 1
+        make test-all

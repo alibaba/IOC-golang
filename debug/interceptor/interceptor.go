@@ -15,11 +15,7 @@
 
 package interceptor
 
-import (
-	"reflect"
-)
-
 type Interceptor interface {
-	BeforeInvoke(interfaceImplId, methodName string, value []reflect.Value) []reflect.Value
-	AfterInvoke(interfaceImplId, methodName string, value []reflect.Value) []reflect.Value
+	BeforeInvoke(ctx *InvocationContext)
+	AfterInvoke(ctx *InvocationContext)
 }

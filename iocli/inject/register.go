@@ -139,6 +139,11 @@ type autowireTypeAliasPair struct {
 	autowireTypeAlias string
 }
 
+type txFunctionPair struct {
+	Name         string
+	RollbackName string
+}
+
 // GenerateMethodsFor makes init method
 // for the given type, when appropriate
 func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root *loader.Package, imports *importsList, infos []*markers.TypeInfo) {
@@ -187,6 +192,23 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			constructFunc = info.Markers["ioc:autowire:constructFunc"][0].(string)
 		}
 
+		txFunctionPairs := make([]txFunctionPair, 0)
+		for _, v := range info.Markers["ioc:tx:func"] {
+			if txFuncMark, ok := v.(string); ok {
+				txFuncPairRawStrings := strings.Split(txFuncMark, "-")
+				if len(txFuncPairRawStrings) == 1 {
+					txFunctionPairs = append(txFunctionPairs, txFunctionPair{
+						Name: txFuncPairRawStrings[0],
+					})
+				} else if len(txFuncPairRawStrings) == 2 {
+					txFunctionPairs = append(txFunctionPairs, txFunctionPair{
+						Name:         txFuncPairRawStrings[0],
+						RollbackName: txFuncPairRawStrings[1],
+					})
+				}
+			}
+		}
+
 		autowireTypesAliasPairs := make([]autowireTypeAliasPair, 0)
 		for _, autowireType := range autowireTypes {
 			if autowireType == "normal" || autowireType == "singleton" {
@@ -220,64 +242,79 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 		},`, toFirstCharLower(info.Name))
 		c.Line(`})`)
 
-		for _, pair := range autowireTypesAliasPairs {
-			c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, pair.autowireTypeAlias, autowireAlias)
+		// gen struct descriptor definition
+		structDescriptorVariableName := fmt.Sprintf("%sStructDescriptor", toFirstCharLower(info.Name))
+		c.Linef(`%s := &%s.StructDescriptor{`, structDescriptorVariableName, autowireAlias)
 
-			// 0.gen alias
-			if pair.autowireType == "rpc" {
-				c.Linef(`Alias: "%s/api.%sIOCRPCClient",`, root.PkgPath, info.Name)
-			} else if len(info.Markers["ioc:autowire:alias"]) != 0 {
-				c.Linef(`Alias: "%s",`, info.Markers["ioc:autowire:alias"][0].(string))
-			}
+		// 0.gen alias
+		if len(autowireTypesAliasPairs) == 1 && autowireTypesAliasPairs[0].autowireType == "rpc" {
+			c.Linef(`Alias: "%s/api.%sIOCRPCClient",`, root.PkgPath, info.Name)
+		} else if len(info.Markers["ioc:autowire:alias"]) != 0 {
+			c.Linef(`Alias: "%s",`, info.Markers["ioc:autowire:alias"][0].(string))
+		}
 
-			// 2. gen struct factory and gen param
-			if !baseType {
-				c.Linef(`Factory: func() interface{} {
+		// 1/2. gen struct factory and gen param
+		if !baseType {
+			c.Linef(`Factory: func() interface{} {
 			return &%s{}
 		},`, info.Name)
-				if paramType != "" {
-					c.Line(`ParamFactory: func() interface{} {`)
-					if constructFunc != "" && paramType != "" {
-						c.Linef(`var _ %s = &%s{}`, getParamInterfaceType(paramType), paramType)
-					}
-					c.Linef(`return &%s{}
-		},`, paramType)
+			if paramType != "" {
+				c.Line(`ParamFactory: func() interface{} {`)
+				if constructFunc != "" && paramType != "" {
+					c.Linef(`var _ %s = &%s{}`, getParamInterfaceType(paramType), paramType)
 				}
-			} else {
-				c.Linef(`Factory: func() interface{} {
+				c.Linef(`return &%s{}
+		},`, paramType)
+			}
+		} else {
+			c.Linef(`Factory: func() interface{} {
 			return new(%s)
 		},`, info.Name)
-				if paramType != "" {
-					c.Linef(`ParamFactory: func() interface{} {
+			if paramType != "" {
+				c.Linef(`ParamFactory: func() interface{} {
 			return new(%s)
 		},`, paramType)
-				}
 			}
+		}
 
-			// 3. gen param loader
-			if paramLoader != "" {
-				c.Linef(`ParamLoader: &%s{},`, paramLoader)
-			}
+		// 3. gen param loader
+		if paramLoader != "" {
+			c.Linef(`ParamLoader: &%s{},`, paramLoader)
+		}
 
-			// 4. gen constructor
-			if constructFunc != "" && paramType != "" {
-				c.Linef(`ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
+		// 4. gen constructor
+		if constructFunc != "" && paramType != "" {
+			c.Linef(`ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
 			param := p.(%s)
 			impl := i.(*%s)
 			return param.%s(impl)
 		},`, getParamInterfaceType(paramType), info.Name, constructFunc)
-			} else if constructFunc != "" && paramType == "" {
-				// gen specific construct function without param
+		} else if constructFunc != "" && paramType == "" {
+			// gen specific construct function without param
 
-				c.Linef(`ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
+			c.Linef(`ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
 	impl := i.(*%s)
 	var constructFunc %sConstructFunc = %s
 	return constructFunc(impl)
 },`, info.Name, info.Name, constructFunc)
-				constructFunctionInfoNames = append(constructFunctionInfoNames, info.Name)
-			}
-			c.Line(`})`)
+			constructFunctionInfoNames = append(constructFunctionInfoNames, info.Name)
 		}
+
+		// 5. gen transaction methods registry
+		if len(txFunctionPairs) > 0 {
+			c.Linef(`TransactionMethodsMap: map[string]string{`)
+			for _, pair := range txFunctionPairs {
+				c.Linef(`"%s":"%s",`, pair.Name, pair.RollbackName)
+			}
+			c.Linef(`},`)
+		}
+
+		c.Line(`}`)
+
+		for _, pair := range autowireTypesAliasPairs {
+			c.Linef(`%s.RegisterStructDescriptor(%s)`, pair.autowireTypeAlias, structDescriptorVariableName)
+		}
+
 		if constructFunc != "" && paramType != "" {
 			paramImplPairs = append(paramImplPairs, paramImplPair{
 				implName:          info.Name,

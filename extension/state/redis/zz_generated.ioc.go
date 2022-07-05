@@ -23,7 +23,7 @@ func init() {
 			return &redis_{}
 		},
 	})
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+	redisStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &Redis{}
 		},
@@ -36,21 +36,9 @@ func init() {
 			impl := i.(*Redis)
 			return param.New(impl)
 		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &Redis{}
-		},
-		ParamFactory: func() interface{} {
-			var _ paramInterface = &Param{}
-			return &Param{}
-		},
-		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(paramInterface)
-			impl := i.(*Redis)
-			return param.New(impl)
-		},
-	})
+	}
+	normal.RegisterStructDescriptor(redisStructDescriptor)
+	singleton.RegisterStructDescriptor(redisStructDescriptor)
 }
 
 type paramInterface interface {

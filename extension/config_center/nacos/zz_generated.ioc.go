@@ -21,7 +21,7 @@ func init() {
 			return &configClient_{}
 		},
 	})
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+	configClientStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ConfigClient{}
 		},
@@ -34,21 +34,9 @@ func init() {
 			impl := i.(*ConfigClient)
 			return param.New(impl)
 		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &ConfigClient{}
-		},
-		ParamFactory: func() interface{} {
-			var _ paramInterface = &Param{}
-			return &Param{}
-		},
-		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(paramInterface)
-			impl := i.(*ConfigClient)
-			return param.New(impl)
-		},
-	})
+	}
+	normal.RegisterStructDescriptor(configClientStructDescriptor)
+	singleton.RegisterStructDescriptor(configClientStructDescriptor)
 }
 
 type paramInterface interface {

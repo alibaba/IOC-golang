@@ -29,12 +29,12 @@ import (
 type tagPointToConfigParamLoader struct {
 }
 
-func getTagPointToConfigPrefix(sd *autowire.StructDescriptor, instanceName string) string {
+func getTagPointToConfigPrefix(autowireType string, sd *autowire.StructDescriptor, instanceName string) string {
 	pointToKey := sd.Alias
 	if pointToKey == "" {
 		pointToKey, _ = util.ToRPCClientStubInterfaceSDID(util.GetSDIDByStructPtr(sd.Factory()))
 	}
-	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s<%[3]s>%[1]s%[4]s%[1]sparam", config.YamlConfigSeparator, sd.AutowireType(), pointToKey, instanceName)
+	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s<%[3]s>%[1]s%[4]s%[1]sparam", config.YamlConfigSeparator, autowireType, pointToKey, instanceName)
 }
 
 var tagPointToConfigSingleton autowire.ParamLoader
@@ -57,7 +57,7 @@ func (p *tagPointToConfigParamLoader) Load(sd *autowire.StructDescriptor, fi *au
 	if len(splitedTagValue) < 2 {
 		return nil, errors.New("tag value not supported")
 	}
-	prefix := getTagPointToConfigPrefix(sd, splitedTagValue[1])
+	prefix := getTagPointToConfigPrefix(fi.TagKey, sd, splitedTagValue[1])
 	if err := config.LoadConfigByPrefix(prefix, param); err != nil {
 		return nil, err
 	}

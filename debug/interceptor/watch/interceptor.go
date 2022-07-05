@@ -19,9 +19,11 @@ import (
 	"reflect"
 	"sync"
 
+	"github.com/alibaba/ioc-golang/debug/interceptor"
+
 	"github.com/petermattis/goid"
 
-	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
+	debugPB "github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
 	"github.com/alibaba/ioc-golang/debug/interceptor/common"
 )
 
@@ -29,18 +31,16 @@ type Interceptor struct {
 	watch sync.Map
 }
 
-func (w *Interceptor) BeforeInvoke(sdid, methodName string, values []reflect.Value) []reflect.Value {
-	if watchCtxInterface, ok := w.watch.Load(common.GetMethodUniqueKey(sdid, methodName)); ok {
-		watchCtxInterface.(*Context).BeforeInvoke(values)
+func (w *Interceptor) BeforeInvoke(ctx *interceptor.InvocationContext) {
+	if watchCtxInterface, ok := w.watch.Load(common.GetMethodUniqueKey(ctx.SDID, ctx.MethodName)); ok {
+		watchCtxInterface.(*Context).BeforeInvoke(ctx.Params)
 	}
-	return values
 }
 
-func (w *Interceptor) AfterInvoke(sdid, methodName string, values []reflect.Value) []reflect.Value {
-	if watchCtxInterface, ok := w.watch.Load(common.GetMethodUniqueKey(sdid, methodName)); ok {
-		watchCtxInterface.(*Context).AfterInvoke(values)
+func (w *Interceptor) AfterInvoke(ctx *interceptor.InvocationContext) {
+	if watchCtxInterface, ok := w.watch.Load(common.GetMethodUniqueKey(ctx.SDID, ctx.MethodName)); ok {
+		watchCtxInterface.(*Context).AfterInvoke(ctx.ReturnValues)
 	}
-	return values
 }
 
 func (w *Interceptor) Watch(watchCtx *Context) {
@@ -54,7 +54,7 @@ func (w *Interceptor) UnWatch(watchCtx *Context) {
 type Context struct {
 	SDID              string
 	MethodName        string
-	Ch                chan *debug.WatchResponse
+	Ch                chan *debugPB.WatchResponse
 	FieldMatcher      *common.FieldMatcher
 	watchGRRequestMap sync.Map
 }
@@ -74,7 +74,7 @@ func (w *Context) AfterInvoke(returnValues []reflect.Value) {
 	if !ok {
 		return
 	}
-	invokeDetail := &debug.WatchResponse{
+	invokeDetail := &debugPB.WatchResponse{
 		Sdid:         w.SDID,
 		MethodName:   w.MethodName,
 		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value)),

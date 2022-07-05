@@ -22,8 +22,8 @@ import (
 	"github.com/alibaba/ioc-golang/debug/common"
 	"github.com/alibaba/ioc-golang/debug/interceptor"
 	"github.com/alibaba/ioc-golang/debug/interceptor/server"
-
 	tracer "github.com/alibaba/ioc-golang/debug/interceptor/trace"
+	"github.com/alibaba/ioc-golang/debug/interceptor/transaction"
 	"github.com/alibaba/ioc-golang/debug/interceptor/watch"
 )
 
@@ -37,6 +37,7 @@ const (
 
 func init() {
 	interceptors = append(interceptors, watch.GetWatchInterceptor())
+	interceptors = append(interceptors, transaction.GetTransactionInterceptor())
 	interceptors = append(interceptors, tracer.GetTraceInterceptor())
 }
 

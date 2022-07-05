@@ -3,10 +3,10 @@
 package api
 
 import (
-	"github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/autowire/normal"
-	"github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/dto"
-	"github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client"
+	autowire "github.com/alibaba/ioc-golang/autowire"
+	normal "github.com/alibaba/ioc-golang/autowire/normal"
+	dto "github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/dto"
+	rpc_client "github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client"
 )
 
 func init() {

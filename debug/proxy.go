@@ -26,6 +26,7 @@ import (
 	"github.com/alibaba/ioc-golang/autowire/normal"
 	"github.com/alibaba/ioc-golang/autowire/util"
 	"github.com/alibaba/ioc-golang/debug/common"
+	"github.com/alibaba/ioc-golang/debug/interceptor"
 )
 
 func init() {
@@ -74,18 +75,18 @@ func implProxy(rawServicePtr, proxyPtr interface{}, sdid string) error {
 		// each method of one type should only injected once
 		if f.Kind() == reflect.Func && f.IsValid() && f.CanSet() {
 			debugMetadata[sdid].MethodMetadata[rawMethodName] = &common.MethodMetadata{}
-			f.Set(reflect.MakeFunc(methodType.Type, makeProxyFunction(funcRaw, sdid, rawMethodName, methodType.Type.IsVariadic())))
+			f.Set(reflect.MakeFunc(methodType.Type, makeProxyFunction(proxyPtr, funcRaw, sdid, rawMethodName, methodType.Type.IsVariadic())))
 		}
 	}
 	return nil
 }
 
-func makeProxyFunction(rf reflect.Value, tempInterfaceId, methodName string, isVariadic bool) func(in []reflect.Value) []reflect.Value {
+func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName string, isVariadic bool) func(in []reflect.Value) []reflect.Value {
 	rawFunction := rf
 	return func(in []reflect.Value) []reflect.Value {
-		// interceptor
+		invocationCtx := interceptor.NewInvocationContext(proxyPtr, sdid, methodName, in)
 		for _, i := range interceptors {
-			in = i.BeforeInvoke(tempInterfaceId, methodName, in)
+			i.BeforeInvoke(invocationCtx)
 		}
 
 		if isVariadic {
@@ -97,8 +98,9 @@ func makeProxyFunction(rf reflect.Value, tempInterfaceId, methodName string, isV
 		}
 
 		out := rawFunction.Call(in)
+		invocationCtx.SetReturnValues(out)
 		for _, i := range interceptors {
-			out = i.AfterInvoke(tempInterfaceId, methodName, out)
+			i.AfterInvoke(invocationCtx)
 		}
 		return out
 	}

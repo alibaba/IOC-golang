@@ -18,31 +18,34 @@ func init() {
 			return &app_{}
 		},
 	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
+	appStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &App{}
 		},
-	})
+	}
+	singleton.RegisterStructDescriptor(appStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &serviceImpl1_{}
 		},
 	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
+	serviceImpl1StructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
-	})
+	}
+	singleton.RegisterStructDescriptor(serviceImpl1StructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &serviceImpl2_{}
 		},
 	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
+	serviceImpl2StructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
-	})
+	}
+	singleton.RegisterStructDescriptor(serviceImpl2StructDescriptor)
 }
 
 type app_ struct {

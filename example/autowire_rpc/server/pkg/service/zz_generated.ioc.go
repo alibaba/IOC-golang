@@ -19,12 +19,13 @@ func init() {
 			return &serviceStruct_{}
 		},
 	})
-	rpc_service.RegisterStructDescriptor(&autowire.StructDescriptor{
+	serviceStructStructDescriptor := &autowire.StructDescriptor{
 		Alias: "github.com/alibaba/ioc-golang/example/autowire_rpc/server/pkg/service/api.ServiceStructIOCRPCClient",
 		Factory: func() interface{} {
 			return &ServiceStruct{}
 		},
-	})
+	}
+	rpc_service.RegisterStructDescriptor(serviceStructStructDescriptor)
 }
 
 type serviceStruct_ struct {

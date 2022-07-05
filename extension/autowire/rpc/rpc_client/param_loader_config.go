@@ -28,12 +28,12 @@ import (
 type configParamLoader struct {
 }
 
-func getConfigParamLoaderPrefix(sd *autowire.StructDescriptor) string {
+func getConfigParamLoaderPrefix(autowireType string, sd *autowire.StructDescriptor) string {
 	structConfigPathKey := sd.Alias
 	if structConfigPathKey == "" {
 		structConfigPathKey, _ = util.ToRPCClientStubInterfaceSDID(util.GetSDIDByStructPtr(sd.Factory()))
 	}
-	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s<%[3]s>%[1]sparam", config.YamlConfigSeparator, sd.AutowireType(), structConfigPathKey)
+	return fmt.Sprintf("autowire%[1]s%[2]s%[1]s<%[3]s>%[1]sparam", config.YamlConfigSeparator, autowireType, structConfigPathKey)
 }
 
 var configParamLoaderSingleton autowire.ParamLoader
@@ -50,7 +50,7 @@ func (p *configParamLoader) Load(sd *autowire.StructDescriptor, fi *autowire.Fie
 		return nil, errors.New("not supporterd")
 	}
 	param := sd.ParamFactory()
-	prefix := getConfigParamLoaderPrefix(sd)
+	prefix := getConfigParamLoaderPrefix(fi.TagKey, sd)
 	if err := config.LoadConfigByPrefix(prefix, param); err != nil {
 		return nil, err
 	}

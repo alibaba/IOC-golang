@@ -24,7 +24,7 @@ func init() {
 			return &gORMDB_{}
 		},
 	})
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+	gORMDBStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &GORMDB{}
 		},
@@ -37,21 +37,9 @@ func init() {
 			impl := i.(*GORMDB)
 			return param.New(impl)
 		},
-	})
-	singleton.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &GORMDB{}
-		},
-		ParamFactory: func() interface{} {
-			var _ paramInterface = &Param{}
-			return &Param{}
-		},
-		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(paramInterface)
-			impl := i.(*GORMDB)
-			return param.New(impl)
-		},
-	})
+	}
+	normal.RegisterStructDescriptor(gORMDBStructDescriptor)
+	singleton.RegisterStructDescriptor(gORMDBStructDescriptor)
 }
 
 type paramInterface interface {

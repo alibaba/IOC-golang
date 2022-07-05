@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alibaba/ioc-golang/debug/interceptor"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang/autowire/util"
@@ -52,11 +54,11 @@ func TestWatchInterceptor(t *testing.T) {
 		},
 	}
 
-	watchInterceptor.BeforeInvoke(sdid, methodName,
-		[]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	invocationCtx := interceptor.NewInvocationContext(nil, sdid, methodName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	watchInterceptor.BeforeInvoke(invocationCtx)
 	rsp, err := service.Invoke(ctx, param)
-	watchInterceptor.AfterInvoke(sdid, methodName,
-		[]reflect.Value{reflect.ValueOf(rsp), reflect.ValueOf(err)})
+	invocationCtx.SetReturnValues([]reflect.Value{reflect.ValueOf(rsp), reflect.ValueOf(err)})
+	watchInterceptor.AfterInvoke(invocationCtx)
 	info := <-controlCh
 	assert.Equal(t, sdid, info.Sdid)
 	assert.Equal(t, "Invoke", info.MethodName)
@@ -94,13 +96,13 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 			Name: "laurence",
 		},
 	}
-	watchInterceptor.BeforeInvoke(sdid, methodName,
-		[]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	invocationCtx := interceptor.NewInvocationContext(nil, sdid, methodName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	watchInterceptor.BeforeInvoke(invocationCtx)
 	rsp, err := service.Invoke(ctx, param)
 	info := &debug.WatchResponse{}
 	time.Sleep(time.Millisecond * 500)
-	watchInterceptor.AfterInvoke(sdid, methodName,
-		[]reflect.Value{reflect.ValueOf(rsp), reflect.ValueOf(err)})
+	invocationCtx.SetReturnValues([]reflect.Value{reflect.ValueOf(rsp), reflect.ValueOf(err)})
+	watchInterceptor.AfterInvoke(invocationCtx)
 	time.Sleep(time.Millisecond * 500)
 	select {
 	case info = <-controlCh:
@@ -110,14 +112,13 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 
 	// match
 	param.User.Name = "lizhixin"
-	watchInterceptor.BeforeInvoke(sdid, methodName,
-		[]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	invocationCtx = interceptor.NewInvocationContext(nil, sdid, methodName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	watchInterceptor.BeforeInvoke(invocationCtx)
 	rsp, err = service.Invoke(ctx, param)
 	time.Sleep(time.Millisecond * 500)
-	watchInterceptor.AfterInvoke(sdid, methodName,
-		[]reflect.Value{reflect.ValueOf(rsp), reflect.ValueOf(err)})
+	invocationCtx.SetReturnValues([]reflect.Value{reflect.ValueOf(rsp), reflect.ValueOf(err)})
+	watchInterceptor.AfterInvoke(invocationCtx)
 	time.Sleep(time.Millisecond * 500)
-	info = &debug.WatchResponse{}
 	select {
 	case info = <-controlCh:
 	default:
@@ -127,12 +128,12 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 	// not watch
 	param.User.Name = "lizhixin"
 	watchInterceptor.UnWatch(watchCtx)
-	watchInterceptor.BeforeInvoke(sdid, methodName,
-		[]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
-	_, _ = service.Invoke(ctx, param)
-	watchInterceptor.AfterInvoke(sdid, methodName,
-		[]reflect.Value{reflect.ValueOf(rsp), reflect.ValueOf(err)})
+	invocationCtx = interceptor.NewInvocationContext(nil, sdid, methodName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	watchInterceptor.BeforeInvoke(invocationCtx)
+	rsp, err = service.Invoke(ctx, param)
 	time.Sleep(time.Millisecond * 500)
+	invocationCtx.SetReturnValues([]reflect.Value{reflect.ValueOf(rsp), reflect.ValueOf(err)})
+	watchInterceptor.AfterInvoke(invocationCtx)
 	info = &debug.WatchResponse{}
 	select {
 	case info = <-controlCh:

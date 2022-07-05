@@ -26,6 +26,7 @@ import (
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
+
 type App struct {
 	ServiceStruct api.ServiceStructIOCRPCClient `rpc-client:",address=127.0.0.1:2022"`
 }
@@ -35,7 +36,7 @@ func (a *App) Run() {
 		time.Sleep(time.Second * 3)
 		usr, err := a.ServiceStruct.GetUser("laurence", 23)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
 		}
 		fmt.Printf("get user = %+v\n", usr)
 	}
