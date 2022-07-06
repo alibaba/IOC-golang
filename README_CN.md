@@ -28,7 +28,7 @@ IOC-golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
 
   可以接管对象的创建、参数注入、工厂方法。可定制化对象参数来源。
 
-- [结构代理层](https://ioc-golang.github.io/cn/docs/examples/debug/)
+- [结构代理层](https://ioc-golang.github.io/cn/docs/examples/aop/)
 
   基于 AOP 的思路，为由框架接管的对象提供默认的结构代理层，在面向接口编程的情景下，可以使用基于结构代理 AOP 层扩展的丰富运维能力。例如接口查询，参数动态监听，方法粒度链路追踪，性能瓶颈分析，分布式场景下全链路方法粒度追踪等。
 

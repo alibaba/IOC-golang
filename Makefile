@@ -1,5 +1,5 @@
 proto-gen:
-	protoc --go_out=./debug/api --go-grpc_out=./debug/api ./debug/api/ioc_golang/debug/debug.proto
+	protoc --go_out=./aop/api --go-grpc_out=./aop/api ./aop/api/ioc_golang/aop/debug.proto
 
 tidy-all:
 	cd extension && go mod tidy -compat=1.17

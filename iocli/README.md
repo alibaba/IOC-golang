@@ -57,15 +57,15 @@ iocli 可以识别以下注解：
 
   - config:
 
-    配置模型是基于多例模型的封装扩展，基于配置模型定义的结构体方便从 yaml 配置文件中注入信息。参考例子 [example/autowire_config](https://github.com/alibaba/IOC-golang/tree/master/example/autowire_config)
+    配置模型是基于多例模型的封装扩展，基于配置模型定义的结构体方便从 yaml 配置文件中注入信息。参考例子 [example/autowire_config](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_config)
 
   - grpc:
 
-    grpc 模型是基于单例模型的封装扩展，基于 grpc 模型可以方便地从 yaml 配置文件中读取参数，生成 grpc 客户端。参考例子[example/autowire_grpc_client](https://github.com/alibaba/IOC-golang/tree/master/example/autowire_grpc_client)
+    grpc 模型是基于单例模型的封装扩展，基于 grpc 模型可以方便地从 yaml 配置文件中读取参数，生成 grpc 客户端。参考例子[example/autowire_grpc_client](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_grpc_client)
 
   - rpc:
 
-    rpc 模型会在代码生成阶段产生 rpc 服务端注册代码，以及 rpc 客户端调用存根。参考例子 [example/autowire_rpc](https://github.com/alibaba/IOC-golang/tree/master/example/autowire_rpc)
+    rpc 模型会在代码生成阶段产生 rpc 服务端注册代码，以及 rpc 客户端调用存根。参考例子 [example/autowire_rpc](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_rpc)
 
   
 

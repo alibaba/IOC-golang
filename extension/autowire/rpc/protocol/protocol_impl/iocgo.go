@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/alibaba/ioc-golang/debug/interceptor"
+	"github.com/alibaba/ioc-golang/aop/interceptor"
 
 	"dubbo.apache.org/dubbo-go/v3/protocol/invocation"
 	"github.com/gin-gonic/gin"

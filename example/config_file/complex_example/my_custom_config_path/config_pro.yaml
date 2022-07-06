@@ -1,0 +1,6 @@
+config:
+  app:
+    config-value: myValue
+    config-value-from-env: ${MY_CONFIG_ENV_KEY}
+    nested-config-value: ${config.app.config-value}
+    nested-config-value-from-env: ${config.app.config-value-from-env}
