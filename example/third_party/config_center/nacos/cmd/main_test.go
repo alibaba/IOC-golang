@@ -31,11 +31,6 @@ import (
 	"github.com/alibaba/ioc-golang/test/docker_compose"
 )
 
-const (
-	ipFoo   = "127.0.0.1"
-	portFoo = 1999
-)
-
 func (a *App) TestRun(t *testing.T) {
 	testSetAndGetConfig(t, a.NormalNacosClient, "data1", "group1", "mycontent1")
 	testSetAndGetConfig(t, a.NormalNacosClient2, "data2", "group2", "mycontent2")
@@ -63,9 +58,8 @@ func TestNacosClient(t *testing.T) {
 		log.Println("Warning: Nacos image only support amd arch. Skip integration test")
 		return
 	}
-	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", time.Second*10))
-	assert.Nil(t, ioc.Load(
-		config.WithSearchPath("../conf")))
+	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", time.Second*30))
+	assert.Nil(t, ioc.Load(config.WithSearchPath("../conf")))
 	app, err := GetAppSingleton(&Param{
 		NacosPort: 8848,
 		NacosAddr: "localhost",
