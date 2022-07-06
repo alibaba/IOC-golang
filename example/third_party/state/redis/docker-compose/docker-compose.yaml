@@ -1,0 +1,7 @@
+version: '3.1'
+services:
+  demo-redis:
+    image: redis:latest
+    container_name: demo-redis
+    ports:
+      - "6379:6379"

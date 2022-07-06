@@ -18,9 +18,10 @@ package ioc
 import (
 	"github.com/fatih/color"
 
+	"github.com/alibaba/ioc-golang/aop"
+
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/config"
-	"github.com/alibaba/ioc-golang/debug"
 )
 
 func Load(opts ...config.Option) error {
@@ -35,7 +36,7 @@ func Load(opts ...config.Option) error {
 
 	// 2. load debug
 	color.Blue("[Boot] Start to load debug")
-	if err := debug.Load(); err != nil {
+	if err := aop.Load(); err != nil {
 		return err
 	}
 

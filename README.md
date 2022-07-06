@@ -28,7 +28,7 @@ IOC-golang is a powerful golang dependency injection framework that provides a c
 
   Can take over object creation, parameter injection, factory methods. Customizable object parameter source.
 
-- [Struct Proxy Layer](https://ioc-golang.github.io/docs/examples/debug/)
+- [Struct Proxy Layer](https://ioc-golang.github.io/docs/examples/aop/)
 
   Based on the idea of AOP, we provide struct proxy layer for all struct registered to ioc-golang. In the scene of interface oriented development, we can use many devlops features based on the extenablility of this proxy AOP layer. Such as interface listing, param value watching, method level tracing, performance badpoint analysis, fault injection, method level tracing in distributed system and so on.
 

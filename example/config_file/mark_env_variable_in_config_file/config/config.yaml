@@ -1,0 +1,4 @@
+config:
+  app:
+    config-value: myValue
+    config-value-from-env: ${MY_CONFIG_ENV_KEY}

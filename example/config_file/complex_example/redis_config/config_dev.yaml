@@ -1,0 +1,5 @@
+autowire:
+  singleton:
+    github.com/alibaba/ioc-golang/extension/state/redis.Redis:
+      param:
+        address: bad-host:6379

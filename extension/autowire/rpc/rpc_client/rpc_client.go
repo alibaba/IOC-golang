@@ -79,17 +79,17 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 
 /*
 GetImpl returns impl ptr of rpc client, key should has lowercase character prefix, and 'IOCRPCClient' suffix
-like 'github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.SimpleServiceIOCRPCClient'
+like 'github.com/alibaba/ioc-golang/example/autowire/autowire_rpc/client/test/service/api.SimpleServiceIOCRPCClient'
 
 The returned interface is proxy struct pointer
-like pointer of 'github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.simpleServiceIOCRPCClient_'
+like pointer of 'github.com/alibaba/ioc-golang/example/autowire/autowire_rpc/client/test/service/api.simpleServiceIOCRPCClient_'
 
 The returned interface can be asserted to ioc rpc client interface
-like 'github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.SimpleServiceIOCRPCClient'
+like 'github.com/alibaba/ioc-golang/example/autowire/autowire_rpc/client/test/service/api.SimpleServiceIOCRPCClient'
 
 An example to use this API is :
 ```go
-simpleClient, err := rpc_client.GetImpl("github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.SimpleServiceIOCRPCClient", param)
+simpleClient, err := rpc_client.GetImpl("github.com/alibaba/ioc-golang/example/autowire/autowire_rpc/client/test/service/api.SimpleServiceIOCRPCClient", param)
 if err != nil{
     panic(err)
 }
@@ -106,20 +106,20 @@ func GetImpl(key string, param *Param) (interface{}, error) {
 
 /*
 ImplClientStub returns impl ptr of rpc client, clientStubPtr should be a generated ioc rpc interface client ptr
-like 'github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.SimpleServiceIOCRPCClient'
+like 'github.com/alibaba/ioc-golang/example/autowire/autowire_rpc/client/test/service/api.SimpleServiceIOCRPCClient'
 
 new(simpleServiceIOCRPCClient)
 
 The returned interface is proxy struct pointer
-like pointer of 'github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.simpleServiceIOCRPCClient_'
+like pointer of 'github.com/alibaba/ioc-golang/example/autowire/autowire_rpc/client/test/service/api.simpleServiceIOCRPCClient_'
 
 The returned interface can be asserted to ioc rpc client interface
-like 'github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api.SimpleServiceIOCRPCClient'
+like 'github.com/alibaba/ioc-golang/example/autowire/autowire_rpc/client/test/service/api.SimpleServiceIOCRPCClient'
 
 An example to use this API is :
 ```go
 import(
-	"github.com/alibaba/ioc-golang/example/autowire_rpc/client/test/service/api"
+	"github.com/alibaba/ioc-golang/example/autowire/autowire_rpc/client/test/service/api"
 )
 
 simpleClient, err := rpc_client.ImplClientStub(new(api.SimpleServiceIOCRPCClient), param)

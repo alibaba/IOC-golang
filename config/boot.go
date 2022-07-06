@@ -53,7 +53,7 @@ type Options struct {
 
 	// default: config
 	ConfigName string
-	// default: yml,yaml
+	// default: yaml
 	ConfigType string
 	// Search path of config files
 	//
