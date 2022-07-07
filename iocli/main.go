@@ -16,38 +16,14 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
-	"github.com/alibaba/ioc-golang/debug/api/ioc_golang/debug"
-
-	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	_ "github.com/alibaba/ioc-golang/extension/aop/imports/cli"
+	"github.com/alibaba/ioc-golang/iocli/root"
 )
-
-var (
-	debugHost string
-	debugPort int
-)
-
-var rootCmd = &cobra.Command{
-	Use: "iocli",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("hello")
-	},
-}
-
-func getDebugServiceClent(addr string) debug.DebugServiceClient {
-	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	return debug.NewDebugServiceClient(conn)
-}
 
 func main() {
-	if err := rootCmd.Execute(); err != nil {
+	if err := root.Cmd.Execute(); err != nil {
 		log.Println(err)
 	}
 }

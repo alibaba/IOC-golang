@@ -23,7 +23,6 @@ import (
 	"strings"
 
 	"github.com/alibaba/ioc-golang/aop/common"
-	"github.com/alibaba/ioc-golang/aop/interceptor"
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/normal"
 	"github.com/alibaba/ioc-golang/autowire/util"
@@ -84,7 +83,7 @@ func implProxy(rawServicePtr, proxyPtr interface{}, sdid string) error {
 func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName string, isVariadic bool) func(in []reflect.Value) []reflect.Value {
 	rawFunction := rf
 	return func(in []reflect.Value) []reflect.Value {
-		invocationCtx := interceptor.NewInvocationContext(proxyPtr, sdid, methodName, in)
+		invocationCtx := NewInvocationContext(proxyPtr, sdid, methodName, in)
 		for _, i := range interceptors {
 			i.BeforeInvoke(invocationCtx)
 		}

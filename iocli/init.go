@@ -18,6 +18,8 @@ package main
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/alibaba/ioc-golang/iocli/root"
+
 	new "github.com/alibaba/ioc-golang/iocli/init"
 )
 
@@ -29,7 +31,7 @@ var (
 )
 
 func init() {
-	rootCmd.AddCommand(initCMD)
+	root.Cmd.AddCommand(initCMD)
 	initCMD.PersistentFlags().StringVarP(&path, "dir", "d", ".", "Specify the directory of the project")
 	initCMD.PersistentFlags().StringVarP(&name, "name", "n", "helloioc", "Specify the name of the project")
 	initCMD.PersistentFlags().StringVarP(&modPrefix, "modPrefix", "p", "github.com/alibaba", "Specify the mod prefix of the project")

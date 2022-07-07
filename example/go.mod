@@ -3,8 +3,8 @@ module github.com/alibaba/ioc-golang/example
 go 1.17
 
 require (
-	github.com/alibaba/ioc-golang v0.0.0-00010101000000-000000000000
-	github.com/alibaba/ioc-golang/extension v0.0.0-00010101000000-000000000000
+	github.com/alibaba/ioc-golang v0.0.0-20220705164359-95be52984ef8
+	github.com/alibaba/ioc-golang/extension v0.0.0-20220705164359-95be52984ef8
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/nacos-group/nacos-sdk-go/v2 v2.0.3
 	github.com/stretchr/testify v1.7.5

@@ -19,9 +19,10 @@ import (
 	"github.com/fatih/color"
 
 	"github.com/alibaba/ioc-golang/aop"
-
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/config"
+
+	_ "github.com/alibaba/ioc-golang/extension/aop/imports/boot"
 )
 
 func Load(opts ...config.Option) error {

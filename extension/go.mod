@@ -4,16 +4,22 @@ go 1.17
 
 require (
 	dubbo.apache.org/dubbo-go/v3 v3.0.2
-	github.com/alibaba/ioc-golang v0.0.0-00010101000000-000000000000
+	github.com/alibaba/ioc-golang v0.0.0-20220705164359-95be52984ef8
+	github.com/alibaba/ioc-golang/iocli v0.0.0-20220705164359-95be52984ef8
 	github.com/apache/rocketmq-client-go/v2 v2.1.0
 	github.com/cinience/go_rocketmq v0.0.2
 	github.com/fatih/color v1.13.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/nacos-group/nacos-sdk-go/v2 v2.0.3
+	github.com/opentracing/opentracing-go v1.2.0
+	github.com/petermattis/goid v0.0.0-20220526132513-07eaf5d0b9f4
 	github.com/pkg/errors v0.9.1
+	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.7.5
+	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	google.golang.org/grpc v1.47.0
+	google.golang.org/protobuf v1.28.0
 	gorm.io/driver/mysql v1.3.4
 	gorm.io/gorm v1.23.6
 )
@@ -34,6 +40,7 @@ require (
 	github.com/dubbogo/gost v1.11.25 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
+	github.com/glory-go/monkey v1.0.3 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
@@ -47,6 +54,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
@@ -69,11 +77,13 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b // indirect
 	github.com/shirou/gopsutil v3.20.11+incompatible // indirect
-	github.com/sirupsen/logrus v1.7.0 // indirect
+	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/tidwall/gjson v1.2.1 // indirect
 	github.com/tidwall/match v1.0.1 // indirect
 	github.com/tidwall/pretty v0.0.0-20190325153808-1166b9ac2b65 // indirect
+	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.21.0 // indirect
@@ -86,7 +96,6 @@ require (
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20211104193956-4c6863e31247 // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.51.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -94,4 +103,7 @@ require (
 	stathat.com/c/consistent v1.0.0 // indirect
 )
 
-replace github.com/alibaba/ioc-golang => ../
+replace (
+	github.com/alibaba/ioc-golang => ../
+	github.com/alibaba/ioc-golang/iocli => ../iocli
+)

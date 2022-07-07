@@ -16,15 +16,8 @@
 package common
 
 type Config struct {
-	Port               string             `yaml:"port"`
-	AppName            string             `yaml:"app-name"`
-	InterceptorsConfig InterceptorsConfig `yaml:"interceptors"`
+	Port    string `yaml:"port"`
+	AppName string `yaml:"app-name"`
 }
 
-type InterceptorsConfig struct {
-	Trace Trace `yaml:"trace"`
-}
-
-type Trace struct {
-	CollectorAddress string `yaml:"collector-address"`
-}
+type ConfigLoader func(config *Config)

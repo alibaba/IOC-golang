@@ -20,8 +20,6 @@ package aop
 import (
 	"reflect"
 
-	"github.com/alibaba/ioc-golang/aop/interceptor"
-
 	"github.com/glory-go/monkey"
 
 	"github.com/alibaba/ioc-golang/aop/common"
@@ -80,16 +78,16 @@ func makeCallProxy(sdid, methodName string, isVariadic bool) func(in []reflect.V
 		}()
 		// interceptor
 
-		invocationCtx := &interceptor.InvocationContext{}
+		invocationCtx := &InvocationContext{}
 		for _, i := range interceptors {
 			if len(in) > 1 {
-				invocationCtx = interceptor.NewInvocationContext(nil, sdid, methodName, in[1:])
+				invocationCtx = NewInvocationContext(nil, sdid, methodName, in[1:])
 				i.BeforeInvoke(invocationCtx)
 				for idx, p := range invocationCtx.Params {
 					in[idx+1] = p
 				}
 			} else {
-				invocationCtx = interceptor.NewInvocationContext(nil, sdid, methodName, []reflect.Value{})
+				invocationCtx = NewInvocationContext(nil, sdid, methodName, []reflect.Value{})
 				i.BeforeInvoke(invocationCtx)
 			}
 		}

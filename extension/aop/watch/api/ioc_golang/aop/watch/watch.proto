@@ -1,0 +1,44 @@
+// EDIT IT, change to your package, service and message
+syntax = "proto3";
+/*
+ * Copyright (c) 2022, Alibaba Group;
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ioc_golang.aop.watch;
+
+option go_package = "ioc_golang/aop/watch";
+
+service WatchService {
+  rpc Watch (WatchRequest) returns (stream WatchResponse) {}
+}
+
+
+message WatchRequest{
+  string sdid = 1;
+  string method = 2;
+  repeated Matcher matchers = 3;
+}
+
+message Matcher{
+  int64 index = 1;
+  string matchPath = 2;
+  string matchValue = 3;
+}
+
+message WatchResponse{
+  string sdid = 1;
+  string methodName = 2;
+  repeated string params = 3;
+  repeated string returnValues = 4;
+}

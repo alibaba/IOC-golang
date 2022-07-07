@@ -19,29 +19,14 @@ import (
 	"github.com/fatih/color"
 
 	"github.com/alibaba/ioc-golang/aop/common"
-	"github.com/alibaba/ioc-golang/aop/interceptor"
-	"github.com/alibaba/ioc-golang/aop/interceptor/server"
-	tracer "github.com/alibaba/ioc-golang/aop/interceptor/trace"
-	"github.com/alibaba/ioc-golang/aop/interceptor/transaction"
-	"github.com/alibaba/ioc-golang/aop/interceptor/watch"
 	"github.com/alibaba/ioc-golang/config"
 )
-
-var interceptors = make([]interceptor.Interceptor, 0)
-
-//var responseInterceptors = make([]interceptor.Interceptor, 0)
 
 const (
 	defaultDebugPort = "1999"
 )
 
-func init() {
-	interceptors = append(interceptors, watch.GetWatchInterceptor())
-	interceptors = append(interceptors, transaction.GetTransactionInterceptor())
-	interceptors = append(interceptors, tracer.GetTraceInterceptor())
-}
-
-var debugMetadata = make(map[string]*common.StructMetadata)
+var debugMetadata = make(common.AllInterfaceMetadata)
 
 func Load() error {
 	debugConfig := &common.Config{}
@@ -50,9 +35,13 @@ func Load() error {
 		color.Blue("[Debug] Debug port is set to default :%s", defaultDebugPort)
 		debugConfig.Port = defaultDebugPort
 	}
-	if err := server.Start(debugConfig, debugMetadata); err != nil {
+	if err := start(debugConfig); err != nil {
 		color.Red("[Debug] Start debug server error = %s", err)
 		return err
 	}
 	return nil
+}
+
+func GetAllInterfaceMetadata() common.AllInterfaceMetadata {
+	return debugMetadata
 }

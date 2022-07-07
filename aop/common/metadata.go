@@ -29,3 +29,5 @@ type MethodMetadata struct {
 	Guard *monkey.PatchGuard
 	Lock  sync.Mutex
 }
+
+type AllInterfaceMetadata map[string]*StructMetadata
