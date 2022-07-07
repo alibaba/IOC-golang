@@ -3,7 +3,7 @@ module github.com/alibaba/ioc-golang
 go 1.17
 
 require (
-	github.com/alibaba/ioc-golang/extension v0.0.0-20220705164359-95be52984ef8
+	github.com/alibaba/ioc-golang/extension v0.0.0-20220707071909-d19576eea84e
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/color v1.13.0
 	github.com/gin-gonic/gin v1.8.1
