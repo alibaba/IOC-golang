@@ -19,6 +19,9 @@ import (
 	"log"
 
 	_ "github.com/alibaba/ioc-golang/extension/aop/imports/cli"
+	_ "github.com/alibaba/ioc-golang/iocli/gen"
+	_ "github.com/alibaba/ioc-golang/iocli/init"
+
 	"github.com/alibaba/ioc-golang/iocli/root"
 )
 

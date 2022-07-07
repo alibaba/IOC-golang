@@ -4,8 +4,5 @@ tidy:
 test:
 	go test ./...
 
-imports:
-	imports-formatter .
-
 lint: tidy
 	golangci-lint run

@@ -13,14 +13,12 @@
  * limitations under the License.
  */
 
-package main
+package init
 
 import (
 	"github.com/spf13/cobra"
 
 	"github.com/alibaba/ioc-golang/iocli/root"
-
-	new "github.com/alibaba/ioc-golang/iocli/init"
 )
 
 var (
@@ -69,11 +67,11 @@ $ iocli init -d hello -n helloiocgo -m github.com/alibaba/helloiocgo
 $ iocli init -d $GOPATH/src/github.com/alibaba -n helloiocgo -m github.com/alibaba/helloiocgo
 `,
 	Run: func(c *cobra.Command, args []string) {
-		new.Run(
-			new.WithPath(path),
-			new.WithName(name),
-			new.WithModPrefix(modPrefix),
-			new.WithModName(modName),
+		Run(
+			WithPath(path),
+			WithName(name),
+			WithModPrefix(modPrefix),
+			WithModName(modName),
 		)
 	},
 }
