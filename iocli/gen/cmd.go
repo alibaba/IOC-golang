@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package main
+package gen
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-tools/pkg/genall"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 
-	"github.com/alibaba/ioc-golang/iocli/inject"
+	"github.com/alibaba/ioc-golang/iocli/gen/inject"
 )
 
 var (
