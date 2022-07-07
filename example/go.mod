@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/alibaba/ioc-golang v0.0.0-20220705164359-95be52984ef8
-	github.com/alibaba/ioc-golang/extension v0.0.0-20220705164359-95be52984ef8
+	github.com/alibaba/ioc-golang/extension v0.0.0-20220707071909-d19576eea84e
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/nacos-group/nacos-sdk-go/v2 v2.0.4-beta
 	github.com/stretchr/testify v1.7.5
