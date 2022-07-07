@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+const (
+	AliasKey = "alias"
+)
+
 // sdIDAliasMap a map of SDID alias-mapping named as alias container.
 var sdIDAliasMap = make(map[string]string)
 

@@ -21,7 +21,6 @@ import (
 
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
-	"github.com/alibaba/ioc-golang/common"
 	"github.com/alibaba/ioc-golang/extension/autowire/rpc/protocol/protocol_impl"
 )
 
@@ -86,7 +85,7 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 
 		invURL, _ := dubboCommon.NewURL(protocol_impl.IOCProtocolName+"://",
 			dubboCommon.WithParamsValue(constant.InterfaceKey, sdID),
-			dubboCommon.WithParamsValue(common.AliasKey, s.Alias),
+			dubboCommon.WithParamsValue(autowire.AliasKey, s.Alias),
 		)
 		defaultProxyInvoker := newProxyInvoker(invURL)
 		iocProtocolInterface.Export(defaultProxyInvoker)

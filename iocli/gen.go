@@ -18,6 +18,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/alibaba/ioc-golang/iocli/root"
+
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/controller-tools/pkg/genall"
 	"sigs.k8s.io/controller-tools/pkg/markers"
@@ -97,7 +99,7 @@ func init() {
 type noUsageError struct{ error }
 
 func init() {
-	rootCmd.AddCommand(genCMD)
+	root.Cmd.AddCommand(genCMD)
 }
 
 var genCMD = &cobra.Command{

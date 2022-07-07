@@ -9,7 +9,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/alibaba/ioc-golang/aop/interceptor"
+	"github.com/alibaba/ioc-golang/aop"
+	"github.com/alibaba/ioc-golang/autowire"
 
 	"dubbo.apache.org/dubbo-go/v3/protocol/invocation"
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,6 @@ import (
 	"dubbo.apache.org/dubbo-go/v3/common/constant"
 	dubboProtocol "dubbo.apache.org/dubbo-go/v3/protocol"
 
-	"github.com/alibaba/ioc-golang/common"
 	"github.com/alibaba/ioc-golang/extension/autowire/rpc/protocol"
 )
 
@@ -53,7 +53,7 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 		}
 	}
 
-	allRPCInterceptors := interceptor.GetAllRPCInterceptors()
+	allRPCInterceptors := aop.GetRPCInterceptors()
 	for _, rpcInterceptor := range allRPCInterceptors {
 		if err := rpcInterceptor.BeforeClientInvoke(req); err != nil {
 			return &dubboProtocol.RPCResult{
@@ -119,7 +119,7 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 	httpServer := getSingletonGinEngion(i.exportPort)
 
 	sdid := invoker.GetURL().GetParam(constant.InterfaceKey, "")
-	clientStubFullName := invoker.GetURL().GetParam(common.AliasKey, "")
+	clientStubFullName := invoker.GetURL().GetParam(autowire.AliasKey, "")
 	svc := ServiceMap.GetServiceByServiceKey(IOCProtocolName, sdid)
 	if svc == nil {
 		return nil
@@ -129,7 +129,7 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 		argsType := methodType.ArgsType()
 		tempMethod := methodName
 		httpServer.POST(fmt.Sprintf("/%s/%s", clientStubFullName, tempMethod), func(c *gin.Context) {
-			allRPCInterceptors := interceptor.GetAllRPCInterceptors()
+			allRPCInterceptors := aop.GetRPCInterceptors()
 			for _, rpcInterceptor := range allRPCInterceptors {
 				if err := rpcInterceptor.BeforeServerInvoke(c); err != nil {
 					c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
