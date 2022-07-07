@@ -11,7 +11,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/nacos-group/nacos-sdk-go/v2 v2.0.3
+	github.com/nacos-group/nacos-sdk-go/v2 v2.0.4-beta
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/petermattis/goid v0.0.0-20220526132513-07eaf5d0b9f4
 	github.com/pkg/errors v0.9.1
