@@ -1,24 +1,24 @@
-# iocli 工具
+# iocli tool
 
-中文 | [English](README_EN.md)
+[中文](./README.md) | English
 
-**iocli** 是一款命令行工具，提供了以下能力：
+**iocli** is a command line tool, it has the following features: 
 
-- 代码调试
+- program debug
 
-  开发者可以使用 **iocli** 作为调试客户端，调试基于 ioc-golang 框架开发的 go 应用程序。
+  Developers can use **iocli** as debug client and debug the go program developed with ioc-golang.
 
-- 结构相关代码生成
+- codes generation
 
-  开发者可以为需要依赖注入的结构体增加注解，**iocli** 会识别这些注解，并产生符合要求的结构相关代码。包括结构描述信息、结构代理层、结构专属接口、结构 Get 方法等。
+  Developers can add annotations to structures that describe the struct to be   injected, and **iocli** will identify these annotations and generates structure-specific code that meets the requirements. Including structure description information, structure proxy layer, structure own interface, structure Get method and so on.
 
-下面我们将会详细介绍这两个能力。
+We would introduce the two features in details.
 
-## 调试能力
+## Program Debug Feature
 
 ioc-golang 框架拥有基于结构代理层的 Go 运行时程序调试能力，帮助故障排查，性能分析，提高应用可观测能力。在 [README](https://github.com/alibaba/ioc-golang#ioc-golang-a-golang-dependency-injection-framework)  Quickstart 中展示了接口信息的查看、参数监听能力。在 [基于 IOC-golang 的电商系统demo](https://github.com/ioc-golang/shopping-system)  中，可以展示基于 ioc-golang 的，业务无侵入的，方法粒度全链路追踪能力。
 
-## 注解与代码生成
+## Annotation and Code generation
 
 注解是以特定字符串开头的注释，标注在期望注入的结构前。注解只具备静态意义，即在代码生成阶段，被iocli工具扫描识别到，从而获取结构相关信息。注解本身不具备程序运行时的意义。
 

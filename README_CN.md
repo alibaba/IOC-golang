@@ -12,11 +12,8 @@
 [![IOC-golang CI](https://github.com/alibaba/IOC-golang/actions/workflows/github-actions.yml/badge.svg)](https://github.com/alibaba/IOC-golang/actions/workflows/github-actions.yml)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-[文档](https://ioc-golang.github.io/cn)
+[English](./README.md) | 中文
 
-[English Docs](https://ioc-golang.github.io)
-
-[English README](./README.md)
 
 ![demo gif](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/video/ioc-golang-demo.gif)
 
@@ -28,7 +25,7 @@ IOC-golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
 
   可以接管对象的创建、参数注入、工厂方法。可定制化对象参数来源。
 
-- [结构代理层](https://ioc-golang.github.io/cn/docs/examples/aop/)
+- [对象代理](https://ioc-golang.github.io/cn/docs/examples/aop/)
 
   基于 AOP 的思路，为由框架接管的对象提供默认的结构代理层，在面向接口编程的情景下，可以使用基于结构代理 AOP 层扩展的丰富运维能力。例如接口查询，参数动态监听，方法粒度链路追踪，性能瓶颈分析，分布式场景下全链路方法粒度追踪等。
 
@@ -47,9 +44,9 @@ IOC-golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
 
 ## 项目结构
 
+- **aop：** 结构代理 AOP 模块：提供 AOP 层的基础能力，和可扩展API。
 - **autowire：** 提供依赖注入内核，以及单例模型、多例模型两种基本自动装载模型
-- **config：** 配置加载模块，负责解析 yaml 格式的配置文件
-- **debug：** 调试模块：提供调试 API、提供调试注入层实现
+- **config：** 配置加载模块，负责解析框架配置文件。
 - **extension：** 组件扩展目录：提供基于多个领域模型的的预置实现结构，比如缓存、数据库、消息。
 - **example：** 示例仓库
 - **iocli：** 代码生成/程序调试 工具
@@ -170,7 +167,7 @@ func main() {
 
 ```
 
-上述所说的“代理层”，是框架为“以接口形式注入/获取”的结构体，默认封装的代理，可以扩展一系列运维操作。我们推荐开发者在编写代码的过程中基于接口编程，则所有对象都可拥有运维能力。
+上述所说的“代理层”，是框架为“以接口形式注入/获取”的结构体，默认封装的代理，可以基于框架提供的 AOP 扩展能力，扩展一系列运维操作。我们推荐开发者在编写代码的过程中基于接口编程，则所有对象都可拥有运维能力。
 
 编写完毕后，当前目录执行以下命令，初始化 go mod ，拉取最新代码，生成结构注册代码。（mac 环境可能因权限原因需要sudo）：
 
@@ -332,6 +329,8 @@ Response 1: (string) (len=36) "This is ServiceImpl1, hello laurence"
 
 ###  更多
 
+[中文文档](https://ioc-golang.github.io/cn)
+
 更多代码生成注解可以移步[iocli](https://github.com/alibaba/IOC-golang/tree/master/iocli).查看。
 
 可以移步 [ioc-golang/example](https://github.com/alibaba/IOC-golang/tree/master/example)  查看更多例子
@@ -351,3 +350,6 @@ See the NOTICE file for more information.
 <div align="center">
 	<img src="https://github.com/ioc-golang/ioc-golang-website/blob/main/resources/img/dingtalk_group.png?raw=true" width="30%">
 </div>
+### Star me please  ⭐
+
+如果你对这个项目本身或者实现思路感兴趣，可以给我们一颗 ⭐

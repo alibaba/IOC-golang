@@ -12,11 +12,7 @@
 [![IOC-golang CI](https://github.com/alibaba/IOC-golang/actions/workflows/github-actions.yml/badge.svg)](https://github.com/alibaba/IOC-golang/actions/workflows/github-actions.yml)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-[IOC-golang Docs](https://ioc-golang.github.io)
-
-[中文 文档](https://ioc-golang.github.io/cn)
-
-[中文 README](./README_CN.md)
+English | [中文](./README_CN.md)
 
 ![demo gif](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/video/ioc-golang-demo.gif)
 
@@ -28,7 +24,7 @@ IOC-golang is a powerful golang dependency injection framework that provides a c
 
   Can take over object creation, parameter injection, factory methods. Customizable object parameter source.
 
-- [Struct Proxy Layer](https://ioc-golang.github.io/docs/examples/aop/)
+- [Struct Proxy](https://ioc-golang.github.io/docs/examples/aop/)
 
   Based on the idea of AOP, we provide struct proxy layer for all struct registered to ioc-golang. In the scene of interface oriented development, we can use many devlops features based on the extenablility of this proxy AOP layer. Such as interface listing, param value watching, method level tracing, performance badpoint analysis, fault injection, method level tracing in distributed system and so on.
 
@@ -46,9 +42,9 @@ IOC-golang is a powerful golang dependency injection framework that provides a c
 
 ## Project Structure
 
+- **aop:** Debug module: Provide debugging API, provide debugging injection layer basic  implementation and extendable API.
 - **autowire:** Provides two basic injection models: singleton model and multi-instance model
-- **config:** Configuration loading module, responsible for parsing user yaml configuration files
-- **debug:** Debug module: Provide debugging API, provide debugging injection layer implementation
+- **config:** Configuration loading module, responsible for parsing ion-golang's configuration files
 - **extension:** Component extension directory: Provides preset implementation structures based on various domain. Such as database, cache, pubs.
 - **example:** example repository
 - **iocli:** code generation/program debugging tool
@@ -330,6 +326,8 @@ The marker autowire model is the singleton
 
 ###  More
 
+[Docs](https://ioc-golang.github.io/cn)
+
 More code generation annotations can be viewed at [iocli](https://github.com/alibaba/IOC-golang/tree/master/iocli).
 
 You can go to [ioc-golang/example](https://github.com/alibaba/IOC-golang/tree/master/example) for more examples and advanced usage.
@@ -341,10 +339,13 @@ You can go to [E-commercial system demo based on ioc-golang](https://github.com/
 IOC-golang developed by Alibaba and licensed under the Apache License (Version 2.0).
 See the NOTICE file for more information.
 
-### Connect to us
+### Connect with us
 
 Welcome to join dingtalk group 44638289 if you are interested with the project.
 
 <div align="center">
 	<img src="https://github.com/ioc-golang/ioc-golang-website/blob/main/resources/img/dingtalk_group.png?raw=true" width="30%">
 </div>
+### Star me please ⭐
+
+If you think this project is interesting, or helpful to you, please give a star!
