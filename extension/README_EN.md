@@ -1,6 +1,6 @@
 # IOC-golang Extension Components
 
-English | [中文](./READMD.md)
+### English | [中文](./README.md)
 
 ### Extensions based on autowire and aop feature
 

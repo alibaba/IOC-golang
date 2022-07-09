@@ -1,6 +1,6 @@
 # IOC-golang 扩展组件
 
-[English](./README_EN.md) | 中文
+### [English](./README_EN.md) | 中文
 
 ### 基于 ‘自动装载模型’ 和 AOP 能力的扩展
 

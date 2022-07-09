@@ -12,7 +12,7 @@
 [![IOC-golang CI](https://github.com/alibaba/IOC-golang/actions/workflows/github-actions.yml/badge.svg)](https://github.com/alibaba/IOC-golang/actions/workflows/github-actions.yml)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-English | [中文](./README_CN.md)
+### English | [中文](./README_CN.md)
 
 ![demo gif](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/video/ioc-golang-demo.gif)
 

@@ -1,6 +1,6 @@
 # iocli tool
 
-[中文](./README.md) | English
+## [中文](./README.md) | English
 
 **iocli** is a command line tool, it has the following features: 
 
