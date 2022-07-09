@@ -33,13 +33,13 @@ type interceptorImpl struct {
 
 func (w *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
 	if watchCtxInterface, ok := w.watch.Load(common.GetMethodUniqueKey(ctx.SDID, ctx.MethodName)); ok {
-		watchCtxInterface.(*context).beforeInvoke(ctx.Params)
+		watchCtxInterface.(*context).beforeInvoke(ctx)
 	}
 }
 
 func (w *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
 	if watchCtxInterface, ok := w.watch.Load(common.GetMethodUniqueKey(ctx.SDID, ctx.MethodName)); ok {
-		watchCtxInterface.(*context).afterInvoke(ctx.ReturnValues)
+		watchCtxInterface.(*context).afterInvoke(ctx)
 	}
 }
 
@@ -60,18 +60,17 @@ type context struct {
 	maxDepth          int
 }
 
-func (w *context) beforeInvoke(params []reflect.Value) {
-	if w.FieldMatcher != nil && !w.FieldMatcher.Match(params) {
+func (w *context) beforeInvoke(ctx *aop.InvocationContext) {
+	if w.FieldMatcher != nil && !w.FieldMatcher.Match(ctx.Params) {
 		// doesn't match
 		return
 	}
 	grID := goid.Get()
-	w.watchGRRequestMap.Store(grID, params)
+	w.watchGRRequestMap.Store(grID, ctx.Params)
 }
 
-func (w *context) afterInvoke(returnValues []reflect.Value) {
-	grID := goid.Get()
-	paramValues, ok := w.watchGRRequestMap.Load(grID)
+func (w *context) afterInvoke(ctx *aop.InvocationContext) {
+	paramValues, ok := w.watchGRRequestMap.Load(ctx.GrID)
 	if !ok {
 		return
 	}
@@ -79,9 +78,10 @@ func (w *context) afterInvoke(returnValues []reflect.Value) {
 		Sdid:         w.SDID,
 		MethodName:   w.MethodName,
 		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), w.maxDepth),
-		ReturnValues: common.ReflectValues2Strings(returnValues, w.maxDepth),
+		ReturnValues: common.ReflectValues2Strings(ctx.ReturnValues, w.maxDepth),
 	}
 	w.Ch <- invokeDetail
+	w.watchGRRequestMap.Delete(ctx.GrID)
 }
 
 var watchInterceptorSingleton *interceptorImpl

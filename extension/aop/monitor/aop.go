@@ -13,11 +13,21 @@
  * limitations under the License.
  */
 
-package cli
+package monitor
 
 import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/list/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch/cli"
+	"google.golang.org/grpc"
+
+	"github.com/alibaba/ioc-golang/aop"
+	monitorPB "github.com/alibaba/ioc-golang/extension/aop/monitor/api/ioc_golang/aop/monitor"
 )
+
+func init() {
+	aop.RegisterAOP(aop.AOP{
+		Name:        "monitor",
+		Interceptor: getMonitorInterceptorSingleton(),
+		GRPCServiceRegister: func(server *grpc.Server) {
+			monitorPB.RegisterMonitorServiceServer(server, getMonitorService())
+		},
+	})
+}

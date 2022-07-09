@@ -36,3 +36,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/apimachinery v0.24.0 // indirect
 )
+
+replace github.com/alibaba/ioc-golang/extension => ../extension

@@ -15,7 +15,11 @@
 
 package aop
 
-import "reflect"
+import (
+	"reflect"
+
+	"github.com/petermattis/goid"
+)
 
 type InvocationContext struct {
 	ProxyServicePtr interface{}
@@ -23,6 +27,7 @@ type InvocationContext struct {
 	MethodName      string
 	Params          []reflect.Value
 	ReturnValues    []reflect.Value
+	GrID            int64
 }
 
 func (c *InvocationContext) SetReturnValues(returnValues []reflect.Value) {
@@ -35,5 +40,6 @@ func NewInvocationContext(proxyServicePtr interface{}, sdid, methodName string, 
 		SDID:            sdid,
 		MethodName:      methodName,
 		Params:          params,
+		GrID:            goid.Get(),
 	}
 }
