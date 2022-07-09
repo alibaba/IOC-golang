@@ -458,8 +458,9 @@ func genProxyStruct(proxySuffix string, c *copyMethodMaker, needProxyStructInfos
 		// get all methods
 		c.Linef(`type %s%s struct {`, toFirstCharLower(info.Name), proxySuffix)
 		methods := parseMethodInfoFromGoFiles(info.Name, root.GoFiles)
-		for idx := range methods {
+		for idx, _ := range methods {
 			importsAlias := methods[idx].GetImportAlias()
+			aliasSwapMap := make(map[string]string)
 			if len(importsAlias) != 0 {
 				for _, importAlias := range importsAlias {
 					for _, rawFileImport := range info.RawFile.Imports {
@@ -475,10 +476,11 @@ func genProxyStruct(proxySuffix string, c *copyMethodMaker, needProxyStructInfos
 							toImport := strings.TrimPrefix(rawFileImport.Path.Value, `"`)
 							toImport = strings.TrimSuffix(toImport, `"`)
 							clientStubAlias := c.NeedImport(toImport)
-							methods[idx].swapAlias(importAlias, clientStubAlias)
+							aliasSwapMap[importAlias] = clientStubAlias
 						}
 					}
 				}
+				methods[idx].swapAliasMap(aliasSwapMap)
 			}
 			c.Linef("%s_ func%s", methods[idx].name, methods[idx].body)
 		}
@@ -508,6 +510,7 @@ func genInterface(interfaceSuffix string, c *copyMethodMaker, needInterfaceStruc
 		for idx := range methods {
 			importsAlias := methods[idx].GetImportAlias()
 			if len(importsAlias) != 0 {
+				aliasSwapMap := make(map[string]string)
 				for _, importAlias := range importsAlias {
 					for _, rawFileImport := range info.RawFile.Imports {
 						var originAlias string
@@ -522,10 +525,11 @@ func genInterface(interfaceSuffix string, c *copyMethodMaker, needInterfaceStruc
 							toImport := strings.TrimPrefix(rawFileImport.Path.Value, `"`)
 							toImport = strings.TrimSuffix(toImport, `"`)
 							clientStubAlias := c.NeedImport(toImport)
-							methods[idx].swapAlias(importAlias, clientStubAlias)
+							aliasSwapMap[importAlias] = clientStubAlias
 						}
 					}
 				}
+				methods[idx].swapAliasMap(aliasSwapMap)
 			}
 			c.Linef("%s %s", methods[idx].name, methods[idx].body)
 		}

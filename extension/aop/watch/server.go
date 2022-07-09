@@ -39,6 +39,11 @@ func (w *watchService) Watch(req *watch.WatchRequest, svr watch.WatchService_Wat
 	sdid := req.GetSdid()
 	method := req.GetMethod()
 	sendCh := make(chan *watch.WatchResponse)
+	maxDepth := 5
+	if req.MaxDepth != 0 {
+		maxDepth = int(req.GetMaxDepth())
+	}
+
 	var fieldMatcher *common.FieldMatcher
 	for _, matcher := range req.GetMatchers() {
 		// todo multi match support
@@ -53,6 +58,7 @@ func (w *watchService) Watch(req *watch.WatchRequest, svr watch.WatchService_Wat
 		MethodName:   method,
 		Ch:           sendCh,
 		FieldMatcher: fieldMatcher,
+		maxDepth:     maxDepth,
 	}
 	w.watchInterceptor.Watch(watchCtx)
 

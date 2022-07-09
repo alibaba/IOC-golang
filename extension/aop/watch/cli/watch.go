@@ -18,6 +18,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"math"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -31,7 +32,9 @@ import (
 )
 
 func getWatchServiceClent(addr string) watchPB.WatchServiceClient {
-	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt32)))
 	if err != nil {
 		panic(err)
 	}
@@ -41,6 +44,7 @@ func getWatchServiceClent(addr string) watchPB.WatchServiceClient {
 var (
 	debugHost string
 	debugPort int
+	depth     int
 )
 
 var watch = &cobra.Command{
@@ -48,8 +52,9 @@ var watch = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		debugServiceClient := getWatchServiceClent(fmt.Sprintf("%s:%d", debugHost, debugPort))
 		client, err := debugServiceClient.Watch(context.Background(), &watchPB.WatchRequest{
-			Sdid:   args[0],
-			Method: args[1],
+			Sdid:     args[0],
+			MaxDepth: int64(depth),
+			Method:   args[1],
 		})
 		if err != nil {
 			panic(err)
@@ -83,4 +88,5 @@ func init() {
 	root.Cmd.AddCommand(watch)
 	watch.Flags().IntVarP(&debugPort, "port", "p", 1999, "debug port")
 	watch.Flags().StringVar(&debugHost, "host", "127.0.0.1", "debug host")
+	watch.Flags().IntVarP(&depth, "depth", "d", 5, "value depth")
 }

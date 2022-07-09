@@ -57,6 +57,7 @@ type context struct {
 	Ch                chan *watchPB.WatchResponse
 	FieldMatcher      *common.FieldMatcher
 	watchGRRequestMap sync.Map
+	maxDepth          int
 }
 
 func (w *context) beforeInvoke(params []reflect.Value) {
@@ -77,8 +78,8 @@ func (w *context) afterInvoke(returnValues []reflect.Value) {
 	invokeDetail := &watchPB.WatchResponse{
 		Sdid:         w.SDID,
 		MethodName:   w.MethodName,
-		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value)),
-		ReturnValues: common.ReflectValues2Strings(returnValues),
+		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), w.maxDepth),
+		ReturnValues: common.ReflectValues2Strings(returnValues, w.maxDepth),
 	}
 	w.Ch <- invokeDetail
 }

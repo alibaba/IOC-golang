@@ -27,7 +27,8 @@ service WatchService {
 message WatchRequest{
   string sdid = 1;
   string method = 2;
-  repeated Matcher matchers = 3;
+  int64 maxDepth = 3;
+  repeated Matcher matchers = 4;
 }
 
 message Matcher{
