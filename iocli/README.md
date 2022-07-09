@@ -14,7 +14,7 @@
 
 ## 调试能力
 
-ioc-golang 框架拥有基于 AOP 的 Go 运行时程序调试能力，帮助故障排查，性能分析，提高应用可观测能力。在 [README](https://github.com/alibaba/ioc-golang#ioc-golang-a-golang-dependency-injection-framework)  Quickstart 中展示了接口信息的查看、参数监听能力。在 [基于 IOC-golang 的电商系统demo](https://github.com/ioc-golang/shopping-system)  中，可以展示基于 ioc-golang 的，业务无侵入的，方法粒度全链路追踪能力。
+ioc-golang 框架拥有基于 AOP 的 Go 运行时程序调试能力，帮助故障排查，性能分析，提高应用可观测能力。在 [README](https://github.com/alibaba/ioc-golang#quick-start)  Quickstart 中展示了接口信息的查看、参数监听能力。在 [基于 IOC-golang 的电商系统demo](https://github.com/ioc-golang/shopping-system)  中，可以展示基于 ioc-golang 的，业务无侵入的，方法粒度全链路追踪能力。
 
 ## 注解与代码生成
 
@@ -60,15 +60,15 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
 
   - config:
 
-    配置模型是基于多例模型的封装扩展，基于配置模型定义的结构体方便从 yaml 配置文件中注入信息。参考例子 [example/autowire_config](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_config)
+    配置模型是基于多例模型的封装扩展，基于配置模型定义的结构体方便从 yaml 配置文件中注入信息。参考例子 [example/autowire/autowire_config](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_config)
 
   - grpc:
 
-    grpc 模型是基于单例模型的封装扩展，基于 grpc 模型可以方便地从 yaml 配置文件中读取参数，生成 grpc 客户端。参考例子[example/autowire_grpc_client](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_grpc_client)
+    grpc 模型是基于单例模型的封装扩展，基于 grpc 模型可以方便地从 yaml 配置文件中读取参数，生成 grpc 客户端。参考例子  [example/third_party/autowire/grpc](https://github.com/alibaba/IOC-golang/tree/master/example/third_party/autowire/grpc)
 
   - rpc:
 
-    rpc 模型会在代码生成阶段产生 rpc 服务端注册代码，以及 rpc 客户端调用存根。参考例子 [example/autowire_rpc](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_rpc)
+    rpc 模型会在代码生成阶段产生 rpc 服务端注册代码，以及 rpc 客户端调用存根。参考例子 [example/autowire/autowire_rpc](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_rpc)
 
   
 
@@ -76,7 +76,7 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
 
   string类型，表示需要定制的“参数加载器“类型名
 
-  参数加载器由结构定义者可选定制。可参考：[ioc-go-extension/normal/redis](http://github.com/alibaba/ioc-golang/extension/blob/master/normal)
+  参数加载器由结构定义者可选定制。可参考：[extension/state/redis](http://github.com/alibaba/ioc-golang/extension/blob/state/redis)
 
   参数加载器需要实现Load方法：
 
@@ -206,7 +206,7 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
 
 - ioc:tx:func=MyTransactionFunction（非必填）
 
-  指定事务函数和回滚函数，参考事务例子 [example/aop/transaction](../example/aop/transaction)
+  指定事务函数和回滚函数，参考事务例子 [example/aop/transaction](http://github.com/alibaba/ioc-golang/example/tree/aop/transaction)
 
 ## iocli 操作命令
 

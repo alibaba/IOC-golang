@@ -14,7 +14,11 @@
   
   - watch/
   
-    realtime param & return values watch feature
+    interface, method, realtime param & return values watch feature
+
+  - monitor/
+
+    realtime invocation monitor feature
   
   - trace/
   

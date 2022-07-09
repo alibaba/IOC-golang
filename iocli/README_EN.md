@@ -14,7 +14,7 @@
 
 ## Program Debug Feature
 
-IOC golang framework has the ability to debug go programs based on the struct AOP layer, help with troubleshooting, performance analysis, and improve the observability of applications. In [README]( https://github.com/alibaba/ioc-golang#ioc -Golang-a-golang-dependency-injection-framework) QuickStart page shows the ability to view interface information and monitor parameters. In [IOC golang based e-commerce system demo]( https://github.com/ioc-golang/shopping-system ). It shows the IOC-golang based, non intrusive, method granularity whole invoking link tracking capability.
+IOC golang framework has the ability to debug go programs based on the struct AOP layer, help with troubleshooting, performance analysis, and improve the observability of applications. In [README](https://github.com/alibaba/ioc-golang#quick-start) QuickStart page shows the ability to view interface information and monitor parameters. In [IOC golang based e-commerce system demo]( https://github.com/ioc-golang/shopping-system ). It shows the IOC-golang based, non intrusive, method granularity whole invoking link tracking capability.
 
 ## Annotation and Code generation
 
@@ -60,15 +60,15 @@ iocli can identify the following annotation keys, and the values after '=' are j
 
   - config:
 
-     [example/autowire_config](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_config)
+     [example/autowire/autowire_config](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_config)
 
   - grpc:
 
-    The configuration model is a encapsulation extension based on the multi instance model. The structure defined based on the configuration model is convenient to inject information from the yaml configuration file. Reference to [example/autowire_grpc_client](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_grpc_client)
+    The configuration model is a encapsulation extension based on the multi instance model. The structure defined based on the configuration model is convenient to inject information from the yaml configuration file. Reference to [example/third_party/autowire/grpc](https://github.com/alibaba/IOC-golang/tree/master/example/third_party/autowire/grpc)
 
   - rpc:
 
-    RPC model will generate RPC server registration code and RPC client API stub in the code generation phase. Reference to  [example/autowire_rpc](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_rpc)
+    RPC model will generate RPC server registration code and RPC client API stub in the code generation phase. Reference to  [example/autowire/autowire_rpc](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_rpc)
 
   
 
@@ -78,7 +78,7 @@ iocli can identify the following annotation keys, and the values after '=' are j
 
   
 
-  The parameter loader is optionally customized by the structure definer. Refer to [ioc-go-extension/normal/redis](http://github.com/alibaba/ioc-golang/extension/blob/master/normal)
+  The parameter loader is optionally customized by the structure definer. Refer to [ioc-go-extension/state/redis](http://github.com/alibaba/ioc-golang/extension/blob/state/redis)
 
   param loader should import Load method：
   
@@ -205,6 +205,10 @@ iocli can identify the following annotation keys, and the values after '=' are j
 - ioc:autowire:alias=MyAppAlias （非必填）
 
   该类型的别名，可在标签、API获取、配置中，通过该别名替代掉较长的类型全名来指定结构。
+
+- ioc:tx:func=MyTransactionFunction（非必填）
+
+  指定事务函数和回滚函数，参考事务例子 [example/aop/transaction](http://github.com/alibaba/ioc-golang/example/tree/aop/transaction)
 
 ## iocli 操作命令
 
