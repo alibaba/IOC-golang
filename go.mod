@@ -8,6 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/glory-go/monkey v1.0.3
+	github.com/petermattis/goid v0.0.0-20220526132513-07eaf5d0b9f4
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.5
 	google.golang.org/grpc v1.47.0
@@ -30,7 +31,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
-	github.com/petermattis/goid v0.0.0-20220526132513-07eaf5d0b9f4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect

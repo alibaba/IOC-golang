@@ -43,8 +43,8 @@ github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb0
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
-github.com/alibaba/ioc-golang/extension v0.0.0-20220707071909-d19576eea84e h1:kTNjGpdLnonqiqOinYc2EXPafgrb2IL5m8EqIsTgP4A=
-github.com/alibaba/ioc-golang/extension v0.0.0-20220707071909-d19576eea84e/go.mod h1:R/6tCFmeqVPrPlV2hcJDgqJsvm1ZqH3Efa+4dwbmclg=
+github.com/alibaba/ioc-golang/extension v0.0.0-20220709061145-991105ec0fa8 h1:oyUYhK8MeBiMjeo3T0c/hKqb+vSPPR5XgAyIPjZcZGg=
+github.com/alibaba/ioc-golang/extension v0.0.0-20220709061145-991105ec0fa8/go.mod h1:Yyv2qrsOipq1pMKe6YPFWM0eBIyEcqaKIkO7FNBtwgQ=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=

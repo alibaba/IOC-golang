@@ -13,27 +13,25 @@ type goRoutineTraceInterceptor struct {
 	tracingGrIDMap sync.Map // tracingGrIDMap stores goroutine-id -> goRoutineTracingContext
 }
 
-func (g *goRoutineTraceInterceptor) BeforeInvoke(_ *aop.InvocationContext) {
+func (g *goRoutineTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// 1. if current goroutine is watched?
-	grID := goid.Get()
-	if val, ok := g.tracingGrIDMap.Load(grID); ok {
+	if val, ok := g.tracingGrIDMap.Load(ctx.GrID); ok {
 		// this goRoutine is watched, add new child node
 		val.(*goRoutineTracingContext).getTrace().addChildSpan(common.CurrentCallingMethodName())
 		return
 	}
 }
 
-func (g *goRoutineTraceInterceptor) AfterInvoke(_ *aop.InvocationContext) {
+func (g *goRoutineTraceInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
 	// if current goroutine is watched?
-	grID := goid.Get()
-	if val, ok := g.tracingGrIDMap.Load(grID); ok {
+	if val, ok := g.tracingGrIDMap.Load(ctx.GrID); ok {
 		// this goRoutine is watched, return span
 		traceCtx := val.(*goRoutineTracingContext)
 		traceCtx.getTrace().returnSpan()
 
 		// calculate level
 		if common.TraceLevel(traceCtx.getTrace().entranceMethod) == 0 {
-			g.tracingGrIDMap.Delete(grID)
+			g.tracingGrIDMap.Delete(ctx.GrID)
 		}
 	}
 }

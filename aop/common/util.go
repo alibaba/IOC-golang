@@ -26,15 +26,35 @@ func GetMethodUniqueKey(interfaceImplId, methodName string) string {
 	return strings.Join([]string{interfaceImplId, methodName}, "-")
 }
 
-func ReflectValues2Strings(values []reflect.Value) []string {
+func ParseSDIDAndMethodFromUniqueKey(uniqueKey string) (string, string) {
+	splitedUniqueKey := strings.Split(uniqueKey, "-")
+	return strings.Join(splitedUniqueKey[:len(splitedUniqueKey)-1], "-"), splitedUniqueKey[len(splitedUniqueKey)-1]
+}
+
+func ReflectValues2Strings(values []reflect.Value, maxDepth int) []string {
 	result := make([]string, 0)
 	i := 0
+	cfg := spew.NewDefaultConfig()
+	cfg.DisablePointerAddresses = true
+	cfg.MaxDepth = maxDepth
+	cfg.SortKeys = true
 	for ; i < len(values); i++ {
 		if !values[i].IsValid() {
 			result = append(result, "nil")
 			continue
 		}
-		result = append(result, spew.Sdump(values[i].Interface()))
+		result = append(result, cfg.Sdump(values[i].Interface()))
 	}
 	return result
+}
+
+func IsInvocationFailed(returnValues []reflect.Value) (bool, error) {
+	if len(returnValues) == 0 {
+		return false, nil
+	}
+	finalReturnValue := returnValues[len(returnValues)-1]
+	if err, ok := finalReturnValue.Interface().(error); ok && err != nil {
+		return true, err
+	}
+	return false, nil
 }

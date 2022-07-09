@@ -15,31 +15,32 @@ syntax = "proto3";
  * limitations under the License.
  */
 
-package ioc_golang.aop.watch;
+package ioc_golang.aop.monitor;
 
-option go_package = "ioc_golang/aop/watch";
+option go_package = "ioc_golang/aop/monitor";
 
-service WatchService {
-  rpc Watch (WatchRequest) returns (stream WatchResponse) {}
+service MonitorService {
+  rpc Monitor (MonitorRequest) returns (stream MonitorResponse) {}
 }
 
 
-message WatchRequest{
+message MonitorRequest{
   string sdid = 1;
   string method = 2;
-  int64 maxDepth = 3;
-  repeated Matcher matchers = 4;
+  int64 interval = 3;
 }
 
-message Matcher{
-  int64 index = 1;
-  string matchPath = 2;
-  string matchValue = 3;
+message MonitorResponse {
+  repeated MonitorResponseItem monitorResponseItems = 1;
 }
 
-message WatchResponse{
-  string sdid = 1;
-  string methodName = 2;
-  repeated string params = 3;
-  repeated string returnValues = 4;
+message MonitorResponseItem{
+  int64 timestamp = 1;
+  string sdid = 2;
+  string method = 3;
+  int64 total = 4;
+  int64 success = 5;
+  int64 fail = 6;
+  float avgRT = 7;
+  float failRate = 8;
 }

@@ -43,8 +43,7 @@ func newTraceByMethodContext(sdid, method string, ch chan *tracePB.TraceResponse
 }
 
 func (t *methodTracingContext) addGoroutineTraceContext(grCtx *goRoutineTracingContext) {
-	grID := goid.Get()
-	t.tracesMap.Store(grID, grCtx)
+	t.tracesMap.Store(grCtx.grID, grCtx)
 }
 
 type goRoutineTracingContext struct {

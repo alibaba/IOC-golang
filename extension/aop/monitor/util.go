@@ -13,11 +13,16 @@
  * limitations under the License.
  */
 
-package cli
+package monitor
 
-import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/list/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch/cli"
-)
+func getAverageInt64(input []int64) float32 {
+	length := len(input)
+	if length == 0 {
+		return 0
+	}
+	sum := int64(0)
+	for _, v := range input {
+		sum += v
+	}
+	return float32(sum) / float32(length)
+}

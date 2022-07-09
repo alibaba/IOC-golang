@@ -16,13 +16,10 @@
 package transaction
 
 import (
-	"reflect"
 	"sync"
 
 	"github.com/alibaba/ioc-golang/aop"
 	"github.com/alibaba/ioc-golang/autowire"
-
-	"github.com/petermattis/goid"
 
 	"github.com/alibaba/ioc-golang/aop/common"
 )
@@ -33,8 +30,7 @@ type interceptorImpl struct {
 
 func (t *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
 	// 1. if current invocation is already in transaction ?
-	grID := goid.Get()
-	if _, ok := t.transactionGrIDMap.Load(grID); ok {
+	if _, ok := t.transactionGrIDMap.Load(ctx.GrID); ok {
 		// this goRoutine is already in transaction
 		return
 	}
@@ -48,7 +44,7 @@ func (t *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
 	}
 	if _, ok := sd.TransactionMethodsMap[ctx.MethodName]; ok {
 		// current method wants to start a transaction
-		t.transactionGrIDMap.Store(grID, newContext(common.CurrentCallingMethodName()))
+		t.transactionGrIDMap.Store(ctx.GrID, newContext(common.CurrentCallingMethodName()))
 		return
 	}
 	// not in transaction, don't want to start a transaction
@@ -56,19 +52,18 @@ func (t *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
 
 func (t *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
 	// if current goRoutine is in the transaction ?
-	grID := goid.Get()
-	if val, ok := t.transactionGrIDMap.Load(grID); ok {
+	if val, ok := t.transactionGrIDMap.Load(ctx.GrID); ok {
 		// this goRoutine is in the transaction
 		txCtx := val.(*context)
 
 		// if invocation failed
-		invocationFailed, err := isInvocationFailed(ctx.ReturnValues)
+		invocationFailed, err := common.IsInvocationFailed(ctx.ReturnValues)
 
 		// 1.1 if current invocation is the entrance of transaction ?
 		// calculate level
 		if common.TraceLevel(txCtx.entranceMethod) == 0 {
 			// current invocation is the entrance of transaction
-			t.transactionGrIDMap.Delete(grID)
+			t.transactionGrIDMap.Delete(ctx.GrID)
 			// if the transaction failed ?
 			if invocationFailed {
 				txCtx.failed(err)
@@ -88,17 +83,6 @@ func (t *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
 		return
 	}
 	// the goRoutine is not in the transaction
-}
-
-func isInvocationFailed(returnValues []reflect.Value) (bool, error) {
-	if len(returnValues) == 0 {
-		return false, nil
-	}
-	finalReturnValue := returnValues[len(returnValues)-1]
-	if err, ok := finalReturnValue.Interface().(error); ok && err != nil {
-		return true, err
-	}
-	return false, nil
 }
 
 var transactionInterceptorSingleton *interceptorImpl

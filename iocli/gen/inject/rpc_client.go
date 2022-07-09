@@ -108,8 +108,9 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 
 		c.Linef("type %sIOCRPCClient struct {", toFirstCharLower(info.Name))
 		methods := parseMethodInfoFromGoFiles(info.Name, root.GoFiles)
-		for _, m := range methods {
-			importsAlias := m.GetImportAlias()
+		for idx, _ := range methods {
+			importsAlias := methods[idx].GetImportAlias()
+			aliasSwapMap := make(map[string]string)
 			if len(importsAlias) != 0 {
 				for _, importAlias := range importsAlias {
 					for _, rawFileImport := range info.RawFile.Imports {
@@ -125,12 +126,13 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 							toImport := strings.TrimPrefix(rawFileImport.Path.Value, `"`)
 							toImport = strings.TrimSuffix(toImport, `"`)
 							clientStubAlias := c.NeedImport(toImport)
-							m.swapAlias(importAlias, clientStubAlias)
+							aliasSwapMap[importAlias] = clientStubAlias
 						}
 					}
 				}
+				methods[idx].swapAliasMap(aliasSwapMap)
 			}
-			c.Linef("%s func%s", m.name, m.body)
+			c.Linef("%s func%s", methods[idx].name, methods[idx].body)
 		}
 		c.Line("}")
 
@@ -291,8 +293,29 @@ func getTailLetter(input string) string {
 	return input
 }
 
-func (m *method) swapAlias(from, to string) {
-	m.body = strings.Replace(m.body, from+".", to+".", -1)
+func (m *method) swapAliasMap(swapMap map[string]string) {
+	splitedByDot := strings.Split(m.body, ".")
+	if len(splitedByDot) == 1 {
+		return
+	}
+	splitedByDotIgnoreFinal := splitedByDot[:len(splitedByDot)-1]
+
+	resultBody := ""
+
+	for _, v := range splitedByDotIgnoreFinal {
+		originAlias := getTailLetter(v)
+		resultBody += strings.TrimSuffix(v, originAlias)
+		swapedValue, ok := swapMap[originAlias]
+		if ok {
+			resultBody += swapedValue
+		} else {
+			resultBody += originAlias
+		}
+		resultBody += "."
+	}
+
+	resultBody += splitedByDot[len(splitedByDot)-1]
+	m.body = resultBody
 	m.parseParamAndReturnValues()
 }
 
