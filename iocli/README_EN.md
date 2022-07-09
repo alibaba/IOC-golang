@@ -1,26 +1,26 @@
-# iocli 工具
+# iocli tool
 
-### [English](README_EN.md) | 中文 
+###  English | [中文](./README.md)
 
-**iocli** 是一款命令行工具，提供了以下能力：
+**iocli** is a command line tool, it has the following features: 
 
-- 代码调试
+- program debug
 
-  开发者可以使用 **iocli** 作为调试客户端，调试基于 ioc-golang 框架开发的 go 应用程序。
+  Developers can use **iocli** as debug client and debug the go program developed with ioc-golang.
 
-- 结构相关代码生成
+- codes generation
 
-  开发者可以为需要依赖注入的结构体增加注解，**iocli** 会识别这些注解，并产生符合要求的结构相关代码。包括结构描述信息、结构代理层、结构专属接口、结构 Get 方法等。
+  Developers can add annotations to structures that describe the struct to be   injected, and **iocli** will identify these annotations and generates structure-specific code that meets the requirements. Including structure description information, structure proxy layer, structure own interface, structure Get method and so on.
 
-## 调试能力
+## Program Debug Feature
 
-ioc-golang 框架拥有基于 AOP 的 Go 运行时程序调试能力，帮助故障排查，性能分析，提高应用可观测能力。在 [README](https://github.com/alibaba/ioc-golang#quick-start)  Quickstart 中展示了接口信息的查看、参数监听能力。在 [基于 IOC-golang 的电商系统demo](https://github.com/ioc-golang/shopping-system)  中，可以展示基于 ioc-golang 的，业务无侵入的，方法粒度全链路追踪能力。
+IOC golang framework has the ability to debug go programs based on the struct AOP layer, help with troubleshooting, performance analysis, and improve the observability of applications. In [README](https://github.com/alibaba/ioc-golang#quick-start) QuickStart page shows the ability to view interface information and monitor parameters. In [IOC golang based e-commerce system demo]( https://github.com/ioc-golang/shopping-system ). It shows the IOC-golang based, non intrusive, method granularity whole invoking link tracking capability.
 
-## 注解与代码生成
+## Annotation and Code generation
 
-注解是以特定字符串开头的注释，标注在期望注入的结构前。注解只具备静态意义，即在代码生成阶段，被iocli工具扫描识别到，从而获取结构相关信息。注解本身不具备程序运行时的意义。
+An annotation is an annotation that begins with a specific string and is marked in front of the structure that is expected to be injected. Annotations only have static meaning, that is, in the code generation stage, they are scanned and recognized by iocli tools to obtain structure related information. Annotations themselves do not have the meaning of program runtime.
 
-iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
+iocli can identify the following annotation keys, and the values after '=' are just for example.
 
 ```go
 // +ioc:autowire=true
@@ -33,13 +33,13 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
 // +ioc:tx:func=MyTransactionFunction
 ```
 
-- ioc:autowire  （必填）
+- ioc:autowire (required)
 
-  bool 类型，为 true 则在代码生成阶段被识别到。
+  bool type, The identify flag for code generation to pick the struct.
 
-- ioc:autowire:type （必填）
+- ioc:autowire:type (required)
 
-  string类型，表示依赖注入模型，目前支持以下五种，结构提供者可以选择五种中的一种或多种进行标注，从而生成相关的结构信息与 API，供结构使用者选用。
+  string type. It represents the autowire  model. Currently, it supports the following five types. The structure provider can select one or more of the five types to annotate, so as to generate relevant structure information and APIs for structure users to choose.
 
   ```go
   // +ioc:autowire:type=singleton
@@ -52,34 +52,36 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
 
   - singleton
 
-    单例模型，使用该注入模型获取到的结构体，全局只存在一个对象。
+    For the singleton model, there is only one object globally in the structure obtained by using the injection model.
 
   - normal
 
-    多例模型，使用该注入模型，每一个标签注入字段、每一次 API 获取，都会产生一个新的对象。
+    Multiple case model. With this injection model, each tag injection field and API acquisition will generate a new object.
 
   - config:
 
-    配置模型是基于多例模型的封装扩展，基于配置模型定义的结构体方便从 yaml 配置文件中注入信息。参考例子 [example/autowire/autowire_config](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_config)
+     [example/autowire/autowire_config](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_config)
 
   - grpc:
 
-    grpc 模型是基于单例模型的封装扩展，基于 grpc 模型可以方便地从 yaml 配置文件中读取参数，生成 grpc 客户端。参考例子  [example/third_party/autowire/grpc](https://github.com/alibaba/IOC-golang/tree/master/example/third_party/autowire/grpc)
+    The configuration model is a encapsulation extension based on the multi instance model. The structure defined based on the configuration model is convenient to inject information from the yaml configuration file. Reference to [example/third_party/autowire/grpc](https://github.com/alibaba/IOC-golang/tree/master/example/third_party/autowire/grpc)
 
   - rpc:
 
-    rpc 模型会在代码生成阶段产生 rpc 服务端注册代码，以及 rpc 客户端调用存根。参考例子 [example/autowire/autowire_rpc](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_rpc)
+    RPC model will generate RPC server registration code and RPC client API stub in the code generation phase. Reference to  [example/autowire/autowire_rpc](https://github.com/alibaba/IOC-golang/tree/master/example/autowire/autowire_rpc)
 
   
 
-- ioc:autowire:paramLoader（非必填）
+- ioc:autowire:paramLoader (not required)
 
-  string类型，表示需要定制的“参数加载器“类型名
+  String type, indicating the type name of "parameter loader" that needs to be customized
 
-  参数加载器由结构定义者可选定制。可参考：[extension/state/redis](http://github.com/alibaba/ioc-golang/extension/blob/state/redis)
+  
 
-  参数加载器需要实现Load方法：
+  The parameter loader is optionally customized by the structure definer. Refer to [ioc-go-extension/state/redis](http://github.com/alibaba/ioc-golang/extension/blob/state/redis)
 
+  param loader should import Load method：
+  
   ```go
   // ParamLoader is interface to load param
   type ParamLoader interface {
@@ -87,8 +89,8 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
   }
   ```
 
-  定义结构的开发者可以通过实现参数加载器，来定义自己的结构初始化参数。例如，一个 redis 客户端结构 'Impl'，需要从Config 参数来加载，如下所示 New 方法。
-
+  Developers who define structures can define their own structure initialization parameters by implementing parameter loaders. For example, a redis client structure'impl'needs to be loaded from the config parameter, as shown in the new method below.
+  
   ```go
   type Config struct {
   	Address  string
@@ -115,12 +117,12 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
   }
   ```
 
-  Config 包含的三个字段：Address Password DB，需要由使用者传入。
+  Config contains three fields: address password dB, which need to be passed in by the user.
 
-  从哪里传入？这就是参数加载器所做的事情。
+  From where? This is what the parameter loader does.
 
-  结构定义者可以定义如下加载器，从而将字段通过注入该结构的 tag 标签获取，如果tag信息标注了配置位置，则通过配置文件获取。
-
+  The structure definer can define the following loaders, so that the fields can be obtained through the tag tag injected into the structure. If the tag information marks the configuration location, it can be obtained through the configuration file.
+  
   ```go
   type paramLoader struct {
   }
@@ -138,24 +140,24 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
   }
   ```
 
-  例如 
-
+  Such as
+  
   ```go
   type App struct {
   	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/state/redis.Redis,address=127.0.0.1:6379&db=3"`
   }
   ```
 
-  当然也可以从配置文件读入，tag中指定了key为 db1-redis
-
+  Of course, it can also be read from the configuration file. The key specified in the tag is db1 redis
+  
   ```go
   type App struct {
   	NormalDB3Redis normalRedis.Redis `normal:"github.com/alibaba/ioc-golang/extension/state/redis.Redis,db1-redis"`
   }
   ```
 
-  ioc-go.yaml： autowire.normal.Redis.Impl.db1-redis.param 读入参数
-
+  ioc-go.yaml： autowire.normal.Redis.Impl.db1-redis.param  Read from the config file.
+  
   ```yaml
   autowire:
     normal:

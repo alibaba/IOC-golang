@@ -68,6 +68,7 @@ type rollbackAbleInvocationCtx struct {
 func (c *rollbackAbleInvocationCtx) rollback(err error) {
 	valueOf := reflect.ValueOf(c.invocationCtx.ProxyServicePtr)
 	valueOfElem := valueOf.Elem()
+	// todo what if rollback function annotation is incorrect? it would cause reflect.Value.Call on zero Value
 	funcRaw := valueOfElem.FieldByName(c.rollbackMethodName + "_")
 	rollbackParam := c.invocationCtx.Params
 	rollbackParam = append(rollbackParam, reflect.ValueOf(err.Error()))
