@@ -29,8 +29,8 @@ func init() {
 			return constructFunc(impl)
 		},
 		TransactionMethodsMap: map[string]string{
-			"AddMoney":    "AddMoneyRollout",
-			"RemoveMoney": "RemoveMoneyRollout",
+			"AddMoney":    "AddMoneyRollback",
+			"RemoveMoney": "RemoveMoneyRollback",
 		},
 	}
 	rpc_service.RegisterStructDescriptor(bankServiceStructDescriptor)
@@ -38,11 +38,11 @@ func init() {
 
 type BankServiceConstructFunc func(impl *BankService) (*BankService, error)
 type bankService_ struct {
-	GetMoney_           func(id int) int
-	AddMoney_           func(id, num int) error
-	AddMoneyRollout_    func(id, num int, errMsg string) error
-	RemoveMoney_        func(id, num int) error
-	RemoveMoneyRollout_ func(id, num int, errMsg string) error
+	GetMoney_            func(id int) int
+	AddMoney_            func(id, num int) error
+	AddMoneyRollback_    func(id, num int, errMsg string)
+	RemoveMoney_         func(id, num int) error
+	RemoveMoneyRollback_ func(id, num int, errMsg string)
 }
 
 func (b *bankService_) GetMoney(id int) int {
@@ -53,24 +53,24 @@ func (b *bankService_) AddMoney(id, num int) error {
 	return b.AddMoney_(id, num)
 }
 
-func (b *bankService_) AddMoneyRollout(id, num int, errMsg string) error {
-	return b.AddMoneyRollout_(id, num, errMsg)
+func (b *bankService_) AddMoneyRollback(id, num int, errMsg string) {
+	b.AddMoneyRollback_(id, num, errMsg)
 }
 
 func (b *bankService_) RemoveMoney(id, num int) error {
 	return b.RemoveMoney_(id, num)
 }
 
-func (b *bankService_) RemoveMoneyRollout(id, num int, errMsg string) error {
-	return b.RemoveMoneyRollout_(id, num, errMsg)
+func (b *bankService_) RemoveMoneyRollback(id, num int, errMsg string) {
+	b.RemoveMoneyRollback_(id, num, errMsg)
 }
 
 type BankServiceIOCInterface interface {
 	GetMoney(id int) int
 	AddMoney(id, num int) error
-	AddMoneyRollout(id, num int, errMsg string) error
+	AddMoneyRollback(id, num int, errMsg string)
 	RemoveMoney(id, num int) error
-	RemoveMoneyRollout(id, num int, errMsg string) error
+	RemoveMoneyRollback(id, num int, errMsg string)
 }
 
 func GetBankServiceRpc() (*BankService, error) {

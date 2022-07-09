@@ -4,9 +4,9 @@
 
 ### AOP
 
-- list_watch
+- obervability
 
-  通过 iocli 工具展示接口、方法名、实时参数值。
+  通过 iocli 工具展示接口、方法、实时参数、调用 RT 等可视化能力。
 
 - transaction
 

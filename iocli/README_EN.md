@@ -12,8 +12,6 @@
 
   Developers can add annotations to structures that describe the struct to be   injected, and **iocli** will identify these annotations and generates structure-specific code that meets the requirements. Including structure description information, structure proxy layer, structure own interface, structure Get method and so on.
 
-We would introduce the two features in details.
-
 ## Program Debug Feature
 
 ioc-golang 框架拥有基于结构代理层的 Go 运行时程序调试能力，帮助故障排查，性能分析，提高应用可观测能力。在 [README](https://github.com/alibaba/ioc-golang#ioc-golang-a-golang-dependency-injection-framework)  Quickstart 中展示了接口信息的查看、参数监听能力。在 [基于 IOC-golang 的电商系统demo](https://github.com/ioc-golang/shopping-system)  中，可以展示基于 ioc-golang 的，业务无侵入的，方法粒度全链路追踪能力。

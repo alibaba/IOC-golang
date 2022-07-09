@@ -12,8 +12,6 @@
 
   开发者可以为需要依赖注入的结构体增加注解，**iocli** 会识别这些注解，并产生符合要求的结构相关代码。包括结构描述信息、结构代理层、结构专属接口、结构 Get 方法等。
 
-下面我们将会详细介绍这两个能力。
-
 ## 调试能力
 
 ioc-golang 框架拥有基于结构代理层的 Go 运行时程序调试能力，帮助故障排查，性能分析，提高应用可观测能力。在 [README](https://github.com/alibaba/ioc-golang#ioc-golang-a-golang-dependency-injection-framework)  Quickstart 中展示了接口信息的查看、参数监听能力。在 [基于 IOC-golang 的电商系统demo](https://github.com/ioc-golang/shopping-system)  中，可以展示基于 ioc-golang 的，业务无侵入的，方法粒度全链路追踪能力。

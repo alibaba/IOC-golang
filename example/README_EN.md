@@ -4,9 +4,9 @@
 
 ### AOP
 
-- list_watch
+- obervability
 
-  A debug demo to show feature to list and watch interface, methods and real-time param values.
+  A debug demo to show feature to list and watch interface, methods, rt, real-time param values and so on.
 
 - transaction
 

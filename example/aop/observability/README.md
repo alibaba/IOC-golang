@@ -1,4 +1,4 @@
-# 使用接口方法、参数的可视化功能
+# 可视化能力
 
 ### 简介
 
@@ -120,3 +120,45 @@ Response 1: (string) (len=36) "This is ServiceImpl1, hello laurence"
 ```
 
 可看到每隔三秒钟，就会监听到方法调用的参数和返回值。
+
+监控接口
+
+```
+% iocli monitor
+====================
+2022/07/09 19:50:25
+main.ServiceImpl1.GetHelloString()
+Total: 1, Success: 1, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
+main.ServiceImpl2.GetHelloString()
+Total: 1, Success: 1, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
+====================
+2022/07/09 19:50:30
+main.ServiceImpl1.GetHelloString()
+Total: 2, Success: 2, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
+main.ServiceImpl2.GetHelloString()
+Total: 2, Success: 2, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
+====================
+2022/07/09 19:50:35
+
+...
+====================
+2022/07/09 19:51:10
+main.ServiceImpl1.GetHelloString()
+Total: 1, Success: 1, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
+main.ServiceImpl2.GetHelloString()
+Total: 1, Success: 1, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
+^C
+Got interrupt signal, collecting data during 53321ms
+====================Collection====================
+2022/07/09 19:51:13
+main.ServiceImpl1.GetHelloString()
+Total: 16, Success: 16, Fail: 0, AvgRT: 0.15ms, FailRate: 0.00%
+main.ServiceImpl2.GetHelloString()
+Total: 16, Success: 16, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
+
+```
+
+可看到在一段时间内，所有接口方法的调用情况。默认每隔五秒钟刷新一次这五秒内的调用情况，Control+C 终止进程时，会打印这段时间内的全部调用信息统计。包括请求次数、RT、失败率等信息。
+
+可通过`iocli -h` 查看更多命令和参数
+

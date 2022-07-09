@@ -3,9 +3,9 @@
 package api
 
 import (
-	autowire "github.com/alibaba/ioc-golang/autowire"
-	normal "github.com/alibaba/ioc-golang/autowire/normal"
-	rpc_client "github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client"
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/normal"
+	"github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client"
 )
 
 func init() {
@@ -14,8 +14,8 @@ func init() {
 			return &bankServiceIOCRPCClient{}
 		},
 		TransactionMethodsMap: map[string]string{
-			"AddMoney":    "AddMoneyRollout",
-			"RemoveMoney": "RemoveMoneyRollout",
+			"AddMoney":    "AddMoneyRollback",
+			"RemoveMoney": "RemoveMoneyRollback",
 		},
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -26,11 +26,11 @@ func init() {
 }
 
 type bankServiceIOCRPCClient_ struct {
-	GetMoney_           func(id int) int
-	AddMoney_           func(id, num int) error
-	AddMoneyRollout_    func(id, num int, errMsg string) error
-	RemoveMoney_        func(id, num int) error
-	RemoveMoneyRollout_ func(id, num int, errMsg string) error
+	GetMoney_            func(id int) int
+	AddMoney_            func(id, num int) error
+	AddMoneyRollback_    func(id, num int, errMsg string)
+	RemoveMoney_         func(id, num int) error
+	RemoveMoneyRollback_ func(id, num int, errMsg string)
 }
 
 func (b *bankServiceIOCRPCClient_) GetMoney(id int) int {
@@ -41,30 +41,30 @@ func (b *bankServiceIOCRPCClient_) AddMoney(id, num int) error {
 	return b.AddMoney_(id, num)
 }
 
-func (b *bankServiceIOCRPCClient_) AddMoneyRollout(id, num int, errMsg string) error {
-	return b.AddMoneyRollout_(id, num, errMsg)
+func (b *bankServiceIOCRPCClient_) AddMoneyRollback(id, num int, errMsg string) {
+	b.AddMoneyRollback_(id, num, errMsg)
 }
 
 func (b *bankServiceIOCRPCClient_) RemoveMoney(id, num int) error {
 	return b.RemoveMoney_(id, num)
 }
 
-func (b *bankServiceIOCRPCClient_) RemoveMoneyRollout(id, num int, errMsg string) error {
-	return b.RemoveMoneyRollout_(id, num, errMsg)
+func (b *bankServiceIOCRPCClient_) RemoveMoneyRollback(id, num int, errMsg string) {
+	b.RemoveMoneyRollback_(id, num, errMsg)
 }
 
 type BankServiceIOCRPCClient interface {
 	GetMoney(id int) int
 	AddMoney(id, num int) error
-	AddMoneyRollout(id, num int, errMsg string) error
+	AddMoneyRollback(id, num int, errMsg string)
 	RemoveMoney(id, num int) error
-	RemoveMoneyRollout(id, num int, errMsg string) error
+	RemoveMoneyRollback(id, num int, errMsg string)
 }
 
 type bankServiceIOCRPCClient struct {
-	GetMoney           func(id int) int
-	AddMoney           func(id, num int) error
-	AddMoneyRollout    func(id, num int, errMsg string) error
-	RemoveMoney        func(id, num int) error
-	RemoveMoneyRollout func(id, num int, errMsg string) error
+	GetMoney            func(id int) int
+	AddMoney            func(id, num int) error
+	AddMoneyRollback    func(id, num int, errMsg string)
+	RemoveMoney         func(id, num int) error
+	RemoveMoneyRollback func(id, num int, errMsg string)
 }

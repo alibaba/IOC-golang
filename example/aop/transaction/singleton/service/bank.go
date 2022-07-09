@@ -22,8 +22,8 @@ import (
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 // +ioc:autowire:constructFunc=InitBankService
-// +ioc:tx:func=AddMoney-AddMoneyRollout
-// +ioc:tx:func=RemoveMoney-RemoveMoneyRollout
+// +ioc:tx:func=AddMoney-AddMoneyRollback
+// +ioc:tx:func=RemoveMoney-RemoveMoneyRollback
 
 type BankService struct {
 	Money map[int]int
@@ -49,10 +49,9 @@ func (b *BankService) AddMoney(id, num int) error {
 	return nil
 }
 
-func (b *BankService) AddMoneyRollout(id, num int, errMsg string) error {
+func (b *BankService) AddMoneyRollback(id, num int, errMsg string) {
 	b.Money[id] -= num
 	fmt.Printf("Transaction is failed, real cause is '%s'\n method BankService.AddMoney is rolling back, sub num %d\n", errMsg, num)
-	return nil
 }
 
 func (b *BankService) RemoveMoney(id, num int) error {
@@ -63,8 +62,7 @@ func (b *BankService) RemoveMoney(id, num int) error {
 	return nil
 }
 
-func (b *BankService) RemoveMoneyRollout(id, num int, errMsg string) error {
+func (b *BankService) RemoveMoneyRollback(id, num int, errMsg string) {
 	b.Money[id] += num
 	fmt.Printf("Transaction is failed, real cause is '%s'\nmethod BankService.RemoveMoney is rolling back, add num %d\n", errMsg, num)
-	return nil
 }
