@@ -1,6 +1,6 @@
 # iocli 工具
 
-## 中文 | [English](README_EN.md)
+### [English](README_EN.md) | 中文 
 
 **iocli** 是一款命令行工具，提供了以下能力：
 
@@ -14,13 +14,13 @@
 
 ## 调试能力
 
-ioc-golang 框架拥有基于结构代理层的 Go 运行时程序调试能力，帮助故障排查，性能分析，提高应用可观测能力。在 [README](https://github.com/alibaba/ioc-golang#ioc-golang-a-golang-dependency-injection-framework)  Quickstart 中展示了接口信息的查看、参数监听能力。在 [基于 IOC-golang 的电商系统demo](https://github.com/ioc-golang/shopping-system)  中，可以展示基于 ioc-golang 的，业务无侵入的，方法粒度全链路追踪能力。
+ioc-golang 框架拥有基于 AOP 的 Go 运行时程序调试能力，帮助故障排查，性能分析，提高应用可观测能力。在 [README](https://github.com/alibaba/ioc-golang#ioc-golang-a-golang-dependency-injection-framework)  Quickstart 中展示了接口信息的查看、参数监听能力。在 [基于 IOC-golang 的电商系统demo](https://github.com/ioc-golang/shopping-system)  中，可以展示基于 ioc-golang 的，业务无侵入的，方法粒度全链路追踪能力。
 
 ## 注解与代码生成
 
 注解是以特定字符串开头的注释，标注在期望注入的结构前。注解只具备静态意义，即在代码生成阶段，被iocli工具扫描识别到，从而获取结构相关信息。注解本身不具备程序运行时的意义。
 
-iocli 可以识别以下注解：
+iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
 
 ```go
 // +ioc:autowire=true
@@ -30,13 +30,14 @@ iocli 可以识别以下注解：
 // +ioc:autowire:constructFunc=New
 // +ioc:autowire:baseType=true
 // +ioc:autowire:alias=MyAppAlias
+// +ioc:tx:func=MyTransactionFunction
 ```
 
-- ioc:autowire 
+- ioc:autowire  （必填）
 
   bool 类型，为 true 则在代码生成阶段被识别到。
 
-- ioc:autowire:type
+- ioc:autowire:type （必填）
 
   string类型，表示依赖注入模型，目前支持以下五种，结构提供者可以选择五种中的一种或多种进行标注，从而生成相关的结构信息与 API，供结构使用者选用。
 
@@ -203,7 +204,11 @@ iocli 可以识别以下注解：
 
   该类型的别名，可在标签、API获取、配置中，通过该别名替代掉较长的类型全名来指定结构。
 
-## iocli 操作命令文档
+- ioc:tx:func=MyTransactionFunction（非必填）
+
+  指定事务函数和回滚函数，参考事务例子 [example/aop/transaction](../example/aop/transaction)
+
+## iocli 操作命令
 
 - `iocli init`
 
@@ -220,6 +225,11 @@ iocli 可以识别以下注解：
 - `iocli watch [structID] [methodName]`
 
   监听一个方法的实时调用信息
+
+
+- `iocli monitor [structID] [methodName]`
+
+  开启调用监控，structID 和 methodName 可不指定，则监控所有接口方法。
 
 - `iocli trace [structID] [methodName]`
 
