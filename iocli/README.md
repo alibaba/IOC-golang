@@ -198,7 +198,7 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
 
   该类型是否为基础类型
 
-  go 基础类型不可直接通过&在构造时取地址，因此我们针对基础类型单独设计了该注解。在 http://github.com/alibaba/ioc-golang/extension/tree/master/config 配置扩展中被使用较多。
+  go 基础类型不可直接通过&在构造时取地址，因此我们针对基础类型单独设计了该注解。在 [配置扩展](https://github.com/alibaba/IOC-golang/tree/master/extension/config) 中被使用较多。
 
 - ioc:autowire:alias=MyAppAlias （非必填）
 
