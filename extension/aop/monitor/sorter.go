@@ -13,11 +13,22 @@
  * limitations under the License.
  */
 
-package cli
+package monitor
 
 import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/list/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch/cli"
+	"github.com/alibaba/ioc-golang/extension/aop/monitor/api/ioc_golang/aop/monitor"
 )
+
+type monitorResponseItemsSorter []*monitor.MonitorResponseItem
+
+func (m monitorResponseItemsSorter) Len() int {
+	return len(m)
+}
+
+func (m monitorResponseItemsSorter) Less(i, j int) bool {
+	return m[i].Sdid+m[i].Method < m[j].Sdid+m[j].Method
+}
+
+func (m monitorResponseItemsSorter) Swap(i, j int) {
+	m[i], m[j] = m[j], m[i]
+}

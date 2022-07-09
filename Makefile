@@ -2,6 +2,7 @@ proto-gen:
 	protoc --go_out=./extension/aop/trace/api --go-grpc_out=./extension/aop/trace/api ./extension/aop/trace/api/ioc_golang/aop/trace/trace.proto
 	protoc --go_out=./extension/aop/watch/api --go-grpc_out=./extension/aop/watch/api ./extension/aop/watch/api/ioc_golang/aop/watch/watch.proto
 	protoc --go_out=./extension/aop/list/api --go-grpc_out=./extension/aop/list/api ./extension/aop/list/api/ioc_golang/aop/list/list.proto
+	protoc --go_out=./extension/aop/monitor/api --go-grpc_out=./extension/aop/monitor/api ./extension/aop/monitor/api/ioc_golang/aop/monitor/monitor.proto
 
 tidy-all:
 	cd extension && go mod tidy -compat=1.17

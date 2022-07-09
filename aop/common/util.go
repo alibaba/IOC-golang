@@ -26,6 +26,11 @@ func GetMethodUniqueKey(interfaceImplId, methodName string) string {
 	return strings.Join([]string{interfaceImplId, methodName}, "-")
 }
 
+func ParseSDIDAndMethodFromUniqueKey(uniqueKey string) (string, string) {
+	splitedUniqueKey := strings.Split(uniqueKey, "-")
+	return strings.Join(splitedUniqueKey[:len(splitedUniqueKey)-1], "-"), splitedUniqueKey[len(splitedUniqueKey)-1]
+}
+
 func ReflectValues2Strings(values []reflect.Value, maxDepth int) []string {
 	result := make([]string, 0)
 	i := 0
@@ -41,4 +46,15 @@ func ReflectValues2Strings(values []reflect.Value, maxDepth int) []string {
 		result = append(result, cfg.Sdump(values[i].Interface()))
 	}
 	return result
+}
+
+func IsInvocationFailed(returnValues []reflect.Value) (bool, error) {
+	if len(returnValues) == 0 {
+		return false, nil
+	}
+	finalReturnValue := returnValues[len(returnValues)-1]
+	if err, ok := finalReturnValue.Interface().(error); ok && err != nil {
+		return true, err
+	}
+	return false, nil
 }
