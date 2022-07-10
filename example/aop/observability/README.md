@@ -21,13 +21,9 @@ iocli 会为任何期望注册在框架的结构，生成专属接口，在本�
 // +ioc:autowire:type=singleton
 
 type App struct {
-	ServiceImpl2 Service `singleton:"main.ServiceImpl2"`
-  
 	Service1OwnInterface ServiceImpl1IOCInterface `singleton:""`
 }
 ```
-
-例子中的 App.ServiceImpl2 字段，标签中指定的注入结构是 main.ServiceImpl2 是期望将 main.ServiceImpl2 结构体注入至 Service 接口，这个过程被框架注入的接口即包含代理层。
 
 例子中的 ServiceImpl1IOCInterface 字段，是期望注入 ServiceImpl1 结构至它的专属接口，专属接口的注入就不需要在标签中指定结构体ID了。只需要填写空 `singleton:""` 即可。
 
@@ -73,16 +69,14 @@ Welcome to use ioc-golang!
 [Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl1
 [Autowire Struct Descriptor] Found type singleton registered SD main.ServiceImpl2
 [Debug] Debug server listening at :1999
-This is ServiceImpl1, hello laurence
 This is ServiceImpl2, hello laurence
-This is ServiceImpl1, hello laurence
 This is ServiceImpl2, hello laurence
 ...
 ```
 
 可看到每隔三秒钟，ServiceImpl1 和 ServiceImpl2 的方法就会被调用。下面我们新启动一个终端，使用 iocli 工具调试这个程序: 
 
-查看所有接口和方法：
+- 查看所有接口和方法：
 
 ```bash
 % iocli list
@@ -97,17 +91,19 @@ main.ServiceImpl2
 
 ```
 
-监听接口参数和返回值：
+- 监听接口参数和返回值：
 
 ```bash
 % iocli watch main.ServiceImpl1 GetHelloString
+iocli watch started, try to connect to debug server at 127.0.0.1:1999
+debug server connected, watch info would be printed when invocation occurs, param info max depth = 5
 ========== On Call ==========
 main.ServiceImpl1.GetHelloString()
 Param 1: (string) (len=8) "laurence"
 
 ========== On Response ==========
 main.ServiceImpl1.GetHelloString()
-Response 1: (string) (len=36) "This is ServiceImpl1, hello laurence"
+Response 1: (string) (len=36) "This is ServiceImpl2, hello laurence"
 
 ========== On Call ==========
 main.ServiceImpl1.GetHelloString()
@@ -115,50 +111,93 @@ Param 1: (string) (len=8) "laurence"
 
 ========== On Response ==========
 main.ServiceImpl1.GetHelloString()
-Response 1: (string) (len=36) "This is ServiceImpl1, hello laurence"
+Response 1: (string) (len=36) "This is ServiceImpl2, hello laurence"
+
 ...
 ```
 
 可看到每隔三秒钟，就会监听到方法调用的参数和返回值。
 
-监控接口
+- 监控应用
 
 ```
 % iocli monitor
+iocli monitor started, try to connect to debug server at 127.0.0.1:1999
+debug server connected, monitor info would be printed every 5s
 ====================
-2022/07/09 19:50:25
+2022/07/10 19:39:26
 main.ServiceImpl1.GetHelloString()
-Total: 1, Success: 1, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
+Total: 1, Success: 1, Fail: 0, AvgRT: 39.00us, FailRate: 0.00%
 main.ServiceImpl2.GetHelloString()
-Total: 1, Success: 1, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
+Total: 1, Success: 1, Fail: 0, AvgRT: 22.00us, FailRate: 0.00%
 ====================
-2022/07/09 19:50:30
+2022/07/10 19:39:31
 main.ServiceImpl1.GetHelloString()
-Total: 2, Success: 2, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
+Total: 2, Success: 2, Fail: 0, AvgRT: 57.00us, FailRate: 0.00%
 main.ServiceImpl2.GetHelloString()
-Total: 2, Success: 2, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
-====================
-2022/07/09 19:50:35
+Total: 2, Success: 2, Fail: 0, AvgRT: 27.50us, FailRate: 0.00%
 
 ...
-====================
-2022/07/09 19:51:10
-main.ServiceImpl1.GetHelloString()
-Total: 1, Success: 1, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
-main.ServiceImpl2.GetHelloString()
-Total: 1, Success: 1, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
 ^C
-Got interrupt signal, collecting data during 53321ms
+Got interrupt signal, collecting data during 15663ms
 ====================Collection====================
-2022/07/09 19:51:13
+2022/07/10 19:39:36
 main.ServiceImpl1.GetHelloString()
-Total: 16, Success: 16, Fail: 0, AvgRT: 0.15ms, FailRate: 0.00%
+Total: 5, Success: 5, Fail: 0, AvgRT: 46.17us, FailRate: 0.00%
 main.ServiceImpl2.GetHelloString()
-Total: 16, Success: 16, Fail: 0, AvgRT: 0.00ms, FailRate: 0.00%
+Total: 5, Success: 5, Fail: 0, AvgRT: 20.50us, FailRate: 0.00%
 
 ```
 
 可看到在一段时间内，所有接口方法的调用情况。默认每隔五秒钟刷新一次这五秒内的调用情况，Control+C 终止进程时，会打印这段时间内的全部调用信息统计。包括请求次数、RT、失败率等信息。
+
+- 调用链路追踪
+
+```go
+% iocli trace main.ServiceImpl1 GetHelloString
+iocli trace started, try to connect to debug server at 127.0.0.1:1999
+debug server connected, tracing info would be printed when invocation occurs
+==================== Trace ==================== 
+Duration 9us, OperationName: main.(*serviceImpl2_).GetHelloString, StartTime: 2022/07/10 11:41:32, ReferenceSpans: [{TraceID:75698db3dfec8990 SpanID:01dc1b3c44bf9bb8 RefType:CHILD_OF XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}]
+====================
+Duration 957us, OperationName: main.(*serviceImpl1_).GetHelloString, StartTime: 2022/07/10 11:41:32, ReferenceSpans: [{TraceID:75698db3dfec8990 SpanID:75698db3dfec8990 RefType:CHILD_OF XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}]
+====================
+==================== Trace ==================== 
+Duration 10us, OperationName: main.(*serviceImpl2_).GetHelloString, StartTime: 2022/07/10 11:41:35, ReferenceSpans: [{TraceID:301fabdc183b603d SpanID:5bfc284b130c0d18 RefType:CHILD_OF XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}]
+====================
+Duration 56us, OperationName: main.(*serviceImpl1_).GetHelloString, StartTime: 2022/07/10 11:41:35, ReferenceSpans: [{TraceID:301fabdc183b603d SpanID:301fabdc183b603d RefType:CHILD_OF XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}]
+...
+```
+
+可看到每一次调用到监控方法对应一个Trace，其全部调用 Span 都被打印了出来，包含 RT、时间等信息
+
+- 在本地可视化调用链路
+
+需要在本地启动 jaeger-collector、jaeger-query、elsaticsearch, 可参考 shopping-system 例子的 docker 启动方式 [docker-compose](https://github.com/ioc-golang/shopping-system/blob/main/deploy/docker-compose/docker-compose.yaml)
+
+```go
+ iocli trace  main.ServiceImpl1 GetHelloString --pushAddr localhost:14268
+iocli trace started, try to connect to debug server at 127.0.0.1:1999
+debug server connected, tracing info would be printed when invocation occurs
+try to push span batch data to localhost:14268
+==================== Trace ====================
+Duration 8us, OperationName: main.(*serviceImpl2_).GetHelloString, StartTime: 2022/07/10 11:47:23, ReferenceSpans: [{TraceID:79425e930368c5dd SpanID:6c75b07c1f19a82b RefType:CHILD_OF XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}]
+====================
+Duration 75us, OperationName: main.(*serviceImpl1_).GetHelloString, StartTime: 2022/07/10 11:47:23, ReferenceSpans: [{TraceID:79425e930368c5dd SpanID:79425e930368c5dd RefType:CHILD_OF XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}]
+====================
+==================== Trace ====================
+Duration 1312us, OperationName: main.(*serviceImpl2_).GetHelloString, StartTime: 2022/07/10 11:47:26, ReferenceSpans: [{TraceID:6a36fcdd7909db2c SpanID:5abedfc7a9c2f3ca RefType:CHILD_OF XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}]
+====================
+Duration 1341us, OperationName: main.(*serviceImpl1_).GetHelloString, StartTime: 2022/07/10 11:47:26, ReferenceSpans: [{TraceID:6a36fcdd7909db2c SpanID:6a36fcdd7909db2c RefType:CHILD_OF XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}]
+====================
+
+```
+
+`--pushAddr` 参数指定需要推送至本机的 jaeger-collector 地址，该地址只需 iocli 进程可达，调用链路数据将由 iocli 工具拉取到本机，并推送至 jaeger-collector，不要求应用进程的部署环境有可视化组件。
+
+浏览器访问 localhost:16686 查看调用链路信息。
+
+!![img.png](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/img/example-aop-observability-tracing.png)
 
 可通过`iocli -h` 查看更多命令和参数
 

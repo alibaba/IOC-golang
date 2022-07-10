@@ -74,7 +74,7 @@ var trace = &cobra.Command{
 				return
 			}
 			for _, t := range msg.Traces {
-				color.Red("==================== Trace ==================== Trace")
+				color.Red("==================== Trace ====================")
 				for _, span := range t.Spans {
 					color.Blue("Duration %dus, OperationName: %s, StartTime: %s, ReferenceSpans: %+v", span.GetDuration().Microseconds(), span.GetOperationName(), span.GetStartTime().Format("2006/01/02 15:04:05"), span.GetReferences())
 					color.Blue("====================")

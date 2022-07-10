@@ -103,7 +103,7 @@ var monitorCommand = &cobra.Command{
 				for _, methodKey := range allMethods {
 					// get method all records
 					items := allMonitorResponseItemsMap[methodKey]
-					color.Cyan(methodKey)
+					color.Blue(methodKey)
 
 					// init value
 					total := int64(0)
