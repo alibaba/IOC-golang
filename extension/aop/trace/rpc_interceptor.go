@@ -34,7 +34,7 @@ type rpcInterceptor struct {
 
 func (r *rpcInterceptor) BeforeServerInvoke(c *gin.Context) error {
 	carrier := opentracing.HTTPHeadersCarrier(c.Request.Header)
-	clientContext, err := getGlobalTracer().Extract(opentracing.HTTPHeaders, carrier)
+	clientContext, err := getGlobalTracer().getRawTracer().Extract(opentracing.HTTPHeaders, carrier)
 	if err == nil {
 		requestPath := c.Request.URL.Path
 		splitedPath := strings.Split(requestPath, "/")
@@ -64,7 +64,7 @@ func (r *rpcInterceptor) BeforeClientInvoke(req *http.Request) error {
 	if currentSpan := getTraceInterceptorSingleton().GetCurrentSpan(); currentSpan != nil {
 		// current rpc invocation is in tracing link
 		carrier := opentracing.HTTPHeadersCarrier(req.Header)
-		_ = getGlobalTracer().Inject(currentSpan.Context(), opentracing.HTTPHeaders, carrier)
+		_ = getGlobalTracer().getRawTracer().Inject(currentSpan.Context(), opentracing.HTTPHeaders, carrier)
 	}
 	return nil
 }

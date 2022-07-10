@@ -16,21 +16,86 @@
 package trace
 
 import (
-	"fmt"
+	"bytes"
 	"io"
+
+	"github.com/jaegertracing/jaeger/model"
+
+	"github.com/alibaba/ioc-golang/extension/aop/trace/transport"
 
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
-	"github.com/uber/jaeger-client-go/transport"
 )
 
-var tracer opentracing.Tracer
-var collectorAddress = "127.0.0.1:14268"
+var tracer *wrapperTracer
+var collectorAddress = ""
 var appName = "ioc-golang-application"
 
-func getGlobalTracer() opentracing.Tracer {
+// FIXME: invocation longer than 5s would not be collected
+var collectTraceInterval = 5
+
+type wrapperTracer struct {
+	rawTracer opentracing.Tracer
+
+	out                  chan []*model.Trace
+	subscribingTraceChan chan []*model.Trace
+
+	batchBufferOut             chan *bytes.Buffer
+	subscribingBatchBufferChan chan *bytes.Buffer
+}
+
+func (w *wrapperTracer) getRawTracer() opentracing.Tracer {
+	return w.rawTracer
+}
+
+func (w *wrapperTracer) subscribeTrace(subscribingTraceChan chan []*model.Trace) {
+	w.subscribingTraceChan = subscribingTraceChan
+}
+
+func (w *wrapperTracer) removeSubscribingTrace() {
+	w.subscribingTraceChan = nil
+}
+
+func (w *wrapperTracer) subscribeBatchBuffer(subscribingBatchBufferChan chan *bytes.Buffer) {
+	w.subscribingBatchBufferChan = subscribingBatchBufferChan
+}
+
+func (w *wrapperTracer) removeSubscribingBatchBuffer() {
+	w.subscribingBatchBufferChan = nil
+}
+
+func (w *wrapperTracer) runCollectingTrace() {
+	for {
+		select {
+		case traces := <-w.out:
+			if ch := w.subscribingTraceChan; ch != nil {
+				select {
+				case ch <- traces:
+				default:
+				}
+			}
+		case bathBuffer := <-w.batchBufferOut:
+			if ch := w.subscribingBatchBufferChan; ch != nil {
+				select {
+				case ch <- bathBuffer:
+				default:
+				}
+			}
+		}
+	}
+}
+
+func getGlobalTracer() *wrapperTracer {
 	if tracer == nil {
-		tracer, _ = newJaegerTracer(appName, collectorAddress)
+		outCh := make(chan []*model.Trace)
+		batchBufferOut := make(chan *bytes.Buffer)
+		rawJaegerTracer, _ := newJaegerTracer(appName, collectorAddress, outCh, batchBufferOut)
+		tracer = &wrapperTracer{
+			rawTracer:      rawJaegerTracer,
+			batchBufferOut: batchBufferOut,
+			out:            outCh,
+		}
+		go tracer.runCollectingTrace()
 	}
 	return tracer
 }
@@ -47,10 +112,10 @@ func setAppName(name string) {
 	appName = name
 }
 
-func newJaegerTracer(service string, collectorAddress string) (opentracing.Tracer, io.Closer) {
+func newJaegerTracer(service string, collectorAddress string, out chan []*model.Trace, batchBufferOut chan *bytes.Buffer) (opentracing.Tracer, io.Closer) {
 	return jaeger.NewTracer(
 		service,
 		jaeger.NewConstSampler(true),
-		jaeger.NewRemoteReporter(transport.NewHTTPTransport(fmt.Sprintf("http://%s/api/traces?format=jaeger.thrift", collectorAddress))),
+		jaeger.NewRemoteReporter(transport.GetLocalWrappedHTTPTransportSingleton(appName, collectorAddress, out, batchBufferOut, collectTraceInterval)),
 	)
 }

@@ -76,18 +76,20 @@ func makeCallProxy(sdid, methodName string, isVariadic bool) func(in []reflect.V
 			debugMetadata[sdid].MethodMetadata[methodName].Guard.Restore()
 			debugMetadata[sdid].MethodMetadata[methodName].Lock.Unlock()
 		}()
+
+		methodFullName := common.CurrentCallingMethodName(3)
 		// interceptor
 
 		invocationCtx := &InvocationContext{}
 		for _, i := range interceptors {
 			if len(in) > 1 {
-				invocationCtx = NewInvocationContext(nil, sdid, methodName, in[1:])
+				invocationCtx = NewInvocationContext(nil, sdid, methodName, methodFullName, in[1:])
 				i.BeforeInvoke(invocationCtx)
 				for idx, p := range invocationCtx.Params {
 					in[idx+1] = p
 				}
 			} else {
-				invocationCtx = NewInvocationContext(nil, sdid, methodName, []reflect.Value{})
+				invocationCtx = NewInvocationContext(nil, sdid, methodName, methodFullName, []reflect.Value{})
 				i.BeforeInvoke(invocationCtx)
 			}
 		}

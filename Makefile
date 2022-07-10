@@ -1,5 +1,6 @@
 proto-gen:
-	protoc --go_out=./extension/aop/trace/api --go-grpc_out=./extension/aop/trace/api ./extension/aop/trace/api/ioc_golang/aop/trace/trace.proto
+	go get -u github.com/gogo/protobuf@v1.3.2
+	protoc --go_out=./extension/aop/trace/api --go-grpc_out=./extension/aop/trace/api -I${GOPATH}/pkg/mod/github.com/gogo/protobuf@v1.3.2 -I./extension/aop/trace/api/jaeger/jaeger_model.proto -I. ./extension/aop/trace/api/ioc_golang/aop/trace/trace.proto
 	protoc --go_out=./extension/aop/watch/api --go-grpc_out=./extension/aop/watch/api ./extension/aop/watch/api/ioc_golang/aop/watch/watch.proto
 	protoc --go_out=./extension/aop/list/api --go-grpc_out=./extension/aop/list/api ./extension/aop/list/api/ioc_golang/aop/list/list.proto
 	protoc --go_out=./extension/aop/monitor/api --go-grpc_out=./extension/aop/monitor/api ./extension/aop/monitor/api/ioc_golang/aop/monitor/monitor.proto

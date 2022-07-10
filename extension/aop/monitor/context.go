@@ -150,7 +150,7 @@ func (m *methodInvocationRecord) describeAndReset() (int, int, int, float32, flo
 }
 
 func (m *methodInvocationRecord) beforeRequest(ctx *aop.InvocationContext) {
-	m.grIDReqMap.Store(ctx.GrID, time.Now().UnixMilli())
+	m.grIDReqMap.Store(ctx.GrID, time.Now().UnixMicro())
 }
 
 func (m *methodInvocationRecord) afterRequest(ctx *aop.InvocationContext) {
@@ -159,7 +159,7 @@ func (m *methodInvocationRecord) afterRequest(ctx *aop.InvocationContext) {
 		return
 	}
 	startTime := val.(int64)
-	duration := time.Now().UnixMilli() - startTime
+	duration := time.Now().UnixMicro() - startTime
 
 	m.lock.Lock()
 	defer m.lock.Unlock()

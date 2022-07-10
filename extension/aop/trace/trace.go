@@ -24,33 +24,30 @@ import (
 
 type trace struct {
 	grID           int64
-	rootSpan       opentracing.Span
 	currentSpan    *spanWithParent
 	entranceMethod string
 }
 
 func newTraceWithClientSpanContext(grID int64, entranceMethod string, clientSpanContext opentracing.SpanContext) *trace {
-	rootSpan := getGlobalTracer().StartSpan(entranceMethod, ext.RPCServerOption(clientSpanContext))
+	rootSpan := getGlobalTracer().getRawTracer().StartSpan(entranceMethod, ext.RPCServerOption(clientSpanContext))
 	return &trace{
 		grID:           grID,
 		currentSpan:    newSpanWithParent(rootSpan, nil),
-		rootSpan:       rootSpan,
 		entranceMethod: entranceMethod,
 	}
 }
 
 func newTrace(grID int64, entranceMethod string) *trace {
-	rootSpan := getGlobalTracer().StartSpan(entranceMethod)
+	rootSpan := getGlobalTracer().getRawTracer().StartSpan(entranceMethod)
 	return &trace{
 		grID:           grID,
 		currentSpan:    newSpanWithParent(rootSpan, nil),
-		rootSpan:       rootSpan,
 		entranceMethod: entranceMethod,
 	}
 }
 
 func (t *trace) addChildSpan(name string) {
-	func1Span := getGlobalTracer().StartSpan(name, opentracing.ChildOf(t.currentSpan.span.Context()), opentracing.StartTime(time.Now()))
+	func1Span := getGlobalTracer().getRawTracer().StartSpan(name, opentracing.ChildOf(t.currentSpan.span.Context()), opentracing.StartTime(time.Now()))
 	innerChildSpan := newSpanWithParent(func1Span, t.currentSpan)
 	t.currentSpan = innerChildSpan
 }

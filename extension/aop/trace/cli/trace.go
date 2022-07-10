@@ -16,11 +16,15 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"net/http"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	"github.com/alibaba/ioc-golang/extension/aop/trace/common"
 
 	tracePB "github.com/alibaba/ioc-golang/extension/aop/trace/api/ioc_golang/aop/trace"
 	"github.com/alibaba/ioc-golang/iocli/root"
@@ -40,32 +44,75 @@ func getTraceServiceClent(addr string) tracePB.TraceServiceClient {
 var trace = &cobra.Command{
 	Use: "trace",
 	Run: func(cmd *cobra.Command, args []string) {
-		debugServiceClient := getTraceServiceClent(fmt.Sprintf("%s:%d", debugHost, debugPort))
+		if len(args) < 2 {
+			color.Red("invalid arguments, usage: iocli trace ${StructID} ${method}")
+			return
+		}
+		debugServerAddr := fmt.Sprintf("%s:%d", debugHost, debugPort)
+		debugServiceClient := getTraceServiceClent(debugServerAddr)
+		color.Cyan("iocli trace started, try to connect to debug server at %s", debugServerAddr)
 		client, err := debugServiceClient.Trace(context.Background(), &tracePB.TraceRequest{
-			Sdid:   args[0],
-			Method: args[1],
+			Sdid:                   args[0],
+			Method:                 args[1],
+			PushToCollectorAddress: pushToAddr,
 		})
 		if err != nil {
 			panic(err)
 		}
+		color.Cyan("debug server connected, tracing info would be printed when invocation occurs")
+
+		jaegerCollectorEndpoint := common.GetJaegerCollectorEndpoint(pushToAddr)
+
+		if pushToAddr != "" {
+			color.Cyan("try to push span batch data to %s", pushToAddr)
+		}
+
 		for {
 			msg, err := client.Recv()
 			if err != nil {
 				color.Red(err.Error())
 				return
 			}
-			color.Blue("Tracing data is sending to %s", msg.CollectorAddress)
+			for _, t := range msg.Traces {
+				color.Red("==================== Trace ==================== Trace")
+				for _, span := range t.Spans {
+					color.Blue("Duration %dus, OperationName: %s, StartTime: %s, ReferenceSpans: %+v", span.GetDuration().Microseconds(), span.GetOperationName(), span.GetStartTime().Format("2006/01/02 15:04:05"), span.GetReferences())
+					color.Blue("====================")
+				}
+			}
+			if data := msg.ThriftSerializedSpans; pushToAddr != "" && data != nil && len(data) > 0 {
+				body := bytes.NewBuffer(data)
+				req, err := http.NewRequest("POST", jaegerCollectorEndpoint, body)
+				if err != nil {
+					color.Red("New http request with url %s failed with error %s, ", jaegerCollectorEndpoint, err)
+					continue
+				}
+				req.Header.Set("Content-Type", "application/x-thrift")
+				go func() {
+					resp, err := http.DefaultClient.Do(req)
+					if err != nil {
+						color.Red("Http request with url %s failed with error %s, ", jaegerCollectorEndpoint, err)
+						return
+					}
+					if resp.StatusCode >= http.StatusBadRequest {
+						color.Red(fmt.Sprintf("error from collector: %d", resp.StatusCode))
+						return
+					}
+				}()
+			}
 		}
 	},
 }
 
 var (
-	debugHost string
-	debugPort int
+	debugHost  string
+	debugPort  int
+	pushToAddr string
 )
 
 func init() {
 	root.Cmd.AddCommand(trace)
 	trace.Flags().IntVarP(&debugPort, "port", "p", 1999, "debug port")
 	trace.Flags().StringVar(&debugHost, "host", "127.0.0.1", "debug host")
+	trace.Flags().StringVar(&pushToAddr, "pushAddr", "", "push to jaeger collector address")
 }

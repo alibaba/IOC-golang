@@ -25,6 +25,7 @@ type InvocationContext struct {
 	ProxyServicePtr interface{}
 	SDID            string
 	MethodName      string
+	MethodFullName  string
 	Params          []reflect.Value
 	ReturnValues    []reflect.Value
 	GrID            int64
@@ -34,12 +35,13 @@ func (c *InvocationContext) SetReturnValues(returnValues []reflect.Value) {
 	c.ReturnValues = returnValues
 }
 
-func NewInvocationContext(proxyServicePtr interface{}, sdid, methodName string, params []reflect.Value) *InvocationContext {
+func NewInvocationContext(proxyServicePtr interface{}, sdid, methodName, methodFullName string, params []reflect.Value) *InvocationContext {
 	return &InvocationContext{
 		ProxyServicePtr: proxyServicePtr,
 		SDID:            sdid,
 		MethodName:      methodName,
 		Params:          params,
 		GrID:            goid.Get(),
+		MethodFullName:  methodFullName,
 	}
 }

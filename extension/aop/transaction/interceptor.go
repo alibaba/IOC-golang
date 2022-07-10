@@ -44,7 +44,7 @@ func (t *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
 	}
 	if _, ok := sd.TransactionMethodsMap[ctx.MethodName]; ok {
 		// current method wants to start a transaction
-		t.transactionGrIDMap.Store(ctx.GrID, newContext(common.CurrentCallingMethodName()))
+		t.transactionGrIDMap.Store(ctx.GrID, newContext(ctx.MethodFullName))
 		return
 	}
 	// not in transaction, don't want to start a transaction

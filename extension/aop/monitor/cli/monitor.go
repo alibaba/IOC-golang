@@ -56,7 +56,8 @@ var (
 var monitorCommand = &cobra.Command{
 	Use: "monitor",
 	Run: func(cmd *cobra.Command, args []string) {
-		debugServiceClient := getMonitorServiceClient(fmt.Sprintf("%s:%d", debugHost, debugPort))
+		debugServerAddr := fmt.Sprintf("%s:%d", debugHost, debugPort)
+		debugServiceClient := getMonitorServiceClient(debugServerAddr)
 		sdid := ""
 		method := ""
 		if len(args) > 0 {
@@ -65,6 +66,7 @@ var monitorCommand = &cobra.Command{
 		if len(args) > 1 {
 			method = args[1]
 		}
+		color.Cyan("iocli monitor started, try to connect to debug server at %s", debugServerAddr)
 		client, err := debugServiceClient.Monitor(context.Background(), &monitorPB.MonitorRequest{
 			Sdid:     sdid,
 			Method:   method,
@@ -73,6 +75,7 @@ var monitorCommand = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
+		color.Cyan("debug server connected, monitor info would be printed every %ds", interval)
 
 		allMonitorResponseItemsMap := make(map[string][]*monitorPB.MonitorResponseItem, 0)
 		allMonitorResponseItemsLock := sync.RWMutex{}
@@ -125,7 +128,7 @@ var monitorCommand = &cobra.Command{
 					avgFailRate = getAverageFloat32(allFailRates)
 
 					// print information
-					color.Cyan(fmt.Sprintf("Total: %d, Success: %d, Fail: %d, AvgRT: %.2fms, FailRate: %.2f%%",
+					color.Blue(fmt.Sprintf("Total: %d, Success: %d, Fail: %d, AvgRT: %.2fus, FailRate: %.2f%%",
 						total, success, fail, avgRT, avgFailRate))
 				}
 
@@ -144,8 +147,8 @@ var monitorCommand = &cobra.Command{
 			color.Red("%s", time.Now().Format("2006/01/02 15:04:05"))
 			for _, item := range msg.MonitorResponseItems {
 				methodKey := fmt.Sprintf("%s.%s()", item.GetSdid(), item.GetMethod())
-				color.Cyan(methodKey)
-				color.Cyan(fmt.Sprintf("Total: %d, Success: %d, Fail: %d, AvgRT: %.2fms, FailRate: %.2f%%",
+				color.Blue(methodKey)
+				color.Blue(fmt.Sprintf("Total: %d, Success: %d, Fail: %d, AvgRT: %.2fus, FailRate: %.2f%%",
 					item.GetTotal(), item.GetSuccess(), item.GetFail(), item.GetAvgRT(), item.GetFailRate()*100))
 
 				allMonitorResponseItemsLock.Lock()
