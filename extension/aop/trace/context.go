@@ -22,22 +22,19 @@ import (
 	"github.com/petermattis/goid"
 
 	"github.com/alibaba/ioc-golang/aop/common"
-	tracePB "github.com/alibaba/ioc-golang/extension/aop/trace/api/ioc_golang/aop/trace"
 )
 
 type methodTracingContext struct {
 	methodName   string
 	sdid         string
-	ch           chan *tracePB.TraceResponse // not useless
 	fieldMatcher *common.FieldMatcher
 	tracesMap    sync.Map // goroutine-id -> *goRoutineTracingContext
 }
 
-func newTraceByMethodContext(sdid, method string, ch chan *tracePB.TraceResponse, fieldMatcher *common.FieldMatcher) *methodTracingContext {
+func newTraceByMethodContext(sdid, method string, fieldMatcher *common.FieldMatcher) *methodTracingContext {
 	return &methodTracingContext{
 		sdid:         sdid,
 		methodName:   method,
-		ch:           ch,
 		fieldMatcher: fieldMatcher,
 	}
 }

@@ -16,7 +16,11 @@
 package trace
 
 import (
+	"bytes"
+	"sort"
+
 	"github.com/fatih/color"
+	"github.com/jaegertracing/jaeger/model"
 
 	"github.com/alibaba/ioc-golang/aop/common"
 	tracePB "github.com/alibaba/ioc-golang/extension/aop/trace/api/ioc_golang/aop/trace"
@@ -32,7 +36,6 @@ func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.
 	defer color.Red("[Debug Server] Trace request %s finished \n", req.String())
 	sdid := req.GetSdid()
 	method := req.GetMethod()
-	sendCh := make(chan *tracePB.TraceResponse)
 	var fieldMatcher *common.FieldMatcher
 	for _, matcher := range req.GetMatchers() {
 		// todo multi match support
@@ -42,7 +45,7 @@ func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.
 		}
 	}
 
-	traceCtx := newTraceByMethodContext(sdid, method, sendCh, fieldMatcher)
+	traceCtx := newTraceByMethodContext(sdid, method, fieldMatcher)
 	d.traceInterceptor.StartTraceByMethod(traceCtx)
 
 	done := traceServer.Context().Done()
@@ -52,14 +55,45 @@ func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.
 		return err
 	}
 
+	if req.GetPushToCollectorAddress() != "" {
+		// start subscribing batch buffer
+		outBatchBuffer := make(chan *bytes.Buffer)
+		getGlobalTracer().subscribeBatchBuffer(outBatchBuffer)
+		go func() {
+			for {
+				select {
+				case <-done:
+					getGlobalTracer().removeSubscribingBatchBuffer()
+					return
+				case batchBuffer := <-outBatchBuffer:
+					_ = traceServer.Send(&tracePB.TraceResponse{
+						ThriftSerializedSpans: batchBuffer.Bytes(),
+					})
+				}
+			}
+		}()
+	}
+
+	outTraceCh := make(chan []*model.Trace)
+	// start subscribing traces info
+	getGlobalTracer().subscribeTrace(outTraceCh)
+	go func() {
+		for {
+			select {
+			case <-done:
+				getGlobalTracer().removeSubscribingTrace()
+				return
+			case traces := <-outTraceCh:
+				sortableTraces := traceSorter(traces)
+				sort.Sort(sortableTraces)
+				_ = traceServer.Send(&tracePB.TraceResponse{
+					Traces: sortableTraces,
+				})
+			}
+		}
+	}()
 	<-done
 	d.traceInterceptor.StopTraceByMethod(traceCtx)
-
-	// todo return trace info to cli
-	//case traceRsp := <-sendCh:
-	//	if err := traceServer.Send(traceRsp); err != nil {
-	//		return err
-	//	}
 	return nil
 }
 

@@ -1,6 +1,22 @@
+/*
+ * Copyright (c) 2022, Alibaba Group;
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package trace
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/petermattis/goid"
@@ -17,7 +33,7 @@ func (g *goRoutineTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// 1. if current goroutine is watched?
 	if val, ok := g.tracingGrIDMap.Load(ctx.GrID); ok {
 		// this goRoutine is watched, add new child node
-		val.(*goRoutineTracingContext).getTrace().addChildSpan(common.CurrentCallingMethodName())
+		val.(*goRoutineTracingContext).getTrace().addChildSpan(ctx.MethodFullName)
 		return
 	}
 }
@@ -27,10 +43,16 @@ func (g *goRoutineTraceInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
 	if val, ok := g.tracingGrIDMap.Load(ctx.GrID); ok {
 		// this goRoutine is watched, return span
 		traceCtx := val.(*goRoutineTracingContext)
+		currentSpan := traceCtx.getTrace().currentSpan
 		traceCtx.getTrace().returnSpan()
 
 		// calculate level
 		if common.TraceLevel(traceCtx.getTrace().entranceMethod) == 0 {
+			// tracing finished
+			currentSpan.span.Context().ForeachBaggageItem(func(k, v string) bool {
+				fmt.Println(k, v)
+				return true
+			})
 			g.tracingGrIDMap.Delete(ctx.GrID)
 		}
 	}

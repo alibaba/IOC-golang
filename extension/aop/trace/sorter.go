@@ -13,33 +13,25 @@
  * limitations under the License.
  */
 
-syntax = "proto3";
+package trace
 
-package ioc_golang.aop.trace;
+import (
+	"github.com/jaegertracing/jaeger/model"
+)
 
-import "extension/aop/trace/api/jaeger/jaeger_model.proto";
+type traceSorter []*model.Trace
 
-option go_package = "ioc_golang/aop/trace";
-
-service TraceService {
-  rpc Trace (TraceRequest) returns (stream TraceResponse) {}
+func (m traceSorter) Len() int {
+	return len(m)
 }
 
-message TraceRequest{
-  string sdid = 1;
-  string method = 2;
-  repeated Matcher matchers = 3;
-  string pushToCollectorAddress = 4;
+func (m traceSorter) Less(i, j int) bool {
+	if m[i].Spans == nil || len(m[i].Spans) == 0 || m[j].Spans == nil || len(m[j].Spans) == 0 {
+		return true
+	}
+	return m[i].Spans[0].StartTime.Before(m[j].Spans[0].StartTime)
 }
 
-message Matcher{
-  int64 index = 1;
-  string matchPath = 2;
-  string matchValue = 3;
-}
-
-message TraceResponse{
-  string collectorAddress = 1;
-  bytes thriftSerializedSpans = 2;
-  repeated jaeger.api_v2.Trace traces = 3;
+func (m traceSorter) Swap(i, j int) {
+	m[i], m[j] = m[j], m[i]
 }

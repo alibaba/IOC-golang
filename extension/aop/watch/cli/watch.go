@@ -50,7 +50,13 @@ var (
 var watch = &cobra.Command{
 	Use: "watch",
 	Run: func(cmd *cobra.Command, args []string) {
-		debugServiceClient := getWatchServiceClent(fmt.Sprintf("%s:%d", debugHost, debugPort))
+		if len(args) < 2 {
+			color.Red("invalid arguments, usage: iocli watch ${StructID} ${method}")
+			return
+		}
+		debugServerAddr := fmt.Sprintf("%s:%d", debugHost, debugPort)
+		debugServiceClient := getWatchServiceClent(debugServerAddr)
+		color.Cyan("iocli watch started, try to connect to debug server at %s", debugServerAddr)
 		client, err := debugServiceClient.Watch(context.Background(), &watchPB.WatchRequest{
 			Sdid:     args[0],
 			MaxDepth: int64(depth),
@@ -59,6 +65,7 @@ var watch = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
+		color.Cyan("debug server connected, watch info would be printed when invocation occurs, param info max depth = %d", depth)
 		for {
 			msg, err := client.Recv()
 			if err != nil {
@@ -70,7 +77,7 @@ var watch = &cobra.Command{
 			color.Red("========== On %s ==========\n", onToPrint)
 			color.Red("%s.%s()", msg.Sdid, msg.MethodName)
 			for index, p := range msg.GetParams() {
-				color.Cyan("%s %d: %s", paramOrResponse, index+1, p)
+				color.Blue("%s %d: %s", paramOrResponse, index+1, p)
 			}
 
 			onToPrint = "Response"
@@ -78,7 +85,7 @@ var watch = &cobra.Command{
 			color.Red("========== On %s ==========\n", onToPrint)
 			color.Red("%s.%s()", msg.Sdid, msg.MethodName)
 			for index, p := range msg.GetReturnValues() {
-				color.Cyan("%s %d: %s", paramOrResponse, index+1, p)
+				color.Blue("%s %d: %s", paramOrResponse, index+1, p)
 			}
 		}
 	},

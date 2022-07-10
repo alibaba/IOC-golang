@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2022, Alibaba Group;
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package trace
 
 import (
@@ -20,7 +35,7 @@ func (m *methodTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 		m.goRoutineInterceptor.BeforeInvoke(ctx)
 		return
 	}
-	// temp invocation not in goroutine tracing
+	// current invocation not in goroutine tracing
 
 	// 2. try to get matched method tracing context
 	watchCtxInterface, ok := m.tracingMethodMap.Load(common.GetMethodUniqueKey(ctx.SDID, ctx.MethodName))
@@ -37,7 +52,7 @@ func (m *methodTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// match method tracing context found
 
 	// 3.start goroutine tracing
-	grCtx := newGoRoutineTracingContext(common.CurrentCallingMethodName())
+	grCtx := newGoRoutineTracingContext(ctx.MethodFullName)
 	methodTracingCtx.addGoroutineTraceContext(grCtx)
 	m.goRoutineInterceptor.AddCurrentGRTracingContext(grCtx)
 	m.goRoutineInterceptor.BeforeInvoke(ctx)

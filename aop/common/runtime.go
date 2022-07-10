@@ -21,9 +21,9 @@ const (
 	ProxyMethod = "github.com/alibaba/ioc-golang/aop.makeProxyFunction.func1"
 )
 
-func CurrentCallingMethodName() string {
+func CurrentCallingMethodName(skip int) string {
 	pc := make([]uintptr, 1)
-	runtime.Callers(4, pc)
+	runtime.Callers(skip, pc)
 	return runtime.FuncForPC(pc[0]).Name()
 }
 
