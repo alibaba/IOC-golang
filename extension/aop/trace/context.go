@@ -16,8 +16,6 @@
 package trace
 
 import (
-	"sync"
-
 	"github.com/opentracing/opentracing-go"
 	"github.com/petermattis/goid"
 
@@ -28,7 +26,6 @@ type methodTracingContext struct {
 	methodName   string
 	sdid         string
 	fieldMatcher *common.FieldMatcher
-	tracesMap    sync.Map // goroutine-id -> *goRoutineTracingContext
 }
 
 func newTraceByMethodContext(sdid, method string, fieldMatcher *common.FieldMatcher) *methodTracingContext {
@@ -37,10 +34,6 @@ func newTraceByMethodContext(sdid, method string, fieldMatcher *common.FieldMatc
 		methodName:   method,
 		fieldMatcher: fieldMatcher,
 	}
-}
-
-func (t *methodTracingContext) addGoroutineTraceContext(grCtx *goRoutineTracingContext) {
-	t.tracesMap.Store(grCtx.grID, grCtx)
 }
 
 type goRoutineTracingContext struct {

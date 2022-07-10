@@ -44,22 +44,26 @@ func getTraceServiceClent(addr string) tracePB.TraceServiceClient {
 var trace = &cobra.Command{
 	Use: "trace",
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) < 2 {
-			color.Red("invalid arguments, usage: iocli trace ${StructID} ${method}")
-			return
+		sdid := ""
+		method := ""
+		if len(args) > 0 {
+			sdid = args[0]
+		}
+		if len(args) > 1 {
+			method = args[1]
 		}
 		debugServerAddr := fmt.Sprintf("%s:%d", debugHost, debugPort)
 		debugServiceClient := getTraceServiceClent(debugServerAddr)
 		color.Cyan("iocli trace started, try to connect to debug server at %s", debugServerAddr)
 		client, err := debugServiceClient.Trace(context.Background(), &tracePB.TraceRequest{
-			Sdid:                   args[0],
-			Method:                 args[1],
+			Sdid:                   sdid,
+			Method:                 method,
 			PushToCollectorAddress: pushToAddr,
 		})
 		if err != nil {
 			panic(err)
 		}
-		color.Cyan("debug server connected, tracing info would be printed when invocation occurs")
+		color.Cyan("debug server connected, tracing info would be printed every 5s (default)")
 
 		jaegerCollectorEndpoint := common.GetJaegerCollectorEndpoint(pushToAddr)
 

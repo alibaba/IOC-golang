@@ -16,17 +16,14 @@
 package trace
 
 import (
-	"sync"
-
 	"github.com/opentracing/opentracing-go"
 
 	"github.com/alibaba/ioc-golang/aop"
-	"github.com/alibaba/ioc-golang/aop/common"
 )
 
 type methodTraceInterceptor struct {
-	tracingMethodMap     sync.Map // watch stores methodUniqueKey -> TraceContext
 	goRoutineInterceptor *goRoutineTraceInterceptor
+	tracingCtx           *methodTracingContext
 }
 
 func (m *methodTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
@@ -38,22 +35,27 @@ func (m *methodTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// current invocation not in goroutine tracing
 
 	// 2. try to get matched method tracing context
-	watchCtxInterface, ok := m.tracingMethodMap.Load(common.GetMethodUniqueKey(ctx.SDID, ctx.MethodName))
-	if !ok {
-		// method tracing context not found, no need to trace
+	traceCtx := m.tracingCtx
+	if traceCtx == nil {
 		return
 	}
 	// method tracing found,
-	methodTracingCtx := watchCtxInterface.(*methodTracingContext)
-	if methodTracingCtx.fieldMatcher != nil && !methodTracingCtx.fieldMatcher.Match(ctx.Params) {
+	if traceCtx.fieldMatcher != nil && !traceCtx.fieldMatcher.Match(ctx.Params) {
 		// doesn't match trace by method
+		return
+	}
+	if traceCtx.sdid != "" && traceCtx.sdid != ctx.SDID {
+		// doesn't match sdid
+		return
+	}
+	if traceCtx.methodName != "" && traceCtx.methodName != ctx.MethodName {
+		// doesn't match method
 		return
 	}
 	// match method tracing context found
 
 	// 3.start goroutine tracing
 	grCtx := newGoRoutineTracingContext(ctx.MethodFullName)
-	methodTracingCtx.addGoroutineTraceContext(grCtx)
 	m.goRoutineInterceptor.AddCurrentGRTracingContext(grCtx)
 	m.goRoutineInterceptor.BeforeInvoke(ctx)
 }
@@ -63,14 +65,11 @@ func (m *methodTraceInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
 }
 
 func (m *methodTraceInterceptor) StartTraceByMethod(traceCtx *methodTracingContext) {
-	methodUniqueKey := common.GetMethodUniqueKey(traceCtx.sdid, traceCtx.methodName)
-	// FIXME: Now we only support one watcher during whole rpc links
-	m.tracingMethodMap.Store(methodUniqueKey, traceCtx)
+	m.tracingCtx = traceCtx
 }
 
-func (m *methodTraceInterceptor) StopTraceByMethod(traceCtx *methodTracingContext) {
-	methodUniqueKey := common.GetMethodUniqueKey(traceCtx.sdid, traceCtx.methodName)
-	m.tracingMethodMap.Delete(methodUniqueKey)
+func (m *methodTraceInterceptor) StopTraceByMethod() {
+	m.tracingCtx = nil
 }
 
 // TraceCurrentGR is used in rpc-server side, to continue tracing.
