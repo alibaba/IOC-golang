@@ -57,7 +57,7 @@ func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.
 
 	if req.GetPushToCollectorAddress() != "" {
 		// start subscribing batch buffer
-		outBatchBuffer := make(chan *bytes.Buffer)
+		outBatchBuffer := make(chan *bytes.Buffer, 100)
 		getGlobalTracer().subscribeBatchBuffer(outBatchBuffer)
 		go func() {
 			for {
@@ -74,7 +74,7 @@ func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.
 		}()
 	}
 
-	outTraceCh := make(chan []*model.Trace)
+	outTraceCh := make(chan []*model.Trace, 100)
 	// start subscribing traces info
 	getGlobalTracer().subscribeTrace(outTraceCh)
 	go func() {
@@ -93,7 +93,7 @@ func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.
 		}
 	}()
 	<-done
-	d.traceInterceptor.StopTraceByMethod(traceCtx)
+	d.traceInterceptor.StopTraceByMethod()
 	return nil
 }
 
