@@ -35,6 +35,7 @@ func TestWatchInterceptor(t *testing.T) {
 	watchInterceptor := getWatchInterceptorSingleton()
 	sdid := util.GetSDIDByStructPtr(&common.ServiceFoo{})
 	methodName := "Invoke"
+	methodFullName := sdid + "." + methodName
 	sendCh := make(chan *watch.WatchResponse, 10)
 	controlCh := make(chan *watch.WatchResponse, 10)
 	go func() {
@@ -55,7 +56,7 @@ func TestWatchInterceptor(t *testing.T) {
 		},
 	}
 
-	invocationCtx := aop.NewInvocationContext(nil, sdid, methodName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	invocationCtx := aop.NewInvocationContext(nil, sdid, methodName, methodFullName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
 	watchInterceptor.BeforeInvoke(invocationCtx)
 	rsp, err := service.Invoke(ctx, param)
 	invocationCtx.SetReturnValues([]reflect.Value{reflect.ValueOf(rsp), reflect.ValueOf(err)})
@@ -69,6 +70,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 	watchInterceptor := getWatchInterceptorSingleton()
 	sdid := util.GetSDIDByStructPtr(&common.ServiceFoo{})
 	methodName := "Invoke"
+	methodFullName := sdid + "." + methodName
 	sendCh := make(chan *watch.WatchResponse, 10)
 	controlCh := make(chan *watch.WatchResponse, 10)
 	go func() {
@@ -97,7 +99,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 			Name: "laurence",
 		},
 	}
-	invocationCtx := aop.NewInvocationContext(nil, sdid, methodName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	invocationCtx := aop.NewInvocationContext(nil, sdid, methodName, methodFullName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
 	watchInterceptor.BeforeInvoke(invocationCtx)
 	rsp, err := service.Invoke(ctx, param)
 	info := &watch.WatchResponse{}
@@ -113,7 +115,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 
 	// match
 	param.User.Name = "lizhixin"
-	invocationCtx = aop.NewInvocationContext(nil, sdid, methodName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	invocationCtx = aop.NewInvocationContext(nil, sdid, methodName, methodFullName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
 	watchInterceptor.BeforeInvoke(invocationCtx)
 	rsp, err = service.Invoke(ctx, param)
 	time.Sleep(time.Millisecond * 500)
@@ -129,7 +131,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 	// not watch
 	param.User.Name = "lizhixin"
 	watchInterceptor.UnWatch(watchCtx)
-	invocationCtx = aop.NewInvocationContext(nil, sdid, methodName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
+	invocationCtx = aop.NewInvocationContext(nil, sdid, methodName, methodFullName, []reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(param)})
 	watchInterceptor.BeforeInvoke(invocationCtx)
 	rsp, err = service.Invoke(ctx, param)
 	time.Sleep(time.Millisecond * 500)
