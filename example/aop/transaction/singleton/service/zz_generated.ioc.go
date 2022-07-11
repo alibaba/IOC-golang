@@ -112,8 +112,13 @@ type TradeServiceIOCInterface interface {
 	DoTradeWithTxSuccess(id1, id2, num int) error
 }
 
+var _bankServiceSDID string
+
 func GetBankServiceSingleton() (*BankService, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(BankService)), nil)
+	if _bankServiceSDID == "" {
+		_bankServiceSDID = util.GetSDIDByStructPtr(new(BankService))
+	}
+	i, err := singleton.GetImpl(_bankServiceSDID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +127,10 @@ func GetBankServiceSingleton() (*BankService, error) {
 }
 
 func GetBankServiceIOCInterfaceSingleton() (BankServiceIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(BankService)), nil)
+	if _bankServiceSDID == "" {
+		_bankServiceSDID = util.GetSDIDByStructPtr(new(BankService))
+	}
+	i, err := singleton.GetImplWithProxy(_bankServiceSDID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -130,8 +138,13 @@ func GetBankServiceIOCInterfaceSingleton() (BankServiceIOCInterface, error) {
 	return impl, nil
 }
 
+var _tradeServiceSDID string
+
 func GetTradeServiceSingleton() (*TradeService, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(TradeService)), nil)
+	if _tradeServiceSDID == "" {
+		_tradeServiceSDID = util.GetSDIDByStructPtr(new(TradeService))
+	}
+	i, err := singleton.GetImpl(_tradeServiceSDID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +153,10 @@ func GetTradeServiceSingleton() (*TradeService, error) {
 }
 
 func GetTradeServiceIOCInterfaceSingleton() (TradeServiceIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(TradeService)), nil)
+	if _tradeServiceSDID == "" {
+		_tradeServiceSDID = util.GetSDIDByStructPtr(new(TradeService))
+	}
+	i, err := singleton.GetImplWithProxy(_tradeServiceSDID, nil)
 	if err != nil {
 		return nil, err
 	}

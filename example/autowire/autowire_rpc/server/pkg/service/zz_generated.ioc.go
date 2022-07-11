@@ -40,8 +40,13 @@ type ServiceStructIOCInterface interface {
 	GetUser(name string, age int) (*dto.User, error)
 }
 
+var _serviceStructSDID string
+
 func GetServiceStructRpc() (*ServiceStruct, error) {
-	i, err := rpc_service.GetImpl(util.GetSDIDByStructPtr(new(ServiceStruct)))
+	if _serviceStructSDID == "" {
+		_serviceStructSDID = util.GetSDIDByStructPtr(new(ServiceStruct))
+	}
+	i, err := rpc_service.GetImpl(_serviceStructSDID)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +55,10 @@ func GetServiceStructRpc() (*ServiceStruct, error) {
 }
 
 func GetServiceStructIOCInterfaceRpc() (ServiceStructIOCInterface, error) {
-	i, err := rpc_service.GetImplWithProxy(util.GetSDIDByStructPtr(new(ServiceStruct)))
+	if _serviceStructSDID == "" {
+		_serviceStructSDID = util.GetSDIDByStructPtr(new(ServiceStruct))
+	}
+	i, err := rpc_service.GetImplWithProxy(_serviceStructSDID)
 	if err != nil {
 		return nil, err
 	}

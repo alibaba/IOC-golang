@@ -80,8 +80,13 @@ type ImplIOCInterface interface {
 	SendOneWay(ctx contextx.Context, mq ...*primitive.Message) error
 }
 
+var _implSDID string
+
 func GetImpl(p *Param) (*Impl, error) {
-	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(Impl)), p)
+	if _implSDID == "" {
+		_implSDID = util.GetSDIDByStructPtr(new(Impl))
+	}
+	i, err := normal.GetImpl(_implSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +95,10 @@ func GetImpl(p *Param) (*Impl, error) {
 }
 
 func GetImplIOCInterface(p *Param) (ImplIOCInterface, error) {
-	i, err := normal.GetImplWithProxy(util.GetSDIDByStructPtr(new(Impl)), p)
+	if _implSDID == "" {
+		_implSDID = util.GetSDIDByStructPtr(new(Impl))
+	}
+	i, err := normal.GetImplWithProxy(_implSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +107,10 @@ func GetImplIOCInterface(p *Param) (ImplIOCInterface, error) {
 }
 
 func GetImplSingleton(p *Param) (*Impl, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Impl)), p)
+	if _implSDID == "" {
+		_implSDID = util.GetSDIDByStructPtr(new(Impl))
+	}
+	i, err := singleton.GetImpl(_implSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +119,10 @@ func GetImplSingleton(p *Param) (*Impl, error) {
 }
 
 func GetImplIOCInterfaceSingleton(p *Param) (ImplIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(Impl)), p)
+	if _implSDID == "" {
+		_implSDID = util.GetSDIDByStructPtr(new(Impl))
+	}
+	i, err := singleton.GetImplWithProxy(_implSDID, p)
 	if err != nil {
 		return nil, err
 	}

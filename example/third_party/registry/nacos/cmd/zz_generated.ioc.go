@@ -51,8 +51,13 @@ type AppIOCInterface interface {
 	Run()
 }
 
+var _appSDID string
+
 func GetAppSingleton(p *Param) (*App, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(App)), p)
+	if _appSDID == "" {
+		_appSDID = util.GetSDIDByStructPtr(new(App))
+	}
+	i, err := singleton.GetImpl(_appSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +66,10 @@ func GetAppSingleton(p *Param) (*App, error) {
 }
 
 func GetAppIOCInterfaceSingleton(p *Param) (AppIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(App)), p)
+	if _appSDID == "" {
+		_appSDID = util.GetSDIDByStructPtr(new(App))
+	}
+	i, err := singleton.GetImplWithProxy(_appSDID, p)
 	if err != nil {
 		return nil, err
 	}

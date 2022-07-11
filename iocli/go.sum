@@ -43,8 +43,8 @@ github.com/HdrHistogram/hdrhistogram-go v1.1.2 h1:5IcZpTvzydCQeHzK4Ef/D5rrSqwxob
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
-github.com/alibaba/ioc-golang/extension v0.0.0-20220710133443-0d226913437e h1:CJt9Wpx5NmBqPH6yOyZcgCFWxLm/Moz1dqekQsJphX8=
-github.com/alibaba/ioc-golang/extension v0.0.0-20220710133443-0d226913437e/go.mod h1:dz2cOIWsQYjGJmSoS+/5CO0dCbukvoMJDDS2Mtm2/ys=
+github.com/alibaba/ioc-golang/extension v0.0.0-20220710160554-a0fc1c8fd81b h1:fbLwY5YH9bQfsQ0hmOrQYiEndZbFAM19giTPTq7RryQ=
+github.com/alibaba/ioc-golang/extension v0.0.0-20220710160554-a0fc1c8fd81b/go.mod h1:dz2cOIWsQYjGJmSoS+/5CO0dCbukvoMJDDS2Mtm2/ys=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=

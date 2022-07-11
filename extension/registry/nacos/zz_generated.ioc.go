@@ -108,8 +108,13 @@ type NamingClientIOCInterface interface {
 	Unsubscribe(param *vo.SubscribeParam) (err error)
 }
 
+var _namingClientSDID string
+
 func GetNamingClient(p *Param) (*NamingClient, error) {
-	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(NamingClient)), p)
+	if _namingClientSDID == "" {
+		_namingClientSDID = util.GetSDIDByStructPtr(new(NamingClient))
+	}
+	i, err := normal.GetImpl(_namingClientSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +123,10 @@ func GetNamingClient(p *Param) (*NamingClient, error) {
 }
 
 func GetNamingClientIOCInterface(p *Param) (NamingClientIOCInterface, error) {
-	i, err := normal.GetImplWithProxy(util.GetSDIDByStructPtr(new(NamingClient)), p)
+	if _namingClientSDID == "" {
+		_namingClientSDID = util.GetSDIDByStructPtr(new(NamingClient))
+	}
+	i, err := normal.GetImplWithProxy(_namingClientSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +135,10 @@ func GetNamingClientIOCInterface(p *Param) (NamingClientIOCInterface, error) {
 }
 
 func GetNamingClientSingleton(p *Param) (*NamingClient, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(NamingClient)), p)
+	if _namingClientSDID == "" {
+		_namingClientSDID = util.GetSDIDByStructPtr(new(NamingClient))
+	}
+	i, err := singleton.GetImpl(_namingClientSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +147,10 @@ func GetNamingClientSingleton(p *Param) (*NamingClient, error) {
 }
 
 func GetNamingClientIOCInterfaceSingleton(p *Param) (NamingClientIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(NamingClient)), p)
+	if _namingClientSDID == "" {
+		_namingClientSDID = util.GetSDIDByStructPtr(new(NamingClient))
+	}
+	i, err := singleton.GetImplWithProxy(_namingClientSDID, p)
 	if err != nil {
 		return nil, err
 	}

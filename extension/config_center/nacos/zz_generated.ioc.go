@@ -84,8 +84,13 @@ type ConfigClientIOCInterface interface {
 	SearchConfig(param vo.SearchConfigParm) (*model.ConfigPage, error)
 }
 
+var _configClientSDID string
+
 func GetConfigClient(p *Param) (*ConfigClient, error) {
-	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(ConfigClient)), p)
+	if _configClientSDID == "" {
+		_configClientSDID = util.GetSDIDByStructPtr(new(ConfigClient))
+	}
+	i, err := normal.GetImpl(_configClientSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +99,10 @@ func GetConfigClient(p *Param) (*ConfigClient, error) {
 }
 
 func GetConfigClientIOCInterface(p *Param) (ConfigClientIOCInterface, error) {
-	i, err := normal.GetImplWithProxy(util.GetSDIDByStructPtr(new(ConfigClient)), p)
+	if _configClientSDID == "" {
+		_configClientSDID = util.GetSDIDByStructPtr(new(ConfigClient))
+	}
+	i, err := normal.GetImplWithProxy(_configClientSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +111,10 @@ func GetConfigClientIOCInterface(p *Param) (ConfigClientIOCInterface, error) {
 }
 
 func GetConfigClientSingleton(p *Param) (*ConfigClient, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(ConfigClient)), p)
+	if _configClientSDID == "" {
+		_configClientSDID = util.GetSDIDByStructPtr(new(ConfigClient))
+	}
+	i, err := singleton.GetImpl(_configClientSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +123,10 @@ func GetConfigClientSingleton(p *Param) (*ConfigClient, error) {
 }
 
 func GetConfigClientIOCInterfaceSingleton(p *Param) (ConfigClientIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(ConfigClient)), p)
+	if _configClientSDID == "" {
+		_configClientSDID = util.GetSDIDByStructPtr(new(ConfigClient))
+	}
+	i, err := singleton.GetImplWithProxy(_configClientSDID, p)
 	if err != nil {
 		return nil, err
 	}

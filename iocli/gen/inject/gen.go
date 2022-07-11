@@ -41,6 +41,7 @@ var (
 	iocGolangAutowireParamLoaderMarker   = markers.Must(markers.MakeDefinition("ioc:autowire:paramLoader", markers.DescribesType, ""))
 	iocGolangAutowireConstructFuncMarker = markers.Must(markers.MakeDefinition("ioc:autowire:constructFunc", markers.DescribesType, ""))
 	iocGolangAutowireAliasMarker         = markers.Must(markers.MakeDefinition("ioc:autowire:alias", markers.DescribesType, ""))
+	iocGolangAutowireProxyMarker         = markers.Must(markers.MakeDefinition("ioc:autowire:proxy", markers.DescribesType, false))
 
 	iocGolangTransactionFuncMarker = markers.Must(markers.MakeDefinition("ioc:tx:func", markers.DescribesType, ""))
 )
@@ -68,6 +69,7 @@ func (Generator) RegisterMarkers(into *markers.Registry) error {
 		iocGolangAutowireBaseTypeMarker,
 		iocGolangAutowireAliasMarker, // alias
 		iocGolangTransactionFuncMarker,
+		iocGolangAutowireProxyMarker,
 	); err != nil {
 		return err
 	}

@@ -447,8 +447,13 @@ type GORMDBIOCInterface interface {
 	Association(column string) *gorm_iogormx.Association
 }
 
+var _gORMDBSDID string
+
 func GetGORMDB(p *Param) (*GORMDB, error) {
-	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(GORMDB)), p)
+	if _gORMDBSDID == "" {
+		_gORMDBSDID = util.GetSDIDByStructPtr(new(GORMDB))
+	}
+	i, err := normal.GetImpl(_gORMDBSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -457,7 +462,10 @@ func GetGORMDB(p *Param) (*GORMDB, error) {
 }
 
 func GetGORMDBIOCInterface(p *Param) (GORMDBIOCInterface, error) {
-	i, err := normal.GetImplWithProxy(util.GetSDIDByStructPtr(new(GORMDB)), p)
+	if _gORMDBSDID == "" {
+		_gORMDBSDID = util.GetSDIDByStructPtr(new(GORMDB))
+	}
+	i, err := normal.GetImplWithProxy(_gORMDBSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -466,7 +474,10 @@ func GetGORMDBIOCInterface(p *Param) (GORMDBIOCInterface, error) {
 }
 
 func GetGORMDBSingleton(p *Param) (*GORMDB, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(GORMDB)), p)
+	if _gORMDBSDID == "" {
+		_gORMDBSDID = util.GetSDIDByStructPtr(new(GORMDB))
+	}
+	i, err := singleton.GetImpl(_gORMDBSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -475,7 +486,10 @@ func GetGORMDBSingleton(p *Param) (*GORMDB, error) {
 }
 
 func GetGORMDBIOCInterfaceSingleton(p *Param) (GORMDBIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(GORMDB)), p)
+	if _gORMDBSDID == "" {
+		_gORMDBSDID = util.GetSDIDByStructPtr(new(GORMDB))
+	}
+	i, err := singleton.GetImplWithProxy(_gORMDBSDID, p)
 	if err != nil {
 		return nil, err
 	}

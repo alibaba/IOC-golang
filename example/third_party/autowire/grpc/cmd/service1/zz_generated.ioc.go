@@ -38,8 +38,13 @@ type Impl1IOCInterface interface {
 	Hello(req string) string
 }
 
+var _impl1SDID string
+
 func GetImpl1Singleton() (*Impl1, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Impl1)), nil)
+	if _impl1SDID == "" {
+		_impl1SDID = util.GetSDIDByStructPtr(new(Impl1))
+	}
+	i, err := singleton.GetImpl(_impl1SDID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +53,10 @@ func GetImpl1Singleton() (*Impl1, error) {
 }
 
 func GetImpl1IOCInterfaceSingleton() (Impl1IOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(Impl1)), nil)
+	if _impl1SDID == "" {
+		_impl1SDID = util.GetSDIDByStructPtr(new(Impl1))
+	}
+	i, err := singleton.GetImplWithProxy(_impl1SDID, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -73,8 +73,13 @@ type BankServiceIOCInterface interface {
 	RemoveMoneyRollback(id, num int, errMsg string)
 }
 
+var _bankServiceSDID string
+
 func GetBankServiceRpc() (*BankService, error) {
-	i, err := rpc_service.GetImpl(util.GetSDIDByStructPtr(new(BankService)))
+	if _bankServiceSDID == "" {
+		_bankServiceSDID = util.GetSDIDByStructPtr(new(BankService))
+	}
+	i, err := rpc_service.GetImpl(_bankServiceSDID)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +88,10 @@ func GetBankServiceRpc() (*BankService, error) {
 }
 
 func GetBankServiceIOCInterfaceRpc() (BankServiceIOCInterface, error) {
-	i, err := rpc_service.GetImplWithProxy(util.GetSDIDByStructPtr(new(BankService)))
+	if _bankServiceSDID == "" {
+		_bankServiceSDID = util.GetSDIDByStructPtr(new(BankService))
+	}
+	i, err := rpc_service.GetImplWithProxy(_bankServiceSDID)
 	if err != nil {
 		return nil, err
 	}
