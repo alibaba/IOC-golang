@@ -78,8 +78,13 @@ type AppIOCInterface interface {
 	Run()
 }
 
+var _tradeServiceSDID string
+
 func GetTradeServiceSingleton() (*TradeService, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(TradeService)), nil)
+	if _tradeServiceSDID == "" {
+		_tradeServiceSDID = util.GetSDIDByStructPtr(new(TradeService))
+	}
+	i, err := singleton.GetImpl(_tradeServiceSDID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +93,10 @@ func GetTradeServiceSingleton() (*TradeService, error) {
 }
 
 func GetTradeServiceIOCInterfaceSingleton() (TradeServiceIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(TradeService)), nil)
+	if _tradeServiceSDID == "" {
+		_tradeServiceSDID = util.GetSDIDByStructPtr(new(TradeService))
+	}
+	i, err := singleton.GetImplWithProxy(_tradeServiceSDID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -96,8 +104,13 @@ func GetTradeServiceIOCInterfaceSingleton() (TradeServiceIOCInterface, error) {
 	return impl, nil
 }
 
+var _appSDID string
+
 func GetAppSingleton() (*App, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(App)), nil)
+	if _appSDID == "" {
+		_appSDID = util.GetSDIDByStructPtr(new(App))
+	}
+	i, err := singleton.GetImpl(_appSDID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +119,10 @@ func GetAppSingleton() (*App, error) {
 }
 
 func GetAppIOCInterfaceSingleton() (AppIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(App)), nil)
+	if _appSDID == "" {
+		_appSDID = util.GetSDIDByStructPtr(new(App))
+	}
+	i, err := singleton.GetImplWithProxy(_appSDID, nil)
 	if err != nil {
 		return nil, err
 	}

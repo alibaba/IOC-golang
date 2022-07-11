@@ -57,8 +57,13 @@ type IOCProtocolIOCInterface interface {
 	Export(invoker protocol.Invoker) protocol.Exporter
 }
 
+var _iOCProtocolSDID string
+
 func GetIOCProtocol(p *Param) (*IOCProtocol, error) {
-	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(IOCProtocol)), p)
+	if _iOCProtocolSDID == "" {
+		_iOCProtocolSDID = util.GetSDIDByStructPtr(new(IOCProtocol))
+	}
+	i, err := normal.GetImpl(_iOCProtocolSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +72,10 @@ func GetIOCProtocol(p *Param) (*IOCProtocol, error) {
 }
 
 func GetIOCProtocolIOCInterface(p *Param) (IOCProtocolIOCInterface, error) {
-	i, err := normal.GetImplWithProxy(util.GetSDIDByStructPtr(new(IOCProtocol)), p)
+	if _iOCProtocolSDID == "" {
+		_iOCProtocolSDID = util.GetSDIDByStructPtr(new(IOCProtocol))
+	}
+	i, err := normal.GetImplWithProxy(_iOCProtocolSDID, p)
 	if err != nil {
 		return nil, err
 	}

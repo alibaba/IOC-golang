@@ -100,8 +100,13 @@ type SimpleServiceIOCInterface interface {
 	GetUser(name string, age int) (*dto.User, error)
 }
 
+var _complexServiceSDID string
+
 func GetComplexServiceRpc() (*ComplexService, error) {
-	i, err := rpc_service.GetImpl(util.GetSDIDByStructPtr(new(ComplexService)))
+	if _complexServiceSDID == "" {
+		_complexServiceSDID = util.GetSDIDByStructPtr(new(ComplexService))
+	}
+	i, err := rpc_service.GetImpl(_complexServiceSDID)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +115,10 @@ func GetComplexServiceRpc() (*ComplexService, error) {
 }
 
 func GetComplexServiceIOCInterfaceRpc() (ComplexServiceIOCInterface, error) {
-	i, err := rpc_service.GetImplWithProxy(util.GetSDIDByStructPtr(new(ComplexService)))
+	if _complexServiceSDID == "" {
+		_complexServiceSDID = util.GetSDIDByStructPtr(new(ComplexService))
+	}
+	i, err := rpc_service.GetImplWithProxy(_complexServiceSDID)
 	if err != nil {
 		return nil, err
 	}
@@ -118,8 +126,13 @@ func GetComplexServiceIOCInterfaceRpc() (ComplexServiceIOCInterface, error) {
 	return impl, nil
 }
 
+var _simpleServiceSDID string
+
 func GetSimpleServiceRpc() (*SimpleService, error) {
-	i, err := rpc_service.GetImpl(util.GetSDIDByStructPtr(new(SimpleService)))
+	if _simpleServiceSDID == "" {
+		_simpleServiceSDID = util.GetSDIDByStructPtr(new(SimpleService))
+	}
+	i, err := rpc_service.GetImpl(_simpleServiceSDID)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +141,10 @@ func GetSimpleServiceRpc() (*SimpleService, error) {
 }
 
 func GetSimpleServiceIOCInterfaceRpc() (SimpleServiceIOCInterface, error) {
-	i, err := rpc_service.GetImplWithProxy(util.GetSDIDByStructPtr(new(SimpleService)))
+	if _simpleServiceSDID == "" {
+		_simpleServiceSDID = util.GetSDIDByStructPtr(new(SimpleService))
+	}
+	i, err := rpc_service.GetImplWithProxy(_simpleServiceSDID)
 	if err != nil {
 		return nil, err
 	}

@@ -1532,8 +1532,13 @@ type RedisIOCInterface interface {
 	PSubscribe(channels ...string) *go_redisredis.PubSub
 }
 
+var _redisSDID string
+
 func GetRedis(p *Param) (*Redis, error) {
-	i, err := normal.GetImpl(util.GetSDIDByStructPtr(new(Redis)), p)
+	if _redisSDID == "" {
+		_redisSDID = util.GetSDIDByStructPtr(new(Redis))
+	}
+	i, err := normal.GetImpl(_redisSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -1542,7 +1547,10 @@ func GetRedis(p *Param) (*Redis, error) {
 }
 
 func GetRedisIOCInterface(p *Param) (RedisIOCInterface, error) {
-	i, err := normal.GetImplWithProxy(util.GetSDIDByStructPtr(new(Redis)), p)
+	if _redisSDID == "" {
+		_redisSDID = util.GetSDIDByStructPtr(new(Redis))
+	}
+	i, err := normal.GetImplWithProxy(_redisSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -1550,8 +1558,13 @@ func GetRedisIOCInterface(p *Param) (RedisIOCInterface, error) {
 	return impl, nil
 }
 
+var _redisSDID string
+
 func GetRedisSingleton(p *Param) (*Redis, error) {
-	i, err := singleton.GetImpl(util.GetSDIDByStructPtr(new(Redis)), p)
+	if _redisSDID == "" {
+		_redisSDID = util.GetSDIDByStructPtr(new(Redis))
+	}
+	i, err := singleton.GetImpl(_redisSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -1560,7 +1573,10 @@ func GetRedisSingleton(p *Param) (*Redis, error) {
 }
 
 func GetRedisIOCInterfaceSingleton(p *Param) (RedisIOCInterface, error) {
-	i, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(new(Redis)), p)
+	if _redisSDID == "" {
+		_redisSDID = util.GetSDIDByStructPtr(new(Redis))
+	}
+	i, err := singleton.GetImplWithProxy(_redisSDID, p)
 	if err != nil {
 		return nil, err
 	}

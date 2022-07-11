@@ -192,6 +192,11 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			constructFunc = info.Markers["ioc:autowire:constructFunc"][0].(string)
 		}
 
+		proxyEnable := true
+		if len(info.Markers["ioc:autowire:proxy"]) != 0 {
+			proxyEnable = info.Markers["ioc:autowire:proxy"][0].(bool)
+		}
+
 		txFunctionPairs := make([]txFunctionPair, 0)
 		for _, v := range info.Markers["ioc:tx:func"] {
 			if txFuncMark, ok := v.(string); ok {
@@ -234,13 +239,15 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 		}
 
 		// gen proxy registry
-		needProxyStructInfos = append(needProxyStructInfos, info)
-		normalAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/normal")
-		c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, normalAlias, autowireAlias)
-		c.Linef(`Factory: func() interface{} {
+		if proxyEnable {
+			needProxyStructInfos = append(needProxyStructInfos, info)
+			normalAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/normal")
+			c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, normalAlias, autowireAlias)
+			c.Linef(`Factory: func() interface{} {
 			return &%s_{}
 		},`, toFirstCharLower(info.Name))
-		c.Line(`})`)
+			c.Line(`})`)
+		}
 
 		// gen struct descriptor definition
 		structDescriptorVariableName := fmt.Sprintf("%sStructDescriptor", toFirstCharLower(info.Name))
@@ -327,6 +334,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			paramTypeName:          paramType,
 			structName:             info.Name,
 			autowireTypeAliasPairs: autowireTypesAliasPairs,
+			proxyEnable:            proxyEnable,
 		})
 
 		typeInfo := root.TypesInfo.TypeOf(info.RawSpec.Name)
@@ -356,6 +364,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 
 	// gen get method and get interface method
 	for _, g := range getMethodGenerateCtxs {
+		sdidStrName := fmt.Sprintf("_%sSDID", toFirstCharLower(g.structName))
 		for _, autowireAliasPair := range g.autowireTypeAliasPairs {
 			if autowireAliasPair.autowireType == "config" {
 				continue
@@ -367,34 +376,45 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 
 			if g.paramTypeName != "" && autowireAliasPair.autowireType != "rpc" {
 				utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
-
+				c.Linef("var %s string", sdidStrName)
 				c.Linef(`func Get%s%s(p *%s)(*%s, error){
-			i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)), p)
+			if %s == ""{
+				%s = %s.GetSDIDByStructPtr(new(%s))
+			}
+			i, err := %s.GetImpl(%s, p)
 			if err != nil {
 				return nil, err
 			}
 			impl := i.(*%s)
 			return impl, nil
-		}`, g.structName, getterSuffix, g.paramTypeName, g.structName, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName, g.structName)
+		}`, g.structName, getterSuffix, g.paramTypeName, g.structName, sdidStrName, sdidStrName, utilAlias, g.structName, autowireAliasPair.autowireTypeAlias, sdidStrName, g.structName)
 				c.Line("")
 
-				c.Linef(`func Get%sIOCInterface%s(p *%s)(%sIOCInterface, error){
-				i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)), p)
+				if g.proxyEnable {
+					c.Linef(`func Get%sIOCInterface%s(p *%s)(%sIOCInterface, error){
+				if %s == ""{
+					%s = %s.GetSDIDByStructPtr(new(%s))
+				}
+				i, err := %s.GetImplWithProxy(%s, p)
 				if err != nil {
 					return nil, err
 				}
 				impl := i.(%sIOCInterface)
 				return impl, nil
-			}`, g.structName, getterSuffix, g.paramTypeName, g.structName, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName, g.structName)
+			}`, g.structName, getterSuffix, g.paramTypeName, g.structName, sdidStrName, sdidStrName, utilAlias, g.structName, autowireAliasPair.autowireTypeAlias, sdidStrName, g.structName)
+				}
 				c.Line("")
 			} else {
 				utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
-
+				c.Linef("var %s string", sdidStrName)
 				c.Linef(`func Get%s%s()(*%s, error){`, g.structName, getterSuffix, g.structName)
+				c.Linef(`if %s == ""{
+					%s = %s.GetSDIDByStructPtr(new(%s))
+				}`, sdidStrName, sdidStrName, utilAlias, g.structName)
 				if autowireAliasPair.autowireType == "rpc" {
-					c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)))`, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName)
+					c.Linef(`i, err := %s.GetImpl(%s)`, autowireAliasPair.autowireTypeAlias, sdidStrName)
 				} else {
-					c.Linef(`i, err := %s.GetImpl(%s.GetSDIDByStructPtr(new(%s)), nil)`, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName)
+					c.Linef(`i, err := %s.GetImpl(%s, nil)`, autowireAliasPair.autowireTypeAlias, sdidStrName)
 				}
 				c.Linef(`if err != nil {
 				return nil, err
@@ -403,19 +423,23 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			return impl, nil
 			}`, g.structName)
 				c.Line("")
-
-				c.Linef(`func Get%sIOCInterface%s()(%sIOCInterface, error){`, g.structName, getterSuffix, g.structName)
-				if autowireAliasPair.autowireType == "rpc" {
-					c.Linef(`i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)))`, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName)
-				} else {
-					c.Linef(`i, err := %s.GetImplWithProxy(%s.GetSDIDByStructPtr(new(%s)), nil)`, autowireAliasPair.autowireTypeAlias, utilAlias, g.structName)
-				}
-				c.Linef(`if err != nil {
+				if g.proxyEnable {
+					c.Linef(`func Get%sIOCInterface%s()(%sIOCInterface, error){`, g.structName, getterSuffix, g.structName)
+					c.Linef(`if %s == ""{
+					%s = %s.GetSDIDByStructPtr(new(%s))
+				}`, sdidStrName, sdidStrName, utilAlias, g.structName)
+					if autowireAliasPair.autowireType == "rpc" {
+						c.Linef(`i, err := %s.GetImplWithProxy(%s)`, autowireAliasPair.autowireTypeAlias, sdidStrName)
+					} else {
+						c.Linef(`i, err := %s.GetImplWithProxy(%s, nil)`, autowireAliasPair.autowireTypeAlias, sdidStrName)
+					}
+					c.Linef(`if err != nil {
 				return nil, err
 			}
 			impl := i.(%sIOCInterface)
 			return impl, nil
 			}`, g.structName)
+				}
 				c.Line("")
 			}
 		}
@@ -444,6 +468,7 @@ func firstCharLower(s string) string {
 }
 
 type getMethodGenerateCtx struct {
+	proxyEnable            bool
 	paramTypeName          string
 	structName             string
 	autowireTypeAliasPairs []autowireTypeAliasPair
