@@ -23,7 +23,6 @@ import (
 	"os/signal"
 	"sort"
 	"sync"
-	"syscall"
 	"time"
 
 	"google.golang.org/grpc"
@@ -82,10 +81,7 @@ var monitorCommand = &cobra.Command{
 		startTime := time.Now().UnixMilli()
 		go func() {
 			signals := make(chan os.Signal, 1)
-			signal.Notify(signals,
-				os.Interrupt, os.Kill, syscall.SIGKILL, syscall.SIGSTOP,
-				syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGILL, syscall.SIGTRAP,
-				syscall.SIGABRT, syscall.SIGSYS, syscall.SIGTERM)
+			signal.Notify(signals, os.Interrupt, os.Kill)
 			select {
 			case <-signals:
 				fmt.Println()
