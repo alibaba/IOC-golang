@@ -110,8 +110,6 @@ func GetConfigClientIOCInterface(p *Param) (ConfigClientIOCInterface, error) {
 	return impl, nil
 }
 
-var _configClientSDID string
-
 func GetConfigClientSingleton(p *Param) (*ConfigClient, error) {
 	if _configClientSDID == "" {
 		_configClientSDID = util.GetSDIDByStructPtr(new(ConfigClient))

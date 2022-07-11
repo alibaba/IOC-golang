@@ -365,6 +365,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 	// gen get method and get interface method
 	for _, g := range getMethodGenerateCtxs {
 		sdidStrName := fmt.Sprintf("_%sSDID", toFirstCharLower(g.structName))
+		c.Linef("var %s string", sdidStrName)
 		for _, autowireAliasPair := range g.autowireTypeAliasPairs {
 			if autowireAliasPair.autowireType == "config" {
 				continue
@@ -376,7 +377,6 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 
 			if g.paramTypeName != "" && autowireAliasPair.autowireType != "rpc" {
 				utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
-				c.Linef("var %s string", sdidStrName)
 				c.Linef(`func Get%s%s(p *%s)(*%s, error){
 			if %s == ""{
 				%s = %s.GetSDIDByStructPtr(new(%s))
@@ -406,7 +406,6 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 				c.Line("")
 			} else {
 				utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
-				c.Linef("var %s string", sdidStrName)
 				c.Linef(`func Get%s%s()(*%s, error){`, g.structName, getterSuffix, g.structName)
 				c.Linef(`if %s == ""{
 					%s = %s.GetSDIDByStructPtr(new(%s))

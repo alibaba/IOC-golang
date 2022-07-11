@@ -473,8 +473,6 @@ func GetGORMDBIOCInterface(p *Param) (GORMDBIOCInterface, error) {
 	return impl, nil
 }
 
-var _gORMDBSDID string
-
 func GetGORMDBSingleton(p *Param) (*GORMDB, error) {
 	if _gORMDBSDID == "" {
 		_gORMDBSDID = util.GetSDIDByStructPtr(new(GORMDB))

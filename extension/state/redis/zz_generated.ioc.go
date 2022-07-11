@@ -1558,8 +1558,6 @@ func GetRedisIOCInterface(p *Param) (RedisIOCInterface, error) {
 	return impl, nil
 }
 
-var _redisSDID string
-
 func GetRedisSingleton(p *Param) (*Redis, error) {
 	if _redisSDID == "" {
 		_redisSDID = util.GetSDIDByStructPtr(new(Redis))

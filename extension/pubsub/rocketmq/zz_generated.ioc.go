@@ -106,8 +106,6 @@ func GetImplIOCInterface(p *Param) (ImplIOCInterface, error) {
 	return impl, nil
 }
 
-var _implSDID string
-
 func GetImplSingleton(p *Param) (*Impl, error) {
 	if _implSDID == "" {
 		_implSDID = util.GetSDIDByStructPtr(new(Impl))

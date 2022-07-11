@@ -253,3 +253,10 @@ type ConfigStringIOCInterface interface {
 	Value() string
 	New(impl *ConfigString) (*ConfigString, error)
 }
+
+var _configFloat64SDID string
+var _configInt64SDID string
+var _configIntSDID string
+var _configMapSDID string
+var _configSliceSDID string
+var _configStringSDID string

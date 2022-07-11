@@ -134,8 +134,6 @@ func GetNamingClientIOCInterface(p *Param) (NamingClientIOCInterface, error) {
 	return impl, nil
 }
 
-var _namingClientSDID string
-
 func GetNamingClientSingleton(p *Param) (*NamingClient, error) {
 	if _namingClientSDID == "" {
 		_namingClientSDID = util.GetSDIDByStructPtr(new(NamingClient))
