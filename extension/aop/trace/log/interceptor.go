@@ -22,6 +22,10 @@ import (
 
 type CurrentSpanGetter func() opentracing.Span
 
+type Writer interface {
+	Write(p []byte)
+}
+
 type SetTraceLoggerWriterFunc func(traceLoggerWriter Writer)
 
 var rawLoggerWriterMap = make(map[string]SetTraceLoggerWriterFunc)
