@@ -22,6 +22,8 @@ import (
 	"github.com/alibaba/ioc-golang/aop/common"
 	"github.com/alibaba/ioc-golang/config"
 	tracePB "github.com/alibaba/ioc-golang/extension/aop/trace/api/ioc_golang/aop/trace"
+	"github.com/alibaba/ioc-golang/extension/aop/trace/log"
+	_ "github.com/alibaba/ioc-golang/extension/aop/trace/log/extension"
 )
 
 func init() {
@@ -37,14 +39,15 @@ func init() {
 				setAppName(debugConfig.AppName)
 			}
 			traceConfig := &TraceConfig{}
-			if err := config.LoadConfigByPrefix("aop.trace", traceConfig); err != nil {
-				return
-			} else {
+			if err := config.LoadConfigByPrefix("aop.trace", traceConfig); err == nil {
+				// found property
 				setCollectorAddress(traceConfig.CollectorAddress)
 			}
 			if traceConfig.ValueDepth != 0 {
 				valueDepth = traceConfig.ValueDepth
 			}
+			// inject logger interceptor
+			log.RunRegisteredTraceLoggerWriterFunc(getTraceInterceptorSingleton().GetCurrentSpan)
 		},
 	})
 }
