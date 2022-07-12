@@ -16,6 +16,7 @@
 package common
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -29,6 +30,11 @@ func GetMethodUniqueKey(interfaceImplId, methodName string) string {
 func ParseSDIDAndMethodFromUniqueKey(uniqueKey string) (string, string) {
 	splitedUniqueKey := strings.Split(uniqueKey, "-")
 	return strings.Join(splitedUniqueKey[:len(splitedUniqueKey)-1], "-"), splitedUniqueKey[len(splitedUniqueKey)-1]
+}
+
+func ReflectValues2String(values []reflect.Value, maxDepth int) string {
+	strs := ReflectValues2Strings(values, maxDepth)
+	return fmt.Sprintf("%+v", strs)
 }
 
 func ReflectValues2Strings(values []reflect.Value, maxDepth int) []string {

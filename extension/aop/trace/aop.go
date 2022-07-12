@@ -42,6 +42,9 @@ func init() {
 			} else {
 				setCollectorAddress(traceConfig.CollectorAddress)
 			}
+			if traceConfig.ValueDepth != 0 {
+				valueDepth = traceConfig.ValueDepth
+			}
 		},
 	})
 }

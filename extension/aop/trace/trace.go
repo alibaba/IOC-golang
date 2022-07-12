@@ -46,10 +46,11 @@ func newTrace(grID int64, entranceMethod string) *trace {
 	}
 }
 
-func (t *trace) addChildSpan(name string) {
+func (t *trace) addChildSpan(name string) *spanWithParent {
 	func1Span := getGlobalTracer().getRawTracer().StartSpan(name, opentracing.ChildOf(t.currentSpan.span.Context()), opentracing.StartTime(time.Now()))
 	innerChildSpan := newSpanWithParent(func1Span, t.currentSpan)
 	t.currentSpan = innerChildSpan
+	return t.currentSpan
 }
 
 func (t *trace) returnSpan() {
