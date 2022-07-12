@@ -1,7 +1,7 @@
 package common
 
 const (
-	SpanParamKey             = "param"
+	SpanParamsKey            = "params"
 	SpanReturnValuesKey      = "returnValues"
 	DefaultRecordValuesDepth = 5
 )
