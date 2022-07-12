@@ -18,6 +18,8 @@ package trace
 import (
 	"github.com/opentracing/opentracing-go"
 
+	traceCommon "github.com/alibaba/ioc-golang/extension/aop/trace/common"
+
 	"github.com/alibaba/ioc-golang/aop"
 )
 
@@ -91,6 +93,8 @@ func (m *methodTraceInterceptor) GetCurrentSpan() opentracing.Span {
 }
 
 var methodTraceInterceptorSingleton *methodTraceInterceptor
+
+var valueDepth = traceCommon.DefaultRecordValuesDepth
 
 func getTraceInterceptorSingleton() *methodTraceInterceptor {
 	if methodTraceInterceptorSingleton == nil {

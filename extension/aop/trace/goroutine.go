@@ -16,13 +16,15 @@
 package trace
 
 import (
-	"fmt"
 	"sync"
+
+	"github.com/opentracing/opentracing-go/log"
 
 	"github.com/petermattis/goid"
 
 	"github.com/alibaba/ioc-golang/aop"
 	"github.com/alibaba/ioc-golang/aop/common"
+	traceCommon "github.com/alibaba/ioc-golang/extension/aop/trace/common"
 )
 
 type goRoutineTraceInterceptor struct {
@@ -33,7 +35,8 @@ func (g *goRoutineTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// 1. if current goroutine is watched?
 	if val, ok := g.tracingGrIDMap.Load(ctx.GrID); ok {
 		// this goRoutine is watched, add new child node
-		val.(*goRoutineTracingContext).getTrace().addChildSpan(ctx.MethodFullName)
+		currentSpan := val.(*goRoutineTracingContext).getTrace().addChildSpan(ctx.MethodFullName)
+		currentSpan.span.LogFields(log.String(traceCommon.SpanParamsKey, common.ReflectValues2String(ctx.Params, valueDepth)))
 		return
 	}
 }
@@ -43,16 +46,13 @@ func (g *goRoutineTraceInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
 	if val, ok := g.tracingGrIDMap.Load(ctx.GrID); ok {
 		// this goRoutine is watched, return span
 		traceCtx := val.(*goRoutineTracingContext)
-		currentSpan := traceCtx.getTrace().currentSpan
+		currentSpan := traceCtx.getTrace().currentSpan.span
 		traceCtx.getTrace().returnSpan()
+		currentSpan.LogFields(log.String(traceCommon.SpanReturnValuesKey, common.ReflectValues2String(ctx.ReturnValues, valueDepth)))
 
 		// calculate level
 		if common.TraceLevel(traceCtx.getTrace().entranceMethod) == 0 {
 			// tracing finished
-			currentSpan.span.Context().ForeachBaggageItem(func(k, v string) bool {
-				fmt.Println(k, v)
-				return true
-			})
 			g.tracingGrIDMap.Delete(ctx.GrID)
 		}
 	}

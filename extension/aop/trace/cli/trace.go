@@ -19,7 +19,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io/fs"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"os/signal"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -33,7 +37,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func getTraceServiceClent(addr string) tracePB.TraceServiceClient {
+func getTraceServiceClient(addr string) tracePB.TraceServiceClient {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
@@ -53,7 +57,7 @@ var trace = &cobra.Command{
 			method = args[1]
 		}
 		debugServerAddr := fmt.Sprintf("%s:%d", debugHost, debugPort)
-		debugServiceClient := getTraceServiceClent(debugServerAddr)
+		debugServiceClient := getTraceServiceClient(debugServerAddr)
 		color.Cyan("iocli trace started, try to connect to debug server at %s", debugServerAddr)
 		client, err := debugServiceClient.Trace(context.Background(), &tracePB.TraceRequest{
 			Sdid:                   sdid,
@@ -71,10 +75,24 @@ var trace = &cobra.Command{
 			color.Cyan("try to push span batch data to %s", pushToAddr)
 		}
 
+		cacheData := bytes.Buffer{}
+		if storeToFile != "" {
+			color.Cyan("Spans data is collecting, in order to save to %s", storeToFile)
+			go func() {
+				signals := make(chan os.Signal, 1)
+				signal.Notify(signals, os.Interrupt, os.Kill)
+				select {
+				case <-signals:
+					writeSpans(cacheData)
+				}
+			}()
+		}
+
 		for {
 			msg, err := client.Recv()
 			if err != nil {
 				color.Red(err.Error())
+				writeSpans(cacheData)
 				return
 			}
 			for _, t := range msg.Traces {
@@ -85,6 +103,7 @@ var trace = &cobra.Command{
 				}
 			}
 			if data := msg.ThriftSerializedSpans; pushToAddr != "" && data != nil && len(data) > 0 {
+				// try to push spans to collector
 				body := bytes.NewBuffer(data)
 				req, err := http.NewRequest("POST", jaegerCollectorEndpoint, body)
 				if err != nil {
@@ -93,6 +112,7 @@ var trace = &cobra.Command{
 				}
 				req.Header.Set("Content-Type", "application/x-thrift")
 				go func() {
+					// async post to collector
 					resp, err := http.DefaultClient.Do(req)
 					if err != nil {
 						color.Red("Http request with url %s failed with error %s, ", jaegerCollectorEndpoint, err)
@@ -103,15 +123,25 @@ var trace = &cobra.Command{
 						return
 					}
 				}()
+				cacheData.Write(data)
 			}
 		}
 	},
 }
 
+func writeSpans(cacheData bytes.Buffer) {
+	if err := ioutil.WriteFile(storeToFile, cacheData.Bytes(), fs.ModePerm); err != nil {
+		color.Red("Write cached spans data to %s failed, error is %s", storeToFile, err.Error())
+		os.Exit(1)
+	}
+	color.Cyan("Write spans to %s finished", storeToFile)
+}
+
 var (
-	debugHost  string
-	debugPort  int
-	pushToAddr string
+	debugHost   string
+	debugPort   int
+	pushToAddr  string
+	storeToFile string
 )
 
 func init() {
@@ -119,4 +149,5 @@ func init() {
 	trace.Flags().IntVarP(&debugPort, "port", "p", 1999, "debug port")
 	trace.Flags().StringVar(&debugHost, "host", "127.0.0.1", "debug host")
 	trace.Flags().StringVar(&pushToAddr, "pushAddr", "", "push to jaeger collector address")
+	trace.Flags().StringVar(&storeToFile, "store", "", "spans data store to file name")
 }

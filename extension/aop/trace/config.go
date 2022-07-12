@@ -17,4 +17,5 @@ package trace
 
 type TraceConfig struct {
 	CollectorAddress string `yaml:"collector-address"`
+	ValueDepth       int    `yaml:"value-depth"`
 }
