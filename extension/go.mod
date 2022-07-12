@@ -12,6 +12,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/inconshreveable/log15 v0.0.0-20201112154412-8562bdadbbac
 	github.com/jaegertracing/jaeger v1.36.0
 	github.com/nacos-group/nacos-sdk-go/v2 v2.0.4-beta
 	github.com/opentracing/opentracing-go v1.2.0
