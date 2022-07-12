@@ -103,7 +103,7 @@ var trace = &cobra.Command{
 				}
 			}
 			if data := msg.ThriftSerializedSpans; pushToAddr != "" && data != nil && len(data) > 0 {
-				// 1. push to collector
+				// try to push spans to collector
 				body := bytes.NewBuffer(data)
 				req, err := http.NewRequest("POST", jaegerCollectorEndpoint, body)
 				if err != nil {
@@ -112,6 +112,7 @@ var trace = &cobra.Command{
 				}
 				req.Header.Set("Content-Type", "application/x-thrift")
 				go func() {
+					// async post to collector
 					resp, err := http.DefaultClient.Do(req)
 					if err != nil {
 						color.Red("Http request with url %s failed with error %s, ", jaegerCollectorEndpoint, err)
