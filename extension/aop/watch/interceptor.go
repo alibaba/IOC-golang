@@ -58,6 +58,7 @@ type context struct {
 	FieldMatcher      *common.FieldMatcher
 	watchGRRequestMap sync.Map
 	maxDepth          int
+	maxLength         int
 }
 
 func (w *context) beforeInvoke(ctx *aop.InvocationContext) {
@@ -77,8 +78,8 @@ func (w *context) afterInvoke(ctx *aop.InvocationContext) {
 	invokeDetail := &watchPB.WatchResponse{
 		Sdid:         w.SDID,
 		MethodName:   w.MethodName,
-		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), w.maxDepth, 1000),
-		ReturnValues: common.ReflectValues2Strings(ctx.ReturnValues, w.maxDepth, 1000),
+		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), w.maxDepth, w.maxLength),
+		ReturnValues: common.ReflectValues2Strings(ctx.ReturnValues, w.maxDepth, w.maxLength),
 	}
 	w.Ch <- invokeDetail
 	w.watchGRRequestMap.Delete(ctx.GrID)

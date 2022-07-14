@@ -44,7 +44,8 @@ func getWatchServiceClent(addr string) watchPB.WatchServiceClient {
 var (
 	debugHost string
 	debugPort int
-	depth     int
+	maxDepth  int
+	maxLength int
 )
 
 var watch = &cobra.Command{
@@ -58,14 +59,15 @@ var watch = &cobra.Command{
 		debugServiceClient := getWatchServiceClent(debugServerAddr)
 		color.Cyan("iocli watch started, try to connect to debug server at %s", debugServerAddr)
 		client, err := debugServiceClient.Watch(context.Background(), &watchPB.WatchRequest{
-			Sdid:     args[0],
-			MaxDepth: int64(depth),
-			Method:   args[1],
+			Sdid:      args[0],
+			MaxDepth:  int64(maxDepth),
+			MaxLength: int64(maxLength),
+			Method:    args[1],
 		})
 		if err != nil {
 			panic(err)
 		}
-		color.Cyan("debug server connected, watch info would be printed when invocation occurs, param info max depth = %d", depth)
+		color.Cyan("debug server connected, watch info would be printed when invocation occurs")
 		for {
 			msg, err := client.Recv()
 			if err != nil {
@@ -95,5 +97,6 @@ func init() {
 	root.Cmd.AddCommand(watch)
 	watch.Flags().IntVarP(&debugPort, "port", "p", 1999, "debug port")
 	watch.Flags().StringVar(&debugHost, "host", "127.0.0.1", "debug host")
-	watch.Flags().IntVarP(&depth, "depth", "d", 5, "value depth")
+	watch.Flags().IntVarP(&maxLength, "maxLength", "", 1000, "param value detail max length")
+	watch.Flags().IntVarP(&maxDepth, "maxDepth", "", 5, "param value detail max depth")
 }
