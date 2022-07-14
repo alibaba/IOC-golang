@@ -63,6 +63,8 @@ var trace = &cobra.Command{
 			Sdid:                   sdid,
 			Method:                 method,
 			PushToCollectorAddress: pushToAddr,
+			MaxDepth:               int64(maxDepth),
+			MaxLength:              int64(maxLength),
 		})
 		if err != nil {
 			panic(err)
@@ -140,6 +142,8 @@ func writeSpans(cacheData bytes.Buffer) {
 var (
 	debugHost   string
 	debugPort   int
+	maxDepth    int
+	maxLength   int
 	pushToAddr  string
 	storeToFile string
 )
@@ -147,6 +151,8 @@ var (
 func init() {
 	root.Cmd.AddCommand(trace)
 	trace.Flags().IntVarP(&debugPort, "port", "p", 1999, "debug port")
+	trace.Flags().IntVarP(&maxDepth, "maxDepth", "", 5, "max depth of param value detail")
+	trace.Flags().IntVarP(&maxLength, "maxLength", "", 1000, "max length of param value info")
 	trace.Flags().StringVar(&debugHost, "host", "127.0.0.1", "debug host")
 	trace.Flags().StringVar(&pushToAddr, "pushAddr", "", "push to jaeger collector address")
 	trace.Flags().StringVar(&storeToFile, "store", "", "spans data store to file name")

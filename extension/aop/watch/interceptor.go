@@ -77,8 +77,8 @@ func (w *context) afterInvoke(ctx *aop.InvocationContext) {
 	invokeDetail := &watchPB.WatchResponse{
 		Sdid:         w.SDID,
 		MethodName:   w.MethodName,
-		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), w.maxDepth),
-		ReturnValues: common.ReflectValues2Strings(ctx.ReturnValues, w.maxDepth),
+		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), w.maxDepth, 1000),
+		ReturnValues: common.ReflectValues2Strings(ctx.ReturnValues, w.maxDepth, 1000),
 	}
 	w.Ch <- invokeDetail
 	w.watchGRRequestMap.Delete(ctx.GrID)

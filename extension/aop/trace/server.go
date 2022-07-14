@@ -45,7 +45,7 @@ func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.
 		}
 	}
 
-	traceCtx := newTraceByMethodContext(sdid, method, fieldMatcher)
+	traceCtx := newTraceByMethodContext(sdid, method, fieldMatcher, req.MaxDepth, req.MaxLength)
 	d.traceInterceptor.StartTraceByMethod(traceCtx)
 
 	done := traceServer.Context().Done()

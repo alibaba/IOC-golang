@@ -32,26 +32,37 @@ func ParseSDIDAndMethodFromUniqueKey(uniqueKey string) (string, string) {
 	return strings.Join(splitedUniqueKey[:len(splitedUniqueKey)-1], "-"), splitedUniqueKey[len(splitedUniqueKey)-1]
 }
 
-func ReflectValues2String(values []reflect.Value, maxDepth int) string {
-	strs := ReflectValues2Strings(values, maxDepth)
+func ReflectValues2String(values []reflect.Value, maxDepth, maxLength int) string {
+	strs := ReflectValues2Strings(values, maxDepth, maxLength)
 	return fmt.Sprintf("%+v", strs)
 }
 
-func ReflectValues2Strings(values []reflect.Value, maxDepth int) []string {
+func ReflectValues2Strings(values []reflect.Value, maxDepth, maxLength int) []string {
 	result := make([]string, 0)
 	i := 0
-	cfg := spew.NewDefaultConfig()
-	cfg.DisablePointerAddresses = true
-	cfg.MaxDepth = maxDepth
-	cfg.SortKeys = true
 	for ; i < len(values); i++ {
 		if !values[i].IsValid() {
 			result = append(result, "nil")
 			continue
 		}
-		result = append(result, cfg.Sdump(values[i].Interface()))
+		result = append(result, dumpSingletValue(values[i], maxDepth, maxLength))
 	}
 	return result
+}
+
+func dumpSingletValue(val reflect.Value, maxDepth, maxLength int) string {
+	if !val.IsValid() {
+		return "nil"
+	}
+	cfg := spew.NewDefaultConfig()
+	cfg.DisablePointerAddresses = true
+	cfg.MaxDepth = maxDepth
+	cfg.SortKeys = true
+	dumpedStr := cfg.Sdump(val.Interface())
+	if len(dumpedStr) > maxLength {
+		dumpedStr = dumpSingletValue(val, maxDepth-1, maxLength)
+	}
+	return dumpedStr
 }
 
 func IsInvocationFailed(returnValues []reflect.Value) (bool, error) {
