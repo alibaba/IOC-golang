@@ -33,6 +33,12 @@ type methodTracingContext struct {
 }
 
 func newTraceByMethodContext(sdid, method string, fieldMatcher *common.FieldMatcher, maxDepth, maxLength int64) *methodTracingContext {
+	if maxDepth == 0 {
+		maxDepth = traceCommon.DefaultRecordValuesDepth
+	}
+	if maxLength == 0 {
+		maxLength = traceCommon.DefaultRecordValuesLength
+	}
 	return &methodTracingContext{
 		sdid:         sdid,
 		methodName:   method,
@@ -64,6 +70,12 @@ func newGoRoutineTracingContextWithClientSpan(entranceMethod string, clientSpan 
 
 func newGoRoutineTracingContext(entranceMethod string, maxDepth, maxLength int64) *goRoutineTracingContext {
 	grID := goid.Get()
+	if maxDepth == 0 {
+		maxDepth = traceCommon.DefaultRecordValuesDepth
+	}
+	if maxLength == 0 {
+		maxLength = traceCommon.DefaultRecordValuesLength
+	}
 	return &goRoutineTracingContext{
 		trace:     newTrace(grID, entranceMethod),
 		grID:      grID,

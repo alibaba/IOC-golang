@@ -60,6 +60,9 @@ func dumpSingletValue(val reflect.Value, maxDepth, maxLength int) string {
 	cfg.SortKeys = true
 	dumpedStr := cfg.Sdump(val.Interface())
 	if len(dumpedStr) > maxLength {
+		if maxDepth == 0 {
+			return ""
+		}
 		dumpedStr = dumpSingletValue(val, maxDepth-1, maxLength)
 	}
 	return dumpedStr
