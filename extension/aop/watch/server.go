@@ -58,14 +58,7 @@ func (w *watchService) Watch(req *watch.WatchRequest, svr watch.WatchService_Wat
 		}
 	}
 
-	watchCtx := &context{
-		SDID:         sdid,
-		MethodName:   method,
-		Ch:           sendCh,
-		FieldMatcher: fieldMatcher,
-		maxDepth:     maxDepth,
-		maxLength:    maxLength,
-	}
+	watchCtx := newContext(sdid, method, maxDepth, maxLength, sendCh, fieldMatcher)
 	w.watchInterceptor.Watch(watchCtx)
 
 	done := svr.Context().Done()

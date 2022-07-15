@@ -27,6 +27,11 @@ import (
 	watchPB "github.com/alibaba/ioc-golang/extension/aop/watch/api/ioc_golang/aop/watch"
 )
 
+const (
+	defaultRecordValuesDepth  = 5
+	defaultRecordValuesLength = 1000
+)
+
 type interceptorImpl struct {
 	watch sync.Map
 }
@@ -59,6 +64,23 @@ type context struct {
 	watchGRRequestMap sync.Map
 	maxDepth          int
 	maxLength         int
+}
+
+func newContext(sdid, method string, maxDepth, maxLength int, sendCh chan *watchPB.WatchResponse, fieldMatcher *common.FieldMatcher) *context {
+	if maxLength == 0 {
+		maxLength = defaultRecordValuesLength
+	}
+	if maxDepth == 0 {
+		maxDepth = defaultRecordValuesDepth
+	}
+	return &context{
+		SDID:         sdid,
+		MethodName:   method,
+		Ch:           sendCh,
+		FieldMatcher: fieldMatcher,
+		maxDepth:     maxDepth,
+		maxLength:    maxLength,
+	}
 }
 
 func (w *context) beforeInvoke(ctx *aop.InvocationContext) {
