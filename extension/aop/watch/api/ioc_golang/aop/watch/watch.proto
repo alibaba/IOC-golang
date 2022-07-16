@@ -28,7 +28,8 @@ message WatchRequest{
   string sdid = 1;
   string method = 2;
   int64 maxDepth = 3;
-  repeated Matcher matchers = 4;
+  int64 maxLength = 4;
+  repeated Matcher matchers = 5;
 }
 
 message Matcher{

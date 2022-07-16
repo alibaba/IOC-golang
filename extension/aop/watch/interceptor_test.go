@@ -42,11 +42,7 @@ func TestWatchInterceptor(t *testing.T) {
 		info := <-sendCh
 		controlCh <- info
 	}()
-	watchInterceptor.Watch(&context{
-		SDID:       sdid,
-		MethodName: methodName,
-		Ch:         sendCh,
-	})
+	watchInterceptor.Watch(newContext(sdid, methodName, 0, 0, sendCh, nil))
 
 	service := &common.ServiceFoo{}
 	ctx := oriCtx.Background()
@@ -79,15 +75,11 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 			controlCh <- info
 		}
 	}()
-	watchCtx := &context{
-		SDID:       sdid,
-		MethodName: methodName,
-		Ch:         sendCh,
-		FieldMatcher: &common.FieldMatcher{
+	watchCtx := newContext(sdid, methodName, 0, 0, sendCh,
+		&common.FieldMatcher{
 			FieldIndex: 1,
 			MatchRule:  "User.Name=lizhixin",
-		},
-	}
+		})
 	watchInterceptor.Watch(watchCtx)
 
 	service := &common.ServiceFoo{}

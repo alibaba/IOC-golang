@@ -57,7 +57,7 @@ func (m *methodTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// match method tracing context found
 
 	// 3.start goroutine tracing
-	grCtx := newGoRoutineTracingContext(ctx.MethodFullName)
+	grCtx := newGoRoutineTracingContext(ctx.MethodFullName, traceCtx.maxDepth, traceCtx.maxLength)
 	m.goRoutineInterceptor.AddCurrentGRTracingContext(grCtx)
 	m.goRoutineInterceptor.BeforeInvoke(ctx)
 }
@@ -95,6 +95,7 @@ func (m *methodTraceInterceptor) GetCurrentSpan() opentracing.Span {
 var methodTraceInterceptorSingleton *methodTraceInterceptor
 
 var valueDepth = traceCommon.DefaultRecordValuesDepth
+var valueLength = traceCommon.DefaultRecordValuesLength
 
 func getTraceInterceptorSingleton() *methodTraceInterceptor {
 	if methodTraceInterceptorSingleton == nil {

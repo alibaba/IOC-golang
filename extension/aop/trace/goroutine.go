@@ -36,7 +36,7 @@ func (g *goRoutineTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	if val, ok := g.tracingGrIDMap.Load(ctx.GrID); ok {
 		// this goRoutine is watched, add new child node
 		currentSpan := val.(*goRoutineTracingContext).getTrace().addChildSpan(ctx.MethodFullName)
-		currentSpan.span.LogFields(log.String(traceCommon.SpanParamsKey, common.ReflectValues2String(ctx.Params, valueDepth)))
+		currentSpan.span.LogFields(log.String(traceCommon.SpanParamsKey, common.ReflectValues2String(ctx.Params, valueDepth, valueLength)))
 		return
 	}
 }
@@ -48,7 +48,7 @@ func (g *goRoutineTraceInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
 		traceCtx := val.(*goRoutineTracingContext)
 		currentSpan := traceCtx.getTrace().currentSpan.span
 		traceCtx.getTrace().returnSpan()
-		currentSpan.LogFields(log.String(traceCommon.SpanReturnValuesKey, common.ReflectValues2String(ctx.ReturnValues, valueDepth)))
+		currentSpan.LogFields(log.String(traceCommon.SpanReturnValuesKey, common.ReflectValues2String(ctx.ReturnValues, int(traceCtx.maxDepth), int(traceCtx.maxLength))))
 
 		// calculate level
 		if common.TraceLevel(traceCtx.getTrace().entranceMethod) == 0 {

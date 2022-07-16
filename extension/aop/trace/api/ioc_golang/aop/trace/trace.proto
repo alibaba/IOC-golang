@@ -30,6 +30,8 @@ message TraceRequest{
   string method = 2;
   repeated Matcher matchers = 3;
   string pushToCollectorAddress = 4;
+  int64 maxDepth = 5;
+  int64 maxLength = 6;
 }
 
 message Matcher{

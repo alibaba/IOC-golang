@@ -19,6 +19,8 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/petermattis/goid"
 
+	traceCommon "github.com/alibaba/ioc-golang/extension/aop/trace/common"
+
 	"github.com/alibaba/ioc-golang/aop/common"
 )
 
@@ -26,13 +28,23 @@ type methodTracingContext struct {
 	methodName   string
 	sdid         string
 	fieldMatcher *common.FieldMatcher
+	maxDepth     int64
+	maxLength    int64
 }
 
-func newTraceByMethodContext(sdid, method string, fieldMatcher *common.FieldMatcher) *methodTracingContext {
+func newTraceByMethodContext(sdid, method string, fieldMatcher *common.FieldMatcher, maxDepth, maxLength int64) *methodTracingContext {
+	if maxDepth == 0 {
+		maxDepth = traceCommon.DefaultRecordValuesDepth
+	}
+	if maxLength == 0 {
+		maxLength = traceCommon.DefaultRecordValuesLength
+	}
 	return &methodTracingContext{
 		sdid:         sdid,
 		methodName:   method,
 		fieldMatcher: fieldMatcher,
+		maxLength:    maxLength,
+		maxDepth:     maxDepth,
 	}
 }
 
@@ -41,6 +53,8 @@ type goRoutineTracingContext struct {
 	grID              int64
 	ClientSpanContext opentracing.SpanContext
 	trace             *trace
+	maxDepth          int64
+	maxLength         int64
 }
 
 func newGoRoutineTracingContextWithClientSpan(entranceMethod string, clientSpan opentracing.SpanContext) *goRoutineTracingContext {
@@ -49,14 +63,24 @@ func newGoRoutineTracingContextWithClientSpan(entranceMethod string, clientSpan 
 		trace:             newTraceWithClientSpanContext(grID, entranceMethod, clientSpan),
 		grID:              grID,
 		ClientSpanContext: clientSpan,
+		maxDepth:          traceCommon.DefaultRecordValuesDepth,
+		maxLength:         traceCommon.DefaultRecordValuesLength,
 	}
 }
 
-func newGoRoutineTracingContext(entranceMethod string) *goRoutineTracingContext {
+func newGoRoutineTracingContext(entranceMethod string, maxDepth, maxLength int64) *goRoutineTracingContext {
 	grID := goid.Get()
+	if maxDepth == 0 {
+		maxDepth = traceCommon.DefaultRecordValuesDepth
+	}
+	if maxLength == 0 {
+		maxLength = traceCommon.DefaultRecordValuesLength
+	}
 	return &goRoutineTracingContext{
-		trace: newTrace(grID, entranceMethod),
-		grID:  grID,
+		trace:     newTrace(grID, entranceMethod),
+		grID:      grID,
+		maxDepth:  maxDepth,
+		maxLength: maxLength,
 	}
 }
 

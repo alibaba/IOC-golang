@@ -40,8 +40,13 @@ func (w *watchService) Watch(req *watch.WatchRequest, svr watch.WatchService_Wat
 	method := req.GetMethod()
 	sendCh := make(chan *watch.WatchResponse)
 	maxDepth := 5
-	if req.MaxDepth != 0 {
+	maxLength := 1000
+	if req.GetMaxDepth() != 0 {
 		maxDepth = int(req.GetMaxDepth())
+	}
+
+	if req.GetMaxLength() != 0 {
+		maxLength = int(req.GetMaxLength())
 	}
 
 	var fieldMatcher *common.FieldMatcher
@@ -53,13 +58,7 @@ func (w *watchService) Watch(req *watch.WatchRequest, svr watch.WatchService_Wat
 		}
 	}
 
-	watchCtx := &context{
-		SDID:         sdid,
-		MethodName:   method,
-		Ch:           sendCh,
-		FieldMatcher: fieldMatcher,
-		maxDepth:     maxDepth,
-	}
+	watchCtx := newContext(sdid, method, maxDepth, maxLength, sendCh, fieldMatcher)
 	w.watchInterceptor.Watch(watchCtx)
 
 	done := svr.Context().Done()

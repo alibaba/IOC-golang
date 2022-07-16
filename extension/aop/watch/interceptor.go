@@ -27,6 +27,11 @@ import (
 	watchPB "github.com/alibaba/ioc-golang/extension/aop/watch/api/ioc_golang/aop/watch"
 )
 
+const (
+	defaultRecordValuesDepth  = 5
+	defaultRecordValuesLength = 1000
+)
+
 type interceptorImpl struct {
 	watch sync.Map
 }
@@ -58,6 +63,24 @@ type context struct {
 	FieldMatcher      *common.FieldMatcher
 	watchGRRequestMap sync.Map
 	maxDepth          int
+	maxLength         int
+}
+
+func newContext(sdid, method string, maxDepth, maxLength int, sendCh chan *watchPB.WatchResponse, fieldMatcher *common.FieldMatcher) *context {
+	if maxLength == 0 {
+		maxLength = defaultRecordValuesLength
+	}
+	if maxDepth == 0 {
+		maxDepth = defaultRecordValuesDepth
+	}
+	return &context{
+		SDID:         sdid,
+		MethodName:   method,
+		Ch:           sendCh,
+		FieldMatcher: fieldMatcher,
+		maxDepth:     maxDepth,
+		maxLength:    maxLength,
+	}
 }
 
 func (w *context) beforeInvoke(ctx *aop.InvocationContext) {
@@ -77,8 +100,8 @@ func (w *context) afterInvoke(ctx *aop.InvocationContext) {
 	invokeDetail := &watchPB.WatchResponse{
 		Sdid:         w.SDID,
 		MethodName:   w.MethodName,
-		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), w.maxDepth),
-		ReturnValues: common.ReflectValues2Strings(ctx.ReturnValues, w.maxDepth),
+		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), w.maxDepth, w.maxLength),
+		ReturnValues: common.ReflectValues2Strings(ctx.ReturnValues, w.maxDepth, w.maxLength),
 	}
 	w.Ch <- invokeDetail
 	w.watchGRRequestMap.Delete(ctx.GrID)
