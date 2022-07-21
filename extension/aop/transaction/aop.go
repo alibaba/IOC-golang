@@ -19,7 +19,9 @@ import "github.com/alibaba/ioc-golang/aop"
 
 func init() {
 	aop.RegisterAOP(aop.AOP{
-		Name:        "transaction",
-		Interceptor: getTransactionInterceptorSingleton(),
+		Name: "transaction",
+		InterceptorFactory: func() aop.Interceptor {
+			return getTransactionInterceptorSingleton()
+		},
 	})
 }

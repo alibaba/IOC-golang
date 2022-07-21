@@ -81,7 +81,7 @@ func makeCallProxy(sdid, methodName string, isVariadic bool) func(in []reflect.V
 		// interceptor
 
 		invocationCtx := &InvocationContext{}
-		for _, i := range interceptors {
+		for _, i := range getInterceptors() {
 			if len(in) > 1 {
 				invocationCtx = NewInvocationContext(nil, sdid, methodName, methodFullName, in[1:])
 				i.BeforeInvoke(invocationCtx)
@@ -110,7 +110,7 @@ func makeCallProxy(sdid, methodName string, isVariadic bool) func(in []reflect.V
 		}
 
 		invocationCtx.SetReturnValues(out)
-		for _, i := range interceptors {
+		for _, i := range getInterceptors() {
 			i.AfterInvoke(invocationCtx)
 		}
 		return out

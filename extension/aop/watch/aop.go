@@ -24,8 +24,10 @@ import (
 
 func init() {
 	aop.RegisterAOP(aop.AOP{
-		Name:        "watch",
-		Interceptor: getWatchInterceptorSingleton(),
+		Name: "watch",
+		InterceptorFactory: func() aop.Interceptor {
+			return getWatchInterceptorSingleton()
+		},
 		GRPCServiceRegister: func(server *grpc.Server) {
 			watchPB.RegisterWatchServiceServer(server, getWatchService())
 		},

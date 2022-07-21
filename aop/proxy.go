@@ -84,7 +84,7 @@ func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName 
 	rawFunction := rf
 	return func(in []reflect.Value) []reflect.Value {
 		invocationCtx := NewInvocationContext(proxyPtr, sdid, methodName, common.CurrentCallingMethodName(3), in)
-		for _, i := range interceptors {
+		for _, i := range getInterceptors() {
 			i.BeforeInvoke(invocationCtx)
 		}
 
@@ -98,7 +98,7 @@ func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName 
 
 		out := rawFunction.Call(in)
 		invocationCtx.SetReturnValues(out)
-		for _, i := range interceptors {
+		for _, i := range getInterceptors() {
 			i.AfterInvoke(invocationCtx)
 		}
 		return out

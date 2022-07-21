@@ -25,13 +25,7 @@ import (
 
 type monitorService struct {
 	monitorPB.UnimplementedMonitorServiceServer
-	monitorInterceptor *interceptorImpl
-}
-
-func getMonitorService() *monitorService {
-	return &monitorService{
-		monitorInterceptor: getMonitorInterceptorSingleton(),
-	}
+	monitorInterceptor interceptor
 }
 
 func (w *monitorService) Monitor(req *monitorPB.MonitorRequest, svr monitorPB.MonitorService_MonitorServer) error {
@@ -60,5 +54,17 @@ func (w *monitorService) Monitor(req *monitorPB.MonitorRequest, svr monitorPB.Mo
 				return err
 			}
 		}
+	}
+}
+
+func newMonitorService() *monitorService {
+	return &monitorService{
+		monitorInterceptor: getMonitorInterceptorSingleton(),
+	}
+}
+
+func newMockMonitorService(mockInterceptor interceptor) *monitorService {
+	return &monitorService{
+		monitorInterceptor: mockInterceptor,
 	}
 }

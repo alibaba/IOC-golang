@@ -197,7 +197,7 @@ Duration 1341us, OperationName: main.(*serviceImpl1_).GetHelloString, StartTime:
 
 浏览器访问 localhost:16686 查看调用链路信息。
 
-!![img.png](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/img/example-aop-observability-tracing.png)
+![img.png](https://raw.githubusercontent.com/ioc-golang/ioc-golang-website/main/resources/img/example-aop-observability-tracing.png)
 
 可通过`iocli -h` 查看更多命令和参数
 

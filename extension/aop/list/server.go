@@ -31,14 +31,14 @@ type listServiceImpl struct {
 	allInterfaceMetadataMap common.AllInterfaceMetadata
 }
 
-func (l *listServiceImpl) List(context.Context, *emptypb.Empty) (*list.ListServiceResponse, error) {
+func (l *listServiceImpl) List(_ context.Context, _ *emptypb.Empty) (*list.ListServiceResponse, error) {
 	structsMetadatas := make(metadataSorter, 0)
 	for key, v := range l.allInterfaceMetadataMap {
-		methods := make([]string, 0)
+		methods := make(methodSorter, 0)
 		for key := range v.MethodMetadata {
 			methods = append(methods, key)
 		}
-
+		sort.Sort(methods)
 		structsMetadatas = append(structsMetadatas, &list.ServiceMetadata{
 			Methods:            methods,
 			InterfaceName:      key,
@@ -52,8 +52,14 @@ func (l *listServiceImpl) List(context.Context, *emptypb.Empty) (*list.ListServi
 	}, nil
 }
 
-func getListServiceImpl() *listServiceImpl {
+func newListServiceImpl() *listServiceImpl {
 	return &listServiceImpl{
 		allInterfaceMetadataMap: aop.GetAllInterfaceMetadata(),
+	}
+}
+
+func newMockServiceImpl(allInterfaceMetadatas common.AllInterfaceMetadata) *listServiceImpl {
+	return &listServiceImpl{
+		allInterfaceMetadataMap: allInterfaceMetadatas,
 	}
 }

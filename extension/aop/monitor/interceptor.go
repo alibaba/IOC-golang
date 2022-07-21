@@ -19,6 +19,11 @@ import (
 	"github.com/alibaba/ioc-golang/aop"
 )
 
+type interceptor interface {
+	Monitor(monitorCtx *context)
+	StopMonitor()
+}
+
 type interceptorImpl struct {
 	monitorContext *context
 }

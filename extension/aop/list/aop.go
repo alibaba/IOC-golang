@@ -26,7 +26,7 @@ func init() {
 	aop.RegisterAOP(aop.AOP{
 		Name: "list",
 		GRPCServiceRegister: func(server *grpc.Server) {
-			list.RegisterListServiceServer(server, getListServiceImpl())
+			list.RegisterListServiceServer(server, newListServiceImpl())
 		},
 	})
 }

@@ -28,9 +28,13 @@ import (
 
 func init() {
 	aop.RegisterAOP(aop.AOP{
-		Name:           "trace",
-		Interceptor:    getTraceInterceptorSingleton(),
-		RPCInterceptor: getTraceRPCInterceptorSingleton(),
+		Name: "trace",
+		InterceptorFactory: func() aop.Interceptor {
+			return getTraceInterceptorSingleton()
+		},
+		RPCInterceptorFactory: func() aop.RPCInterceptor {
+			return getTraceRPCInterceptorSingleton()
+		},
 		GRPCServiceRegister: func(server *grpc.Server) {
 			tracePB.RegisterTraceServiceServer(server, newTraceGRPCService())
 		},

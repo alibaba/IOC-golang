@@ -25,11 +25,11 @@ import (
 )
 
 type AOP struct {
-	Name                string
-	Interceptor         Interceptor
-	RPCInterceptor      RPCInterceptor
-	GRPCServiceRegister gRPCServiceRegister
-	ConfigLoader        func(config *common.Config)
+	Name                  string
+	InterceptorFactory    interceptorFactory
+	RPCInterceptorFactory rpcInterceptorFactory
+	GRPCServiceRegister   gRPCServiceRegister
+	ConfigLoader          func(config *common.Config)
 }
 
 type Interceptor interface {
@@ -44,21 +44,27 @@ type RPCInterceptor interface {
 	AfterServerInvoke(c *gin.Context) error
 }
 
+type interceptorFactory func() Interceptor
+type rpcInterceptorFactory func() RPCInterceptor
 type gRPCServiceRegister func(server *grpc.Server)
 
 var aops = make([]AOP, 0)
-var interceptors = make([]Interceptor, 0)
-var rpcInterceptors = make([]RPCInterceptor, 0)
+
+var rpcInterceptors []RPCInterceptor
+var interceptors []Interceptor
+
+var interceptorFactories = make([]interceptorFactory, 0)
+var rpcInterceptorFactories = make([]rpcInterceptorFactory, 0)
 var grpcServiceRegisters = make([]gRPCServiceRegister, 0)
 var configLoaderFuncs = make([]common.ConfigLoader, 0)
 
 func RegisterAOP(aopImpl AOP) {
 	aops = append(aops, aopImpl)
-	if aopImpl.Interceptor != nil {
-		interceptors = append(interceptors, aopImpl.Interceptor)
+	if aopImpl.InterceptorFactory != nil {
+		interceptorFactories = append(interceptorFactories, aopImpl.InterceptorFactory)
 	}
-	if aopImpl.RPCInterceptor != nil {
-		rpcInterceptors = append(rpcInterceptors, aopImpl.RPCInterceptor)
+	if aopImpl.RPCInterceptorFactory != nil {
+		rpcInterceptorFactories = append(rpcInterceptorFactories, aopImpl.RPCInterceptorFactory)
 	}
 	if aopImpl.GRPCServiceRegister != nil {
 		grpcServiceRegisters = append(grpcServiceRegisters, aopImpl.GRPCServiceRegister)
@@ -69,5 +75,21 @@ func RegisterAOP(aopImpl AOP) {
 }
 
 func GetRPCInterceptors() []RPCInterceptor {
+	if rpcInterceptors == nil {
+		rpcInterceptors = make([]RPCInterceptor, 0)
+		for _, f := range rpcInterceptorFactories {
+			rpcInterceptors = append(rpcInterceptors, f())
+		}
+	}
 	return rpcInterceptors
+}
+
+func getInterceptors() []Interceptor {
+	if interceptors == nil {
+		interceptors = make([]Interceptor, 0)
+		for _, f := range interceptorFactories {
+			interceptors = append(interceptors, f())
+		}
+	}
+	return interceptors
 }

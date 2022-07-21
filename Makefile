@@ -5,6 +5,9 @@ proto-gen:
 	protoc --go_out=./extension/aop/list/api --go-grpc_out=./extension/aop/list/api ./extension/aop/list/api/ioc_golang/aop/list/list.proto
 	protoc --go_out=./extension/aop/monitor/api --go-grpc_out=./extension/aop/monitor/api ./extension/aop/monitor/api/ioc_golang/aop/monitor/monitor.proto
 
+mockery-gen:
+	cd extension/aop/monitor && sudo mockery --name=interceptor --inpackage  --filename=interceptor_mock.go --structname=mockInterceptor
+
 tidy-all:
 	cd extension && go mod tidy -compat=1.17
 	cd example && go mod tidy -compat=1.17

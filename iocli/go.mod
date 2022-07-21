@@ -3,7 +3,7 @@ module github.com/alibaba/ioc-golang/iocli
 go 1.17
 
 require (
-	github.com/alibaba/ioc-golang/extension v0.0.0-20220712160012-764487880d4a
+	github.com/alibaba/ioc-golang/extension v0.0.0-20220716063845-1fbcb8c9d6b7
 	github.com/gobuffalo/packr/v2 v2.8.3
 	github.com/spf13/cobra v1.5.0
 	sigs.k8s.io/controller-tools v0.9.0
