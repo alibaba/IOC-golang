@@ -33,16 +33,16 @@ func (m metadataSorter) Swap(i, j int) {
 	m[i], m[j] = m[j], m[i]
 }
 
-type MethodSorter []string
+type methodSorter []string
 
-func (m MethodSorter) Len() int {
+func (m methodSorter) Len() int {
 	return len(m)
 }
 
-func (m MethodSorter) Less(i, j int) bool {
+func (m methodSorter) Less(i, j int) bool {
 	return m[i] < m[j]
 }
 
-func (m MethodSorter) Swap(i, j int) {
+func (m methodSorter) Swap(i, j int) {
 	m[i], m[j] = m[j], m[i]
 }

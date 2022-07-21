@@ -24,10 +24,12 @@ import (
 
 func init() {
 	aop.RegisterAOP(aop.AOP{
-		Name:        "monitor",
-		Interceptor: getMonitorInterceptorSingleton(),
+		Name: "monitor",
+		InterceptorFactory: func() aop.Interceptor {
+			return getMonitorInterceptorSingleton()
+		},
 		GRPCServiceRegister: func(server *grpc.Server) {
-			monitorPB.RegisterMonitorServiceServer(server, getMonitorService())
+			monitorPB.RegisterMonitorServiceServer(server, newMonitorService())
 		},
 	})
 }
