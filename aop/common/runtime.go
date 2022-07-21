@@ -15,10 +15,13 @@
 
 package common
 
-import "runtime"
+import (
+	"runtime"
+	"strings"
+)
 
 const (
-	ProxyMethod = "github.com/alibaba/ioc-golang/aop.makeProxyFunction.func1"
+	ProxyMethodPrefix = "github.com/alibaba/ioc-golang/aop."
 )
 
 func CurrentCallingMethodName(skip int) string {
@@ -36,7 +39,7 @@ func TraceLevel(entranceName string) int64 {
 	for i := n - 1; i >= 0; i-- {
 		fName := runtime.FuncForPC(pc[i]).Name()
 		if foundEntrance {
-			if fName == ProxyMethod {
+			if strings.HasPrefix(fName, ProxyMethodPrefix) {
 				level++
 			}
 			continue
