@@ -82,6 +82,20 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireConstructFuncMarkerStructDescriptor)
+	iocGolangAutowireBaseTypeMarkerStructDescriptor := &autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &iocGolangAutowireBaseTypeMarker{}
+		},
+		Metadata: map[string]interface{}{
+			"autowire": map[string]interface{}{
+				"allimpls": []interface{}{
+					new(marker.DefinitionGetter),
+				},
+			},
+		},
+		DisableProxy: true,
+	}
+	allimpls.RegisterStructDescriptor(iocGolangAutowireBaseTypeMarkerStructDescriptor)
 	iocGolangAutowireAliasMarkerStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireAliasMarker{}
@@ -145,6 +159,7 @@ var _iocGolangAutowireTypeMarkerSDID string
 var _iocGolangAutowireParamMarkerSDID string
 var _iocGolangAutowireParamLoaderMarkerSDID string
 var _iocGolangAutowireConstructFuncMarkerSDID string
+var _iocGolangAutowireBaseTypeMarkerSDID string
 var _iocGolangAutowireAliasMarkerSDID string
 var _iocGolangAutowireProxyMarkerSDID string
 var _iocGolangAutowireAllImplsInterfaceMarkerSDID string

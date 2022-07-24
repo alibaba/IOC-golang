@@ -18,6 +18,8 @@ package autowire
 import (
 	"testing"
 
+	"github.com/alibaba/ioc-golang/autowire/util"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -37,8 +39,8 @@ type MockImpl struct {
 	SubImpl MockSubInterface `singleton:"github.com/alibaba/ioc-golang/autowire.MockSubImpl"`
 }
 
-const mockSDID = "github.com/alibaba/ioc-golang/autowire.MockImpl"
-const mockSubSDID = "github.com/alibaba/ioc-golang/autowire.MockSubImpl"
+var mockSDID = util.GetSDIDByStructPtr(&MockImpl{})
+var mockSubSDID = util.GetSDIDByStructPtr(&MockSubImpl{})
 
 func TestWrapperAutowireImpl_ImplWithParam(t *testing.T) {
 	t.Run("test impl with param", func(t *testing.T) {
@@ -57,10 +59,20 @@ func TestWrapperAutowireImpl_ImplWithParam(t *testing.T) {
 				},
 			}
 		})
+		RegisterStructDescriptor(mockSubSDID, &StructDescriptor{
+			Factory: func() interface{} {
+				return &MockSubImpl{}
+			},
+		})
+		RegisterStructDescriptor(mockSDID, &StructDescriptor{
+			Factory: func() interface{} {
+				return &MockImpl{}
+			},
+		})
 		mockAutowire.On("ParseSDID", mock.MatchedBy(func(fi *FieldInfo) bool {
 			return true
 		})).Return(func(fi *FieldInfo) string {
-			return fi.FieldType + "-" + fi.TagValue
+			return fi.TagValue
 		}, func(fi *FieldInfo) error {
 			return nil
 		})

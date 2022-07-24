@@ -36,10 +36,12 @@ type App struct {
 func (a *App) Run() {
 	for {
 		time.Sleep(time.Second * 3)
+		// get all impls by field injection
 		for _, s := range a.ServiceImpls {
 			fmt.Println(s.GetHelloString("laurence"))
 		}
 
+		// get all impls by API
 		allServiceImpls, err := allimpls.GetImpl(util.GetSDIDByStructPtr(new(service.Service)))
 		if err != nil {
 			panic(err)

@@ -19,11 +19,10 @@ func init() {
 	})
 	configFloat64StructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigFloat64{}
+			return new(ConfigFloat64)
 		},
 		ParamFactory: func() interface{} {
-			var _ configFloat64Interface = &ConfigFloat64{}
-			return &ConfigFloat64{}
+			return new(ConfigFloat64)
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
 			param := p.(configFloat64Interface)
@@ -39,11 +38,10 @@ func init() {
 	})
 	configInt64StructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigInt64{}
+			return new(ConfigInt64)
 		},
 		ParamFactory: func() interface{} {
-			var _ configInt64Interface = &ConfigInt64{}
-			return &ConfigInt64{}
+			return new(ConfigInt64)
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
 			param := p.(configInt64Interface)
@@ -59,11 +57,10 @@ func init() {
 	})
 	configIntStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigInt{}
+			return new(ConfigInt)
 		},
 		ParamFactory: func() interface{} {
-			var _ configIntInterface = &ConfigInt{}
-			return &ConfigInt{}
+			return new(ConfigInt)
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
 			param := p.(configIntInterface)
@@ -79,11 +76,10 @@ func init() {
 	})
 	configMapStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigMap{}
+			return new(ConfigMap)
 		},
 		ParamFactory: func() interface{} {
-			var _ configMapInterface = &ConfigMap{}
-			return &ConfigMap{}
+			return new(ConfigMap)
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
 			param := p.(configMapInterface)
@@ -99,11 +95,10 @@ func init() {
 	})
 	configSliceStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigSlice{}
+			return new(ConfigSlice)
 		},
 		ParamFactory: func() interface{} {
-			var _ configSliceInterface = &ConfigSlice{}
-			return &ConfigSlice{}
+			return new(ConfigSlice)
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
 			param := p.(configSliceInterface)
@@ -119,11 +114,10 @@ func init() {
 	})
 	configStringStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &ConfigString{}
+			return new(ConfigString)
 		},
 		ParamFactory: func() interface{} {
-			var _ configStringInterface = &ConfigString{}
-			return &ConfigString{}
+			return new(ConfigString)
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
 			param := p.(configStringInterface)

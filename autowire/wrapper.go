@@ -140,7 +140,7 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 
 	// 1. reflect
 	valueOf := reflect.ValueOf(impledPtr)
-	if valueOf.Kind() != reflect.Interface {
+	if valueOf.Kind() != reflect.Interface && valueOf.Kind() != reflect.Ptr {
 		// not struct pointer, no needs to inject fields, just return
 		return nil
 	}
