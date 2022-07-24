@@ -18,27 +18,27 @@
 
 IOC-golang is a powerful golang dependency injection framework that provides a complete implementation of IoC containers. Its capabilities are as follows:
 
-- [Dependency Injection](https://ioc-golang.github.io/docs/getting-started/tutorial/)
+[Dependency Injection](https://ioc-golang.github.io/docs/getting-started/tutorial/)
 
-  Supports dependency injection of any structure and interface, we also support object life cycle management mechanism.
+   - Supports dependency injection of any structure and interface, we also support object life cycle management mechanism
 
-  Can take over object creation, parameter injection, factory methods. Customizable object parameter source.
+   - Can take over object creation, parameter injection, factory methods. Customizable object parameter source
 
-- Struct Proxy
+Struct Proxy
 
-  Based on the idea of AOP, we provide struct proxy layer for all struct registered to ioc-golang. In the scene of interface oriented development, we can use many devlops features based on the extenablility of this proxy AOP layer. Such as interface listing, param value watching, method level tracing, performance badpoint analysis, fault injection, method level tracing in distributed system and so on.
+   - Based on the idea of AOP, we provide struct proxy layer for all struct registered to ioc-golang. In the scene of interface oriented development, we can use many devlops features based on the extenablility of this proxy AOP layer. Such as interface listing, param value watching, method level tracing, performance badpoint analysis, fault injection, method level tracing in distributed system and so on.
 
-- [Automatic struct descriptor codes generation capability](./iocli)
+[Automatic struct descriptor codes generation capability](./iocli)
 
-  We provide a code generation tool, and developers can annotate the structure through annotations, so as to easily generate structure registration code.
+   - We provide a code generation tool, and developers can annotate the structure through annotations, so as to easily generate structure registration code.
 
-- [Scalability](./extension)
+[Scalability](./extension)
 
-  Support the extension of struct to be injected, the extension of autowire model, and the extension of the debug AOP layer.
+   - Support the extension of struct to be injected, the extension of autowire model, and the extension of the debug AOP layer.
 
-- [Many pre-defined components](./example)
+[Many pre-defined components](./example)
 
-  Provides pre-defined objects and middleware sdk for injection directly.
+   - Provides pre-defined objects and middleware sdk for injection directly.
 
 ## Project Structure
 
