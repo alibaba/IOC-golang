@@ -19,10 +19,9 @@ import (
 	"github.com/alibaba/ioc-golang/aop"
 )
 
-type interceptor interface {
-	Monitor(monitorCtx *context)
-	StopMonitor()
-}
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:proxy:autoInjection=false
 
 type interceptorImpl struct {
 	monitorContext *context
@@ -47,13 +46,4 @@ func (w *interceptorImpl) Monitor(monitorCtx *context) {
 func (w *interceptorImpl) StopMonitor() {
 	w.monitorContext.destroy()
 	w.monitorContext = nil
-}
-
-var monitorInterceptorSingleton *interceptorImpl
-
-func getMonitorInterceptorSingleton() *interceptorImpl {
-	if monitorInterceptorSingleton == nil {
-		monitorInterceptorSingleton = &interceptorImpl{}
-	}
-	return monitorInterceptorSingleton
 }

@@ -23,9 +23,13 @@ import (
 	monitorPB "github.com/alibaba/ioc-golang/extension/aop/monitor/api/ioc_golang/aop/monitor"
 )
 
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:proxy:autoInjection=false
+
 type monitorService struct {
 	monitorPB.UnimplementedMonitorServiceServer
-	monitorInterceptor interceptor
+	monitorInterceptor interceptorImplIOCInterface `singleton:""`
 }
 
 func (w *monitorService) Monitor(req *monitorPB.MonitorRequest, svr monitorPB.MonitorService_MonitorServer) error {
@@ -57,13 +61,7 @@ func (w *monitorService) Monitor(req *monitorPB.MonitorRequest, svr monitorPB.Mo
 	}
 }
 
-func newMonitorService() *monitorService {
-	return &monitorService{
-		monitorInterceptor: getMonitorInterceptorSingleton(),
-	}
-}
-
-func newMockMonitorService(mockInterceptor interceptor) *monitorService {
+func newMockMonitorService(mockInterceptor interceptorImplIOCInterface) *monitorService {
 	return &monitorService{
 		monitorInterceptor: mockInterceptor,
 	}

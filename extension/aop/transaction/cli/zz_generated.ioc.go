@@ -6,12 +6,13 @@
 package cli
 
 import (
+	"sigs.k8s.io/controller-tools/pkg/markers"
+
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	allimpls "github.com/alibaba/ioc-golang/extension/autowire/allimpls"
 	"github.com/alibaba/ioc-golang/iocli/gen/generator/plugin"
 	marker "github.com/alibaba/ioc-golang/iocli/gen/marker"
-	"sigs.k8s.io/controller-tools/pkg/markers"
 )
 
 func init() {
