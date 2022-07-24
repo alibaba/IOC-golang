@@ -22,9 +22,13 @@
 
 ### Autowire
 
+- autowire_allimpls:
+
+  展示了注入一个接口的全部实现的模型。
+
 - autowire_config: 
 
-  定义了从配置文件中注入配置字段的自动装载模型
+  展示了从配置文件中注入配置字段的自动装载模型
 
 - autowire_rpc
 

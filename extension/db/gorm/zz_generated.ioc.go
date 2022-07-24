@@ -37,6 +37,10 @@ func init() {
 			impl := i.(*GORMDB)
 			return param.New(impl)
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	normal.RegisterStructDescriptor(gORMDBStructDescriptor)
 	singleton.RegisterStructDescriptor(gORMDBStructDescriptor)

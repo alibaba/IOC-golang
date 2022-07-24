@@ -36,6 +36,10 @@ func init() {
 			impl := i.(*Redis)
 			return param.New(impl)
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	normal.RegisterStructDescriptor(redisStructDescriptor)
 	singleton.RegisterStructDescriptor(redisStructDescriptor)

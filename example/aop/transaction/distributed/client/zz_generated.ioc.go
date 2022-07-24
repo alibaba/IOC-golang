@@ -22,10 +22,15 @@ func init() {
 		Factory: func() interface{} {
 			return &TradeService{}
 		},
-		TransactionMethodsMap: map[string]string{
-			"DoTradeWithTxFinallyFailed":  "",
-			"DoTradeWithTxAddMoneyFailed": "",
-			"DoTradeWithTxSuccess":        "",
+		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{
+				"transaction": map[string]string{
+					"DoTradeWithTxFinallyFailed":  "",
+					"DoTradeWithTxAddMoneyFailed": "",
+					"DoTradeWithTxSuccess":        "",
+				},
+			},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	singleton.RegisterStructDescriptor(tradeServiceStructDescriptor)
@@ -37,6 +42,10 @@ func init() {
 	appStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &App{}
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	singleton.RegisterStructDescriptor(appStructDescriptor)

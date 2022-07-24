@@ -42,7 +42,7 @@ func (t *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
 		// todo: print logs
 		return
 	}
-	if _, ok := sd.TransactionMethodsMap[ctx.MethodName]; ok {
+	if _, ok := parseRollbackMethodNameFromSDMetadata(sd.Metadata, ctx.MethodName); ok {
 		// current method wants to start a transaction
 		t.transactionGrIDMap.Store(ctx.GrID, newContext(ctx.MethodFullName))
 		return

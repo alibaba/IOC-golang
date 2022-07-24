@@ -21,10 +21,13 @@ import (
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	"github.com/alibaba/ioc-golang/aop"
 	"github.com/alibaba/ioc-golang/aop/common"
 	"github.com/alibaba/ioc-golang/extension/aop/list/api/ioc_golang/aop/list"
 )
+
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:proxy=false
 
 type listServiceImpl struct {
 	list.UnimplementedListServiceServer
@@ -50,12 +53,6 @@ func (l *listServiceImpl) List(_ context.Context, _ *emptypb.Empty) (*list.ListS
 	return &list.ListServiceResponse{
 		ServiceMetadata: structsMetadatas,
 	}, nil
-}
-
-func newListServiceImpl() *listServiceImpl {
-	return &listServiceImpl{
-		allInterfaceMetadataMap: aop.GetAllInterfaceMetadata(),
-	}
 }
 
 func newMockServiceImpl(allInterfaceMetadatas common.AllInterfaceMetadata) *listServiceImpl {

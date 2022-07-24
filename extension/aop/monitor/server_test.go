@@ -47,7 +47,7 @@ func (m *mockMonitorServiceMonitorServerImpl) Context() oriCtx.Context {
 
 func TestMonitorServiceImpl(t *testing.T) {
 	t.Run("monitor with target sdid and method success", func(t *testing.T) {
-		mockInterceptorImpl := newMockInterceptor(t)
+		mockInterceptorImpl := newMockInterceptorImplIOCInterface(t)
 
 		sdid := "github.com/alibaba/ioc-golang/extension/aop/monitor/test.Struct1"
 		method := "TestMethod1"

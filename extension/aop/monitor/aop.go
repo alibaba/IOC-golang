@@ -22,14 +22,18 @@ import (
 	monitorPB "github.com/alibaba/ioc-golang/extension/aop/monitor/api/ioc_golang/aop/monitor"
 )
 
+const Name = "monitor"
+
 func init() {
 	aop.RegisterAOP(aop.AOP{
-		Name: "monitor",
+		Name: Name,
 		InterceptorFactory: func() aop.Interceptor {
-			return getMonitorInterceptorSingleton()
+			monitorInterceptorImpl, _ := GetinterceptorImplSingleton()
+			return monitorInterceptorImpl
 		},
 		GRPCServiceRegister: func(server *grpc.Server) {
-			monitorPB.RegisterMonitorServiceServer(server, newMonitorService())
+			monitorServiceImpl, _ := GetmonitorServiceSingleton()
+			monitorPB.RegisterMonitorServiceServer(server, monitorServiceImpl)
 		},
 	})
 }

@@ -3,7 +3,7 @@ module github.com/alibaba/ioc-golang/example
 go 1.17
 
 require (
-	github.com/alibaba/ioc-golang v0.0.0-20220705164359-95be52984ef8
+	github.com/alibaba/ioc-golang v0.0.0-20220716063845-1fbcb8c9d6b7
 	github.com/alibaba/ioc-golang/extension v0.0.0-20220707071909-d19576eea84e
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/nacos-group/nacos-sdk-go/v2 v2.0.4-beta
@@ -113,6 +113,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mostynb/go-grpc-compression v1.1.16 // indirect
 	github.com/natefinch/lumberjack v2.0.0+incompatible // indirect
+	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olivere/elastic v6.2.37+incompatible // indirect

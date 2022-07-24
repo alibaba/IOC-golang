@@ -83,7 +83,7 @@ func implProxy(rawServicePtr, proxyPtr interface{}, sdid string) error {
 func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName string, isVariadic bool) func(in []reflect.Value) []reflect.Value {
 	rawFunction := rf
 	return func(in []reflect.Value) []reflect.Value {
-		invocationCtx := NewInvocationContext(proxyPtr, sdid, methodName, common.CurrentCallingMethodName(3), in)
+		invocationCtx := NewInvocationContext(proxyPtr, sdid, methodName, common.CurrentCallingMethodName(4), in)
 		for _, i := range getInterceptors() {
 			i.BeforeInvoke(invocationCtx)
 		}

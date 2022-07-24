@@ -34,6 +34,10 @@ func init() {
 			impl := i.(*ConfigClient)
 			return param.New(impl)
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	normal.RegisterStructDescriptor(configClientStructDescriptor)
 	singleton.RegisterStructDescriptor(configClientStructDescriptor)

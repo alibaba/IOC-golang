@@ -18,16 +18,16 @@ package autowire
 import (
 	"fmt"
 
-	"github.com/fatih/color"
+	"github.com/alibaba/ioc-golang/logger"
 )
 
 var allWrapperAutowires = make(map[string]WrapperAutowire)
 
 func printAutowireRegisteredStructDescriptor() {
 	for autowireType, aw := range allWrapperAutowires {
-		color.Blue("[Autowire Type] Found registered autowire type %s", autowireType)
+		logger.Blue("[Autowire Type] Found registered autowire type %s", autowireType)
 		for sdID := range aw.GetAllStructDescriptors() {
-			color.Blue("[Autowire Struct Descriptor] Found type %s registered SD %s", autowireType, sdID)
+			logger.Blue("[Autowire Struct Descriptor] Found type %s registered SD %s", autowireType, sdID)
 		}
 	}
 }
@@ -42,7 +42,11 @@ func Load() error {
 	for _, aw := range allWrapperAutowires {
 		for sdID := range aw.GetAllStructDescriptors() {
 			if aw.CanBeEntrance() {
-				_, err := aw.ImplWithoutParam(sdID, true)
+				sd := GetStructDescriptor(sdID)
+				if sd == nil {
+					continue
+				}
+				_, err := aw.ImplWithoutParam(sdID, !sd.DisableProxy)
 				if err != nil {
 					return fmt.Errorf("[Autowire] Impl sd %s failed, reason is %s", sdID, err)
 				}
@@ -68,5 +72,6 @@ func impl(autowireType, key string, param interface{}, withProxy bool) (interfac
 			return wrapperAutowire.ImplWithParam(targetSDID, param, withProxy)
 		}
 	}
-	return nil, nil
+	logger.Red("[Autowire] SDID %s with autowire type %s not found in all autowires", key, autowireType)
+	return nil, fmt.Errorf("[Autowire] SDID %s with autowire type %s not found in all autowires", key, autowireType)
 }

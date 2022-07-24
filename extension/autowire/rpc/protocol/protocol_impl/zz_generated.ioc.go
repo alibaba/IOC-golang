@@ -32,6 +32,10 @@ func init() {
 			impl := i.(*IOCProtocol)
 			return param.Init(impl)
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	normal.RegisterStructDescriptor(iOCProtocolStructDescriptor)
 }

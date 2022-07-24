@@ -18,19 +18,23 @@ package monitor
 import (
 	"time"
 
-	"github.com/fatih/color"
+	"github.com/alibaba/ioc-golang/logger"
 
 	monitorPB "github.com/alibaba/ioc-golang/extension/aop/monitor/api/ioc_golang/aop/monitor"
 )
 
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:proxy:autoInjection=false
+
 type monitorService struct {
 	monitorPB.UnimplementedMonitorServiceServer
-	monitorInterceptor interceptor
+	monitorInterceptor interceptorImplIOCInterface `singleton:""`
 }
 
 func (w *monitorService) Monitor(req *monitorPB.MonitorRequest, svr monitorPB.MonitorService_MonitorServer) error {
-	color.Red("[Debug Server] Receive monitor request %s\n", req.String())
-	defer color.Red("[Debug Server] Monitor %s finished \n", req.String())
+	logger.Red("[Debug Server] Receive monitor request %s\n", req.String())
+	defer logger.Red("[Debug Server] Monitor %s finished \n", req.String())
 	sdid := req.GetSdid()
 	method := req.GetMethod()
 	sendCh := make(chan *monitorPB.MonitorResponse)
@@ -57,13 +61,7 @@ func (w *monitorService) Monitor(req *monitorPB.MonitorRequest, svr monitorPB.Mo
 	}
 }
 
-func newMonitorService() *monitorService {
-	return &monitorService{
-		monitorInterceptor: getMonitorInterceptorSingleton(),
-	}
-}
-
-func newMockMonitorService(mockInterceptor interceptor) *monitorService {
+func newMockMonitorService(mockInterceptor interceptorImplIOCInterface) *monitorService {
 	return &monitorService{
 		monitorInterceptor: mockInterceptor,
 	}

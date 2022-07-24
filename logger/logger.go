@@ -13,11 +13,34 @@
  * limitations under the License.
  */
 
-package cli
+package logger
 
 import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/list/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch/cli"
+	"github.com/fatih/color"
 )
+
+var disableLogs = false
+
+func Blue(format string, a ...interface{}) {
+	if disableLogs {
+		return
+	}
+	color.Blue(format, a...)
+}
+func Cyan(format string, a ...interface{}) {
+	if disableLogs {
+		return
+	}
+	color.Cyan(format, a...)
+}
+
+func Red(format string, a ...interface{}) {
+	if disableLogs {
+		return
+	}
+	color.Red(format, a...)
+}
+
+func Disable() {
+	disableLogs = true
+}

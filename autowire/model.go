@@ -90,15 +90,8 @@ type StructDescriptor struct {
 	ConstructFunc func(impl interface{}, param interface{}) (interface{}, error) // injected
 	DestroyFunc   func(impl interface{})
 	Alias         string // alias of SDID
-	/*
-		TransactionMethodsMap stores map from "transactionMethodName" -> "transactionRollBackMethodName"
-
-		transactionMethodName means all invocation of the method should be handled as a transaction, and all successful
-		sub-method's rollback function should be called when a sub-method throws an error.
-
-		empty transactionRollBackMethodName value means transactionMethodName have no rollback method.
-	*/
-	TransactionMethodsMap map[string]string
+	DisableProxy  bool   // disable proxy and aop
+	Metadata      Metadata
 
 	impledStructPtr interface{} // impledStructPtr is only used to get name
 }
@@ -123,6 +116,9 @@ type ParamLoader interface {
 type SDIDParser interface {
 	Parse(fi *FieldInfo) (string, error)
 }
+
+// Metadata is SD metadata
+type Metadata map[string]interface{}
 
 type InjectPosition int
 

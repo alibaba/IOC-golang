@@ -28,9 +28,14 @@ func init() {
 			var constructFunc BankServiceConstructFunc = InitBankService
 			return constructFunc(impl)
 		},
-		TransactionMethodsMap: map[string]string{
-			"AddMoney":    "AddMoneyRollback",
-			"RemoveMoney": "RemoveMoneyRollback",
+		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{
+				"transaction": map[string]string{
+					"AddMoney":    "AddMoneyRollback",
+					"RemoveMoney": "RemoveMoneyRollback",
+				},
+			},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	rpc_service.RegisterStructDescriptor(bankServiceStructDescriptor)

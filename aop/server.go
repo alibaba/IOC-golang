@@ -20,9 +20,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/fatih/color"
-
 	"github.com/alibaba/ioc-golang/aop/common"
+	"github.com/alibaba/ioc-golang/logger"
 )
 
 func start(debugConfig *common.Config) error {
@@ -41,9 +40,9 @@ func start(debugConfig *common.Config) error {
 	}
 
 	go func() {
-		color.Blue("[Debug] Debug server listening at :%d", lst.Addr().(*net.TCPAddr).Port)
+		logger.Blue("[Debug] Debug server listening at :%d", lst.Addr().(*net.TCPAddr).Port)
 		if err := grpcServer.Serve(lst); err != nil {
-			color.Red("[Debug] Debug server run with error = ", err)
+			logger.Red("[Debug] Debug server run with error = ", err)
 			return
 		}
 	}()

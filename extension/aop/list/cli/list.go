@@ -19,16 +19,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	listPB "github.com/alibaba/ioc-golang/extension/aop/list/api/ioc_golang/aop/list"
 	"github.com/alibaba/ioc-golang/iocli/root"
-
-	"github.com/fatih/color"
-
-	"github.com/spf13/cobra"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"github.com/alibaba/ioc-golang/logger"
 )
 
 func getTraceServiceClent(addr string) listPB.ListServiceClient {
@@ -45,7 +43,7 @@ var list = &cobra.Command{
 		listServiceClient := getTraceServiceClent(fmt.Sprintf("%s:%d", debugHost, debugPort))
 		rsp, err := listServiceClient.List(context.Background(), &emptypb.Empty{})
 		if err != nil {
-			color.Red(err.Error())
+			logger.Red(err.Error())
 			return
 		}
 		for _, v := range rsp.ServiceMetadata {

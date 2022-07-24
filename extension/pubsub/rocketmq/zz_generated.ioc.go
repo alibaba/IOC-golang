@@ -36,6 +36,10 @@ func init() {
 			impl := i.(*Impl)
 			return param.New(impl)
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	normal.RegisterStructDescriptor(implStructDescriptor)
 	singleton.RegisterStructDescriptor(implStructDescriptor)

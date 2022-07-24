@@ -19,11 +19,11 @@ import (
 	"bytes"
 	"sort"
 
-	"github.com/fatih/color"
 	"github.com/jaegertracing/jaeger/model"
 
 	"github.com/alibaba/ioc-golang/aop/common"
 	tracePB "github.com/alibaba/ioc-golang/extension/aop/trace/api/ioc_golang/aop/trace"
+	"github.com/alibaba/ioc-golang/logger"
 )
 
 type traceServiceImpl struct {
@@ -32,8 +32,8 @@ type traceServiceImpl struct {
 }
 
 func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.TraceService_TraceServer) error {
-	color.Red("[Debug Server] Receive trace request %+v\n", req.String())
-	defer color.Red("[Debug Server] Trace request %s finished \n", req.String())
+	logger.Red("[Debug Server] Receive trace request %+v\n", req.String())
+	defer logger.Red("[Debug Server] Trace request %s finished \n", req.String())
 	sdid := req.GetSdid()
 	method := req.GetMethod()
 	var fieldMatcher *common.FieldMatcher

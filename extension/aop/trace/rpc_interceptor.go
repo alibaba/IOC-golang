@@ -20,12 +20,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/alibaba/ioc-golang/aop"
-
-	"github.com/petermattis/goid"
-
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
+	"github.com/petermattis/goid"
+
+	"github.com/alibaba/ioc-golang/aop"
 )
 
 type rpcInterceptor struct {

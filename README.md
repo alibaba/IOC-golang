@@ -18,17 +18,17 @@
 
 IOC-golang is a powerful golang dependency injection framework that provides a complete implementation of IoC containers. Its capabilities are as follows:
 
-[Dependency Injection](https://ioc-golang.github.io/docs/getting-started/tutorial/)
+[Dependency Injection](https://ioc-golang.github.io/docs/concept/ioc/di/)
 
    - Supports dependency injection of any structure and interface, we also support object life cycle management mechanism
 
    - Can take over object creation, parameter injection, factory methods. Customizable object parameter source
 
-Struct Proxy
+[Struct Proxy](https://ioc-golang.github.io/docs/concept/aop/proxy/)
 
    - Based on the idea of AOP, we provide struct proxy layer for all struct registered to ioc-golang. In the scene of interface oriented development, we can use many devlops features based on the extenablility of this proxy AOP layer. Such as interface listing, param value watching, method level tracing, performance badpoint analysis, fault injection, method level tracing in distributed system and so on.
 
-[Automatic struct descriptor codes generation capability](./iocli)
+[Automatic struct descriptor codes generation capability](https://ioc-golang.github.io/docs/reference/iocli/#%E6%B3%A8%E8%A7%A3%E4%B8%8E%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90)
 
    - We provide a code generation tool, and developers can annotate the structure through annotations, so as to easily generate structure registration code.
 
