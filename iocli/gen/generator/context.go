@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package inject
+package generator
 
 import (
 	"bytes"

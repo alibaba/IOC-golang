@@ -34,6 +34,7 @@ func init() {
 					"RemoveMoney": "RemoveMoneyRollback",
 				},
 			},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	singleton.RegisterStructDescriptor(bankServiceStructDescriptor)
@@ -54,6 +55,7 @@ func init() {
 					"DoTradeWithTxSuccess":        "",
 				},
 			},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	singleton.RegisterStructDescriptor(tradeServiceStructDescriptor)

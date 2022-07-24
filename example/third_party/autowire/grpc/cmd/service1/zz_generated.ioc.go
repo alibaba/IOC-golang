@@ -22,6 +22,10 @@ func init() {
 		Factory: func() interface{} {
 			return &Impl1{}
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	singleton.RegisterStructDescriptor(impl1StructDescriptor)
 }

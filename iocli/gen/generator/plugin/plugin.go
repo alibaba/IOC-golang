@@ -13,12 +13,28 @@
  * limitations under the License.
  */
 
-package cli
+package plugin
 
 import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/list/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/transaction/cli"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch/cli"
+	"sigs.k8s.io/controller-tools/pkg/markers"
 )
+
+type CodeGeneratorPluginForOneStruct interface {
+	Name() string
+	Type() Type
+
+	Init(markers markers.MarkerValues)
+	GenerateSDMetadataForOneStruct(c CodeWriter)
+	GenerateInFileForOneStruct(c CodeWriter)
+}
+
+type Type int
+
+const (
+	AOP      = Type(1)
+	Autowire = Type(2)
+)
+
+type CodeGeneratorPluginForPkg interface {
+	GenerateCodeInPkg(c CodeWriter)
+}

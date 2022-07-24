@@ -7,7 +7,6 @@ package protocol_impl
 
 import (
 	"dubbo.apache.org/dubbo-go/v3/protocol"
-
 	"github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	util "github.com/alibaba/ioc-golang/autowire/util"
@@ -31,6 +30,10 @@ func init() {
 			param := p.(paramInterface)
 			impl := i.(*IOCProtocol)
 			return param.Init(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	normal.RegisterStructDescriptor(iOCProtocolStructDescriptor)

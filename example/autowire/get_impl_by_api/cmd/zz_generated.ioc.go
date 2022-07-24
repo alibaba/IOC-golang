@@ -23,6 +23,10 @@ func init() {
 		Factory: func() interface{} {
 			return &App{}
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	singleton.RegisterStructDescriptor(appStructDescriptor)
 }

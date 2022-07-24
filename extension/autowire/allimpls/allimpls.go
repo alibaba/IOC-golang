@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/alibaba/ioc-golang/autowire/normal"
+
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/autowire/util"
@@ -45,6 +47,10 @@ func (a *Autowire) TagKey() string {
 	return Name
 }
 
+func (a *Autowire) IsSingleton() bool {
+	return false
+}
+
 // GetAllStructDescriptors re-write SingletonAutowire
 func (a *Autowire) GetAllStructDescriptors() map[string]*autowire.StructDescriptor {
 	return allImplsStructDescriptorMap
@@ -63,10 +69,14 @@ func (a *Autowire) Construct(fieldInterfaceID string, sliceValue, _ interface{})
 	for _, implSD := range implSDs {
 		var impl interface{}
 		var err error
+		autowireType := singleton.Name
+		if autowireTypFromMetadata := parseAllImplsItemAutowireTypeFromSDMetadata(implSD.Metadata); autowireTypFromMetadata != "" {
+			autowireType = autowireTypFromMetadata
+		}
 		if implSD.DisableProxy {
-			impl, err = autowire.Impl(singleton.Name, implSD.ID(), nil)
+			impl, err = autowire.Impl(autowireType, implSD.ID(), nil)
 		} else {
-			impl, err = autowire.ImplWithProxy(singleton.Name, implSD.ID(), nil)
+			impl, err = autowire.ImplWithProxy(autowireType, implSD.ID(), nil)
 		}
 
 		if err != nil {
@@ -84,9 +94,17 @@ var impledInterfaceSDIDTypeMap = make(map[string]reflect.Type)
 func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	sdID := s.ID()
 	allImplsStructDescriptorMap[sdID] = s
-	singleton.RegisterStructDescriptor(s)
+
+	// check and register sd to item impl autowire type
+	if err := checkAndRegisterSDToAutowireType(s); err != nil {
+		logger.Red(err.Error())
+		return
+	}
+
+	// register sd to autowire base layer
 	autowire.RegisterStructDescriptor(sdID, s)
 	if s.Alias != "" {
+		// register alias if necessary
 		autowire.RegisterAlias(s.Alias, sdID)
 	}
 	allImpledIntefaces := parseAllImpledIntefacesFromSDMetadata(s.Metadata)
@@ -102,9 +120,31 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 
 		// 2. record interface type for reflection
 		impledInterfaceSDIDTypeMap[interfaceSDID] = interfaceType
+
+		// 3. create interface empty struct descriptor
+		allImplsStructDescriptorMap[interfaceSDID] = &autowire.StructDescriptor{}
 	}
 }
 
 func GetImpl(key string) (interface{}, error) {
 	return autowire.Impl(Name, key, nil)
+}
+
+func checkAndRegisterSDToAutowireType(s *autowire.StructDescriptor) error {
+	autowireTypFromMetadata := parseAllImplsItemAutowireTypeFromSDMetadata(s.Metadata)
+	if autowireTypFromMetadata == "" {
+		// default singleton autowire type
+		singleton.RegisterStructDescriptor(s)
+		return nil
+	}
+
+	switch autowireTypFromMetadata {
+	case singleton.Name:
+		singleton.RegisterStructDescriptor(s)
+	case normal.Name:
+		normal.RegisterStructDescriptor(s)
+	default:
+		return fmt.Errorf("[Autowire allimpls] Found invalid item impl autowire type %s, now only singleton(default) and normal are supported", autowireTypFromMetadata)
+	}
+	return nil
 }

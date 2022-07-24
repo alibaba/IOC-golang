@@ -15,7 +15,8 @@ func init() {
 			return &complexServiceIOCRPCClient{}
 		},
 		Metadata: map[string]interface{}{
-			"aop": map[string]interface{}{},
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
 		},
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{

@@ -13,20 +13,18 @@
  * limitations under the License.
  */
 
-package main
+package plugin
 
-import (
-	"log"
+type CodeGeneratorPluginForOneStructSorter []CodeGeneratorPluginForOneStruct
 
-	_ "github.com/alibaba/ioc-golang/extension/imports/cli"
-	_ "github.com/alibaba/ioc-golang/iocli/gen"
-	_ "github.com/alibaba/ioc-golang/iocli/init"
+func (m CodeGeneratorPluginForOneStructSorter) Len() int {
+	return len(m)
+}
 
-	"github.com/alibaba/ioc-golang/iocli/root"
-)
+func (m CodeGeneratorPluginForOneStructSorter) Less(i, j int) bool {
+	return m[i].Name() < m[j].Name()
+}
 
-func main() {
-	if err := root.Cmd.Execute(); err != nil {
-		log.Println(err)
-	}
+func (m CodeGeneratorPluginForOneStructSorter) Swap(i, j int) {
+	m[i], m[j] = m[j], m[i]
 }

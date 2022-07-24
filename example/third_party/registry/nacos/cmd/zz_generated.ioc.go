@@ -32,6 +32,10 @@ func init() {
 			impl := i.(*App)
 			return param.Init(impl)
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	singleton.RegisterStructDescriptor(appStructDescriptor)
 }

@@ -117,6 +117,7 @@ func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) 
 		return nil, err
 	}
 	sd := GetStructDescriptor(sdID)
+	// FIXME, dangerous, sd may be nil for allimpl autowire
 	implWithProxy := fi.FieldReflectValue.Kind() == reflect.Interface && !sd.DisableProxy
 	if err != nil {
 		return nil, err

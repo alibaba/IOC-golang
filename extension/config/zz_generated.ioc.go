@@ -29,6 +29,10 @@ func init() {
 			impl := i.(*ConfigFloat64)
 			return param.New(impl)
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	autowireconfig.RegisterStructDescriptor(configFloat64StructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -47,6 +51,10 @@ func init() {
 			param := p.(configInt64Interface)
 			impl := i.(*ConfigInt64)
 			return param.New(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	autowireconfig.RegisterStructDescriptor(configInt64StructDescriptor)
@@ -67,6 +75,10 @@ func init() {
 			impl := i.(*ConfigInt)
 			return param.New(impl)
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	autowireconfig.RegisterStructDescriptor(configIntStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -85,6 +97,10 @@ func init() {
 			param := p.(configMapInterface)
 			impl := i.(*ConfigMap)
 			return param.New(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	autowireconfig.RegisterStructDescriptor(configMapStructDescriptor)
@@ -105,6 +121,10 @@ func init() {
 			impl := i.(*ConfigSlice)
 			return param.New(impl)
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	autowireconfig.RegisterStructDescriptor(configSliceStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -123,6 +143,10 @@ func init() {
 			param := p.(configStringInterface)
 			impl := i.(*ConfigString)
 			return param.New(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	autowireconfig.RegisterStructDescriptor(configStringStructDescriptor)

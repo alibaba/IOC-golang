@@ -24,9 +24,10 @@ import (
 	"sigs.k8s.io/controller-tools/pkg/genall"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 
+	"github.com/alibaba/ioc-golang/iocli/gen/generator"
+
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/config"
-	"github.com/alibaba/ioc-golang/iocli/gen/inject"
 	_ "github.com/alibaba/ioc-golang/iocli/gen/marker/impls"
 	"github.com/alibaba/ioc-golang/iocli/root"
 )
@@ -37,7 +38,7 @@ var (
 	// each turns into a command line option,
 	// and has options for output forms.
 	allGenerators = map[string]genall.Generator{
-		"register": inject.Generator{},
+		"register": generator.Generator{},
 	}
 
 	allOutputRules = map[string]genall.OutputRule{

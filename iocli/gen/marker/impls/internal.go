@@ -118,18 +118,6 @@ func (m *iocGolangAutowireProxyMarker) GetMarkerDefinition() *markers.Definition
 // +ioc:autowire:proxy=false
 // +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
-type iocGolangAutowireAllImplsInterfaceMarker struct {
-}
-
-func (m *iocGolangAutowireAllImplsInterfaceMarker) GetMarkerDefinition() *markers.Definition {
-	return markers.Must(markers.MakeDefinition("ioc:autowire:allimpls:interface", markers.DescribesType, ""))
-}
-
-// +ioc:autowire=true
-// +ioc:autowire:type=allimpls
-// +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
-
 type iocGolangAutowireProxyAutoInjectionMarker struct {
 }
 

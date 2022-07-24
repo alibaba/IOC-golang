@@ -35,6 +35,7 @@ func init() {
 					"RemoveMoney": "RemoveMoneyRollback",
 				},
 			},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	rpc_service.RegisterStructDescriptor(bankServiceStructDescriptor)

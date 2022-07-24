@@ -24,6 +24,10 @@ func init() {
 		Factory: func() interface{} {
 			return &ServiceStruct{}
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	rpc_service.RegisterStructDescriptor(serviceStructStructDescriptor)
 }

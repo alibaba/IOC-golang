@@ -21,7 +21,7 @@ import (
 	"github.com/alibaba/ioc-golang/config"
 	"github.com/alibaba/ioc-golang/logger"
 
-	_ "github.com/alibaba/ioc-golang/extension/aop/imports/boot"
+	_ "github.com/alibaba/ioc-golang/extension/imports/boot"
 )
 
 func Load(opts ...config.Option) error {

@@ -13,20 +13,14 @@
  * limitations under the License.
  */
 
-package main
+package cli
 
 import (
-	"log"
+	_ "github.com/alibaba/ioc-golang/extension/aop/list/cli"
+	_ "github.com/alibaba/ioc-golang/extension/aop/monitor/cli"
+	_ "github.com/alibaba/ioc-golang/extension/aop/trace/cli"
+	_ "github.com/alibaba/ioc-golang/extension/aop/transaction/cli"
+	_ "github.com/alibaba/ioc-golang/extension/aop/watch/cli"
 
-	_ "github.com/alibaba/ioc-golang/extension/imports/cli"
-	_ "github.com/alibaba/ioc-golang/iocli/gen"
-	_ "github.com/alibaba/ioc-golang/iocli/init"
-
-	"github.com/alibaba/ioc-golang/iocli/root"
+	_ "github.com/alibaba/ioc-golang/extension/autowire/allimpls/cli"
 )
-
-func main() {
-	if err := root.Cmd.Execute(); err != nil {
-		log.Println(err)
-	}
-}

@@ -17,9 +17,12 @@ func init() {
 			return &enableIOCGolangAutowireMarker{}
 		},
 		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": []interface{}{
-					new(marker.DefinitionGetter),
+				"allimpls": map[string]interface{}{
+					"interfaces": []interface{}{
+						new(marker.DefinitionGetter),
+					},
 				},
 			},
 		},
@@ -31,9 +34,12 @@ func init() {
 			return &iocGolangAutowireTypeMarker{}
 		},
 		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": []interface{}{
-					new(marker.DefinitionGetter),
+				"allimpls": map[string]interface{}{
+					"interfaces": []interface{}{
+						new(marker.DefinitionGetter),
+					},
 				},
 			},
 		},
@@ -45,9 +51,12 @@ func init() {
 			return &iocGolangAutowireParamMarker{}
 		},
 		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": []interface{}{
-					new(marker.DefinitionGetter),
+				"allimpls": map[string]interface{}{
+					"interfaces": []interface{}{
+						new(marker.DefinitionGetter),
+					},
 				},
 			},
 		},
@@ -59,9 +68,12 @@ func init() {
 			return &iocGolangAutowireParamLoaderMarker{}
 		},
 		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": []interface{}{
-					new(marker.DefinitionGetter),
+				"allimpls": map[string]interface{}{
+					"interfaces": []interface{}{
+						new(marker.DefinitionGetter),
+					},
 				},
 			},
 		},
@@ -73,9 +85,12 @@ func init() {
 			return &iocGolangAutowireConstructFuncMarker{}
 		},
 		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": []interface{}{
-					new(marker.DefinitionGetter),
+				"allimpls": map[string]interface{}{
+					"interfaces": []interface{}{
+						new(marker.DefinitionGetter),
+					},
 				},
 			},
 		},
@@ -87,9 +102,12 @@ func init() {
 			return &iocGolangAutowireBaseTypeMarker{}
 		},
 		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": []interface{}{
-					new(marker.DefinitionGetter),
+				"allimpls": map[string]interface{}{
+					"interfaces": []interface{}{
+						new(marker.DefinitionGetter),
+					},
 				},
 			},
 		},
@@ -101,9 +119,12 @@ func init() {
 			return &iocGolangAutowireAliasMarker{}
 		},
 		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": []interface{}{
-					new(marker.DefinitionGetter),
+				"allimpls": map[string]interface{}{
+					"interfaces": []interface{}{
+						new(marker.DefinitionGetter),
+					},
 				},
 			},
 		},
@@ -115,37 +136,29 @@ func init() {
 			return &iocGolangAutowireProxyMarker{}
 		},
 		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": []interface{}{
-					new(marker.DefinitionGetter),
+				"allimpls": map[string]interface{}{
+					"interfaces": []interface{}{
+						new(marker.DefinitionGetter),
+					},
 				},
 			},
 		},
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireProxyMarkerStructDescriptor)
-	iocGolangAutowireAllImplsInterfaceMarkerStructDescriptor := &autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &iocGolangAutowireAllImplsInterfaceMarker{}
-		},
-		Metadata: map[string]interface{}{
-			"autowire": map[string]interface{}{
-				"allimpls": []interface{}{
-					new(marker.DefinitionGetter),
-				},
-			},
-		},
-		DisableProxy: true,
-	}
-	allimpls.RegisterStructDescriptor(iocGolangAutowireAllImplsInterfaceMarkerStructDescriptor)
 	iocGolangAutowireProxyAutoInjectionMarkerStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireProxyAutoInjectionMarker{}
 		},
 		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": []interface{}{
-					new(marker.DefinitionGetter),
+				"allimpls": map[string]interface{}{
+					"interfaces": []interface{}{
+						new(marker.DefinitionGetter),
+					},
 				},
 			},
 		},
@@ -162,5 +175,4 @@ var _iocGolangAutowireConstructFuncMarkerSDID string
 var _iocGolangAutowireBaseTypeMarkerSDID string
 var _iocGolangAutowireAliasMarkerSDID string
 var _iocGolangAutowireProxyMarkerSDID string
-var _iocGolangAutowireAllImplsInterfaceMarkerSDID string
 var _iocGolangAutowireProxyAutoInjectionMarkerSDID string

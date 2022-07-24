@@ -13,35 +13,40 @@
  * limitations under the License.
  */
 
-package inject
+package generator
 
 import (
 	"fmt"
 	"go/types"
 	"io"
 	"path"
+	"sort"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 
-	"sigs.k8s.io/controller-tools/pkg/genall"
+	"github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/alibaba/ioc-golang/extension/autowire/allimpls"
+	"github.com/alibaba/ioc-golang/iocli/gen/generator/plugin"
+	"github.com/alibaba/ioc-golang/iocli/gen/generator/plugin/common"
 
+	"sigs.k8s.io/controller-tools/pkg/genall"
 	"sigs.k8s.io/controller-tools/pkg/loader"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 )
 
 type codeWriter struct {
-	out io.Writer
+	Out io.Writer
 }
 
 // Line writes a single line.
 func (c *codeWriter) Line(line string) {
-	_, _ = fmt.Fprintln(c.out, line)
+	_, _ = fmt.Fprintln(c.Out, line)
 }
 
 // Linef writes a single line with formatting (as per fmt.Sprintf).
 func (c *codeWriter) Linef(line string, args ...interface{}) {
-	_, _ = fmt.Fprintf(c.out, line+"\n", args...)
+	_, _ = fmt.Fprintf(c.Out, line+"\n", args...)
 }
 
 // +ioc:autowire=true
@@ -160,7 +165,7 @@ type copyMethodMakerParam struct {
 func (c *copyMethodMakerParam) Init(m *copyMethodMaker) (*copyMethodMaker, error) {
 	m.pkg = c.pkg
 	m.importsList = c.importsList
-	m.codeWriter = &codeWriter{c.outContent}
+	m.codeWriter = &codeWriter{Out: c.outContent}
 	return m, nil
 }
 
@@ -175,11 +180,6 @@ type autowireTypeAliasPair struct {
 	autowireTypeAlias string
 }
 
-type txFunctionPair struct {
-	Name         string
-	RollbackName string
-}
-
 // generateMethodsFor makes init method
 // for the given type, when appropriate
 func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root *loader.Package, imports *importsList, infos []*markers.TypeInfo) {
@@ -191,6 +191,18 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 	c.Line(`func init() {`)
 	autowireAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire")
 	for _, info := range infos {
+		// 1. create all struct-level plugins
+		allImplPluginsList, err := allimpls.GetImpl(util.GetSDIDByStructPtr(new(plugin.CodeGeneratorPluginForOneStruct)))
+		if err != nil {
+			panic(err)
+		}
+		// 2. sort plugins
+		sort.Sort(plugin.CodeGeneratorPluginForOneStructSorter(allImplPluginsList.([]plugin.CodeGeneratorPluginForOneStruct)))
+		allImplPlugins := allImplPluginsList.([]plugin.CodeGeneratorPluginForOneStruct)
+		for _, p := range allImplPlugins {
+			p.Init(info.Markers)
+		}
+
 		if len(info.Markers["ioc:autowire"]) == 0 {
 			continue
 		}
@@ -238,28 +250,6 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 			proxyAutoInjectionEnable = info.Markers["ioc:autowire:proxy:autoInjection"][0].(bool)
 		}
 
-		implInterfaceIDs := make([]string, 0)
-		for _, v := range info.Markers["ioc:autowire:allimpls:interface"] {
-			implInterfaceIDs = append(implInterfaceIDs, v.(string))
-		}
-
-		txFunctionPairs := make([]txFunctionPair, 0)
-		for _, v := range info.Markers["ioc:tx:func"] {
-			if txFuncMark, ok := v.(string); ok {
-				txFuncPairRawStrings := strings.Split(txFuncMark, "-")
-				if len(txFuncPairRawStrings) == 1 {
-					txFunctionPairs = append(txFunctionPairs, txFunctionPair{
-						Name: txFuncPairRawStrings[0],
-					})
-				} else if len(txFuncPairRawStrings) == 2 {
-					txFunctionPairs = append(txFunctionPairs, txFunctionPair{
-						Name:         txFuncPairRawStrings[0],
-						RollbackName: txFuncPairRawStrings[1],
-					})
-				}
-			}
-		}
-
 		autowireTypesAliasPairs := make([]autowireTypeAliasPair, 0)
 		for _, autowireType := range autowireTypes {
 			if autowireType == "normal" || autowireType == "singleton" {
@@ -291,12 +281,12 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 			c.Linef(`%s.RegisterStructDescriptor(&%s.StructDescriptor{`, normalAlias, autowireAlias)
 			c.Linef(`Factory: func() interface{} {
 			return &%s_{}
-		},`, toFirstCharLower(info.Name))
+		},`, common.ToFirstCharLower(info.Name))
 			c.Line(`})`)
 		}
 
 		// gen struct descriptor definition
-		structDescriptorVariableName := fmt.Sprintf("%sStructDescriptor", toFirstCharLower(info.Name))
+		structDescriptorVariableName := fmt.Sprintf("%sStructDescriptor", common.ToFirstCharLower(info.Name))
 		c.Linef(`%s := &%s.StructDescriptor{`, structDescriptorVariableName, autowireAlias)
 
 		// 0.gen alias
@@ -353,37 +343,31 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 			constructFunctionInfoNames = append(constructFunctionInfoNames, info.Name)
 		}
 
-		if len(implInterfaceIDs) > 0 || len(txFunctionPairs) > 0 {
-			c.Line(`Metadata: map[string]interface{}{`)
-			if len(implInterfaceIDs) > 0 {
-				// 5.1 gen autowire metadata
-				c.Line(`"autowire": map[string]interface{}{`)
-				c.Line(`"allimpls": []interface{}{`)
-				for _, interfaceID := range implInterfaceIDs {
-					interfacePkg, interfaceName := parseInterfacePkgAndInterfaceName(interfaceID)
-					interfacePkgAlias := c.NeedImport(interfacePkg)
-					c.Linef(`new(%s.%s),`, interfacePkgAlias, interfaceName)
-				}
-				c.Linef(`},`)
-				c.Linef(`},`)
+		// 5. gen metadata
+		c.Line(`Metadata: map[string]interface{}{`)
+		// 5.1 gen aop plugins metadata
+		c.Line(`"aop": map[string]interface{}{`)
+		for _, pluginImpl := range allImplPlugins {
+			if pluginImpl.Type() == plugin.AOP {
+				pluginImpl.GenerateSDMetadataForOneStruct(c)
 			}
-			// 5.2 gen aop metadata
-			if len(txFunctionPairs) > 0 {
-				c.Line(`"aop": map[string]interface{}{`)
-
-				c.Line(`"transaction": map[string]string{`)
-				for _, pair := range txFunctionPairs {
-					c.Linef(`"%s":"%s",`, pair.Name, pair.RollbackName)
-				}
-				c.Linef(`},`)
-				c.Linef(`},`)
-			}
-			c.Line(`},`)
 		}
+		c.Line(`},`)
+
+		// 5.2 gen autowire plugins metadata
+		c.Line(`"autowire": map[string]interface{}{`)
+		for _, pluginImpl := range allImplPlugins {
+			if pluginImpl.Type() == plugin.Autowire {
+				pluginImpl.GenerateSDMetadataForOneStruct(c)
+			}
+		}
+		c.Line(`},`)
+		c.Line(`},`)
+
+		// 6. gen proxy enable
 		if !proxyEnable || !proxyAutoInjectionEnable {
 			c.Line(`DisableProxy: true,`)
 		}
-
 		c.Line(`}`)
 
 		for _, pair := range autowireTypesAliasPairs {
@@ -425,20 +409,20 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 	}
 
 	// gen proxy struct
-	genProxyStruct("_", c, needProxyStructInfos, root)
+	common.GenProxyStruct("_", c, needProxyStructInfos, root)
 
 	// gen interface
-	genInterface("IOCInterface", c, needProxyStructInfos, root)
+	common.GenInterface("IOCInterface", c, needProxyStructInfos, root)
 
 	// gen get method and get interface method
 	for _, g := range getMethodGenerateCtxs {
-		sdidStrName := fmt.Sprintf("_%sSDID", toFirstCharLower(g.structName))
+		sdidStrName := fmt.Sprintf("_%sSDID", common.ToFirstCharLower(g.structName))
 		c.Linef("var %s string", sdidStrName)
 		for _, autowireAliasPair := range g.autowireTypeAliasPairs {
 			if autowireAliasPair.autowireType == "config" || autowireAliasPair.autowireType == "allimpls" {
 				continue
 			}
-			getterSuffix := firstCharUpper(autowireAliasPair.autowireType)
+			getterSuffix := common.ToFirstCharUpper(autowireAliasPair.autowireType)
 			if autowireAliasPair.autowireType == "normal" {
 				getterSuffix = ""
 			}
@@ -517,21 +501,7 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 }
 
 func getParamInterfaceType(paramType string) string {
-	return fmt.Sprintf("%sInterface", firstCharLower(paramType))
-}
-
-func firstCharUpper(s string) string {
-	if len(s) > 0 {
-		return strings.ToUpper(string(s[0])) + s[1:]
-	}
-	return s
-}
-
-func firstCharLower(s string) string {
-	if len(s) > 0 {
-		return strings.ToLower(string(s[0])) + s[1:]
-	}
-	return s
+	return fmt.Sprintf("%sInterface", common.ToFirstCharLower(paramType))
 }
 
 type getMethodGenerateCtx struct {
@@ -539,99 +509,4 @@ type getMethodGenerateCtx struct {
 	paramTypeName          string
 	structName             string
 	autowireTypeAliasPairs []autowireTypeAliasPair
-}
-
-func toFirstCharLower(input string) string {
-	return strings.ToLower(string(input[0])) + input[1:]
-}
-
-func genProxyStruct(proxySuffix string, c *copyMethodMaker, needProxyStructInfos []*markers.TypeInfo, root *loader.Package) {
-	for _, info := range needProxyStructInfos {
-		// get all methods
-		c.Linef(`type %s%s struct {`, toFirstCharLower(info.Name), proxySuffix)
-		methods := parseMethodInfoFromGoFiles(info.Name, root.GoFiles)
-		for idx, _ := range methods {
-			importsAlias := methods[idx].GetImportAlias()
-			aliasSwapMap := make(map[string]string)
-			if len(importsAlias) != 0 {
-				for _, importAlias := range importsAlias {
-					for _, rawFileImport := range info.RawFile.Imports {
-						var originAlias string
-						if rawFileImport.Name != nil {
-							originAlias = rawFileImport.Name.String()
-						} else {
-							splitedImport := strings.Split(rawFileImport.Path.Value, "/")
-							originAlias = strings.TrimPrefix(splitedImport[len(splitedImport)-1], `"`)
-							originAlias = strings.TrimSuffix(originAlias, `"`)
-						}
-						if originAlias == importAlias {
-							toImport := strings.TrimPrefix(rawFileImport.Path.Value, `"`)
-							toImport = strings.TrimSuffix(toImport, `"`)
-							clientStubAlias := c.NeedImport(toImport)
-							aliasSwapMap[importAlias] = clientStubAlias
-						}
-					}
-				}
-				methods[idx].swapAliasMap(aliasSwapMap)
-			}
-			c.Linef("%s_ func%s", methods[idx].name, methods[idx].body)
-		}
-		c.Line("}")
-		c.Line("")
-
-		for _, m := range methods {
-			charDescriber := string(strings.ToLower(info.Name)[0])
-			c.Linef(`func (%s *%s%s) %s%s{`, charDescriber, toFirstCharLower(info.Name), proxySuffix, m.name, m.body)
-			if m.ReturnValueNum() > 0 {
-				c.Linef(`return %s.%s_(%s)`, charDescriber, m.name, m.GetParamValues())
-			} else {
-				c.Linef(`%s.%s_(%s)`, charDescriber, m.name, m.GetParamValues())
-			}
-			c.Linef(`}`)
-			c.Line("")
-		}
-	}
-	c.Linef("")
-}
-
-func genInterface(interfaceSuffix string, c *copyMethodMaker, needInterfaceStructInfos []*markers.TypeInfo, root *loader.Package) {
-	for _, info := range needInterfaceStructInfos {
-		// get all methods
-		c.Linef(`type %s%s interface {`, info.Name, interfaceSuffix)
-		methods := parseMethodInfoFromGoFiles(info.Name, root.GoFiles)
-		for idx := range methods {
-			importsAlias := methods[idx].GetImportAlias()
-			if len(importsAlias) != 0 {
-				aliasSwapMap := make(map[string]string)
-				for _, importAlias := range importsAlias {
-					for _, rawFileImport := range info.RawFile.Imports {
-						var originAlias string
-						if rawFileImport.Name != nil {
-							originAlias = rawFileImport.Name.String()
-						} else {
-							splitedImport := strings.Split(rawFileImport.Path.Value, "/")
-							originAlias = strings.TrimPrefix(splitedImport[len(splitedImport)-1], `"`)
-							originAlias = strings.TrimSuffix(originAlias, `"`)
-						}
-						if originAlias == importAlias {
-							toImport := strings.TrimPrefix(rawFileImport.Path.Value, `"`)
-							toImport = strings.TrimSuffix(toImport, `"`)
-							clientStubAlias := c.NeedImport(toImport)
-							aliasSwapMap[importAlias] = clientStubAlias
-						}
-					}
-				}
-				methods[idx].swapAliasMap(aliasSwapMap)
-			}
-			c.Linef("%s %s", methods[idx].name, methods[idx].body)
-		}
-		c.Line("}")
-		c.Line("")
-	}
-	c.Linef("")
-}
-
-func parseInterfacePkgAndInterfaceName(interfaceID string) (string, string) {
-	splited := strings.Split(interfaceID, ".")
-	return strings.Join(splited[:len(splited)-1], "."), splited[len(splited)-1]
 }

@@ -7,14 +7,12 @@ package redis
 
 import (
 	contextx "context"
-	timex "time"
-
-	go_redisredis "github.com/go-redis/redis"
-
 	"github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	singleton "github.com/alibaba/ioc-golang/autowire/singleton"
 	util "github.com/alibaba/ioc-golang/autowire/util"
+	go_redisredis "github.com/go-redis/redis"
+	timex "time"
 )
 
 func init() {
@@ -35,6 +33,10 @@ func init() {
 			param := p.(paramInterface)
 			impl := i.(*Redis)
 			return param.New(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	normal.RegisterStructDescriptor(redisStructDescriptor)

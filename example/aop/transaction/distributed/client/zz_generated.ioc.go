@@ -30,6 +30,7 @@ func init() {
 					"DoTradeWithTxSuccess":        "",
 				},
 			},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	singleton.RegisterStructDescriptor(tradeServiceStructDescriptor)
@@ -41,6 +42,10 @@ func init() {
 	appStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &App{}
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	singleton.RegisterStructDescriptor(appStructDescriptor)

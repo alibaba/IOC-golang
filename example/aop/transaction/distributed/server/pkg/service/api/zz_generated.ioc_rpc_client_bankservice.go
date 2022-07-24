@@ -20,6 +20,7 @@ func init() {
 					"RemoveMoney": "RemoveMoneyRollback",
 				},
 			},
+			"autowire": map[string]interface{}{},
 		},
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{

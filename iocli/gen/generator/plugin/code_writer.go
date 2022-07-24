@@ -13,20 +13,10 @@
  * limitations under the License.
  */
 
-package main
+package plugin
 
-import (
-	"log"
-
-	_ "github.com/alibaba/ioc-golang/extension/imports/cli"
-	_ "github.com/alibaba/ioc-golang/iocli/gen"
-	_ "github.com/alibaba/ioc-golang/iocli/init"
-
-	"github.com/alibaba/ioc-golang/iocli/root"
-)
-
-func main() {
-	if err := root.Cmd.Execute(); err != nil {
-		log.Println(err)
-	}
+type CodeWriter interface {
+	Line(line string)
+	Linef(line string, args ...interface{})
+	NeedImport(importPath string) string
 }

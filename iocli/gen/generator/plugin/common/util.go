@@ -13,20 +13,17 @@
  * limitations under the License.
  */
 
-package main
+package common
 
-import (
-	"log"
+import "strings"
 
-	_ "github.com/alibaba/ioc-golang/extension/imports/cli"
-	_ "github.com/alibaba/ioc-golang/iocli/gen"
-	_ "github.com/alibaba/ioc-golang/iocli/init"
+func ToFirstCharLower(input string) string {
+	return strings.ToLower(string(input[0])) + input[1:]
+}
 
-	"github.com/alibaba/ioc-golang/iocli/root"
-)
-
-func main() {
-	if err := root.Cmd.Execute(); err != nil {
-		log.Println(err)
+func ToFirstCharUpper(s string) string {
+	if len(s) > 0 {
+		return strings.ToUpper(string(s[0])) + s[1:]
 	}
+	return s
 }

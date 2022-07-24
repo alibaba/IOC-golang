@@ -22,6 +22,10 @@ func init() {
 		Factory: func() interface{} {
 			return &App{}
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	singleton.RegisterStructDescriptor(appStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -32,6 +36,10 @@ func init() {
 	serviceImpl1StructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	singleton.RegisterStructDescriptor(serviceImpl1StructDescriptor)
@@ -44,6 +52,10 @@ func init() {
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
 	}
 	singleton.RegisterStructDescriptor(serviceImpl2StructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -54,6 +66,10 @@ func init() {
 	serviceStructStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ServiceStruct{}
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
 		},
 	}
 	singleton.RegisterStructDescriptor(serviceStructStructDescriptor)
