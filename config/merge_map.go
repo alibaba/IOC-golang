@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/fatih/color"
+	"github.com/alibaba/ioc-golang/logger"
 )
 
 const (
@@ -43,7 +43,7 @@ func merge(dst, src AnyMap, depth uint8, depths ...uint8) AnyMap {
 	if maxDepth > maxMergeDepth {
 		panic(fmt.Sprintf("[Config] expect depth too deep: [%d]", maxDepth))
 	}
-	color.Blue("[Config] merge config map, depth: [%d]", depth)
+	logger.Blue("[Config] merge config map, depth: [%d]", depth)
 	if depth > maxDepth {
 		panic(fmt.Sprintf("[Config] recursion too deep: [%d]", depth))
 	}

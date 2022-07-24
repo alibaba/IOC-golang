@@ -11,11 +11,10 @@ import (
 
 	"github.com/alibaba/ioc-golang/aop"
 	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/logger"
 
 	"dubbo.apache.org/dubbo-go/v3/protocol/invocation"
 	"github.com/gin-gonic/gin"
-
-	"github.com/fatih/color"
 
 	"dubbo.apache.org/dubbo-go/v3/common/constant"
 	dubboProtocol "dubbo.apache.org/dubbo-go/v3/protocol"
@@ -64,7 +63,7 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 
 	rsp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		color.Red("[IOC Protocol] Invoke %s with error = %s", invokeURL, err)
+		logger.Red("[IOC Protocol] Invoke %s with error = %s", invokeURL, err)
 		return &dubboProtocol.RPCResult{
 			Err: err,
 		}

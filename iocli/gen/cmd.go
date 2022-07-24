@@ -18,13 +18,17 @@ package gen
 import (
 	"fmt"
 
-	"github.com/alibaba/ioc-golang/iocli/root"
+	"github.com/alibaba/ioc-golang/logger"
 
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/controller-tools/pkg/genall"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 
+	"github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/config"
 	"github.com/alibaba/ioc-golang/iocli/gen/inject"
+	_ "github.com/alibaba/ioc-golang/iocli/gen/marker/impls"
+	"github.com/alibaba/ioc-golang/iocli/root"
 )
 
 var (
@@ -118,6 +122,11 @@ var genCMD = &cobra.Command{
 
 		if len(rawOpts) == 1 {
 			rawOpts = append(rawOpts, "register")
+		}
+
+		logger.Disable()
+		if err := ioc.Load(config.AddProperty("debug.disable", true)); err != nil {
+			return err
 		}
 
 		rt, err := genall.FromOptions(optionsRegistry, rawOpts)

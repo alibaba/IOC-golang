@@ -20,9 +20,9 @@ import (
 	"reflect"
 	"runtime"
 
-	"github.com/fatih/color"
-
 	perrors "github.com/pkg/errors"
+
+	"github.com/alibaba/ioc-golang/logger"
 
 	"github.com/alibaba/ioc-golang/autowire/util"
 )
@@ -100,7 +100,7 @@ func (w *WrapperAutowireImpl) ImplWithoutParam(sdID string, withProxy bool) (int
 	if err != nil {
 		if w.Autowire.IsSingleton() {
 			// FIXME: ignore parse param error, because of singleton with empty param also try to find property from config file
-			color.Red("[Wrapper Autowire] Parse param from config file with sdid %s failed, error: %s, continue with nil param.", sdID, err)
+			logger.Blue("[Wrapper Autowire] Parse param from config file with sdid %s failed, error: %s, continue with nil param.", sdID, err)
 			return w.ImplWithParam(sdID, param, withProxy)
 		} else {
 			return nil, err
@@ -111,12 +111,13 @@ func (w *WrapperAutowireImpl) ImplWithoutParam(sdID string, withProxy bool) (int
 
 // ImplWithField is used to create param from field and call ImplWithParam
 func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) {
-	implWithProxy := false
-	if fi.FieldReflectValue.Kind() == reflect.Interface {
-		implWithProxy = true
-	}
-
 	sdID, err := w.ParseSDID(fi)
+	if err != nil {
+		logger.Red("[Wrapper Autowire] Parse sdid from field %+v failed, error is %s", fi, err)
+		return nil, err
+	}
+	sd := GetStructDescriptor(sdID)
+	implWithProxy := fi.FieldReflectValue.Kind() == reflect.Interface && !sd.DisableProxy
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +125,7 @@ func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) 
 	if err != nil {
 		if w.Autowire.IsSingleton() {
 			// FIXME: ignore parse param error, because of singleton with empty param also try to find property from config file
-			color.Red("[Wrapper Autowire] Parse param from config file with sdid %s failed, error: %s, continue with nil param.", sdID, err)
+			logger.Red("[Wrapper Autowire] Parse param from config file with sdid %s failed, error: %s, continue with nil param.", sdID, err)
 			return w.ImplWithParam(sdID, param, implWithProxy)
 		} else {
 			return nil, err
@@ -139,10 +140,14 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 
 	// 1. reflect
 	valueOf := reflect.ValueOf(impledPtr)
+	if valueOf.Kind() != reflect.Interface && valueOf.Kind() != reflect.Pointer {
+		// not struct pointer, no needs to inject fields, just return
+		return nil
+	}
 	valueOfElem := valueOf.Elem()
 	typeOf := valueOfElem.Type()
 	if typeOf.Kind() != reflect.Struct {
-		// not struct, no needs to inject tag and monkey, just return
+		// element not struct, no needs to inject fields, just return
 		return nil
 	}
 
@@ -200,10 +205,12 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 	return nil
 }
 
+// todo can we downward the parsing of field to autowire impl but not autowire core?
 func buildFiledTypeFullName(fieldType reflect.Type) string {
 	// todo find unsupported type and log warning, like 'struct' field
-	if util.IsPointerField(fieldType) {
+	if util.IsPointerField(fieldType) || util.IsSliceField(fieldType) {
 		return fieldType.Elem().PkgPath() + "." + fieldType.Elem().Name()
 	}
+	// interface field
 	return fieldType.PkgPath() + "." + fieldType.Name()
 }

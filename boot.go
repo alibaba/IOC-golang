@@ -16,32 +16,31 @@
 package ioc
 
 import (
-	"github.com/fatih/color"
-
 	"github.com/alibaba/ioc-golang/aop"
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/config"
+	"github.com/alibaba/ioc-golang/logger"
 
 	_ "github.com/alibaba/ioc-golang/extension/aop/imports/boot"
 )
 
 func Load(opts ...config.Option) error {
 	printLogo()
-	color.Cyan("Welcome to use ioc-golang!")
+	logger.Cyan("Welcome to use ioc-golang!")
 
 	// 1. load config
-	color.Blue("[Boot] Start to load ioc-golang config")
+	logger.Blue("[Boot] Start to load ioc-golang config")
 	if err := config.Load(opts...); err != nil {
 		return err
 	}
 
 	// 2. load debug
-	color.Blue("[Boot] Start to load debug")
+	logger.Blue("[Boot] Start to load debug")
 	if err := aop.Load(); err != nil {
 		return err
 	}
 
 	// 3. load autowire
-	color.Blue("[Boot] Start to load autowire")
+	logger.Blue("[Boot] Start to load autowire")
 	return autowire.Load()
 }

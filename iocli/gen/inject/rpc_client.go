@@ -42,20 +42,27 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 	apiRoot.NeedTypesInfo()
 
 	for _, info := range rpcServiceStructInfos {
-		imports := &importsList{
-			byPath:  make(map[string]string),
-			byAlias: make(map[string]string),
-			pkg:     apiRoot,
+		imports, err := GetimportsList(&importsListParam{
+			pkg: apiRoot,
+		})
+		if err != nil {
+			fmt.Printf("get import list error = %s\n", err)
+			return
 		}
 		// avoid confusing aliases by "reserving" the root package's name as an alias
 		imports.byAlias[apiRoot.Name] = ""
 
 		outContent := new(bytes.Buffer)
-		c := &copyMethodMaker{
+		c, err := GetcopyMethodMaker(&copyMethodMakerParam{
 			pkg:         apiRoot,
 			importsList: imports,
-			codeWriter:  &codeWriter{out: outContent},
+			outContent:  outContent,
+		})
+		if err != nil {
+			fmt.Printf("get copy method maker error = %s\n", err)
+			return
 		}
+
 		autowireAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire")
 		normalAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/normal")
 		rpcClientAlias := c.NeedImport("github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_client")
@@ -85,14 +92,18 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 			return &%sIOCRPCClient{}
 		},`, toFirstCharLower(info.Name))
 
-		// generate TransactionMethodsMap
+		// gen autowire metadata
+		c.Line(`Metadata: map[string]interface{}{`)
+		c.Line(`"aop": map[string]interface{}{`)
 		if len(txFunctionPairs) > 0 {
-			c.Linef(`TransactionMethodsMap: map[string]string{`)
+			c.Line(`"transaction": map[string]string{`)
 			for _, pair := range txFunctionPairs {
 				c.Linef(`"%s":"%s",`, pair.Name, pair.RollbackName)
 			}
 			c.Linef(`},`)
 		}
+		c.Line(`},`)
+		c.Line(`},`)
 		c.Line(`})`)
 
 		// generate client stub proxy factory

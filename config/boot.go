@@ -20,7 +20,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/fatih/color"
+	"github.com/alibaba/ioc-golang/logger"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -73,10 +74,12 @@ type Options struct {
 	ProfilesActive []string
 	// Depth of merging under multiple config files
 	MergeDepth uint8
+	// Properties set by API
+	Properties AnyMap
 }
 
 func (opts *Options) printLogs() {
-	color.Blue("[Config] Config files load options is %+v", *opts)
+	logger.Blue("[Config] Config files load options is %+v", *opts)
 }
 
 func (opts *Options) loadFromEnv() {
@@ -110,7 +113,7 @@ func SetConfig(yamlBytes []byte) error {
 func Load(opts ...Option) error {
 	options := initOptions(opts...)
 	if notSupportConfigType(options.ConfigType) {
-		color.Red("[Config] Config file type:[%s] not supported now(yml, yaml)", options.ConfigType)
+		logger.Red("[Config] Config file type:[%s] not supported now(yml, yaml)", options.ConfigType)
 		return nil
 	}
 
@@ -120,30 +123,55 @@ func Load(opts ...Option) error {
 	configFiles := searchConfigFiles(options)
 
 	for _, cf := range configFiles {
-		color.Blue("[Config] Loading config file %s", cf)
+		logger.Blue("[Config] Loading config file %s", cf)
 		contents, err := ioutil.ReadFile(cf)
 		if err != nil {
-			color.Red("[Config] Load ioc-golang config file failed. %v\n The load procedure is continue", err)
+			logger.Red("[Config] Load ioc-golang config file failed. %v\n The load procedure is continue", err)
 			return nil
 		}
 
 		var sub Config
 		err = yaml.Unmarshal(contents, &sub)
 		if err != nil {
-			color.Red("[Config] yamlFile Unmarshal err: %v", err)
+			logger.Red("[Config] yamlFile Unmarshal err: %v", err)
 			return err
 		}
 
 		if len(sub) > 0 {
 			targetMap = MergeMap(targetMap, sub)
 		}
-
 	}
+	addProperties(targetMap, options.Properties)
+
 	config = targetMap
 
 	parseConfigIfNecessary(config)
 
 	return nil
+}
+
+func addProperties(config Config, properties AnyMap) {
+	for k, v := range properties {
+		addProperty2Map(config, k, v)
+	}
+}
+
+func addProperty2Map(cfg Config, key string, val interface{}) {
+	first, others := separateFirstPrefixUnit(key)
+	if first == "" {
+		return
+	}
+	if others == "" {
+		cfg[first] = val
+		return
+	}
+	subMap, ok := cfg[first]
+	if ok {
+		addProperty2Map(subMap.(Config), others, val)
+	} else {
+		cfg[first] = make(Config)
+		addProperty2Map(cfg[first].(Config), others, val)
+	}
 }
 
 // ----------------------------------------------------------------
@@ -184,6 +212,12 @@ func WithMergeDepth(mergeDepth uint8) Option {
 	}
 }
 
+func AddProperty(key string, value interface{}) Option {
+	return func(opts *Options) {
+		opts.Properties[key] = value
+	}
+}
+
 // ----------------------------------------------------------------
 
 // LoadConfigByPrefix prefix is like 'a.b.c' or 'a.b.<github.com/xxx/xx/xxx.Impl>.c', configStructPtr is interface ptr
@@ -191,24 +225,50 @@ func LoadConfigByPrefix(prefix string, configStructPtr interface{}) error {
 	if configStructPtr == nil {
 		return nil
 	}
-	splited := strings.Split(prefix, "<")
-	var configProperties []string
-	if len(splited) == 1 {
-		configProperties = strings.Split(prefix, YamlConfigSeparator)
-	} else {
-		configProperties = strings.Split(splited[0], YamlConfigSeparator)
-		backSplitedList := strings.Split(splited[1], ">")
-		configProperties = append(configProperties, backSplitedList[0])
-		configProperties = append(configProperties, strings.Split(backSplitedList[1], YamlConfigSeparator)...)
-	}
 	realConfigProperties := make([]string, 0)
-	for _, v := range configProperties {
+	for _, v := range splitPrefix2Units(prefix) {
 		if v != "" {
-			v := expandIfNecessary(v)
+			v = expandIfNecessary(v)
 			realConfigProperties = append(realConfigProperties, v)
 		}
 	}
 	return loadProperty(realConfigProperties, 0, config, configStructPtr)
+}
+
+func splitPrefix2Units(prefix string) []string {
+	configProperties := make([]string, 0)
+	if prefix == "" {
+		return configProperties
+	}
+	splited := strings.Split(prefix, "<")
+	if len(splited) == 1 {
+		configProperties = strings.Split(prefix, YamlConfigSeparator)
+	} else {
+		if splited[0] != "" {
+			configProperties = strings.Split(splited[0], YamlConfigSeparator)
+		}
+		backSplitedList := strings.Split(splited[1], ">")
+		configProperties = append(configProperties, backSplitedList[0])
+		if backSplitedList[1] != "" {
+			configProperties = append(configProperties, strings.Split(strings.TrimPrefix(backSplitedList[1], YamlConfigSeparator), YamlConfigSeparator)...)
+		}
+	}
+	return configProperties
+}
+
+func separateFirstPrefixUnit(prefix string) (string, string) {
+	prefixUnits := splitPrefix2Units(prefix)
+	if len(prefixUnits) == 0 {
+		return "", ""
+	}
+	if len(prefixUnits) == 1 {
+		return prefixUnits[0], ""
+	}
+	firstUnit := prefixUnits[0]
+	if prefix[0] == '<' {
+		return firstUnit, strings.TrimPrefix(prefix, "<"+firstUnit+">"+YamlConfigSeparator)
+	}
+	return firstUnit, strings.TrimPrefix(prefix, firstUnit+YamlConfigSeparator)
 }
 
 // ----------------------------------------------------------------
@@ -217,6 +277,7 @@ func newOptions() *Options {
 	return &Options{
 		SearchPath:     make([]string, 0),
 		ProfilesActive: make([]string, 0),
+		Properties:     make(AnyMap, 0),
 	}
 }
 

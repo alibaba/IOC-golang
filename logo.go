@@ -16,11 +16,11 @@
 package ioc
 
 import (
-	"github.com/fatih/color"
+	"github.com/alibaba/ioc-golang/logger"
 )
 
 var logo = "  ___    ___     ____                           _                         \n |_ _|  / _ \\   / ___|           __ _    ___   | |   __ _   _ __     __ _ \n  | |  | | | | | |      _____   / _` |  / _ \\  | |  / _` | | '_ \\   / _` |\n  | |  | |_| | | |___  |_____| | (_| | | (_) | | | | (_| | | | | | | (_| |\n |___|  \\___/   \\____|          \\__, |  \\___/  |_|  \\__,_| |_| |_|  \\__, |\n                                |___/                               |___/ "
 
 func printLogo() {
-	color.Cyan(logo)
+	logger.Cyan(logo)
 }

@@ -36,13 +36,19 @@ type codeWriter struct {
 
 // Line writes a single line.
 func (c *codeWriter) Line(line string) {
-	fmt.Fprintln(c.out, line)
+	_, _ = fmt.Fprintln(c.out, line)
 }
 
 // Linef writes a single line with formatting (as per fmt.Sprintf).
 func (c *codeWriter) Linef(line string, args ...interface{}) {
-	fmt.Fprintf(c.out, line+"\n", args...)
+	_, _ = fmt.Fprintf(c.out, line+"\n", args...)
 }
+
+// +ioc:autowire=true
+// +ioc:autowire:type=normal
+// +ioc:autowire:proxy=false
+// +ioc:autowire:paramType=importsListParam
+// +ioc:autowire:constructFunc=Init
 
 // importsList keeps track of required imports, automatically assigning aliases
 // to import statement.
@@ -50,7 +56,18 @@ type importsList struct {
 	byPath  map[string]string
 	byAlias map[string]string
 
+	importsListParam
+}
+
+type importsListParam struct {
 	pkg *loader.Package
+}
+
+func (p *importsListParam) Init(i *importsList) (*importsList, error) {
+	i.importsListParam = *p
+	i.byPath = make(map[string]string)
+	i.byAlias = make(map[string]string)
+	return i, nil
 }
 
 // NeedImport marks that the given package is needed in the list of imports,
@@ -120,12 +137,31 @@ func (l *importsList) ImportSpecs() []string {
 	return res
 }
 
+// +ioc:autowire=true
+// +ioc:autowire:type=normal
+// +ioc:autowire:proxy=false
+// +ioc:autowire:paramType=copyMethodMakerParam
+// +ioc:autowire:constructFunc=Init
+
 // copyMethodMakers makes DeepCopy (and related) methods for Go types,
 // writing them to its codeWriter.
 type copyMethodMaker struct {
 	pkg *loader.Package
 	*importsList
 	*codeWriter
+}
+
+type copyMethodMakerParam struct {
+	pkg *loader.Package
+	*importsList
+	outContent io.Writer
+}
+
+func (c *copyMethodMakerParam) Init(m *copyMethodMaker) (*copyMethodMaker, error) {
+	m.pkg = c.pkg
+	m.importsList = c.importsList
+	m.codeWriter = &codeWriter{c.outContent}
+	return m, nil
 }
 
 type paramImplPair struct {
@@ -144,9 +180,9 @@ type txFunctionPair struct {
 	RollbackName string
 }
 
-// GenerateMethodsFor makes init method
+// generateMethodsFor makes init method
 // for the given type, when appropriate
-func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root *loader.Package, imports *importsList, infos []*markers.TypeInfo) {
+func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root *loader.Package, imports *importsList, infos []*markers.TypeInfo) {
 	paramImplPairs := make([]paramImplPair, 0)
 	rpcServiceStructInfos := make([]*markers.TypeInfo, 0)
 	needProxyStructInfos := make([]*markers.TypeInfo, 0)
@@ -195,6 +231,16 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 		proxyEnable := true
 		if len(info.Markers["ioc:autowire:proxy"]) != 0 {
 			proxyEnable = info.Markers["ioc:autowire:proxy"][0].(bool)
+		}
+
+		proxyAutoInjectionEnable := true
+		if len(info.Markers["ioc:autowire:proxy:autoInjection"]) != 0 {
+			proxyAutoInjectionEnable = info.Markers["ioc:autowire:proxy:autoInjection"][0].(bool)
+		}
+
+		implInterfaceIDs := make([]string, 0)
+		for _, v := range info.Markers["ioc:autowire:allimpls:interface"] {
+			implInterfaceIDs = append(implInterfaceIDs, v.(string))
 		}
 
 		txFunctionPairs := make([]txFunctionPair, 0)
@@ -307,13 +353,35 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 			constructFunctionInfoNames = append(constructFunctionInfoNames, info.Name)
 		}
 
-		// 5. gen transaction methods registry
-		if len(txFunctionPairs) > 0 {
-			c.Linef(`TransactionMethodsMap: map[string]string{`)
-			for _, pair := range txFunctionPairs {
-				c.Linef(`"%s":"%s",`, pair.Name, pair.RollbackName)
+		if len(implInterfaceIDs) > 0 || len(txFunctionPairs) > 0 {
+			c.Line(`Metadata: map[string]interface{}{`)
+			if len(implInterfaceIDs) > 0 {
+				// 5.1 gen autowire metadata
+				c.Line(`"autowire": map[string]interface{}{`)
+				c.Line(`"allimpls": []interface{}{`)
+				for _, interfaceID := range implInterfaceIDs {
+					interfacePkg, interfaceName := parseInterfacePkgAndInterfaceName(interfaceID)
+					interfacePkgAlias := c.NeedImport(interfacePkg)
+					c.Linef(`new(%s.%s),`, interfacePkgAlias, interfaceName)
+				}
+				c.Linef(`},`)
+				c.Linef(`},`)
 			}
-			c.Linef(`},`)
+			// 5.2 gen aop metadata
+			if len(txFunctionPairs) > 0 {
+				c.Line(`"aop": map[string]interface{}{`)
+
+				c.Line(`"transaction": map[string]string{`)
+				for _, pair := range txFunctionPairs {
+					c.Linef(`"%s":"%s",`, pair.Name, pair.RollbackName)
+				}
+				c.Linef(`},`)
+				c.Linef(`},`)
+			}
+			c.Line(`},`)
+		}
+		if !proxyEnable || !proxyAutoInjectionEnable {
+			c.Line(`DisableProxy: true,`)
 		}
 
 		c.Line(`}`)
@@ -367,7 +435,7 @@ func (c *copyMethodMaker) GenerateMethodsFor(ctx *genall.GenerationContext, root
 		sdidStrName := fmt.Sprintf("_%sSDID", toFirstCharLower(g.structName))
 		c.Linef("var %s string", sdidStrName)
 		for _, autowireAliasPair := range g.autowireTypeAliasPairs {
-			if autowireAliasPair.autowireType == "config" {
+			if autowireAliasPair.autowireType == "config" || autowireAliasPair.autowireType == "allimpls" {
 				continue
 			}
 			getterSuffix := firstCharUpper(autowireAliasPair.autowireType)
@@ -561,4 +629,9 @@ func genInterface(interfaceSuffix string, c *copyMethodMaker, needInterfaceStruc
 		c.Line("")
 	}
 	c.Linef("")
+}
+
+func parseInterfacePkgAndInterfaceName(interfaceID string) (string, string) {
+	splited := strings.Split(interfaceID, ".")
+	return strings.Join(splited[:len(splited)-1], "."), splited[len(splited)-1]
 }

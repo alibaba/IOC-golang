@@ -25,13 +25,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alibaba/ioc-golang/logger"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	monitorPB "github.com/alibaba/ioc-golang/extension/aop/monitor/api/ioc_golang/aop/monitor"
 	"github.com/alibaba/ioc-golang/iocli/root"
-
-	"github.com/fatih/color"
 
 	"github.com/spf13/cobra"
 )
@@ -65,7 +65,7 @@ var monitorCommand = &cobra.Command{
 		if len(args) > 1 {
 			method = args[1]
 		}
-		color.Cyan("iocli monitor started, try to connect to debug server at %s", debugServerAddr)
+		logger.Cyan("iocli monitor started, try to connect to debug server at %s", debugServerAddr)
 		client, err := debugServiceClient.Monitor(context.Background(), &monitorPB.MonitorRequest{
 			Sdid:     sdid,
 			Method:   method,
@@ -74,7 +74,7 @@ var monitorCommand = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		color.Cyan("debug server connected, monitor info would be printed every %ds", interval)
+		logger.Cyan("debug server connected, monitor info would be printed every %ds", interval)
 
 		allMonitorResponseItemsMap := make(map[string][]*monitorPB.MonitorResponseItem, 0)
 		allMonitorResponseItemsLock := sync.RWMutex{}
@@ -85,9 +85,9 @@ var monitorCommand = &cobra.Command{
 			select {
 			case <-signals:
 				fmt.Println()
-				color.Red("Got interrupt signal, collecting data during %dms", time.Now().UnixMilli()-startTime)
-				color.Red("====================Collection====================")
-				color.Red("%s", time.Now().Format("2006/01/02 15:04:05"))
+				logger.Red("Got interrupt signal, collecting data during %dms", time.Now().UnixMilli()-startTime)
+				logger.Red("====================Collection====================")
+				logger.Red("%s", time.Now().Format("2006/01/02 15:04:05"))
 				allMonitorResponseItemsLock.RLock()
 
 				allMethods := make(methodSorter, 0)
@@ -99,7 +99,7 @@ var monitorCommand = &cobra.Command{
 				for _, methodKey := range allMethods {
 					// get method all records
 					items := allMonitorResponseItemsMap[methodKey]
-					color.Blue(methodKey)
+					logger.Blue(methodKey)
 
 					// init value
 					total := int64(0)
@@ -124,7 +124,7 @@ var monitorCommand = &cobra.Command{
 					avgFailRate = getAverageFloat32(allFailRates)
 
 					// print information
-					color.Blue(fmt.Sprintf("Total: %d, Success: %d, Fail: %d, AvgRT: %.2fus, FailRate: %.2f%%",
+					logger.Blue(fmt.Sprintf("Total: %d, Success: %d, Fail: %d, AvgRT: %.2fus, FailRate: %.2f%%",
 						total, success, fail, avgRT, avgFailRate))
 				}
 
@@ -136,15 +136,15 @@ var monitorCommand = &cobra.Command{
 		for {
 			msg, err := client.Recv()
 			if err != nil {
-				color.Red(err.Error())
+				logger.Red(err.Error())
 				return
 			}
-			color.Red("====================")
-			color.Red("%s", time.Now().Format("2006/01/02 15:04:05"))
+			logger.Red("====================")
+			logger.Red("%s", time.Now().Format("2006/01/02 15:04:05"))
 			for _, item := range msg.MonitorResponseItems {
 				methodKey := fmt.Sprintf("%s.%s()", item.GetSdid(), item.GetMethod())
-				color.Blue(methodKey)
-				color.Blue(fmt.Sprintf("Total: %d, Success: %d, Fail: %d, AvgRT: %.2fus, FailRate: %.2f%%",
+				logger.Blue(methodKey)
+				logger.Blue(fmt.Sprintf("Total: %d, Success: %d, Fail: %d, AvgRT: %.2fus, FailRate: %.2f%%",
 					item.GetTotal(), item.GetSuccess(), item.GetFail(), item.GetAvgRT(), item.GetFailRate()*100))
 
 				allMonitorResponseItemsLock.Lock()

@@ -16,8 +16,9 @@
 package log
 
 import (
-	"github.com/fatih/color"
 	"github.com/opentracing/opentracing-go"
+
+	"github.com/alibaba/ioc-golang/logger"
 )
 
 type CurrentSpanGetter func() opentracing.Span
@@ -37,6 +38,6 @@ func RegisterTraceLoggerWriterFunc(name string, rawLoggerWriterManager SetTraceL
 func RunRegisteredTraceLoggerWriterFunc(getter CurrentSpanGetter) {
 	for name, f := range rawLoggerWriterMap {
 		f(newTraceLoggerWriter(getter, name))
-		color.Blue("[AOP] [Trace] Set trace logger to %s success", name)
+		logger.Blue("[AOP] [Trace] Set trace logger to %s success", name)
 	}
 }

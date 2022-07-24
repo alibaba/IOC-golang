@@ -19,7 +19,6 @@ import (
 	"reflect"
 
 	"github.com/alibaba/ioc-golang/aop"
-
 	"github.com/alibaba/ioc-golang/autowire"
 )
 
@@ -52,7 +51,7 @@ func (c *context) addSuccessfullyCalledInvocationCtx(ctx *aop.InvocationContext)
 		// todo: print logs
 		return
 	}
-	if rollbackMethodName, ok := sd.TransactionMethodsMap[ctx.MethodName]; ok && rollbackMethodName != "" {
+	if rollbackMethodName, ok := parseRollbackMethodNameFromSDMetadata(sd.Metadata, ctx.MethodName); ok && rollbackMethodName != "" {
 		c.rollbackAbleInvocationContexts = append(c.rollbackAbleInvocationContexts, rollbackAbleInvocationCtx{
 			invocationCtx:      ctx,
 			rollbackMethodName: rollbackMethodName,

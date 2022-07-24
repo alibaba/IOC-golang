@@ -208,3 +208,83 @@ func TestLoad_abs_path_panic(t *testing.T) {
 		})
 	}
 }
+
+func TestAddProperty(t *testing.T) {
+	type args struct {
+		opts []Option
+	}
+	tests := []struct {
+		name     string
+		args     args
+		key      string
+		wantVal  string
+		keys     []string
+		wantVals []string
+	}{
+		{
+			name: "Test AddProperty",
+			args: args{
+				opts: []Option{AddProperty("autowire", "val")},
+			},
+			key:     "autowire",
+			wantVal: "val",
+		},
+		{
+			name: "Test AddProperty2",
+			args: args{
+				opts: []Option{AddProperty("autowire.sub", "val2")},
+			},
+			key:     "autowire.sub",
+			wantVal: "val2",
+		},
+		{
+			name: "Test AddProperty3",
+			args: args{
+				opts: []Option{AddProperty("autowire.sub.sub.sub.sub.sub", "val3")},
+			},
+			key:     "autowire.sub.sub.sub.sub.sub",
+			wantVal: "val3",
+		},
+		{
+			name: "Test AddProperties",
+			args: args{
+				opts: []Option{
+					AddProperty("autowire.sub.sub.sub.sub.sub", "val3"),
+					AddProperty("autowire.sub.sub2", "val2"),
+					AddProperty("autowire.sub1", "val"),
+				},
+			},
+			keys:     []string{"autowire.sub.sub.sub.sub.sub", "autowire.sub.sub2", "autowire.sub1"},
+			wantVals: []string{"val3", "val2", "val"},
+		},
+		{
+			name: "Test AddProperties with <>",
+			args: args{
+				opts: []Option{
+					AddProperty("autowire.<github.com/alibaba/ioc-golang/test.Model>.sub.sub.sub.sub.sub", "val1"),
+					AddProperty("autowire.sub.sub2.<github.com/alibaba/ioc-golang/test.Model>", "val2"),
+					AddProperty("<github.com/alibaba/ioc-golang/test.Model>.autowire.sub1", "val3"),
+					AddProperty("<github.com/alibaba/ioc-golang/test.Model2>", "val4"),
+				},
+			},
+			keys: []string{"autowire.<github.com/alibaba/ioc-golang/test.Model>.sub.sub.sub.sub.sub",
+				"autowire.sub.sub2.<github.com/alibaba/ioc-golang/test.Model>",
+				"<github.com/alibaba/ioc-golang/test.Model>.autowire.sub1",
+				"<github.com/alibaba/ioc-golang/test.Model2>"},
+			wantVals: []string{"val1", "val2", "val3", "val4"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Nil(t, Load(tt.args.opts...))
+			val := ""
+			for idx, key := range tt.keys {
+				assert.Nil(t, LoadConfigByPrefix(key, &val))
+				assert.Equal(t, tt.wantVals[idx], val)
+				return
+			}
+			assert.Nil(t, LoadConfigByPrefix(tt.key, &val))
+			assert.Equal(t, tt.wantVal, val)
+		})
+	}
+}

@@ -16,10 +16,9 @@
 package watch
 
 import (
-	"github.com/fatih/color"
-
 	"github.com/alibaba/ioc-golang/aop/common"
 	"github.com/alibaba/ioc-golang/extension/aop/watch/api/ioc_golang/aop/watch"
+	"github.com/alibaba/ioc-golang/logger"
 )
 
 type watchService struct {
@@ -34,8 +33,8 @@ func getWatchService() *watchService {
 }
 
 func (w *watchService) Watch(req *watch.WatchRequest, svr watch.WatchService_WatchServer) error {
-	color.Red("[Debug Server] Receive watch request %+v\n", req.String())
-	defer color.Red("[Debug Server] Watch request %s finished \n", req.String())
+	logger.Red("[Debug Server] Receive watch request %+v\n", req.String())
+	defer logger.Red("[Debug Server] Watch request %s finished \n", req.String())
 	sdid := req.GetSdid()
 	method := req.GetMethod()
 	sendCh := make(chan *watch.WatchResponse)

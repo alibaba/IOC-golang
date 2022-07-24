@@ -206,7 +206,7 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
 
 - ioc:tx:func=MyTransactionFunction（非必填）
 
-  指定事务函数和回滚函数，参考事务例子 [example/aop/transaction](http://github.com/alibaba/ioc-golang/example/tree/aop/transaction)
+  指定事务函数和回滚函数，参考事务例子 [example/aop/transaction](https://github.com/alibaba/IOC-golang/tree/master/example/aop/transaction)
 
 ## iocli 操作命令
 

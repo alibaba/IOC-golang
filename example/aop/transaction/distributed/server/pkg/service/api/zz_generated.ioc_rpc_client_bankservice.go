@@ -13,9 +13,13 @@ func init() {
 		Factory: func() interface{} {
 			return &bankServiceIOCRPCClient{}
 		},
-		TransactionMethodsMap: map[string]string{
-			"AddMoney":    "AddMoneyRollback",
-			"RemoveMoney": "RemoveMoneyRollback",
+		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{
+				"transaction": map[string]string{
+					"AddMoney":    "AddMoneyRollback",
+					"RemoveMoney": "RemoveMoneyRollback",
+				},
+			},
 		},
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{

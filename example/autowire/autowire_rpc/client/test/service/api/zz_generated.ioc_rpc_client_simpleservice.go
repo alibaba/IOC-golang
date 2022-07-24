@@ -14,6 +14,9 @@ func init() {
 		Factory: func() interface{} {
 			return &simpleServiceIOCRPCClient{}
 		},
+		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
+		},
 	})
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {

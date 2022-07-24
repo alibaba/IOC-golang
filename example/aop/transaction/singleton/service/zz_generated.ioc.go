@@ -27,9 +27,13 @@ func init() {
 			var constructFunc BankServiceConstructFunc = InitBankService
 			return constructFunc(impl)
 		},
-		TransactionMethodsMap: map[string]string{
-			"AddMoney":    "AddMoneyRollback",
-			"RemoveMoney": "RemoveMoneyRollback",
+		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{
+				"transaction": map[string]string{
+					"AddMoney":    "AddMoneyRollback",
+					"RemoveMoney": "RemoveMoneyRollback",
+				},
+			},
 		},
 	}
 	singleton.RegisterStructDescriptor(bankServiceStructDescriptor)
@@ -42,10 +46,14 @@ func init() {
 		Factory: func() interface{} {
 			return &TradeService{}
 		},
-		TransactionMethodsMap: map[string]string{
-			"DoTradeWithTxAddMoneyFailed": "",
-			"DoTradeWithTxFinallyFailed":  "",
-			"DoTradeWithTxSuccess":        "",
+		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{
+				"transaction": map[string]string{
+					"DoTradeWithTxAddMoneyFailed": "",
+					"DoTradeWithTxFinallyFailed":  "",
+					"DoTradeWithTxSuccess":        "",
+				},
+			},
 		},
 	}
 	singleton.RegisterStructDescriptor(tradeServiceStructDescriptor)

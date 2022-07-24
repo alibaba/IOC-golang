@@ -20,13 +20,13 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/alibaba/ioc-golang/logger"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	watchPB "github.com/alibaba/ioc-golang/extension/aop/watch/api/ioc_golang/aop/watch"
 	"github.com/alibaba/ioc-golang/iocli/root"
-
-	"github.com/fatih/color"
 
 	"github.com/spf13/cobra"
 )
@@ -52,12 +52,12 @@ var watch = &cobra.Command{
 	Use: "watch",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 2 {
-			color.Red("invalid arguments, usage: iocli watch ${StructID} ${method}")
+			logger.Red("invalid arguments, usage: iocli watch ${StructID} ${method}")
 			return
 		}
 		debugServerAddr := fmt.Sprintf("%s:%d", debugHost, debugPort)
 		debugServiceClient := getWatchServiceClent(debugServerAddr)
-		color.Cyan("iocli watch started, try to connect to debug server at %s", debugServerAddr)
+		logger.Cyan("iocli watch started, try to connect to debug server at %s", debugServerAddr)
 		client, err := debugServiceClient.Watch(context.Background(), &watchPB.WatchRequest{
 			Sdid:      args[0],
 			MaxDepth:  int64(maxDepth),
@@ -67,27 +67,27 @@ var watch = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		color.Cyan("debug server connected, watch info would be printed when invocation occurs")
+		logger.Cyan("debug server connected, watch info would be printed when invocation occurs")
 		for {
 			msg, err := client.Recv()
 			if err != nil {
-				color.Red(err.Error())
+				logger.Red(err.Error())
 				return
 			}
 			paramOrResponse := "Param"
 			onToPrint := "Call"
-			color.Red("========== On %s ==========\n", onToPrint)
-			color.Red("%s.%s()", msg.Sdid, msg.MethodName)
+			logger.Red("========== On %s ==========\n", onToPrint)
+			logger.Red("%s.%s()", msg.Sdid, msg.MethodName)
 			for index, p := range msg.GetParams() {
-				color.Blue("%s %d: %s", paramOrResponse, index+1, p)
+				logger.Blue("%s %d: %s", paramOrResponse, index+1, p)
 			}
 
 			onToPrint = "Response"
 			paramOrResponse = "Response"
-			color.Red("========== On %s ==========\n", onToPrint)
-			color.Red("%s.%s()", msg.Sdid, msg.MethodName)
+			logger.Red("========== On %s ==========\n", onToPrint)
+			logger.Red("%s.%s()", msg.Sdid, msg.MethodName)
 			for index, p := range msg.GetReturnValues() {
-				color.Blue("%s %d: %s", paramOrResponse, index+1, p)
+				logger.Blue("%s %d: %s", paramOrResponse, index+1, p)
 			}
 		}
 	},

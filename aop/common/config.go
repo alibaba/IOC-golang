@@ -18,6 +18,7 @@ package common
 type Config struct {
 	Port    string `yaml:"port"`
 	AppName string `yaml:"app-name"`
+	Disable bool   `yaml:"disable"`
 }
 
 type ConfigLoader func(config *Config)

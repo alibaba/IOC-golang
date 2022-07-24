@@ -97,6 +97,10 @@ func IsPointerField(fieldType reflect.Type) bool {
 	return fieldType.Kind() == reflect.Ptr
 }
 
+func IsSliceField(fieldType reflect.Type) bool {
+	return fieldType.Kind() == reflect.Slice
+}
+
 func ToRPCClientStubInterfaceSDID(clientStubSDID string) (string, error) {
 	splitedClientStubSDID := strings.Split(clientStubSDID, ".")
 	if len(splitedClientStubSDID) < 2 {

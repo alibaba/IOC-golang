@@ -16,7 +16,7 @@
 package aop
 
 import (
-	"github.com/fatih/color"
+	"github.com/alibaba/ioc-golang/logger"
 
 	"github.com/alibaba/ioc-golang/aop/common"
 	"github.com/alibaba/ioc-golang/config"
@@ -31,12 +31,16 @@ var debugMetadata = make(common.AllInterfaceMetadata)
 func Load() error {
 	debugConfig := &common.Config{}
 	_ = config.LoadConfigByPrefix("debug", debugConfig)
+	if debugConfig.Disable {
+		logger.Blue("[Debug] Debug server is disabled")
+		return nil
+	}
 	if debugConfig.Port == "" {
-		color.Blue("[Debug] Debug port is set to default :%s", defaultDebugPort)
+		logger.Blue("[Debug] Debug port is set to default :%s", defaultDebugPort)
 		debugConfig.Port = defaultDebugPort
 	}
 	if err := start(debugConfig); err != nil {
-		color.Red("[Debug] Start debug server error = %s", err)
+		logger.Red("[Debug] Start debug server error = %s", err)
 		return err
 	}
 	return nil

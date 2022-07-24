@@ -22,10 +22,14 @@ func init() {
 		Factory: func() interface{} {
 			return &TradeService{}
 		},
-		TransactionMethodsMap: map[string]string{
-			"DoTradeWithTxFinallyFailed":  "",
-			"DoTradeWithTxAddMoneyFailed": "",
-			"DoTradeWithTxSuccess":        "",
+		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{
+				"transaction": map[string]string{
+					"DoTradeWithTxFinallyFailed":  "",
+					"DoTradeWithTxAddMoneyFailed": "",
+					"DoTradeWithTxSuccess":        "",
+				},
+			},
 		},
 	}
 	singleton.RegisterStructDescriptor(tradeServiceStructDescriptor)

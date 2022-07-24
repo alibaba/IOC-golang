@@ -208,7 +208,7 @@ iocli can identify the following annotation keys, and the values after '=' are j
 
 - ioc:tx:func=MyTransactionFunction（非必填）
 
-  指定事务函数和回滚函数，参考事务例子 [example/aop/transaction](http://github.com/alibaba/ioc-golang/example/tree/aop/transaction)
+  指定事务函数和回滚函数，参考事务例子 [example/aop/transaction](https://github.com/alibaba/IOC-golang/tree/master/example/aop/transaction)
 
 ## iocli 操作命令
 
