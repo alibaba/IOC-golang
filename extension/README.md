@@ -22,7 +22,7 @@
   
   - trace/
   
-    链路追踪、分布式链路追踪能力
+    链路追踪、分布式链路追踪、链路日志采集能力
   
   - transaction/
   
@@ -31,14 +31,18 @@
 - autowire/
   
   提供了自动装载模型的扩展
+
+  - allimpls/
+
+    定义了注入一个接口的全部实现的模型。
   
   - config/
   
-    配置字段自动装载模型
+    定义配置字段自动装载模型
   
   - rpc/
   
-    ioc-golang 原生支持的 RPC 模型，覆盖 client、server 端。
+    定义了 ioc-golang 原生支持的 RPC 模型，覆盖 client、server 端。
   
   - grpc/
   

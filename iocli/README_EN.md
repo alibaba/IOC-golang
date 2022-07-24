@@ -30,6 +30,8 @@ iocli can identify the following annotation keys, and the values after '=' are j
 // +ioc:autowire:constructFunc=New
 // +ioc:autowire:baseType=true
 // +ioc:autowire:alias=MyAppAlias
+// +ioc:autowire:proxy=true
+// +ioc:autowire:proxy:autoInjection=true
 // +ioc:tx:func=MyTransactionFunction
 ```
 

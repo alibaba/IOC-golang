@@ -30,6 +30,8 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
 // +ioc:autowire:constructFunc=New
 // +ioc:autowire:baseType=true
 // +ioc:autowire:alias=MyAppAlias
+// +ioc:autowire:proxy=true
+// +ioc:autowire:proxy:autoInjection=true
 // +ioc:tx:func=MyTransactionFunction
 ```
 
@@ -203,6 +205,14 @@ iocli 可以识别以下注解 key，其中 = 后面的 value 为示例。
 - ioc:autowire:alias=MyAppAlias （非必填）
 
   该类型的别名，可在标签、API获取、配置中，通过该别名替代掉较长的类型全名来指定结构。
+
+- ioc:autowire:proxy=true (非必填)
+
+  是否需要使用代理对象，默认为true，可以通过指定为 false 关闭代理结构、专属接口、以及相关代码的生成。
+
+- ioc:autowire:proxy:autoInjection=true（非必填）
+
+  是否将代理对象自动注入至接口字段，默认为true，可以通过指定为 false 注入原始对象。
 
 - ioc:tx:func=MyTransactionFunction（非必填）
 

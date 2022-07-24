@@ -22,6 +22,10 @@
 
 ### Autowire
 
+- autowire_allimpls/
+
+  Shows the example of inject all implementations of a interface.
+
 - autowire_config: 
 
   Shows how to Inject config field from config file

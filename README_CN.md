@@ -19,13 +19,13 @@
 
 IOC-golang 是一款强大的 Go 语言依赖注入框架，提供了一套完善的 IoC 容器。其能力如下：
 
-- [依赖注入](https://ioc-golang.github.io/cn/docs/getting-started/tutorial/)
+- [依赖注入](https://ioc-golang.github.io/docs/concept/ioc/di/)
 
   支持任何结构、接口的依赖注入，具备完善的对象生命周期管理机制。
 
   可以接管对象的创建、参数注入、工厂方法、参数来源等等，并拥有可扩展性。
 
-- [接口代理](./example/aop)
+- [接口代理](https://ioc-golang.github.io/docs/concept/aop/proxy/)
 
   基于 AOP 的思路，为由框架接管的对象提供默认的接口代理层，在面向接口编程的情景下，可以在 **业务无侵入** 的前提下，使用基于结构代理 AOP 层扩展的丰富运维能力。例如接口查询，参数动态监听，方法粒度链路追踪，性能瓶颈分析，分布式场景下全链路方法粒度追踪等。
   - 监控
@@ -33,7 +33,7 @@ IOC-golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
   - 链路追踪
   - 事务能力
 
-- [代码生成能力](./iocli)
+- [代码生成能力](https://ioc-golang.github.io/docs/reference/iocli/#%E6%B3%A8%E8%A7%A3%E4%B8%8E%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90)
 
   我们提供了代码生成工具，开发者可以通过注解的方式标注结构，从而便捷地生成结构注册代码、结构代理、结构专属接口等。
 

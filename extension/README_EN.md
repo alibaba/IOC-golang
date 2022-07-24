@@ -22,7 +22,7 @@
   
   - trace/
   
-    tracing & distributed system tracing feature
+    tracing & distributed system tracing and trace link logger collection feature
   
   - transaction/
   
@@ -31,6 +31,10 @@
 - autowire/
   
   Support extension of autowire model.
+  
+  - allimpls/
+  
+    define the model of inject all implementations of a interface.
   
   - config/
   
