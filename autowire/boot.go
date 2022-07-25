@@ -21,10 +21,8 @@ import (
 	"github.com/alibaba/ioc-golang/logger"
 )
 
-var allWrapperAutowires = make(map[string]WrapperAutowire)
-
 func printAutowireRegisteredStructDescriptor() {
-	for autowireType, aw := range allWrapperAutowires {
+	for autowireType, aw := range GetAllWrapperAutowires() {
 		logger.Blue("[Autowire Type] Found registered autowire type %s", autowireType)
 		for sdID := range aw.GetAllStructDescriptors() {
 			logger.Blue("[Autowire Struct Descriptor] Found type %s registered SD %s", autowireType, sdID)
@@ -33,13 +31,10 @@ func printAutowireRegisteredStructDescriptor() {
 }
 
 func Load() error {
-	// get all autowires
-	allWrapperAutowires = GetAllWrapperAutowires()
-
 	printAutowireRegisteredStructDescriptor()
 
 	// autowire all struct that can be entrance
-	for _, aw := range allWrapperAutowires {
+	for _, aw := range GetAllWrapperAutowires() {
 		for sdID := range aw.GetAllStructDescriptors() {
 			if aw.CanBeEntrance() {
 				sd := GetStructDescriptor(sdID)
@@ -64,12 +59,23 @@ func ImplWithProxy(autowireType, key string, param interface{}) (interface{}, er
 	return impl(autowireType, key, param, true)
 }
 
-func impl(autowireType, key string, param interface{}, withProxy bool) (interface{}, error) {
+func impl(autowireType, key string, param interface{}, expectWithProxy bool) (interface{}, error) {
 	targetSDID := GetSDIDByAliasIfNecessary(key)
 
-	for _, wrapperAutowire := range allWrapperAutowires {
+	// check expectWithProxy flag
+	sd := GetStructDescriptor(targetSDID)
+	if sd == nil {
+		logger.Red("[Autowire] SDID %s struct descriptor not registered", targetSDID)
+		return nil, fmt.Errorf("[Autowire] SDID %s struct descriptor not registered", targetSDID)
+	}
+	if sd.DisableProxy {
+		// if proxy is disabled by struct descriptor, set expectWithProxy to false
+		expectWithProxy = false
+	}
+
+	for _, wrapperAutowire := range GetAllWrapperAutowires() {
 		if wrapperAutowire.TagKey() == autowireType {
-			return wrapperAutowire.ImplWithParam(targetSDID, param, withProxy)
+			return wrapperAutowire.ImplWithParam(targetSDID, param, expectWithProxy)
 		}
 	}
 	logger.Red("[Autowire] SDID %s with autowire type %s not found in all autowires", key, autowireType)

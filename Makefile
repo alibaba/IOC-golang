@@ -7,6 +7,12 @@ proto-gen:
 
 mockery-gen:
 	cd extension/aop/monitor && sudo mockery --name=interceptorImplIOCInterface --inpackage  --filename=interceptor_mock.go --structname=mockInterceptorImplIOCInterface
+	cd extension/aop/transaction && sudo mockery --name=contextIOCInterface --inpackage  --filename=context_mock.go --structname=mockContextIOCInterface
+
+gen-all: proto-gen
+	sudo iocli gen
+	sudo make mockery-gen
+	sudo make imports
 
 tidy-all:
 	cd extension && go mod tidy -compat=1.17

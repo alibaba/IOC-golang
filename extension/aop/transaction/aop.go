@@ -23,7 +23,8 @@ func init() {
 	aop.RegisterAOP(aop.AOP{
 		Name: Name,
 		InterceptorFactory: func() aop.Interceptor {
-			return getTransactionInterceptorSingleton()
+			interfaceImpl, _ := GetinterceptorImplSingleton()
+			return interfaceImpl
 		},
 	})
 }
