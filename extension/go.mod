@@ -8,7 +8,6 @@ require (
 	github.com/alibaba/ioc-golang/iocli v0.0.0-20220705164359-95be52984ef8
 	github.com/apache/rocketmq-client-go/v2 v2.1.0
 	github.com/apache/thrift v0.16.0
-	github.com/cinience/go_rocketmq v0.0.2
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/inconshreveable/log15 v0.0.0-20201112154412-8562bdadbbac
@@ -35,11 +34,8 @@ require (
 	github.com/VividCortex/gohistogram v1.0.0 // indirect
 	github.com/Workiva/go-datastructures v1.0.52 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.18 // indirect
-	github.com/aliyunmq/mq-http-go-sdk v1.0.3 // indirect
-	github.com/andybalholm/brotli v1.0.0 // indirect
 	github.com/apache/dubbo-getty v1.4.8 // indirect
 	github.com/apache/dubbo-go-hessian2 v1.11.0 // indirect
-	github.com/apache/rocketmq-client-go v1.2.5 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
@@ -81,8 +77,6 @@ require (
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/gocql/gocql v0.0.0-20211222173705-d73e6b1002a7 // indirect
-	github.com/gogap/errors v0.0.0-20200228125012-531a6449b28c // indirect
-	github.com/gogap/stack v0.0.0-20150131034635-fef68dddd4f8 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/glog v1.0.0 // indirect
@@ -160,8 +154,6 @@ require (
 	github.com/tidwall/pretty v1.0.0 // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.21.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.1 // indirect
 	github.com/xdg-go/stringprep v1.0.3 // indirect

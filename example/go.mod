@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/alibaba/ioc-golang v0.0.0-20220724124446-7050d5bb3af1
 	github.com/alibaba/ioc-golang/extension v0.0.0-20220707071909-d19576eea84e
+	github.com/apache/rocketmq-client-go/v2 v2.1.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/nacos-group/nacos-sdk-go/v2 v2.0.4-beta
 	github.com/stretchr/testify v1.8.0
@@ -35,6 +36,7 @@ require (
 	github.com/eapache/go-resiliency v1.2.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
+	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
@@ -134,6 +136,7 @@ require (
 	github.com/rs/cors v1.8.2 // indirect
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b // indirect
 	github.com/shirou/gopsutil v3.20.11+incompatible // indirect
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/cobra v1.5.0 // indirect
@@ -142,6 +145,9 @@ require (
 	github.com/spf13/viper v1.12.0 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/subosito/gotenv v1.3.0 // indirect
+	github.com/tidwall/gjson v1.2.1 // indirect
+	github.com/tidwall/match v1.0.1 // indirect
+	github.com/tidwall/pretty v1.0.0 // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
@@ -174,6 +180,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.3.4 // indirect
 	gorm.io/gorm v1.23.6 // indirect
+	stathat.com/c/consistent v1.0.0 // indirect
 )
 
 replace (
