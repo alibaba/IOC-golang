@@ -22,20 +22,33 @@ import (
 	"github.com/alibaba/ioc-golang/autowire"
 )
 
+// +ioc:autowire=true
+// +ioc:autowire:type=normal
+// +ioc:autowire:proxy:autoInjection=false
+// +ioc:autowire:constructFunc=init
+// +ioc:autowire:paramType=contextParam
+
 type context struct {
-	rollbackAbleInvocationContexts []rollbackAbleInvocationCtx
+	rollbackAbleInvocationContexts []rollbackAbleInvocationCtxIOCInterface
 	entranceMethod                 string
 }
 
-func newContext(entranceMethod string) *context {
-	return &context{
-		rollbackAbleInvocationContexts: make([]rollbackAbleInvocationCtx, 0),
-		entranceMethod:                 entranceMethod,
-	}
+type contextParam struct {
+	entranceMethod string
+}
+
+func (p *contextParam) init(c *context) (*context, error) {
+	c.entranceMethod = p.entranceMethod
+	c.rollbackAbleInvocationContexts = make([]rollbackAbleInvocationCtxIOCInterface, 0)
+	return c, nil
 }
 
 func (c *context) finish() {
 
+}
+
+func (c *context) getEntranceMethod() string {
+	return c.entranceMethod
 }
 
 func (c *context) failed(err error) {
@@ -52,16 +65,32 @@ func (c *context) addSuccessfullyCalledInvocationCtx(ctx *aop.InvocationContext)
 		return
 	}
 	if rollbackMethodName, ok := parseRollbackMethodNameFromSDMetadata(sd.Metadata, ctx.MethodName); ok && rollbackMethodName != "" {
-		c.rollbackAbleInvocationContexts = append(c.rollbackAbleInvocationContexts, rollbackAbleInvocationCtx{
+		newCtx, _ := GetrollbackAbleInvocationCtxIOCInterface(&rollbackAbleInvocationCtxParam{
 			invocationCtx:      ctx,
 			rollbackMethodName: rollbackMethodName,
 		})
+		c.rollbackAbleInvocationContexts = append(c.rollbackAbleInvocationContexts, newCtx)
 	}
 }
 
+// +ioc:autowire=true
+// +ioc:autowire:type=normal
+// +ioc:autowire:constructFunc=init
+// +ioc:autowire:paramType=rollbackAbleInvocationCtxParam
+// +ioc:autowire:proxy:autoInjection=false
+
 type rollbackAbleInvocationCtx struct {
+	rollbackAbleInvocationCtxParam
+}
+
+type rollbackAbleInvocationCtxParam struct {
 	invocationCtx      *aop.InvocationContext
 	rollbackMethodName string
+}
+
+func (p *rollbackAbleInvocationCtxParam) init(c *rollbackAbleInvocationCtx) (*rollbackAbleInvocationCtx, error) {
+	c.rollbackAbleInvocationCtxParam = *p
+	return c, nil
 }
 
 func (c *rollbackAbleInvocationCtx) rollback(err error) {

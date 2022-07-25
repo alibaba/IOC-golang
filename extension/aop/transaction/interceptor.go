@@ -24,6 +24,10 @@ import (
 	"github.com/alibaba/ioc-golang/aop/common"
 )
 
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:proxy:autoInjection=false
+
 type interceptorImpl struct {
 	transactionGrIDMap sync.Map // transactionGrIDMap stores goroutine-id -> TxContext
 }
@@ -44,7 +48,10 @@ func (t *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
 	}
 	if _, ok := parseRollbackMethodNameFromSDMetadata(sd.Metadata, ctx.MethodName); ok {
 		// current method wants to start a transaction
-		t.transactionGrIDMap.Store(ctx.GrID, newContext(ctx.MethodFullName))
+		newCtx, _ := GetcontextIOCInterface(&contextParam{
+			entranceMethod: ctx.MethodFullName,
+		})
+		t.transactionGrIDMap.Store(ctx.GrID, newCtx)
 		return
 	}
 	// not in transaction, don't want to start a transaction
@@ -54,14 +61,14 @@ func (t *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
 	// if current goRoutine is in the transaction ?
 	if val, ok := t.transactionGrIDMap.Load(ctx.GrID); ok {
 		// this goRoutine is in the transaction
-		txCtx := val.(*context)
+		txCtx := val.(contextIOCInterface)
 
 		// if invocation failed
 		invocationFailed, err := common.IsInvocationFailed(ctx.ReturnValues)
 
 		// 1.1 if current invocation is the entrance of transaction ?
 		// calculate level
-		if common.TraceLevel(txCtx.entranceMethod) == 0 {
+		if common.TraceLevel(txCtx.getEntranceMethod()) == 0 {
 			// current invocation is the entrance of transaction
 			t.transactionGrIDMap.Delete(ctx.GrID)
 			// if the transaction failed ?
@@ -83,13 +90,4 @@ func (t *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
 		return
 	}
 	// the goRoutine is not in the transaction
-}
-
-var transactionInterceptorSingleton *interceptorImpl
-
-func getTransactionInterceptorSingleton() *interceptorImpl {
-	if transactionInterceptorSingleton == nil {
-		transactionInterceptorSingleton = &interceptorImpl{}
-	}
-	return transactionInterceptorSingleton
 }
