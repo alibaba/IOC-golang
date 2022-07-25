@@ -16,27 +16,82 @@
 package rocketmq
 
 import (
-	rocketmq "github.com/cinience/go_rocketmq"
-	perrors "github.com/pkg/errors"
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/admin"
+	"github.com/apache/rocketmq-client-go/v2/consumer"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/apache/rocketmq-client-go/v2/producer"
 )
 
-type Param struct {
-	rocketmq.Metadata
+type ProducerParam struct {
+	NameServer primitive.NamesrvAddr
+	GroupName  string
+	Retry      int
+	Options    []producer.Option
 }
 
-func (c *Param) New(impl *Impl) (*Impl, error) {
-	ok := false
-	if impl.PushConsumer, ok = rocketmq.Consumers[c.AccessProto]; !ok {
-		return nil, perrors.Errorf("Invalid AccessProto of rocketmq param")
+func (c *ProducerParam) New(impl *Producer) (*Producer, error) {
+	opts := c.Options
+	if len(c.NameServer) > 0 {
+		opts = append(opts, producer.WithNameServer(c.NameServer))
 	}
-	if err := impl.PushConsumer.Init(&c.Metadata); err != nil {
-		return impl, err
+	if c.GroupName != "" {
+		opts = append(opts, producer.WithGroupName(c.GroupName))
 	}
-	if impl.Producer, ok = rocketmq.Producers[c.AccessProto]; !ok {
-		return nil, perrors.Errorf("Invalid AccessProto of rocketmq param")
+	if c.Retry > 0 {
+		opts = append(opts, producer.WithRetry(c.Retry))
 	}
-	if err := impl.Producer.Init(&c.Metadata); err != nil {
-		return impl, err
+
+	newProducer, err := rocketmq.NewProducer(opts...)
+	if err != nil {
+		return nil, err
 	}
+	impl.Producer = newProducer
+	return impl, nil
+}
+
+type PushConsumerParam struct {
+	NameServer primitive.NamesrvAddr
+	GroupName  string
+	Retry      int
+	Options    []consumer.Option
+}
+
+func (c *PushConsumerParam) New(impl *PushConsumer) (*PushConsumer, error) {
+	opts := c.Options
+	if len(c.NameServer) > 0 {
+		opts = append(opts, consumer.WithNameServer(c.NameServer))
+	}
+	if c.GroupName != "" {
+		opts = append(opts, consumer.WithGroupName(c.GroupName))
+	}
+	if c.Retry > 0 {
+		opts = append(opts, consumer.WithRetry(c.Retry))
+	}
+
+	newPushConsumer, err := rocketmq.NewPushConsumer(opts...)
+	if err != nil {
+		return nil, err
+	}
+	impl.PushConsumer = newPushConsumer
+	return impl, nil
+}
+
+type AdminParam struct {
+	NameServer primitive.NamesrvAddr
+	Options    []admin.AdminOption
+}
+
+func (c *AdminParam) New(impl *Admin) (*Admin, error) {
+	opts := c.Options
+	if len(c.NameServer) > 0 {
+		opts = append(opts, admin.WithResolver(primitive.NewPassthroughResolver(c.NameServer)))
+	}
+
+	newAdmin, err := admin.NewAdmin(opts...)
+	if err != nil {
+		return nil, err
+	}
+	impl.Admin = newAdmin
 	return impl, nil
 }

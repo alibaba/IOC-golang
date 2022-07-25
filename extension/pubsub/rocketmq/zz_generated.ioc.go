@@ -8,6 +8,7 @@ package rocketmq
 import (
 	contextx "context"
 
+	"github.com/apache/rocketmq-client-go/v2/admin"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 
@@ -20,20 +21,20 @@ import (
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &impl_{}
+			return &pushConsumer_{}
 		},
 	})
-	implStructDescriptor := &autowire.StructDescriptor{
+	pushConsumerStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &Impl{}
+			return &PushConsumer{}
 		},
 		ParamFactory: func() interface{} {
-			var _ paramInterface = &Param{}
-			return &Param{}
+			var _ pushConsumerParamInterface = &PushConsumerParam{}
+			return &PushConsumerParam{}
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(paramInterface)
-			impl := i.(*Impl)
+			param := p.(pushConsumerParamInterface)
+			impl := i.(*PushConsumer)
 			return param.New(impl)
 		},
 		Metadata: map[string]interface{}{
@@ -41,95 +42,305 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	normal.RegisterStructDescriptor(implStructDescriptor)
-	singleton.RegisterStructDescriptor(implStructDescriptor)
+	normal.RegisterStructDescriptor(pushConsumerStructDescriptor)
+	singleton.RegisterStructDescriptor(pushConsumerStructDescriptor)
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &producer_{}
+		},
+	})
+	producerStructDescriptor := &autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &Producer{}
+		},
+		ParamFactory: func() interface{} {
+			var _ producerParamInterface = &ProducerParam{}
+			return &ProducerParam{}
+		},
+		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
+			param := p.(producerParamInterface)
+			impl := i.(*Producer)
+			return param.New(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
+	}
+	normal.RegisterStructDescriptor(producerStructDescriptor)
+	singleton.RegisterStructDescriptor(producerStructDescriptor)
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &admin_{}
+		},
+	})
+	adminStructDescriptor := &autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &Admin{}
+		},
+		ParamFactory: func() interface{} {
+			var _ adminParamInterface = &AdminParam{}
+			return &AdminParam{}
+		},
+		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
+			param := p.(adminParamInterface)
+			impl := i.(*Admin)
+			return param.New(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
+	}
+	normal.RegisterStructDescriptor(adminStructDescriptor)
+	singleton.RegisterStructDescriptor(adminStructDescriptor)
 }
 
-type paramInterface interface {
-	New(impl *Impl) (*Impl, error)
+type pushConsumerParamInterface interface {
+	New(impl *PushConsumer) (*PushConsumer, error)
 }
-type impl_ struct {
+type producerParamInterface interface {
+	New(impl *Producer) (*Producer, error)
+}
+type adminParamInterface interface {
+	New(impl *Admin) (*Admin, error)
+}
+type pushConsumer_ struct {
+	Start_       func() error
+	Shutdown_    func() error
 	Subscribe_   func(topic string, selector consumer.MessageSelector, f func(contextx.Context, ...*primitive.MessageExt) (consumer.ConsumeResult, error)) error
 	Unsubscribe_ func(topic string) error
-	SendSync_    func(ctx contextx.Context, mq ...*primitive.Message) (*primitive.SendResult, error)
-	SendAsync_   func(ctx contextx.Context, mq func(ctx contextx.Context, result *primitive.SendResult, err error), msg ...*primitive.Message) error
-	SendOneWay_  func(ctx contextx.Context, mq ...*primitive.Message) error
 }
 
-func (i *impl_) Subscribe(topic string, selector consumer.MessageSelector, f func(contextx.Context, ...*primitive.MessageExt) (consumer.ConsumeResult, error)) error {
-	return i.Subscribe_(topic, selector, f)
+func (p *pushConsumer_) Start() error {
+	return p.Start_()
 }
 
-func (i *impl_) Unsubscribe(topic string) error {
-	return i.Unsubscribe_(topic)
+func (p *pushConsumer_) Shutdown() error {
+	return p.Shutdown_()
 }
 
-func (i *impl_) SendSync(ctx contextx.Context, mq ...*primitive.Message) (*primitive.SendResult, error) {
-	return i.SendSync_(ctx, mq...)
+func (p *pushConsumer_) Subscribe(topic string, selector consumer.MessageSelector, f func(contextx.Context, ...*primitive.MessageExt) (consumer.ConsumeResult, error)) error {
+	return p.Subscribe_(topic, selector, f)
 }
 
-func (i *impl_) SendAsync(ctx contextx.Context, mq func(ctx contextx.Context, result *primitive.SendResult, err error), msg ...*primitive.Message) error {
-	return i.SendAsync_(ctx, mq, msg...)
+func (p *pushConsumer_) Unsubscribe(topic string) error {
+	return p.Unsubscribe_(topic)
 }
 
-func (i *impl_) SendOneWay(ctx contextx.Context, mq ...*primitive.Message) error {
-	return i.SendOneWay_(ctx, mq...)
+type producer_ struct {
+	Start_      func() error
+	Shutdown_   func() error
+	SendSync_   func(ctx contextx.Context, mq ...*primitive.Message) (*primitive.SendResult, error)
+	SendAsync_  func(ctx contextx.Context, mq func(ctx contextx.Context, result *primitive.SendResult, err error), msg ...*primitive.Message) error
+	SendOneWay_ func(ctx contextx.Context, mq ...*primitive.Message) error
 }
 
-type ImplIOCInterface interface {
+func (p *producer_) Start() error {
+	return p.Start_()
+}
+
+func (p *producer_) Shutdown() error {
+	return p.Shutdown_()
+}
+
+func (p *producer_) SendSync(ctx contextx.Context, mq ...*primitive.Message) (*primitive.SendResult, error) {
+	return p.SendSync_(ctx, mq...)
+}
+
+func (p *producer_) SendAsync(ctx contextx.Context, mq func(ctx contextx.Context, result *primitive.SendResult, err error), msg ...*primitive.Message) error {
+	return p.SendAsync_(ctx, mq, msg...)
+}
+
+func (p *producer_) SendOneWay(ctx contextx.Context, mq ...*primitive.Message) error {
+	return p.SendOneWay_(ctx, mq...)
+}
+
+type admin_ struct {
+	CreateTopic_ func(ctx contextx.Context, opts ...admin.OptionCreate) error
+	DeleteTopic_ func(ctx contextx.Context, opts ...admin.OptionDelete) error
+	Close_       func() error
+}
+
+func (a *admin_) CreateTopic(ctx contextx.Context, opts ...admin.OptionCreate) error {
+	return a.CreateTopic_(ctx, opts...)
+}
+
+func (a *admin_) DeleteTopic(ctx contextx.Context, opts ...admin.OptionDelete) error {
+	return a.DeleteTopic_(ctx, opts...)
+}
+
+func (a *admin_) Close() error {
+	return a.Close_()
+}
+
+type PushConsumerIOCInterface interface {
+	Start() error
+	Shutdown() error
 	Subscribe(topic string, selector consumer.MessageSelector, f func(contextx.Context, ...*primitive.MessageExt) (consumer.ConsumeResult, error)) error
 	Unsubscribe(topic string) error
+}
+
+type ProducerIOCInterface interface {
+	Start() error
+	Shutdown() error
 	SendSync(ctx contextx.Context, mq ...*primitive.Message) (*primitive.SendResult, error)
 	SendAsync(ctx contextx.Context, mq func(ctx contextx.Context, result *primitive.SendResult, err error), msg ...*primitive.Message) error
 	SendOneWay(ctx contextx.Context, mq ...*primitive.Message) error
 }
 
-var _implSDID string
+type AdminIOCInterface interface {
+	CreateTopic(ctx contextx.Context, opts ...admin.OptionCreate) error
+	DeleteTopic(ctx contextx.Context, opts ...admin.OptionDelete) error
+	Close() error
+}
 
-func GetImpl(p *Param) (*Impl, error) {
-	if _implSDID == "" {
-		_implSDID = util.GetSDIDByStructPtr(new(Impl))
+var _pushConsumerSDID string
+
+func GetPushConsumer(p *PushConsumerParam) (*PushConsumer, error) {
+	if _pushConsumerSDID == "" {
+		_pushConsumerSDID = util.GetSDIDByStructPtr(new(PushConsumer))
 	}
-	i, err := normal.GetImpl(_implSDID, p)
+	i, err := normal.GetImpl(_pushConsumerSDID, p)
 	if err != nil {
 		return nil, err
 	}
-	impl := i.(*Impl)
+	impl := i.(*PushConsumer)
 	return impl, nil
 }
 
-func GetImplIOCInterface(p *Param) (ImplIOCInterface, error) {
-	if _implSDID == "" {
-		_implSDID = util.GetSDIDByStructPtr(new(Impl))
+func GetPushConsumerIOCInterface(p *PushConsumerParam) (PushConsumerIOCInterface, error) {
+	if _pushConsumerSDID == "" {
+		_pushConsumerSDID = util.GetSDIDByStructPtr(new(PushConsumer))
 	}
-	i, err := normal.GetImplWithProxy(_implSDID, p)
+	i, err := normal.GetImplWithProxy(_pushConsumerSDID, p)
 	if err != nil {
 		return nil, err
 	}
-	impl := i.(ImplIOCInterface)
+	impl := i.(PushConsumerIOCInterface)
 	return impl, nil
 }
 
-func GetImplSingleton(p *Param) (*Impl, error) {
-	if _implSDID == "" {
-		_implSDID = util.GetSDIDByStructPtr(new(Impl))
+func GetPushConsumerSingleton(p *PushConsumerParam) (*PushConsumer, error) {
+	if _pushConsumerSDID == "" {
+		_pushConsumerSDID = util.GetSDIDByStructPtr(new(PushConsumer))
 	}
-	i, err := singleton.GetImpl(_implSDID, p)
+	i, err := singleton.GetImpl(_pushConsumerSDID, p)
 	if err != nil {
 		return nil, err
 	}
-	impl := i.(*Impl)
+	impl := i.(*PushConsumer)
 	return impl, nil
 }
 
-func GetImplIOCInterfaceSingleton(p *Param) (ImplIOCInterface, error) {
-	if _implSDID == "" {
-		_implSDID = util.GetSDIDByStructPtr(new(Impl))
+func GetPushConsumerIOCInterfaceSingleton(p *PushConsumerParam) (PushConsumerIOCInterface, error) {
+	if _pushConsumerSDID == "" {
+		_pushConsumerSDID = util.GetSDIDByStructPtr(new(PushConsumer))
 	}
-	i, err := singleton.GetImplWithProxy(_implSDID, p)
+	i, err := singleton.GetImplWithProxy(_pushConsumerSDID, p)
 	if err != nil {
 		return nil, err
 	}
-	impl := i.(ImplIOCInterface)
+	impl := i.(PushConsumerIOCInterface)
+	return impl, nil
+}
+
+var _producerSDID string
+
+func GetProducer(p *ProducerParam) (*Producer, error) {
+	if _producerSDID == "" {
+		_producerSDID = util.GetSDIDByStructPtr(new(Producer))
+	}
+	i, err := normal.GetImpl(_producerSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*Producer)
+	return impl, nil
+}
+
+func GetProducerIOCInterface(p *ProducerParam) (ProducerIOCInterface, error) {
+	if _producerSDID == "" {
+		_producerSDID = util.GetSDIDByStructPtr(new(Producer))
+	}
+	i, err := normal.GetImplWithProxy(_producerSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(ProducerIOCInterface)
+	return impl, nil
+}
+
+func GetProducerSingleton(p *ProducerParam) (*Producer, error) {
+	if _producerSDID == "" {
+		_producerSDID = util.GetSDIDByStructPtr(new(Producer))
+	}
+	i, err := singleton.GetImpl(_producerSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*Producer)
+	return impl, nil
+}
+
+func GetProducerIOCInterfaceSingleton(p *ProducerParam) (ProducerIOCInterface, error) {
+	if _producerSDID == "" {
+		_producerSDID = util.GetSDIDByStructPtr(new(Producer))
+	}
+	i, err := singleton.GetImplWithProxy(_producerSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(ProducerIOCInterface)
+	return impl, nil
+}
+
+var _adminSDID string
+
+func GetAdmin(p *AdminParam) (*Admin, error) {
+	if _adminSDID == "" {
+		_adminSDID = util.GetSDIDByStructPtr(new(Admin))
+	}
+	i, err := normal.GetImpl(_adminSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*Admin)
+	return impl, nil
+}
+
+func GetAdminIOCInterface(p *AdminParam) (AdminIOCInterface, error) {
+	if _adminSDID == "" {
+		_adminSDID = util.GetSDIDByStructPtr(new(Admin))
+	}
+	i, err := normal.GetImplWithProxy(_adminSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(AdminIOCInterface)
+	return impl, nil
+}
+
+func GetAdminSingleton(p *AdminParam) (*Admin, error) {
+	if _adminSDID == "" {
+		_adminSDID = util.GetSDIDByStructPtr(new(Admin))
+	}
+	i, err := singleton.GetImpl(_adminSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*Admin)
+	return impl, nil
+}
+
+func GetAdminIOCInterfaceSingleton(p *AdminParam) (AdminIOCInterface, error) {
+	if _adminSDID == "" {
+		_adminSDID = util.GetSDIDByStructPtr(new(Admin))
+	}
+	i, err := singleton.GetImplWithProxy(_adminSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(AdminIOCInterface)
 	return impl, nil
 }

@@ -1,0 +1,13 @@
+autowire:
+  singleton:
+    github.com/alibaba/ioc-golang/extension/pubsub/rocketmq.Producer:
+      param:
+        groupname: default2
+        nameserver:
+        - 127.0.0.1:9876
+    github.com/alibaba/ioc-golang/extension/pubsub/rocketmq.PushConsumer:
+      param: ${autowire.singleton.<github.com/alibaba/ioc-golang/extension/pubsub/rocketmq.Producer>.param}
+    github.com/alibaba/ioc-golang/extension/pubsub/rocketmq.Admin:
+      param:
+        nameserver:
+          - 127.0.0.1:9876
