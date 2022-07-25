@@ -64,11 +64,7 @@ func impl(autowireType, key string, param interface{}, expectWithProxy bool) (in
 
 	// check expectWithProxy flag
 	sd := GetStructDescriptor(targetSDID)
-	if sd == nil {
-		logger.Red("[Autowire] SDID %s struct descriptor not registered", targetSDID)
-		return nil, fmt.Errorf("[Autowire] SDID %s struct descriptor not registered", targetSDID)
-	}
-	if sd.DisableProxy {
+	if sd != nil && sd.DisableProxy {
 		// if proxy is disabled by struct descriptor, set expectWithProxy to false
 		expectWithProxy = false
 	}
