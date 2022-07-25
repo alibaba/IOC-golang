@@ -62,10 +62,10 @@ github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuy
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d/go.mod h1:rBZYJk541a8SKzHPHnH3zbiI+7dagKZ0cgpgrD7Fyho=
-github.com/alibaba/ioc-golang v0.0.0-20220724122333-1b252fe20fbc h1:SHBNMTGf6xN6s1vHScJp/8cmgJOA34lYm2LF5+zY6dk=
-github.com/alibaba/ioc-golang v0.0.0-20220724122333-1b252fe20fbc/go.mod h1:CbkGnD1t/oVYYoOzxS/arJ8hE6xAX4+Z9BYkrnZoWcM=
-github.com/alibaba/ioc-golang/extension v0.0.0-20220724122333-1b252fe20fbc h1:DDz7gBFdCWSmr3qB7tVEQzI/AVUrfZTLFfSVOc4d11c=
-github.com/alibaba/ioc-golang/extension v0.0.0-20220724122333-1b252fe20fbc/go.mod h1:NAtPBiOoA3rJVfOdJ8tN0gCfTO2rFmEcI71CUo1BqOg=
+github.com/alibaba/ioc-golang v0.0.0-20220724124446-7050d5bb3af1 h1:Wl7gbYGC4LHoUZCH8b+ln0oUOUynES3tXD0mCJGkX38=
+github.com/alibaba/ioc-golang v0.0.0-20220724124446-7050d5bb3af1/go.mod h1:CbkGnD1t/oVYYoOzxS/arJ8hE6xAX4+Z9BYkrnZoWcM=
+github.com/alibaba/ioc-golang/extension v0.0.0-20220724124446-7050d5bb3af1 h1:uYcDEfuwEYstmNOG/dt44CuhBcrKgl8C/mlSKkT/yXs=
+github.com/alibaba/ioc-golang/extension v0.0.0-20220724124446-7050d5bb3af1/go.mod h1:t+Qwi73w2/y9Zp5IRPuA0WB5jhdeypBSUkoQb5Ho1Ew=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/apache/thrift v0.16.0 h1:qEy6UW60iVOlUy+b9ZR0d5WzUWYGOo4HfopoyBaNmoY=
 github.com/apache/thrift v0.16.0/go.mod h1:PHK3hniurgQaNMZYaCLEqXKsYK8upmhPbmdP2FXSqgU=
