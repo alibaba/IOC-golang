@@ -31,7 +31,7 @@ func CurrentCallingMethodName(skip int) string {
 }
 
 func TraceLevel(entranceName string) int64 {
-	pc := make([]uintptr, 100)
+	pc := make([]uintptr, 500)
 	n := runtime.Callers(0, pc)
 	foundEntrance := false
 	level := int64(0)

@@ -43,7 +43,15 @@ func (w *monitorService) Monitor(req *monitorPB.MonitorRequest, svr monitorPB.Mo
 		interval = int(reqInterval)
 	}
 
-	monitorCtx := newContext(sdid, method, sendCh, time.Duration(interval)*time.Second)
+	monitorCtx, err := GetcontextIOCInterface(&contextParam{
+		SDID:       sdid,
+		MethodName: method,
+		Ch:         sendCh,
+		Period:     time.Duration(interval) * time.Second,
+	})
+	if err != nil {
+		return err
+	}
 	w.MonitorInterceptor.Monitor(monitorCtx)
 
 	done := svr.Context().Done()
@@ -58,11 +66,5 @@ func (w *monitorService) Monitor(req *monitorPB.MonitorRequest, svr monitorPB.Mo
 				return err
 			}
 		}
-	}
-}
-
-func newMockMonitorService(mockInterceptor interceptorImplIOCInterface) *monitorService {
-	return &monitorService{
-		MonitorInterceptor: mockInterceptor,
 	}
 }

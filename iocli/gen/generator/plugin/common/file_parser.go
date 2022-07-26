@@ -21,10 +21,9 @@ import (
 )
 
 /*
-parseMethodInfoFromGoFiles parse all methods, FIXME: now we don't support parse method signature with '\n' inner. like:
-func (s *ComplexService) RPCBasicType(name string, age int, age32 int32, age64 int64, ageF32 float32,
-ageF64 float64, namePtr *string, agePtr *int, age32Ptr *int32, age64Ptr *int64, ageF32Ptr *float32,
-ageF64Ptr *float64) (string, int, int32, int64, float32, float64, *string, *int, *int32, *int64, *float32, *float64)
+ParseMethodInfoFromGoFiles parse all methods, FIXME: now we don't support parse method signature with '\n' inner. like:
+func (s *ComplexService) RPCBasicType(name string,
+ageF64Ptr *float64) (string, error)
 */
 func ParseMethodInfoFromGoFiles(structName string, goFilesPath []string) []method {
 	allMethods := make([]method, 0)

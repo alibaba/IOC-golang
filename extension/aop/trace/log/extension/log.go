@@ -24,25 +24,36 @@ import (
 
 const logName = "log"
 
-func init() {
-	traceLog.RegisterTraceLoggerWriterFunc(logName, func(traceLoggerWrtter traceLog.Writer) {
-		log.SetOutput(getLogWriter(log.Writer(), traceLoggerWrtter))
-	})
-}
+// +ioc:autowire=true
+// +ioc:autowire:type=allimpls
+// +ioc:autowire:constructFunc=newLogWriter
+// +ioc:autowire:proxy:autoInjection=false
+// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/extension/aop/trace/log.TraceExtensionWriter
 
 type logWriter struct {
 	rawWriter         io.Writer
 	traceLoggerWriter traceLog.Writer
 }
 
+func newLogWriter(l *logWriter) (*logWriter, error) {
+	l.rawWriter = log.Writer()
+	log.SetOutput(l)
+	return l, nil
+}
+
 func (l *logWriter) Write(p []byte) (n int, err error) {
-	l.traceLoggerWriter.Write(p)
+	if l.traceLoggerWriter != nil {
+		l.traceLoggerWriter.Write(p)
+	}
 	return l.rawWriter.Write(p)
 }
 
-func getLogWriter(rawWriter io.Writer, traceLoggerWriter traceLog.Writer) io.Writer {
-	return &logWriter{
-		rawWriter:         rawWriter,
-		traceLoggerWriter: traceLoggerWriter,
-	}
+func (l *logWriter) SetTraceLoggerWriter(traceLoggerWriter traceLog.Writer) {
+	l.traceLoggerWriter = traceLoggerWriter
 }
+
+func (l *logWriter) Name() string {
+	return logName
+}
+
+var _ traceLog.TraceExtensionWriter = &logWriter{}

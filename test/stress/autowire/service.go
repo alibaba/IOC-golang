@@ -13,37 +13,43 @@
  * limitations under the License.
  */
 
-package monitor
+package autowire
 
-import (
-	"github.com/alibaba/ioc-golang/aop"
-)
+import "fmt"
+
+type Service interface {
+	GetHelloString(string) string
+}
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:proxy:autoInjection=false
+// +ioc:autowire:type=normal
 
-type interceptorImpl struct {
-	monitorContext contextIOCInterface
+type ServiceImpl1 struct {
 }
 
-func (w *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
-	if w.monitorContext != nil {
-		w.monitorContext.beforeInvoke(ctx)
-	}
+func (s *ServiceImpl1) GetHelloString(name string) string {
+	return fmt.Sprintf("hello %s", name)
 }
 
-func (w *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
-	if w.monitorContext != nil {
-		w.monitorContext.afterInvoke(ctx)
-	}
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:type=normal
+
+type ServiceImpl2 struct {
 }
 
-func (w *interceptorImpl) Monitor(monitorCtx contextIOCInterface) {
-	w.monitorContext = monitorCtx
+func (s *ServiceImpl2) GetHelloString(name string) string {
+	return fmt.Sprintf("hello %s", name)
 }
 
-func (w *interceptorImpl) StopMonitor() {
-	w.monitorContext.destroy()
-	w.monitorContext = nil
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:type=normal
+
+type ServiceStruct struct {
+}
+
+func (s *ServiceStruct) GetString(name string) string {
+	return fmt.Sprintf("hello %s", name)
 }

@@ -16,6 +16,8 @@
 package aop
 
 import (
+	"sync"
+
 	"github.com/alibaba/ioc-golang/logger"
 
 	"github.com/alibaba/ioc-golang/aop/common"
@@ -27,6 +29,7 @@ const (
 )
 
 var debugMetadata = make(common.AllInterfaceMetadata)
+var debugMetadataLock = sync.Mutex{}
 
 func Load() error {
 	debugConfig := &common.Config{}

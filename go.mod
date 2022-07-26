@@ -8,6 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/glory-go/monkey v1.0.3
+	github.com/google/uuid v1.3.0
 	github.com/petermattis/goid v0.0.0-20220526132513-07eaf5d0b9f4
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.0

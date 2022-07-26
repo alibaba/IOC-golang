@@ -26,7 +26,7 @@ func (_m *mockInterceptorImplIOCInterface) BeforeInvoke(ctx *aop.InvocationConte
 }
 
 // Monitor provides a mock function with given fields: monitorCtx
-func (_m *mockInterceptorImplIOCInterface) Monitor(monitorCtx *context) {
+func (_m *mockInterceptorImplIOCInterface) Monitor(monitorCtx contextIOCInterface) {
 	_m.Called(monitorCtx)
 }
 

@@ -12,18 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package autowire
 
-package protocol_impl
+import (
+	"sync"
+	"testing"
 
-type Param struct {
-	Address    string
-	Timeout    string
-	ExportPort string
-}
+	"github.com/stretchr/testify/assert"
+)
 
-func (p *Param) Init(iocProtocol *IOCProtocol) (*IOCProtocol, error) {
-	iocProtocol.address = p.Address
-	iocProtocol.exportPort = p.ExportPort
-	iocProtocol.timeout = p.Timeout
-	return iocProtocol, nil
+func TestNormalAutowireConcurrent(t *testing.T) {
+	wg := sync.WaitGroup{}
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := 0; j < 1000; j++ {
+				normalApp, err := GetNormalAppIOCInterface()
+				assert.Nil(t, err)
+				normalApp.RunTest(t)
+			}
+		}()
+	}
+	wg.Wait()
 }

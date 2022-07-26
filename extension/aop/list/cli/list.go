@@ -47,9 +47,9 @@ var list = &cobra.Command{
 			return
 		}
 		for _, v := range rsp.ServiceMetadata {
-			fmt.Println(v.ImplementationName)
-			fmt.Println(v.Methods)
-			fmt.Println()
+			logger.Blue(v.ImplementationName)
+			logger.Blue("%s", v.Methods)
+			logger.Blue("")
 		}
 	},
 }

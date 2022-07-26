@@ -18,6 +18,9 @@ package log
 import (
 	"github.com/opentracing/opentracing-go"
 
+	"github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/alibaba/ioc-golang/extension/autowire/allimpls"
+
 	"github.com/alibaba/ioc-golang/logger"
 )
 
@@ -27,17 +30,19 @@ type Writer interface {
 	Write(p []byte)
 }
 
-type SetTraceLoggerWriterFunc func(traceLoggerWriter Writer)
-
-var rawLoggerWriterMap = make(map[string]SetTraceLoggerWriterFunc)
-
-func RegisterTraceLoggerWriterFunc(name string, rawLoggerWriterManager SetTraceLoggerWriterFunc) {
-	rawLoggerWriterMap[name] = rawLoggerWriterManager
+type TraceExtensionWriter interface {
+	SetTraceLoggerWriter(writer Writer)
+	Name() string
 }
 
 func RunRegisteredTraceLoggerWriterFunc(getter CurrentSpanGetter) {
-	for name, f := range rawLoggerWriterMap {
-		f(newTraceLoggerWriter(getter, name))
-		logger.Blue("[AOP] [Trace] Set trace logger to %s success", name)
+	allTraceExtensionWriterImpls, err := allimpls.GetImpl(util.GetSDIDByStructPtr(new(TraceExtensionWriter)))
+	if err != nil {
+		logger.Red("[AOP Trace] Get all trace logger writer failed with error = %s", err)
+		return
+	}
+	for _, impl := range allTraceExtensionWriterImpls.([]TraceExtensionWriter) {
+		impl.SetTraceLoggerWriter(newTraceLoggerWriter(getter, impl.Name()))
+		logger.Blue("[AOP] [Trace] Set trace logger to %s success", impl.Name())
 	}
 }

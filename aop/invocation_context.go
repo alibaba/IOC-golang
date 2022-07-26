@@ -18,10 +18,13 @@ package aop
 import (
 	"reflect"
 
+	"github.com/google/uuid"
+
 	"github.com/petermattis/goid"
 )
 
 type InvocationContext struct {
+	ID              uuid.UUID
 	ProxyServicePtr interface{}
 	SDID            string
 	MethodName      string
@@ -29,6 +32,7 @@ type InvocationContext struct {
 	Params          []reflect.Value
 	ReturnValues    []reflect.Value
 	GrID            int64
+	Metadata        map[string]interface{}
 }
 
 func (c *InvocationContext) SetReturnValues(returnValues []reflect.Value) {
@@ -37,8 +41,10 @@ func (c *InvocationContext) SetReturnValues(returnValues []reflect.Value) {
 
 func NewInvocationContext(proxyServicePtr interface{}, sdid, methodName, methodFullName string, params []reflect.Value) *InvocationContext {
 	return &InvocationContext{
+		ID:              uuid.New(),
 		ProxyServicePtr: proxyServicePtr,
 		SDID:            sdid,
+		Metadata:        make(map[string]interface{}),
 		MethodName:      methodName,
 		Params:          params,
 		GrID:            goid.Get(),

@@ -20,9 +20,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alibaba/ioc-golang"
+
 	"github.com/stretchr/testify/assert"
 
-	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/test/iocli_command"
 )
 
@@ -54,4 +55,15 @@ Total: 1, Success: 1, Fail: 0, AvgRT: `))
 	assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
 github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl2.GetHelloString()
 Total: 1, Success: 1, Fail: 0, AvgRT: `))
+
+	output, err = iocli_command.Run([]string{"watch", "github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1", "GetHelloString"}, time.Second*6)
+	assert.Nil(t, err)
+	assert.True(t, strings.Contains(output, `========== On Call ==========
+github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1.GetHelloString()
+Param 1: (string) (len=8) "laurence"
+
+========== On Response ==========
+github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1.GetHelloString()
+Response 1: (string) (len=36) "This is ServiceImpl2, hello laurence"`))
+
 }

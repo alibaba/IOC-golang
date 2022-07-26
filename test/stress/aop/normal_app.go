@@ -13,23 +13,28 @@
  * limitations under the License.
  */
 
-package list
+package aop
 
 import (
-	"google.golang.org/grpc"
+	"testing"
 
-	"github.com/alibaba/ioc-golang/aop"
-	"github.com/alibaba/ioc-golang/extension/aop/list/api/ioc_golang/aop/list"
+	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	aop.RegisterAOP(aop.AOP{
-		Name: "list",
-		GRPCServiceRegister: func(server *grpc.Server) {
-			listServiceImplSingleton, _ := GetlistServiceImplSingleton(&listServiceImplParam{
-				AllInterfaceMetadataMap: aop.GetAllInterfaceMetadata(),
-			})
-			list.RegisterListServiceServer(server, listServiceImplSingleton)
-		},
-	})
+const reqString = "laurence"
+const expectString = "hello laurence"
+
+// +ioc:autowire=true
+// +ioc:autowire:type=normal
+
+type NormalApp struct {
+	// inject main.ServiceImpl1 pointer to Service interface with proxy wrapper
+	ServiceImpl1 Service `normal:"github.com/alibaba/ioc-golang/test/stress/aop.ServiceImpl1"`
+}
+
+func (s *NormalApp) RunTest(t *testing.T) {
+	// test creat by API
+	createByAPIService1, err := GetServiceImpl1IOCInterface()
+	assert.Nil(t, err)
+	assert.Equal(t, expectString, createByAPIService1.GetHelloString(reqString))
 }

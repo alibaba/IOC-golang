@@ -20,6 +20,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alibaba/ioc-golang/autowire"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/grpc"
@@ -47,6 +50,7 @@ func (m *mockMonitorServiceMonitorServerImpl) Context() oriCtx.Context {
 
 func TestMonitorServiceImpl(t *testing.T) {
 	t.Run("monitor with target sdid and method success", func(t *testing.T) {
+		// 1. create mock interceptor impl for 'interceptorImpl'
 		mockInterceptorImpl := newMockInterceptorImplIOCInterface(t)
 
 		sdid := "github.com/alibaba/ioc-golang/extension/aop/monitor/test.Struct1"
@@ -55,17 +59,17 @@ func TestMonitorServiceImpl(t *testing.T) {
 		interval := int64(1)
 
 		mockInterceptorImpl.On("Monitor", mock.MatchedBy(func(monitorCtx *context) bool {
-			if monitorCtx.SDID != sdid {
+			if monitorCtx.sdid != sdid {
 				return false
 			}
-			if monitorCtx.MethodName != method {
+			if monitorCtx.methodName != method {
 				return false
 			}
 			return true
 		})).Once().Run(func(args mock.Arguments) {
 			ctx := args[0].(*context)
 			go func() {
-				ctx.Ch <- &monitorPB.MonitorResponse{
+				ctx.ch <- &monitorPB.MonitorResponse{
 					MonitorResponseItems: []*monitorPB.MonitorResponseItem{
 						{
 							Sdid:      sdid,
@@ -80,7 +84,27 @@ func TestMonitorServiceImpl(t *testing.T) {
 
 		mockInterceptorImpl.On("StopMonitor").Once()
 
-		mockService := newMockMonitorService(mockInterceptorImpl)
+		// 2. register mock interceptor impl to replace original struct register
+		// Just copy from mock struct 'interceptorImpl', copy it's generated registry code from zz_generated.ioc.go,
+		// and set mock interface into struct descriptor
+		interceptorImplStructDescriptor := &autowire.StructDescriptor{
+			Factory: func() interface{} {
+				return &interceptorImpl{}
+			},
+			ConstructFunc: func(impl interface{}, param interface{}) (interface{}, error) {
+				return mockInterceptorImpl, nil // replace real object to mock object
+			},
+			Metadata: map[string]interface{}{
+				"aop":      map[string]interface{}{},
+				"autowire": map[string]interface{}{},
+			},
+			DisableProxy: true,
+		}
+		singleton.RegisterStructDescriptor(interceptorImplStructDescriptor) // register and replace origin struct descriptor
+
+		// 3. create struct 'monitorSerivce' that using mock interface 'interceptorImpl', the mock field is injected to it
+		mockService, err := GetmonitorServiceSingleton()
+		assert.Nil(t, err)
 
 		req := &monitorPB.MonitorRequest{
 			Sdid:     sdid,

@@ -19,12 +19,12 @@ import (
 	log2 "github.com/opentracing/opentracing-go/log"
 )
 
-type traceLoggerWriter struct {
+type TraceLoggerWriter struct {
 	spanGetter CurrentSpanGetter
 	logKey     string
 }
 
-func (w *traceLoggerWriter) Write(p []byte) {
+func (w *TraceLoggerWriter) Write(p []byte) {
 	currentSpan := w.spanGetter()
 	if currentSpan != nil {
 		// only when tracing, get span and write log
@@ -33,7 +33,7 @@ func (w *traceLoggerWriter) Write(p []byte) {
 }
 
 func newTraceLoggerWriter(spanGetter CurrentSpanGetter, logKey string) Writer {
-	return &traceLoggerWriter{
+	return &TraceLoggerWriter{
 		spanGetter: spanGetter,
 		logKey:     logKey,
 	}
