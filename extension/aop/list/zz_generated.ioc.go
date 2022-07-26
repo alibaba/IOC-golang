@@ -16,6 +16,11 @@ func init() {
 		Factory: func() interface{} {
 			return &listServiceImpl{}
 		},
+		ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
+			impl := i.(*listServiceImpl)
+			var constructFunc listServiceImplConstructFunc = Init
+			return constructFunc(impl)
+		},
 		Metadata: map[string]interface{}{
 			"aop":      map[string]interface{}{},
 			"autowire": map[string]interface{}{},
@@ -24,6 +29,8 @@ func init() {
 	}
 	singleton.RegisterStructDescriptor(listServiceImplStructDescriptor)
 }
+
+type listServiceImplConstructFunc func(impl *listServiceImpl) (*listServiceImpl, error)
 
 var _listServiceImplSDID string
 

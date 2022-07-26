@@ -19,6 +19,8 @@ import (
 	"context"
 	"sort"
 
+	"github.com/alibaba/ioc-golang/aop"
+
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/alibaba/ioc-golang/aop/common"
@@ -27,11 +29,17 @@ import (
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
+// +ioc:autowire:constructFunc=Init
 // +ioc:autowire:proxy=false
 
 type listServiceImpl struct {
 	list.UnimplementedListServiceServer
 	allInterfaceMetadataMap common.AllInterfaceMetadata
+}
+
+func Init(i *listServiceImpl) (*listServiceImpl, error) {
+	i.allInterfaceMetadataMap = aop.GetAllInterfaceMetadata()
+	return i, nil
 }
 
 func (l *listServiceImpl) List(_ context.Context, _ *emptypb.Empty) (*list.ListServiceResponse, error) {

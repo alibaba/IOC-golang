@@ -29,7 +29,7 @@ import (
 
 type monitorService struct {
 	monitorPB.UnimplementedMonitorServiceServer
-	monitorInterceptor interceptorImplIOCInterface `singleton:""`
+	MonitorInterceptor interceptorImplIOCInterface `singleton:""`
 }
 
 func (w *monitorService) Monitor(req *monitorPB.MonitorRequest, svr monitorPB.MonitorService_MonitorServer) error {
@@ -44,14 +44,14 @@ func (w *monitorService) Monitor(req *monitorPB.MonitorRequest, svr monitorPB.Mo
 	}
 
 	monitorCtx := newContext(sdid, method, sendCh, time.Duration(interval)*time.Second)
-	w.monitorInterceptor.Monitor(monitorCtx)
+	w.MonitorInterceptor.Monitor(monitorCtx)
 
 	done := svr.Context().Done()
 	for {
 		select {
 		case <-done:
 			// monitor stop
-			w.monitorInterceptor.StopMonitor()
+			w.MonitorInterceptor.StopMonitor()
 			return nil
 		case monitorRsp := <-sendCh:
 			if err := svr.Send(monitorRsp); err != nil {
@@ -63,6 +63,6 @@ func (w *monitorService) Monitor(req *monitorPB.MonitorRequest, svr monitorPB.Mo
 
 func newMockMonitorService(mockInterceptor interceptorImplIOCInterface) *monitorService {
 	return &monitorService{
-		monitorInterceptor: mockInterceptor,
+		MonitorInterceptor: mockInterceptor,
 	}
 }
