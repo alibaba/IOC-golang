@@ -16,10 +16,14 @@ func init() {
 		Factory: func() interface{} {
 			return &listServiceImpl{}
 		},
-		ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
+		ParamFactory: func() interface{} {
+			var _ listServiceImplParamInterface = &listServiceImplParam{}
+			return &listServiceImplParam{}
+		},
+		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
+			param := p.(listServiceImplParamInterface)
 			impl := i.(*listServiceImpl)
-			var constructFunc listServiceImplConstructFunc = Init
-			return constructFunc(impl)
+			return param.Init(impl)
 		},
 		Metadata: map[string]interface{}{
 			"aop":      map[string]interface{}{},
@@ -30,15 +34,17 @@ func init() {
 	singleton.RegisterStructDescriptor(listServiceImplStructDescriptor)
 }
 
-type listServiceImplConstructFunc func(impl *listServiceImpl) (*listServiceImpl, error)
+type listServiceImplParamInterface interface {
+	Init(impl *listServiceImpl) (*listServiceImpl, error)
+}
 
 var _listServiceImplSDID string
 
-func GetlistServiceImplSingleton() (*listServiceImpl, error) {
+func GetlistServiceImplSingleton(p *listServiceImplParam) (*listServiceImpl, error) {
 	if _listServiceImplSDID == "" {
 		_listServiceImplSDID = util.GetSDIDByStructPtr(new(listServiceImpl))
 	}
-	i, err := singleton.GetImpl(_listServiceImplSDID, nil)
+	i, err := singleton.GetImpl(_listServiceImplSDID, p)
 	if err != nil {
 		return nil, err
 	}

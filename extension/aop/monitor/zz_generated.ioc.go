@@ -17,6 +17,52 @@ import (
 func init() {
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
+			return &context_{}
+		},
+	})
+	contextStructDescriptor := &autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &context{}
+		},
+		ParamFactory: func() interface{} {
+			var _ contextParamInterface = &contextParam{}
+			return &contextParam{}
+		},
+		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
+			param := p.(contextParamInterface)
+			impl := i.(*context)
+			return param.init(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
+		DisableProxy: true,
+	}
+	normal.RegisterStructDescriptor(contextStructDescriptor)
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &methodInvocationRecord_{}
+		},
+	})
+	methodInvocationRecordStructDescriptor := &autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &methodInvocationRecord{}
+		},
+		ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
+			impl := i.(*methodInvocationRecord)
+			var constructFunc methodInvocationRecordConstructFunc = newMethodInvocationRecord
+			return constructFunc(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
+		DisableProxy: true,
+	}
+	normal.RegisterStructDescriptor(methodInvocationRecordStructDescriptor)
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
 			return &interceptorImpl_{}
 		},
 	})
@@ -49,10 +95,60 @@ func init() {
 	singleton.RegisterStructDescriptor(monitorServiceStructDescriptor)
 }
 
+type contextParamInterface interface {
+	init(impl *context) (*context, error)
+}
+type methodInvocationRecordConstructFunc func(impl *methodInvocationRecord) (*methodInvocationRecord, error)
+type context_ struct {
+	run_                func()
+	filterAndGetRecord_ func(ctx *aop.InvocationContext) (methodInvocationRecordIOCInterface, bool)
+	beforeInvoke_       func(ctx *aop.InvocationContext)
+	afterInvoke_        func(ctx *aop.InvocationContext)
+	destroy_            func()
+}
+
+func (c *context_) run() {
+	c.run_()
+}
+
+func (c *context_) filterAndGetRecord(ctx *aop.InvocationContext) (methodInvocationRecordIOCInterface, bool) {
+	return c.filterAndGetRecord_(ctx)
+}
+
+func (c *context_) beforeInvoke(ctx *aop.InvocationContext) {
+	c.beforeInvoke_(ctx)
+}
+
+func (c *context_) afterInvoke(ctx *aop.InvocationContext) {
+	c.afterInvoke_(ctx)
+}
+
+func (c *context_) destroy() {
+	c.destroy_()
+}
+
+type methodInvocationRecord_ struct {
+	describeAndReset_ func() (int, int, int, float32, float32)
+	beforeRequest_    func(ctx *aop.InvocationContext)
+	afterRequest_     func(ctx *aop.InvocationContext)
+}
+
+func (m *methodInvocationRecord_) describeAndReset() (int, int, int, float32, float32) {
+	return m.describeAndReset_()
+}
+
+func (m *methodInvocationRecord_) beforeRequest(ctx *aop.InvocationContext) {
+	m.beforeRequest_(ctx)
+}
+
+func (m *methodInvocationRecord_) afterRequest(ctx *aop.InvocationContext) {
+	m.afterRequest_(ctx)
+}
+
 type interceptorImpl_ struct {
 	BeforeInvoke_ func(ctx *aop.InvocationContext)
 	AfterInvoke_  func(ctx *aop.InvocationContext)
-	Monitor_      func(monitorCtx *context)
+	Monitor_      func(monitorCtx contextIOCInterface)
 	StopMonitor_  func()
 }
 
@@ -64,7 +160,7 @@ func (i *interceptorImpl_) AfterInvoke(ctx *aop.InvocationContext) {
 	i.AfterInvoke_(ctx)
 }
 
-func (i *interceptorImpl_) Monitor(monitorCtx *context) {
+func (i *interceptorImpl_) Monitor(monitorCtx contextIOCInterface) {
 	i.Monitor_(monitorCtx)
 }
 
@@ -80,15 +176,81 @@ func (m *monitorService_) Monitor(req *aopmonitor.MonitorRequest, svr aopmonitor
 	return m.Monitor_(req, svr)
 }
 
+type contextIOCInterface interface {
+	run()
+	filterAndGetRecord(ctx *aop.InvocationContext) (methodInvocationRecordIOCInterface, bool)
+	beforeInvoke(ctx *aop.InvocationContext)
+	afterInvoke(ctx *aop.InvocationContext)
+	destroy()
+}
+
+type methodInvocationRecordIOCInterface interface {
+	describeAndReset() (int, int, int, float32, float32)
+	beforeRequest(ctx *aop.InvocationContext)
+	afterRequest(ctx *aop.InvocationContext)
+}
+
 type interceptorImplIOCInterface interface {
 	BeforeInvoke(ctx *aop.InvocationContext)
 	AfterInvoke(ctx *aop.InvocationContext)
-	Monitor(monitorCtx *context)
+	Monitor(monitorCtx contextIOCInterface)
 	StopMonitor()
 }
 
 type monitorServiceIOCInterface interface {
 	Monitor(req *aopmonitor.MonitorRequest, svr aopmonitor.MonitorService_MonitorServer) error
+}
+
+var _contextSDID string
+
+func Getcontext(p *contextParam) (*context, error) {
+	if _contextSDID == "" {
+		_contextSDID = util.GetSDIDByStructPtr(new(context))
+	}
+	i, err := normal.GetImpl(_contextSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*context)
+	return impl, nil
+}
+
+func GetcontextIOCInterface(p *contextParam) (contextIOCInterface, error) {
+	if _contextSDID == "" {
+		_contextSDID = util.GetSDIDByStructPtr(new(context))
+	}
+	i, err := normal.GetImplWithProxy(_contextSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(contextIOCInterface)
+	return impl, nil
+}
+
+var _methodInvocationRecordSDID string
+
+func GetmethodInvocationRecord() (*methodInvocationRecord, error) {
+	if _methodInvocationRecordSDID == "" {
+		_methodInvocationRecordSDID = util.GetSDIDByStructPtr(new(methodInvocationRecord))
+	}
+	i, err := normal.GetImpl(_methodInvocationRecordSDID, nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*methodInvocationRecord)
+	return impl, nil
+}
+
+func GetmethodInvocationRecordIOCInterface() (methodInvocationRecordIOCInterface, error) {
+	if _methodInvocationRecordSDID == "" {
+		_methodInvocationRecordSDID = util.GetSDIDByStructPtr(new(methodInvocationRecord))
+	}
+	i, err := normal.GetImplWithProxy(_methodInvocationRecordSDID, nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(methodInvocationRecordIOCInterface)
+	return impl, nil
 }
 
 var _interceptorImplSDID string

@@ -26,9 +26,11 @@ import (
 	_ "github.com/alibaba/ioc-golang/extension/aop/trace/log/extension"
 )
 
+const Name = "trace"
+
 func init() {
 	aop.RegisterAOP(aop.AOP{
-		Name: "trace",
+		Name: Name,
 		InterceptorFactory: func() aop.Interceptor {
 			return getTraceInterceptorSingleton()
 		},

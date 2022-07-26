@@ -26,11 +26,6 @@ type sdIDParser struct {
 	sdidFieldInterfaceReflectTypeMap map[string]reflect.Type
 }
 
-/*
-Parse support parse field like:
-ResourceServiceClient resources.ResourceServiceClient `grpc:"resource-service"`
-to struct descriptor ID 'ResourceServiceClient-ResourceServiceClient'
-*/
 func (p *sdIDParser) Parse(fi *autowire.FieldInfo) (string, error) {
 	if fi.FieldReflectType.Kind() != reflect.Slice {
 		return "", fmt.Errorf("[Autowire allimpls] invalid field %s, field should be interface slice", fi)

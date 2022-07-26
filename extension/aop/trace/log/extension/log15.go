@@ -25,25 +25,36 @@ import (
 
 const log15Name = "log15"
 
-func init() {
-	traceLog.RegisterTraceLoggerWriterFunc(log15Name, func(traceLoggerWriter traceLog.Writer) {
-		log15.Root().SetHandler(newLog15Handler(log15.Root().GetHandler(), traceLoggerWriter))
-	})
-}
+// +ioc:autowire=true
+// +ioc:autowire:type=allimpls
+// +ioc:autowire:constructFunc=newLog15Handler
+// +ioc:autowire:proxy:autoInjection=false
+// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/extension/aop/trace/log.TraceExtensionWriter
 
 type log15Handler struct {
 	traceLoggerWriter traceLog.Writer
 	handler           log15.Handler
 }
 
+func newLog15Handler(l *log15Handler) (*log15Handler, error) {
+	l.handler = log15.Root().GetHandler()
+	log15.Root().SetHandler(l)
+	return l, nil
+}
+
 func (l *log15Handler) Log(r *log15.Record) error {
-	l.traceLoggerWriter.Write([]byte(fmt.Sprintf("%+v", *r)))
+	if l.traceLoggerWriter != nil {
+		l.traceLoggerWriter.Write([]byte(fmt.Sprintf("%+v", *r)))
+	}
 	return l.handler.Log(r)
 }
 
-func newLog15Handler(handler log15.Handler, traceLoggerWriter traceLog.Writer) log15.Handler {
-	return &log15Handler{
-		traceLoggerWriter: traceLoggerWriter,
-		handler:           handler,
-	}
+func (l *log15Handler) SetTraceLoggerWriter(traceLoggerWriter traceLog.Writer) {
+	l.traceLoggerWriter = traceLoggerWriter
 }
+
+func (l *log15Handler) Name() string {
+	return log15Name
+}
+
+var _ traceLog.TraceExtensionWriter = &log15Handler{}

@@ -10,33 +10,41 @@ import (
 	monitorPB "github.com/alibaba/ioc-golang/extension/aop/monitor/api/ioc_golang/aop/monitor"
 )
 
+// +ioc:autowire=true
+// +ioc:autowire:type=normal
+// +ioc:autowire:paramType=contextParam
+// +ioc:autowire:constructFunc=init
+// +ioc:autowire:proxy:autoInjection=false
+
 type context struct {
+	sdid                                    string
+	methodName                              string
+	ch                                      chan *monitorPB.MonitorResponse
+	ticker                                  *time.Ticker
+	stopCh                                  chan struct{}
+	methodUniqueNameInvocationRecordMap     map[string]methodInvocationRecordIOCInterface // methodUniqueName -> methodInvocationRecord
+	methodUniqueNameInvocationRecordMapLock sync.Mutex
+	destroyed                               bool
+}
+
+type contextParam struct {
 	SDID       string
 	MethodName string
 	Ch         chan *monitorPB.MonitorResponse
-	inited     bool
-	ticker     *time.Ticker
-	stopCh     chan struct{}
-	cache      sync.Map // methodUniqueName -> methodInvocationRecord
+	Period     time.Duration
 }
 
-func newContext(sdid, method string, ch chan *monitorPB.MonitorResponse, period time.Duration) *context {
-	newCtx := &context{
-		SDID:       sdid,
-		MethodName: method,
-		Ch:         ch,
-		stopCh:     make(chan struct{}),
-	}
-	newCtx.init(period)
-	return newCtx
-}
+func (p *contextParam) init(c *context) (*context, error) {
+	c.ch = p.Ch
+	c.methodName = p.MethodName
+	c.sdid = p.SDID
 
-func (c *context) init(period time.Duration) {
-	if !c.inited {
-		c.inited = true
-		c.ticker = time.NewTicker(period)
-		go c.run()
-	}
+	c.methodUniqueNameInvocationRecordMap = make(map[string]methodInvocationRecordIOCInterface)
+	c.stopCh = make(chan struct{})
+	c.destroyed = false
+	c.ticker = time.NewTicker(p.Period)
+	go c.run()
+	return c, nil
 }
 
 func (c *context) run() {
@@ -47,13 +55,12 @@ func (c *context) run() {
 		case <-c.ticker.C:
 			// collect data
 			monitorResponseItemSorter := make(monitorResponseItemsSorter, 0)
-			c.cache.Range(func(key, value interface{}) bool {
-				invocationMethodKey := key.(string)
-				invocationMethodRecord := value.(*methodInvocationRecord)
+			c.methodUniqueNameInvocationRecordMapLock.Lock()
+			for invocationMethodKey, invocationMethodRecord := range c.methodUniqueNameInvocationRecordMap {
 				sdid, methodName := common.ParseSDIDAndMethodFromUniqueKey(invocationMethodKey)
 				total, success, fail, agRT, failedRate := invocationMethodRecord.describeAndReset()
 				if total == 0 {
-					return true
+					continue
 				}
 				monitorResponseItemSorter = append(monitorResponseItemSorter, &monitorPB.MonitorResponseItem{
 					Sdid:     sdid,
@@ -64,33 +71,32 @@ func (c *context) run() {
 					AvgRT:    agRT,
 					FailRate: failedRate,
 				})
-				return true
-			})
+			}
+			c.methodUniqueNameInvocationRecordMapLock.Unlock()
 			sort.Sort(monitorResponseItemSorter)
-			c.Ch <- &monitorPB.MonitorResponse{
+			c.ch <- &monitorPB.MonitorResponse{
 				MonitorResponseItems: monitorResponseItemSorter,
 			}
 		}
 	}
 }
 
-func (c *context) filterAndGetRecord(ctx *aop.InvocationContext) (*methodInvocationRecord, bool) {
+func (c *context) filterAndGetRecord(ctx *aop.InvocationContext) (methodInvocationRecordIOCInterface, bool) {
 	// filter invocations that is not monitored
-	if c.SDID != "" && ctx.SDID != c.SDID {
+	if c.sdid != "" && ctx.SDID != c.sdid {
 		return nil, false
-	} else if c.MethodName != "" && ctx.MethodName != c.MethodName {
+	} else if c.methodName != "" && ctx.MethodName != c.methodName {
 		return nil, false
 	}
 
 	// monitor the invocation
 	invocationMethodKey := common.GetMethodUniqueKey(ctx.SDID, ctx.MethodName)
-	var methodRecord *methodInvocationRecord
-	val, ok := c.cache.Load(invocationMethodKey)
+	c.methodUniqueNameInvocationRecordMapLock.Lock()
+	defer c.methodUniqueNameInvocationRecordMapLock.Unlock()
+	methodRecord, ok := c.methodUniqueNameInvocationRecordMap[invocationMethodKey]
 	if !ok {
-		methodRecord = newMethodInvocationRecord()
-		c.cache.Store(invocationMethodKey, methodRecord)
-	} else {
-		methodRecord = val.(*methodInvocationRecord)
+		methodRecord, _ = GetmethodInvocationRecordIOCInterface()
+		c.methodUniqueNameInvocationRecordMap[invocationMethodKey] = methodRecord
 	}
 	return methodRecord, true
 }
@@ -110,11 +116,17 @@ func (c *context) afterInvoke(ctx *aop.InvocationContext) {
 }
 
 func (c *context) destroy() {
-	if c.inited {
+	if !c.destroyed {
+		c.destroyed = true
 		c.ticker.Stop()
 		close(c.stopCh)
 	}
 }
+
+// +ioc:autowire=true
+// +ioc:autowire:type=normal
+// +ioc:autowire:constructFunc=newMethodInvocationRecord
+// +ioc:autowire:proxy:autoInjection=false
 
 type methodInvocationRecord struct {
 	total   int
@@ -125,6 +137,11 @@ type methodInvocationRecord struct {
 	grIDReqMap sync.Map // grID -> req before invoke time
 
 	lock sync.RWMutex
+}
+
+func newMethodInvocationRecord(record *methodInvocationRecord) (*methodInvocationRecord, error) {
+	record.rts = make([]int64, 0)
+	return record, nil
 }
 
 func (m *methodInvocationRecord) describeAndReset() (int, int, int, float32, float32) {
@@ -150,11 +167,11 @@ func (m *methodInvocationRecord) describeAndReset() (int, int, int, float32, flo
 }
 
 func (m *methodInvocationRecord) beforeRequest(ctx *aop.InvocationContext) {
-	m.grIDReqMap.Store(ctx.GrID, time.Now().UnixMicro())
+	m.grIDReqMap.Store(ctx.ID, time.Now().UnixMicro())
 }
 
 func (m *methodInvocationRecord) afterRequest(ctx *aop.InvocationContext) {
-	val, ok := m.grIDReqMap.LoadAndDelete(ctx.GrID)
+	val, ok := m.grIDReqMap.LoadAndDelete(ctx.ID)
 	if !ok {
 		return
 	}
@@ -170,11 +187,5 @@ func (m *methodInvocationRecord) afterRequest(ctx *aop.InvocationContext) {
 		m.fail += 1
 	} else {
 		m.success += 1
-	}
-}
-
-func newMethodInvocationRecord() *methodInvocationRecord {
-	return &methodInvocationRecord{
-		rts: make([]int64, 0),
 	}
 }

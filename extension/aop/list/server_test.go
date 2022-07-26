@@ -37,7 +37,10 @@ func TestListServiceImpl(t *testing.T) {
 	debugMetadata["github.com/alibaba/ioc-golang/aop/test.Struct1"].MethodMetadata["MockMethod3"] = &common.MethodMetadata{}
 	debugMetadata["github.com/alibaba/ioc-golang/aop/test.Struct2"].MethodMetadata["MockMethod1"] = &common.MethodMetadata{}
 	debugMetadata["github.com/alibaba/ioc-golang/aop/test.Struct2"].MethodMetadata["MockMethod2"] = &common.MethodMetadata{}
-	mockService := newMockServiceImpl(debugMetadata)
+	mockService, err := GetlistServiceImplSingleton(&listServiceImplParam{
+		AllInterfaceMetadataMap: debugMetadata,
+	})
+	assert.Nil(t, err)
 	result, err := mockService.List(nil, nil)
 	assert.Nil(t, err)
 	serviceMetadatas := result.GetServiceMetadata()

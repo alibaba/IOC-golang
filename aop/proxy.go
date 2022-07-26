@@ -1,5 +1,3 @@
-//go:build !iocMonkeydebug
-
 /*
  * Copyright (c) 2022, Alibaba Group;
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +19,8 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+
+	"github.com/alibaba/ioc-golang/logger"
 
 	"github.com/alibaba/ioc-golang/aop/common"
 	"github.com/alibaba/ioc-golang/autowire"
@@ -47,11 +47,14 @@ func proxyFunction(rawPtr interface{}) interface{} {
 }
 
 func implProxy(rawServicePtr, proxyPtr interface{}, sdid string) error {
+	debugMetadataLock.Lock()
 	if _, ok := debugMetadata[sdid]; !ok {
 		debugMetadata[sdid] = &common.StructMetadata{
 			MethodMetadata: map[string]*common.MethodMetadata{},
 		}
 	}
+	debugMetadataLock.Unlock()
+
 	valueOf := reflect.ValueOf(proxyPtr)
 	valueOfElem := valueOf.Elem()
 	typeOfElem := valueOfElem.Type()
@@ -73,7 +76,9 @@ func implProxy(rawServicePtr, proxyPtr interface{}, sdid string) error {
 		}
 		// each method of one type should only injected once
 		if f.Kind() == reflect.Func && f.IsValid() && f.CanSet() {
+			debugMetadataLock.Lock()
 			debugMetadata[sdid].MethodMetadata[rawMethodName] = &common.MethodMetadata{}
+			debugMetadataLock.Unlock()
 			f.Set(reflect.MakeFunc(methodType.Type, makeProxyFunction(proxyPtr, funcRaw, sdid, rawMethodName, methodType.Type.IsVariadic())))
 		}
 	}
@@ -82,11 +87,19 @@ func implProxy(rawServicePtr, proxyPtr interface{}, sdid string) error {
 
 func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName string, isVariadic bool) func(in []reflect.Value) []reflect.Value {
 	rawFunction := rf
+	interceptorImpls := getInterceptors()
 	proxyFunc := func(in []reflect.Value) []reflect.Value {
 		invocationCtx := NewInvocationContext(proxyPtr, sdid, methodName, common.CurrentCallingMethodName(4), in)
-		for _, i := range getInterceptors() {
-			i.BeforeInvoke(invocationCtx)
-		}
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					logger.Red("[AOP Proxy] Interceptor before invoke throw error = %s", r)
+				}
+			}()
+			for _, i := range interceptorImpls {
+				i.BeforeInvoke(invocationCtx)
+			}
+		}()
 
 		if isVariadic {
 			varParam := in[len(in)-1]
@@ -98,9 +111,18 @@ func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName 
 
 		out := rawFunction.Call(in)
 		invocationCtx.SetReturnValues(out)
-		for _, i := range getInterceptors() {
-			i.AfterInvoke(invocationCtx)
-		}
+
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					logger.Red("[AOP Proxy] Interceptor after invoke throw error = %s", r)
+				}
+			}()
+			for _, i := range interceptorImpls {
+				i.AfterInvoke(invocationCtx)
+			}
+		}()
+
 		return out
 	}
 	return proxyFunc

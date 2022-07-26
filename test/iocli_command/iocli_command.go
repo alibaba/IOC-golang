@@ -55,6 +55,9 @@ func Run(command []string, timeout time.Duration) (string, error) {
 	select {
 	case <-closeCh:
 	case <-after:
+		if cmd.Process != nil {
+			_ = cmd.Process.Kill()
+		}
 	}
 	return b.String(), nil
 }

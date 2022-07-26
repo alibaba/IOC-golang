@@ -3,7 +3,7 @@ module github.com/alibaba/ioc-golang/example
 go 1.17
 
 require (
-	github.com/alibaba/ioc-golang v0.0.0-20220725125307-aa0393ebeed3
+	github.com/alibaba/ioc-golang v0.0.0-20220726064435-a135d55b94e9
 	github.com/alibaba/ioc-golang/extension v0.0.0-20220707071909-d19576eea84e
 	github.com/apache/rocketmq-client-go/v2 v2.1.0
 	github.com/go-redis/redis v6.15.9+incompatible
@@ -73,6 +73,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/flatbuffers v1.12.1 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
