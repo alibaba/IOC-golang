@@ -26,7 +26,7 @@ import (
 	"github.com/alibaba/ioc-golang/test/iocli_command"
 )
 
-func TestObservabilityList(t *testing.T) {
+func TestObservability(t *testing.T) {
 	assert.Nil(t, ioc.Load())
 	app, err := GetAppIOCInterfaceSingleton()
 	assert.Nil(t, err)
