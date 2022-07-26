@@ -3,7 +3,7 @@ module github.com/alibaba/ioc-golang/example
 go 1.17
 
 require (
-	github.com/alibaba/ioc-golang v0.0.0-20220724124446-7050d5bb3af1
+	github.com/alibaba/ioc-golang v0.0.0-20220725125307-aa0393ebeed3
 	github.com/alibaba/ioc-golang/extension v0.0.0-20220707071909-d19576eea84e
 	github.com/apache/rocketmq-client-go/v2 v2.1.0
 	github.com/go-redis/redis v6.15.9+incompatible
