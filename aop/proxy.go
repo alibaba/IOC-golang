@@ -89,17 +89,17 @@ func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName 
 	rawFunction := rf
 	interceptorImpls := getInterceptors()
 	proxyFunc := func(in []reflect.Value) []reflect.Value {
-		invocationCtx := NewInvocationContext(proxyPtr, sdid, methodName, common.CurrentCallingMethodName(4), in)
-		func() {
-			defer func() {
-				if r := recover(); r != nil {
-					logger.Red("[AOP Proxy] Interceptor before invoke throw error = %s", r)
-				}
-			}()
-			for _, i := range interceptorImpls {
-				i.BeforeInvoke(invocationCtx)
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Red("[AOP Proxy] Cache error = %s", r)
 			}
 		}()
+
+		invocationCtx := NewInvocationContext(proxyPtr, sdid, methodName, common.CurrentCallingMethodName(4), in)
+
+		for _, i := range interceptorImpls {
+			i.BeforeInvoke(invocationCtx)
+		}
 
 		if isVariadic {
 			varParam := in[len(in)-1]
@@ -112,16 +112,9 @@ func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName 
 		out := rawFunction.Call(in)
 		invocationCtx.SetReturnValues(out)
 
-		func() {
-			defer func() {
-				if r := recover(); r != nil {
-					logger.Red("[AOP Proxy] Interceptor after invoke throw error = %s", r)
-				}
-			}()
-			for _, i := range interceptorImpls {
-				i.AfterInvoke(invocationCtx)
-			}
-		}()
+		for _, i := range interceptorImpls {
+			i.AfterInvoke(invocationCtx)
+		}
 
 		return out
 	}
