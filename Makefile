@@ -31,3 +31,9 @@ test-all:
 	cd extension && go test ./... -cover -p 1
 	cd example && go test ./... -cover -p 1
 	cd iocli && go test ./... -cover -p 1
+
+release-all: gen-all test-all
+	mkdir -p .release/ioc-golang
+	cd iocli  && make build-all-platform && mv ./.release ../.release/iocli
+	cp -r `ls` ./.release/ioc-golang
+	tar -czvf ./.release/ioc-golang.tar.gz ./.release/ioc-golang
