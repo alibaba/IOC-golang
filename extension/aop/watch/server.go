@@ -55,7 +55,7 @@ func (w *watchService) Watch(req *watch.WatchRequest, svr watch.WatchService_Wat
 		}
 	}
 
-	watchCtx, err := GetcontextIOCInterfaceSingleton(&contextParam{
+	watchCtx, err := GetcontextIOCInterface(&contextParam{
 		SDID:         sdid,
 		MethodName:   method,
 		MaxLength:    maxLength,

@@ -19,10 +19,9 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/alibaba/ioc-golang/aop"
-
 	"github.com/petermattis/goid"
 
+	"github.com/alibaba/ioc-golang/aop"
 	"github.com/alibaba/ioc-golang/aop/common"
 	watchPB "github.com/alibaba/ioc-golang/extension/aop/watch/api/ioc_golang/aop/watch"
 )
@@ -61,13 +60,12 @@ func (w *interceptorImpl) UnWatch(watchCtx contextIOCInterface) {
 }
 
 // +ioc:autowire=true
-// +ioc:autowire:type=singleton
+// +ioc:autowire:type=normal
 // +ioc:autowire:proxy:autoInjection=false
 // +ioc:autowire:paramType=contextParam
 // +ioc:autowire:constructFunc=new
 
 type context struct {
-	FieldMatcher      *common.FieldMatcher
 	watchGRRequestMap sync.Map
 	contextParam
 }
@@ -100,26 +98,26 @@ func (c *context) getMethod() string {
 	return c.MethodName
 }
 
-func (w *context) beforeInvoke(ctx *aop.InvocationContext) {
-	if w.FieldMatcher != nil && !w.FieldMatcher.Match(ctx.Params) {
+func (c *context) beforeInvoke(ctx *aop.InvocationContext) {
+	if c.FieldMatcher != nil && !c.FieldMatcher.Match(ctx.Params) {
 		// doesn't match
 		return
 	}
 	grID := goid.Get()
-	w.watchGRRequestMap.Store(grID, ctx.Params)
+	c.watchGRRequestMap.Store(grID, ctx.Params)
 }
 
-func (w *context) afterInvoke(ctx *aop.InvocationContext) {
-	paramValues, ok := w.watchGRRequestMap.Load(ctx.GrID)
+func (c *context) afterInvoke(ctx *aop.InvocationContext) {
+	paramValues, ok := c.watchGRRequestMap.Load(ctx.GrID)
 	if !ok {
 		return
 	}
 	invokeDetail := &watchPB.WatchResponse{
-		Sdid:         w.SDID,
-		MethodName:   w.MethodName,
-		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), w.MaxDepth, w.MaxLength),
-		ReturnValues: common.ReflectValues2Strings(ctx.ReturnValues, w.MaxDepth, w.MaxLength),
+		Sdid:         c.SDID,
+		MethodName:   c.MethodName,
+		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), c.MaxDepth, c.MaxLength),
+		ReturnValues: common.ReflectValues2Strings(ctx.ReturnValues, c.MaxDepth, c.MaxLength),
 	}
-	w.Ch <- invokeDetail
-	w.watchGRRequestMap.Delete(ctx.GrID)
+	c.Ch <- invokeDetail
+	c.watchGRRequestMap.Delete(ctx.GrID)
 }

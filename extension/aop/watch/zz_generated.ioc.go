@@ -54,7 +54,7 @@ func init() {
 		},
 		DisableProxy: true,
 	}
-	singleton.RegisterStructDescriptor(contextStructDescriptor)
+	normal.RegisterStructDescriptor(contextStructDescriptor)
 	watchServiceStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &watchService{}
@@ -159,11 +159,11 @@ func GetinterceptorImplIOCInterfaceSingleton() (interceptorImplIOCInterface, err
 
 var _contextSDID string
 
-func GetcontextSingleton(p *contextParam) (*context, error) {
+func Getcontext(p *contextParam) (*context, error) {
 	if _contextSDID == "" {
 		_contextSDID = util.GetSDIDByStructPtr(new(context))
 	}
-	i, err := singleton.GetImpl(_contextSDID, p)
+	i, err := normal.GetImpl(_contextSDID, p)
 	if err != nil {
 		return nil, err
 	}
@@ -171,11 +171,11 @@ func GetcontextSingleton(p *contextParam) (*context, error) {
 	return impl, nil
 }
 
-func GetcontextIOCInterfaceSingleton(p *contextParam) (contextIOCInterface, error) {
+func GetcontextIOCInterface(p *contextParam) (contextIOCInterface, error) {
 	if _contextSDID == "" {
 		_contextSDID = util.GetSDIDByStructPtr(new(context))
 	}
-	i, err := singleton.GetImplWithProxy(_contextSDID, p)
+	i, err := normal.GetImplWithProxy(_contextSDID, p)
 	if err != nil {
 		return nil, err
 	}
