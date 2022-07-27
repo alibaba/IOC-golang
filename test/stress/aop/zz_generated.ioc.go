@@ -6,11 +6,12 @@
 package aop
 
 import (
+	testingx "testing"
+
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/autowire/util"
-	testingx "testing"
 )
 
 func init() {
