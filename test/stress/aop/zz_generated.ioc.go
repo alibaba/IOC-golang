@@ -10,8 +10,8 @@ import (
 
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
-	singleton "github.com/alibaba/ioc-golang/autowire/singleton"
-	util "github.com/alibaba/ioc-golang/autowire/util"
+	"github.com/alibaba/ioc-golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/autowire/util"
 )
 
 func init() {
@@ -30,6 +30,21 @@ func init() {
 		},
 	}
 	normal.RegisterStructDescriptor(normalAppStructDescriptor)
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &recursiveApp_{}
+		},
+	})
+	recursiveAppStructDescriptor := &autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &RecursiveApp{}
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
+	}
+	singleton.RegisterStructDescriptor(recursiveAppStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &serviceImpl1_{}
@@ -88,6 +103,19 @@ func (n *normalApp_) RunTest(t *testingx.T) {
 	n.RunTest_(t)
 }
 
+type recursiveApp_ struct {
+	Reset_   func()
+	RunTest_ func(t *testingx.T)
+}
+
+func (r *recursiveApp_) Reset() {
+	r.Reset_()
+}
+
+func (r *recursiveApp_) RunTest(t *testingx.T) {
+	r.RunTest_(t)
+}
+
 type serviceImpl1_ struct {
 	GetHelloString_ func(name string) string
 }
@@ -113,6 +141,11 @@ func (s *serviceStruct_) GetString(name string) string {
 }
 
 type NormalAppIOCInterface interface {
+	RunTest(t *testingx.T)
+}
+
+type RecursiveAppIOCInterface interface {
+	Reset()
 	RunTest(t *testingx.T)
 }
 
@@ -151,6 +184,32 @@ func GetNormalAppIOCInterface() (NormalAppIOCInterface, error) {
 		return nil, err
 	}
 	impl := i.(NormalAppIOCInterface)
+	return impl, nil
+}
+
+var _recursiveAppSDID string
+
+func GetRecursiveAppSingleton() (*RecursiveApp, error) {
+	if _recursiveAppSDID == "" {
+		_recursiveAppSDID = util.GetSDIDByStructPtr(new(RecursiveApp))
+	}
+	i, err := singleton.GetImpl(_recursiveAppSDID, nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*RecursiveApp)
+	return impl, nil
+}
+
+func GetRecursiveAppIOCInterfaceSingleton() (RecursiveAppIOCInterface, error) {
+	if _recursiveAppSDID == "" {
+		_recursiveAppSDID = util.GetSDIDByStructPtr(new(RecursiveApp))
+	}
+	i, err := singleton.GetImplWithProxy(_recursiveAppSDID, nil)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(RecursiveAppIOCInterface)
 	return impl, nil
 }
 

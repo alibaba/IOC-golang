@@ -66,9 +66,9 @@ func (t *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
 		// if invocation failed
 		invocationFailed, err := common.IsInvocationFailed(ctx.ReturnValues)
 
-		// 1.1 if current invocation is the entrance of transaction ?
-		// calculate level
-		if common.TraceLevel(txCtx.getEntranceMethod()) == 0 {
+		// if current invocation is the entrance of transaction ?
+		// check if is entrance
+		if common.IsTraceEntrance(txCtx.getEntranceMethod()) {
 			// current invocation is the entrance of transaction
 			t.transactionGrIDMap.Delete(ctx.GrID)
 			// if the transaction failed ?

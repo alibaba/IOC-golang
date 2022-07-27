@@ -32,55 +32,72 @@ const (
 	defaultRecordValuesLength = 1000
 )
 
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:proxy:autoInjection=false
+
 type interceptorImpl struct {
 	watch sync.Map
 }
 
 func (w *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
 	if watchCtxInterface, ok := w.watch.Load(common.GetMethodUniqueKey(ctx.SDID, ctx.MethodName)); ok {
-		watchCtxInterface.(*context).beforeInvoke(ctx)
+		watchCtxInterface.(contextIOCInterface).beforeInvoke(ctx)
 	}
 }
 
 func (w *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
 	if watchCtxInterface, ok := w.watch.Load(common.GetMethodUniqueKey(ctx.SDID, ctx.MethodName)); ok {
-		watchCtxInterface.(*context).afterInvoke(ctx)
+		watchCtxInterface.(contextIOCInterface).afterInvoke(ctx)
 	}
 }
 
-func (w *interceptorImpl) Watch(watchCtx *context) {
-	w.watch.Store(common.GetMethodUniqueKey(watchCtx.SDID, watchCtx.MethodName), watchCtx)
+func (w *interceptorImpl) Watch(watchCtx contextIOCInterface) {
+	w.watch.Store(common.GetMethodUniqueKey(watchCtx.getSDID(), watchCtx.getMethod()), watchCtx)
 }
 
-func (w *interceptorImpl) UnWatch(watchCtx *context) {
-	w.watch.Delete(common.GetMethodUniqueKey(watchCtx.SDID, watchCtx.MethodName))
+func (w *interceptorImpl) UnWatch(watchCtx contextIOCInterface) {
+	w.watch.Delete(common.GetMethodUniqueKey(watchCtx.getSDID(), watchCtx.getMethod()))
 }
+
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:proxy:autoInjection=false
+// +ioc:autowire:paramType=contextParam
+// +ioc:autowire:constructFunc=new
 
 type context struct {
-	SDID              string
-	MethodName        string
-	Ch                chan *watchPB.WatchResponse
 	FieldMatcher      *common.FieldMatcher
 	watchGRRequestMap sync.Map
-	maxDepth          int
-	maxLength         int
+	contextParam
 }
 
-func newContext(sdid, method string, maxDepth, maxLength int, sendCh chan *watchPB.WatchResponse, fieldMatcher *common.FieldMatcher) *context {
-	if maxLength == 0 {
-		maxLength = defaultRecordValuesLength
+type contextParam struct {
+	SDID         string
+	MethodName   string
+	MaxDepth     int
+	MaxLength    int
+	Ch           chan *watchPB.WatchResponse
+	FieldMatcher *common.FieldMatcher
+}
+
+func (p *contextParam) new(c *context) (*context, error) {
+	if p.MaxDepth == 0 {
+		p.MaxDepth = defaultRecordValuesLength
 	}
-	if maxDepth == 0 {
-		maxDepth = defaultRecordValuesDepth
+	if p.MaxDepth == 0 {
+		p.MaxDepth = defaultRecordValuesDepth
 	}
-	return &context{
-		SDID:         sdid,
-		MethodName:   method,
-		Ch:           sendCh,
-		FieldMatcher: fieldMatcher,
-		maxDepth:     maxDepth,
-		maxLength:    maxLength,
-	}
+	c.contextParam = *p
+	return c, nil
+}
+
+func (c *context) getSDID() string {
+	return c.SDID
+}
+
+func (c *context) getMethod() string {
+	return c.MethodName
 }
 
 func (w *context) beforeInvoke(ctx *aop.InvocationContext) {
@@ -100,18 +117,9 @@ func (w *context) afterInvoke(ctx *aop.InvocationContext) {
 	invokeDetail := &watchPB.WatchResponse{
 		Sdid:         w.SDID,
 		MethodName:   w.MethodName,
-		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), w.maxDepth, w.maxLength),
-		ReturnValues: common.ReflectValues2Strings(ctx.ReturnValues, w.maxDepth, w.maxLength),
+		Params:       common.ReflectValues2Strings(paramValues.([]reflect.Value), w.MaxDepth, w.MaxLength),
+		ReturnValues: common.ReflectValues2Strings(ctx.ReturnValues, w.MaxDepth, w.MaxLength),
 	}
 	w.Ch <- invokeDetail
 	w.watchGRRequestMap.Delete(ctx.GrID)
-}
-
-var watchInterceptorSingleton *interceptorImpl
-
-func getWatchInterceptorSingleton() *interceptorImpl {
-	if watchInterceptorSingleton == nil {
-		watchInterceptorSingleton = &interceptorImpl{}
-	}
-	return watchInterceptorSingleton
 }

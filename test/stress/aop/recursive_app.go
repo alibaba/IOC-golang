@@ -18,21 +18,33 @@ package aop
 import (
 	"testing"
 
+	"github.com/alibaba/ioc-golang/autowire/singleton"
+	"github.com/alibaba/ioc-golang/autowire/util"
+
 	"github.com/stretchr/testify/assert"
 )
 
-const reqString = "laurence"
-const expectString = "hello laurence"
-
 // +ioc:autowire=true
-// +ioc:autowire:type=normal
+// +ioc:autowire:type=singleton
 
-type NormalApp struct {
+type RecursiveApp struct {
 	// inject main.ServiceImpl1 pointer to Service interface with proxy wrapper
 	ServiceImpl1 Service `normal:"github.com/alibaba/ioc-golang/test/stress/aop.ServiceImpl1"`
+	counter      int
 }
 
-func (s *NormalApp) RunTest(t *testing.T) {
+func (s *RecursiveApp) Reset() {
+	s.counter = 0
+}
+
+func (s *RecursiveApp) RunTest(t *testing.T) {
+	if s.counter < 1000 {
+		s.counter++
+		s, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(s), nil)
+		assert.Nil(t, err)
+		s.(RecursiveAppIOCInterface).RunTest(t)
+		return
+	}
 	assert.Equal(t, expectString, s.ServiceImpl1.GetHelloString(reqString))
 
 	// test creat by API

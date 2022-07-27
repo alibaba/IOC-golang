@@ -66,4 +66,24 @@ Param 1: (string) (len=8) "laurence"
 github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1.GetHelloString()
 Response 1: (string) (len=36) "This is ServiceImpl2, hello laurence"`))
 
+	output, err = iocli_command.Run([]string{"monitor", "-i", "3"}, time.Second*4)
+	assert.Nil(t, err)
+	assert.True(t, strings.Contains(output, `github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1.GetHelloString()
+Total: 1, Success: 1, Fail: 0, AvgRT: `))
+	assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
+github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl2.GetHelloString()
+Total: 1, Success: 1, Fail: 0, AvgRT: `))
+
+	output, err = iocli_command.Run([]string{"trace", "github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1", "GetHelloString"}, time.Second*6)
+	assert.Nil(t, err)
+	assert.True(t, strings.Contains(output, `OperationName: github.com/alibaba/ioc-golang/example/aop/observability.(*serviceImpl2_).GetHelloString, StartTime: `))
+	assert.True(t, strings.Contains(output, `OperationName: github.com/alibaba/ioc-golang/example/aop/observability.(*serviceImpl1_).GetHelloString, StartTime: `))
+	assert.True(t, strings.Contains(output, `ReferenceSpans: [{TraceID:`))
+
+	output, err = iocli_command.Run([]string{"trace", "github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl2", "GetHelloString"}, time.Second*6)
+	assert.Nil(t, err)
+	assert.True(t, strings.Contains(output, `OperationName: github.com/alibaba/ioc-golang/example/aop/observability.(*serviceImpl2_).GetHelloString, StartTime: `))
+	assert.True(t, !strings.Contains(output, `OperationName: github.com/alibaba/ioc-golang/example/aop/observability.(*serviceImpl1_).GetHelloString, StartTime: `))
+	assert.True(t, strings.Contains(output, `ReferenceSpans: [{TraceID:`))
+
 }

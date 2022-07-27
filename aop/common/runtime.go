@@ -30,7 +30,7 @@ func CurrentCallingMethodName(skip int) string {
 	return runtime.FuncForPC(pc[0]).Name()
 }
 
-func TraceLevel(entranceName string) int64 {
+func IsTraceEntrance(entranceName string) bool {
 	pc := make([]uintptr, 500)
 	n := runtime.Callers(0, pc)
 	foundEntrance := false
@@ -42,6 +42,9 @@ func TraceLevel(entranceName string) int64 {
 			if strings.HasPrefix(fName, ProxyMethodPrefix) {
 				level++
 			}
+			if level == 2 {
+				return false
+			}
 			continue
 		}
 		if fName == entranceName {
@@ -49,5 +52,5 @@ func TraceLevel(entranceName string) int64 {
 		}
 	}
 
-	return level - 1
+	return level-1 == 0
 }

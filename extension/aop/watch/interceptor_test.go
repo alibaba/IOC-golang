@@ -32,7 +32,8 @@ import (
 )
 
 func TestWatchInterceptor(t *testing.T) {
-	watchInterceptor := getWatchInterceptorSingleton()
+	watchInterceptor, err := GetinterceptorImplIOCInterfaceSingleton()
+	assert.Nil(t, err)
 	sdid := util.GetSDIDByStructPtr(&common.ServiceFoo{})
 	methodName := "Invoke"
 	methodFullName := sdid + "." + methodName
@@ -42,7 +43,13 @@ func TestWatchInterceptor(t *testing.T) {
 		info := <-sendCh
 		controlCh <- info
 	}()
-	watchInterceptor.Watch(newContext(sdid, methodName, 0, 0, sendCh, nil))
+	watchCtx, err := GetcontextIOCInterfaceSingleton(&contextParam{
+		SDID:       sdid,
+		MethodName: methodName,
+		Ch:         sendCh,
+	})
+	assert.Nil(t, err)
+	watchInterceptor.Watch(watchCtx)
 
 	service := &common.ServiceFoo{}
 	ctx := oriCtx.Background()
@@ -63,7 +70,8 @@ func TestWatchInterceptor(t *testing.T) {
 }
 
 func TestWatchInterceptorWithCondition(t *testing.T) {
-	watchInterceptor := getWatchInterceptorSingleton()
+	watchInterceptor, err := GetinterceptorImplIOCInterfaceSingleton()
+	assert.Nil(t, err)
 	sdid := util.GetSDIDByStructPtr(&common.ServiceFoo{})
 	methodName := "Invoke"
 	methodFullName := sdid + "." + methodName
@@ -75,11 +83,17 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 			controlCh <- info
 		}
 	}()
-	watchCtx := newContext(sdid, methodName, 0, 0, sendCh,
-		&common.FieldMatcher{
+	watchCtx, err := GetcontextIOCInterfaceSingleton(&contextParam{
+		SDID:       sdid,
+		MethodName: methodName,
+		Ch:         sendCh,
+		FieldMatcher: &common.FieldMatcher{
 			FieldIndex: 1,
 			MatchRule:  "User.Name=lizhixin",
-		})
+		},
+	})
+	assert.Nil(t, err)
+
 	watchInterceptor.Watch(watchCtx)
 
 	service := &common.ServiceFoo{}

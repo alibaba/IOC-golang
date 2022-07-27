@@ -16,9 +16,8 @@
 package autowire
 
 import (
-	"os"
+	"fmt"
 	"reflect"
-	"runtime"
 
 	perrors "github.com/pkg/errors"
 
@@ -168,9 +167,10 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 				tagKey = aw.TagKey()
 				tagValue = val
 				if !(subService.IsValid() && subService.CanSet()) {
-					err := perrors.Errorf("Failed to autowire struct %s's impl %s service. It's field %s with tag '%s:\"%s\"', please check if the field is exported",
+					errMsg := fmt.Sprintf("Failed to autowire struct %s's impl %s service. It's field type %s with tag '%s:\"%s\"', please check if the field name is exported",
 						sd.ID(), util.GetStructName(impledPtr), field.Type.Name(), tagKey, tagValue)
-					return err
+					logger.Red("[Autowire Wrapper] Inject field failed with error: %s", errMsg)
+					return perrors.New(errMsg)
 				}
 
 				fieldType := buildFiledTypeFullName(field.Type)
@@ -197,11 +197,6 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 		}
 		// set field
 		subService.Set(reflect.ValueOf(subImpledPtr))
-	}
-	// 3. monkey
-	if monkeyFunction := GetMonkeyFunction(); (os.Getenv("GOARCH") == "amd64" || runtime.GOARCH == "amd64") && monkeyFunction != nil {
-		// only amd64-os/amd64-go-arch-env with build flags '-gcflags="-N -l" -tags iocdebug' can inject monkey function
-		monkeyFunction(impledPtr, sd.ID())
 	}
 	return nil
 }
