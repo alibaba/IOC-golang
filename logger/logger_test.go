@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package autowire
+package logger
 
-// monkey function
+import (
+	"testing"
 
-var mf func(interface{}, string)
+	"github.com/stretchr/testify/assert"
+)
 
-func RegisterMonkeyFunction(f func(interface{}, string)) {
-	mf = f
-}
-
-func GetMonkeyFunction() func(interface{}, string) {
-	return mf
+func TestLoggerDisable(t *testing.T) {
+	assert.True(t, !disableLogs)
+	Disable()
+	assert.True(t, disableLogs)
 }

@@ -51,7 +51,7 @@ func (g *goRoutineTraceInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
 		currentSpan.LogFields(log.String(traceCommon.SpanReturnValuesKey, common.ReflectValues2String(ctx.ReturnValues, int(traceCtx.maxDepth), int(traceCtx.maxLength))))
 
 		// calculate level
-		if common.TraceLevel(traceCtx.getTrace().entranceMethod) == 0 {
+		if common.IsTraceEntrance(traceCtx.getTrace().entranceMethod) {
 			// tracing finished
 			g.tracingGrIDMap.Delete(ctx.GrID)
 		}

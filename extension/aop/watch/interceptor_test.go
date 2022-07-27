@@ -32,7 +32,8 @@ import (
 )
 
 func TestWatchInterceptor(t *testing.T) {
-	watchInterceptor := getWatchInterceptorSingleton()
+	watchInterceptor, err := GetinterceptorImplIOCInterfaceSingleton()
+	assert.Nil(t, err)
 	sdid := util.GetSDIDByStructPtr(&common.ServiceFoo{})
 	methodName := "Invoke"
 	methodFullName := sdid + "." + methodName
@@ -42,7 +43,13 @@ func TestWatchInterceptor(t *testing.T) {
 		info := <-sendCh
 		controlCh <- info
 	}()
-	watchInterceptor.Watch(newContext(sdid, methodName, 0, 0, sendCh, nil))
+	watchCtx, err := GetcontextIOCInterface(&contextParam{
+		SDID:       sdid,
+		MethodName: methodName,
+		Ch:         sendCh,
+	})
+	assert.Nil(t, err)
+	watchInterceptor.Watch(watchCtx)
 
 	service := &common.ServiceFoo{}
 	ctx := oriCtx.Background()
@@ -60,26 +67,27 @@ func TestWatchInterceptor(t *testing.T) {
 	info := <-controlCh
 	assert.Equal(t, sdid, info.Sdid)
 	assert.Equal(t, "Invoke", info.MethodName)
+	watchInterceptor.UnWatch(watchCtx)
 }
 
 func TestWatchInterceptorWithCondition(t *testing.T) {
-	watchInterceptor := getWatchInterceptorSingleton()
+	watchInterceptor, err := GetinterceptorImplIOCInterfaceSingleton()
+	assert.Nil(t, err)
 	sdid := util.GetSDIDByStructPtr(&common.ServiceFoo{})
 	methodName := "Invoke"
 	methodFullName := sdid + "." + methodName
 	sendCh := make(chan *watch.WatchResponse, 10)
-	controlCh := make(chan *watch.WatchResponse, 10)
-	go func() {
-		for {
-			info := <-sendCh
-			controlCh <- info
-		}
-	}()
-	watchCtx := newContext(sdid, methodName, 0, 0, sendCh,
-		&common.FieldMatcher{
+	watchCtx, err := GetcontextIOCInterface(&contextParam{
+		SDID:       sdid,
+		MethodName: methodName,
+		Ch:         sendCh,
+		FieldMatcher: &common.FieldMatcher{
 			FieldIndex: 1,
 			MatchRule:  "User.Name=lizhixin",
-		})
+		},
+	})
+	assert.Nil(t, err)
+
 	watchInterceptor.Watch(watchCtx)
 
 	service := &common.ServiceFoo{}
@@ -100,7 +108,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 	watchInterceptor.AfterInvoke(invocationCtx)
 	time.Sleep(time.Millisecond * 500)
 	select {
-	case info = <-controlCh:
+	case info = <-sendCh:
 	default:
 	}
 	assert.Equal(t, "", info.Sdid)
@@ -115,7 +123,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 	watchInterceptor.AfterInvoke(invocationCtx)
 	time.Sleep(time.Millisecond * 500)
 	select {
-	case info = <-controlCh:
+	case info = <-sendCh:
 	default:
 	}
 	assert.Equal(t, util.GetSDIDByStructPtr(&common.ServiceFoo{}), info.Sdid)
@@ -131,7 +139,7 @@ func TestWatchInterceptorWithCondition(t *testing.T) {
 	watchInterceptor.AfterInvoke(invocationCtx)
 	info = &watch.WatchResponse{}
 	select {
-	case info = <-controlCh:
+	case info = <-sendCh:
 	default:
 	}
 	assert.Equal(t, "", info.Sdid)

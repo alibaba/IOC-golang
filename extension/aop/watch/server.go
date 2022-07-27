@@ -21,15 +21,13 @@ import (
 	"github.com/alibaba/ioc-golang/logger"
 )
 
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:proxy=false
+
 type watchService struct {
 	watch.UnimplementedWatchServiceServer
-	watchInterceptor *interceptorImpl
-}
-
-func getWatchService() *watchService {
-	return &watchService{
-		watchInterceptor: getWatchInterceptorSingleton(),
-	}
+	WatchInterceptor interceptorImplIOCInterface `singleton:""`
 }
 
 func (w *watchService) Watch(req *watch.WatchRequest, svr watch.WatchService_WatchServer) error {
@@ -57,15 +55,25 @@ func (w *watchService) Watch(req *watch.WatchRequest, svr watch.WatchService_Wat
 		}
 	}
 
-	watchCtx := newContext(sdid, method, maxDepth, maxLength, sendCh, fieldMatcher)
-	w.watchInterceptor.Watch(watchCtx)
+	watchCtx, err := GetcontextIOCInterface(&contextParam{
+		SDID:         sdid,
+		MethodName:   method,
+		MaxLength:    maxLength,
+		MaxDepth:     maxDepth,
+		Ch:           sendCh,
+		FieldMatcher: fieldMatcher,
+	})
+	if err != nil {
+		return err
+	}
+	w.WatchInterceptor.Watch(watchCtx)
 
 	done := svr.Context().Done()
 	for {
 		select {
 		case <-done:
 			// watch stop
-			w.watchInterceptor.UnWatch(watchCtx)
+			w.WatchInterceptor.UnWatch(watchCtx)
 			return nil
 		case watchRsp := <-sendCh:
 			if err := svr.Send(watchRsp); err != nil {

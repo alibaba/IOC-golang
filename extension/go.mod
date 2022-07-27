@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	dubbo.apache.org/dubbo-go/v3 v3.0.2
-	github.com/alibaba/ioc-golang v0.0.0-20220726064435-a135d55b94e9
+	github.com/alibaba/ioc-golang v0.0.0-20220726180817-a8481c622579
 	github.com/alibaba/ioc-golang/iocli v0.0.0-20220705164359-95be52984ef8
 	github.com/apache/rocketmq-client-go/v2 v2.1.0
 	github.com/apache/thrift v0.16.0

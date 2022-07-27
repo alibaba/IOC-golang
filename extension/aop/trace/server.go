@@ -26,6 +26,8 @@ import (
 	"github.com/alibaba/ioc-golang/logger"
 )
 
+const outBatchBufferAndChSize = 1000
+
 type traceServiceImpl struct {
 	tracePB.UnimplementedTraceServiceServer
 	traceInterceptor *methodTraceInterceptor
@@ -57,7 +59,7 @@ func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.
 
 	if req.GetPushToCollectorAddress() != "" {
 		// start subscribing batch buffer
-		outBatchBuffer := make(chan *bytes.Buffer, 100)
+		outBatchBuffer := make(chan *bytes.Buffer, outBatchBufferAndChSize)
 		getGlobalTracer().subscribeBatchBuffer(outBatchBuffer)
 		go func() {
 			for {
@@ -74,7 +76,7 @@ func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.
 		}()
 	}
 
-	outTraceCh := make(chan []*model.Trace, 100)
+	outTraceCh := make(chan []*model.Trace, outBatchBufferAndChSize)
 	// start subscribing traces info
 	getGlobalTracer().subscribeTrace(outTraceCh)
 	go func() {

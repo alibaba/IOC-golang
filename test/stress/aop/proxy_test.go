@@ -56,3 +56,35 @@ Total: 100000, Success: 100000, Fail: 0, AvgRT: `))
 	wg.Wait()
 	<-closeCh
 }
+
+func TestAOPRecursive(t *testing.T) {
+	assert.Nil(t, ioc.Load())
+	closeCh := make(chan struct{})
+	go func() {
+		output, err := iocli_command.Run([]string{"monitor"}, time.Second*6)
+		assert.Nil(t, err)
+		assert.True(t, strings.Contains(output, `github.com/alibaba/ioc-golang/test/stress/aop.RecursiveApp.RunTest()
+Total: 901, Success: 901, Fail: 0, AvgRT: `))
+		assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
+github.com/alibaba/ioc-golang/test/stress/aop.ServiceImpl1.GetHelloString()
+Total: 2, Success: 2, Fail: 0, AvgRT: `))
+		close(closeCh)
+	}()
+	time.Sleep(time.Second * 1)
+	recApp, err := GetRecursiveAppIOCInterfaceSingleton()
+	assert.Nil(t, err)
+	recApp.RunTest(t)
+	<-closeCh
+
+	recApp.Reset()
+	closeCh = make(chan struct{})
+	go func() {
+		output, err := iocli_command.Run([]string{"trace"}, time.Second*6)
+		assert.Nil(t, err)
+		assert.Equal(t, 901, strings.Count(output, ", OperationName: github.com/alibaba/ioc-golang/test/stress/aop.(*recursiveApp_).RunTest, StartTime: "))
+		close(closeCh)
+	}()
+	time.Sleep(time.Second * 1)
+	recApp.RunTest(t)
+	<-closeCh
+}

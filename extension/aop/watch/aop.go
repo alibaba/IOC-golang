@@ -22,14 +22,18 @@ import (
 	watchPB "github.com/alibaba/ioc-golang/extension/aop/watch/api/ioc_golang/aop/watch"
 )
 
+const Name = "watch"
+
 func init() {
 	aop.RegisterAOP(aop.AOP{
-		Name: "watch",
+		Name: Name,
 		InterceptorFactory: func() aop.Interceptor {
-			return getWatchInterceptorSingleton()
+			impl, _ := GetinterceptorImplIOCInterfaceSingleton()
+			return impl
 		},
 		GRPCServiceRegister: func(server *grpc.Server) {
-			watchPB.RegisterWatchServiceServer(server, getWatchService())
+			watchInterface, _ := GetwatchServiceSingleton()
+			watchPB.RegisterWatchServiceServer(server, watchInterface)
 		},
 	})
 }

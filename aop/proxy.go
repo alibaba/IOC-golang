@@ -91,11 +91,11 @@ func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName 
 	proxyFunc := func(in []reflect.Value) []reflect.Value {
 		defer func() {
 			if r := recover(); r != nil {
-				logger.Red("[AOP Proxy] Cache error = %s", r)
+				logger.Red("[AOP Proxy] Catch error = %s", r)
 			}
 		}()
 
-		invocationCtx := NewInvocationContext(proxyPtr, sdid, methodName, common.CurrentCallingMethodName(4), in)
+		invocationCtx := NewInvocationContext(proxyPtr, sdid, methodName, common.CurrentCallingMethodName(3), in)
 
 		for _, i := range interceptorImpls {
 			i.BeforeInvoke(invocationCtx)

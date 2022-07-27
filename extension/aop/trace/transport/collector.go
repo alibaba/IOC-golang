@@ -33,6 +33,9 @@ import (
 )
 
 const memoryStorageType = "memory"
+const memoryMaxTraces = 1000
+const dynamicQueueMaxMemory = 1 * 1024 * 1024 // 1MB
+const queueSize = 1000
 
 type collector struct {
 	spanHandlers *app.SpanHandlers
@@ -45,7 +48,7 @@ type collector struct {
 func newCollector(appName string, interval int, out chan []*model.Trace) (*collector, error) {
 	logger := zap.NewNop()
 	v := viper.New()
-	v.Set("memory.max-traces", 100)
+	v.Set("memory.max-traces", memoryMaxTraces)
 
 	storageFactory, err := storage.NewFactory(storage.FactoryConfig{
 		SpanWriterTypes:         []string{memoryStorageType},
@@ -69,8 +72,8 @@ func newCollector(appName string, interval int, out chan []*model.Trace) (*colle
 	if err != nil {
 		return nil, err
 	}
-	collectorOpts.DynQueueSizeMemory = 1 * 1024 * 1024 // 1MB
-	collectorOpts.QueueSize = 10
+	collectorOpts.DynQueueSizeMemory = dynamicQueueMaxMemory
+	collectorOpts.QueueSize = queueSize
 
 	handlerBuilder := &app.SpanHandlerBuilder{
 		SpanWriter:    spanWriter,
