@@ -33,8 +33,6 @@ type NormalApp struct {
 }
 
 func (s *NormalApp) RunTest(t *testing.T) {
-	assert.Equal(t, expectString, s.ServiceImpl1.GetHelloString(reqString))
-
 	// test creat by API
 	createByAPIService1, err := GetServiceImpl1IOCInterface()
 	assert.Nil(t, err)

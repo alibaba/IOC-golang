@@ -3,8 +3,8 @@ module github.com/alibaba/ioc-golang/iocli
 go 1.17
 
 require (
-	github.com/alibaba/ioc-golang v0.0.0-20220726064435-a135d55b94e9
-	github.com/alibaba/ioc-golang/extension v0.0.0-20220726064435-a135d55b94e9
+	github.com/alibaba/ioc-golang v0.0.0-20220726180817-a8481c622579
+	github.com/alibaba/ioc-golang/extension v0.0.0-20220726180817-a8481c622579
 	github.com/gobuffalo/packr/v2 v2.8.3
 	github.com/spf13/cobra v1.5.0
 	sigs.k8s.io/controller-tools v0.9.0
@@ -59,6 +59,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/flatbuffers v1.12.1 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect

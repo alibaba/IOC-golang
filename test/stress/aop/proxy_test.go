@@ -65,7 +65,7 @@ func TestAOPRecursive(t *testing.T) {
 		assert.Nil(t, err)
 		assert.True(t, strings.Contains(output, `github.com/alibaba/ioc-golang/test/stress/aop.RecursiveApp.RunTest()
 Total: 1001, Success: 1001, Fail: 0, AvgRT: `))
-		assert.True(t, strings.Contains(output, `, FailRate: 0.00%
+		assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
 github.com/alibaba/ioc-golang/test/stress/aop.ServiceImpl1.GetHelloString()
 Total: 2, Success: 2, Fail: 0, AvgRT: `))
 		close(closeCh)
