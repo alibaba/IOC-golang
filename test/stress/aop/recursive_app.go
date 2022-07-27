@@ -38,7 +38,7 @@ func (s *RecursiveApp) Reset() {
 }
 
 func (s *RecursiveApp) RunTest(t *testing.T) {
-	if s.counter < 1000 {
+	if s.counter < 900 {
 		s.counter++
 		s, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(s), nil)
 		assert.Nil(t, err)

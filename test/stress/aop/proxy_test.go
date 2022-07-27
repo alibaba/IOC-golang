@@ -64,7 +64,7 @@ func TestAOPRecursive(t *testing.T) {
 		output, err := iocli_command.Run([]string{"monitor"}, time.Second*6)
 		assert.Nil(t, err)
 		assert.True(t, strings.Contains(output, `github.com/alibaba/ioc-golang/test/stress/aop.RecursiveApp.RunTest()
-Total: 1001, Success: 1001, Fail: 0, AvgRT: `))
+Total: 901, Success: 901, Fail: 0, AvgRT: `))
 		assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
 github.com/alibaba/ioc-golang/test/stress/aop.ServiceImpl1.GetHelloString()
 Total: 2, Success: 2, Fail: 0, AvgRT: `))
@@ -81,7 +81,7 @@ Total: 2, Success: 2, Fail: 0, AvgRT: `))
 	go func() {
 		output, err := iocli_command.Run([]string{"trace"}, time.Second*6)
 		assert.Nil(t, err)
-		assert.Equal(t, 1001, strings.Count(output, ", OperationName: github.com/alibaba/ioc-golang/test/stress/aop.(*recursiveApp_).RunTest, StartTime: "))
+		assert.Equal(t, 901, strings.Count(output, ", OperationName: github.com/alibaba/ioc-golang/test/stress/aop.(*recursiveApp_).RunTest, StartTime: "))
 		close(closeCh)
 	}()
 	time.Sleep(time.Second * 1)
