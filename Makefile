@@ -15,10 +15,10 @@ gen-all: proto-gen
 	sudo make imports
 
 tidy-all:
-	cd extension && go mod tidy -compat=1.17
-	cd example && go mod tidy -compat=1.17
-	cd iocli && go mod tidy -compat=1.17
-	go mod tidy -compat=1.17
+	cd extension && go mod tidy
+	cd example && go mod tidy
+	cd iocli && go mod tidy
+	go mod tidy
 
 imports:
 	goimports -local github.com/alibaba/ioc-golang -w .

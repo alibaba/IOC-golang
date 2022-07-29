@@ -19,11 +19,23 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
+	"github.com/alibaba/ioc-golang"
 )
 
 var Cmd = &cobra.Command{
 	Use: "iocli",
 	Run: func(cmd *cobra.Command, args []string) {
+		if versionFlag {
+			fmt.Printf("iocli version %s\n", ioc.Version)
+			return
+		}
 		fmt.Println("hello")
 	},
+}
+
+var versionFlag bool
+
+func init() {
+	Cmd.PersistentFlags().BoolVarP(&versionFlag, "version", "v", false, "Version of iocli")
 }
