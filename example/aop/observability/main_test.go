@@ -34,7 +34,7 @@ func TestObservability(t *testing.T) {
 	go func() {
 		app.Run()
 	}()
-	time.Sleep(time.Second * 3)
+	time.Sleep(time.Second * 10)
 	output, err := iocli_command.Run([]string{"list"}, time.Second)
 	assert.Nil(t, err)
 	assert.Equal(t, `github.com/alibaba/ioc-golang/example/aop/observability.App

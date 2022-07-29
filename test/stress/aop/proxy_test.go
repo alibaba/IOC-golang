@@ -33,6 +33,7 @@ func TestAOPConcurrent(t *testing.T) {
 	go func() {
 		output, err := iocli_command.Run([]string{"monitor"}, time.Second*6)
 		assert.Nil(t, err)
+		t.Log(output)
 		assert.True(t, strings.Contains(output, `github.com/alibaba/ioc-golang/test/stress/aop.NormalApp.RunTest()
 Total: 100000, Success: 100000, Fail: 0, AvgRT: `))
 		assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
@@ -63,6 +64,7 @@ func TestAOPRecursive(t *testing.T) {
 	go func() {
 		output, err := iocli_command.Run([]string{"monitor"}, time.Second*6)
 		assert.Nil(t, err)
+		t.Log(output)
 		assert.True(t, strings.Contains(output, `github.com/alibaba/ioc-golang/test/stress/aop.RecursiveApp.RunTest()
 Total: 901, Success: 901, Fail: 0, AvgRT: `))
 		assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
