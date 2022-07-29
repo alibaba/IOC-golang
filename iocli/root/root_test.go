@@ -22,11 +22,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/test/iocli_command"
 )
 
 func TestPrintVersion(t *testing.T) {
 	output, err := iocli_command.Run([]string{"--version"}, time.Second)
 	assert.Nil(t, err)
-	assert.True(t, strings.Contains(output, "iocli version 1.0.0"))
+	assert.True(t, strings.Contains(output, "iocli version "+ioc.Version))
 }
