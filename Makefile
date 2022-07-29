@@ -15,9 +15,6 @@ gen-all: proto-gen
 	sudo make imports
 
 tidy-all:
-	cd extension && go mod tidy
-	cd example && go mod tidy
-	cd iocli && go mod tidy
 	go mod tidy
 
 imports:
@@ -28,9 +25,6 @@ lint: tidy-all
 
 test-all:
 	go test ./... -cover -p 1
-	cd extension && go test ./... -cover -p 1
-	cd example && go test ./... -cover -p 1
-	cd iocli && go test ./... -cover -p 1
 
 release-all: gen-all test-all
 	mkdir -p .release/ioc-golang

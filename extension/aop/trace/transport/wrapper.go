@@ -18,6 +18,7 @@ package transport
 import (
 	"bytes"
 	"context"
+	"sync"
 
 	"github.com/apache/thrift/lib/go/thrift"
 	"github.com/jaegertracing/jaeger/model"
@@ -34,22 +35,27 @@ type localWrappedHTTPTransport struct {
 	httpTransport         *transport.HTTPTransport
 	spans                 []*tJaegerClient.Span
 	collector             *collector
+	collectorLock         sync.Mutex
 	processor             *tJaegerClient.Process
 	tJaegerClientBatchOut chan *bytes.Buffer
 }
 
-func newLocalWrappedHTTPTransport(appName string, httpTransport *transport.HTTPTransport, traceOut chan []*model.Trace, tJaegerClientBatchOut chan *bytes.Buffer, interval int) *localWrappedHTTPTransport {
+func newLocalWrappedHTTPTransport(httpTransport *transport.HTTPTransport, tJaegerClientBatchOut chan *bytes.Buffer) *localWrappedHTTPTransport {
+	return &localWrappedHTTPTransport{
+		httpTransport:         httpTransport,
+		spans:                 make([]*tJaegerClient.Span, 0),
+		tJaegerClientBatchOut: tJaegerClientBatchOut,
+	}
+}
+func (l *localWrappedHTTPTransport) SetCollector(appName string, traceOut chan []*model.Trace, interval int) {
 	c, err := newCollector(appName, interval, traceOut)
 	if err != nil {
 		// todo
 		panic(err)
 	}
-	return &localWrappedHTTPTransport{
-		httpTransport:         httpTransport,
-		spans:                 make([]*tJaegerClient.Span, 0),
-		collector:             c,
-		tJaegerClientBatchOut: tJaegerClientBatchOut,
-	}
+	l.collectorLock.Lock()
+	defer l.collectorLock.Unlock()
+	l.collector = c
 }
 
 func (l *localWrappedHTTPTransport) Append(span *jaeger.Span) (int, error) {
@@ -75,7 +81,11 @@ func (l *localWrappedHTTPTransport) Flush() (int, error) {
 		tdes := thrift.NewTDeserializer()
 		batch := &tJaeger.Batch{}
 		if err := tdes.Read(context.Background(), batch, data.Bytes()); err == nil {
-			_ = l.collector.handle([]*tJaeger.Batch{batch})
+			l.collectorLock.Lock()
+			if remoteCollector := l.collector; remoteCollector != nil {
+				_ = remoteCollector.handle([]*tJaeger.Batch{batch})
+			}
+			l.collectorLock.Unlock()
 		}
 		l.spans = l.spans[:0]
 		// 2. send tJaegerClientBatch bytes back to cli in order to push to 'pushAddr' if needed
@@ -87,18 +97,38 @@ func (l *localWrappedHTTPTransport) Flush() (int, error) {
 }
 
 func (l *localWrappedHTTPTransport) Close() error {
-	l.collector.destroy()
+	l.RemoveCollector()
+	localWrappedHTTPTransportSingleton = nil
 	return l.httpTransport.Close()
+}
+
+func (l *localWrappedHTTPTransport) RemoveCollector() {
+	l.collectorLock.Lock()
+	defer l.collectorLock.Unlock()
+	if l.collector != nil {
+		l.collector.destroy()
+		l.collector = nil
+	}
 }
 
 var localWrappedHTTPTransportSingleton *localWrappedHTTPTransport
 
-func GetLocalWrappedHTTPTransportSingleton(appName, collectorAddress string, out chan []*model.Trace, batchBufferOut chan *bytes.Buffer, interval int) jaeger.Transport {
+func GetLocalWrappedHTTPTransportSingleton(collectorAddress string, batchBufferOut chan *bytes.Buffer) jaeger.Transport {
 	if localWrappedHTTPTransportSingleton == nil {
 		httpTransport := transport.NewHTTPTransport(common.GetJaegerCollectorEndpoint(collectorAddress))
-		localWrappedHTTPTransportSingleton = newLocalWrappedHTTPTransport(appName, httpTransport, out, batchBufferOut, interval)
+		localWrappedHTTPTransportSingleton = newLocalWrappedHTTPTransport(httpTransport, batchBufferOut)
 	}
 	return localWrappedHTTPTransportSingleton
+}
+
+func RemoveCollector() {
+	if localWrappedHTTPTransportSingleton != nil {
+		localWrappedHTTPTransportSingleton.RemoveCollector()
+	}
+}
+
+func SetCollector(appName string, traceOut chan []*model.Trace, interval int) {
+	localWrappedHTTPTransportSingleton.SetCollector(appName, traceOut, interval)
 }
 
 func serializeThrift(obj uberThrift.TStruct) (*bytes.Buffer, error) {

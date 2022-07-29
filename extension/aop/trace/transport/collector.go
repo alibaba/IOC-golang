@@ -17,8 +17,9 @@ package transport
 
 import (
 	"context"
-	"fmt"
 	"time"
+
+	"github.com/alibaba/ioc-golang/logger"
 
 	"github.com/jaegertracing/jaeger/cmd/collector/app"
 	"github.com/jaegertracing/jaeger/cmd/collector/app/flags"
@@ -112,7 +113,7 @@ func (c *collector) runReadLoop(period time.Duration) {
 			}
 			traces, err := c.spanReader.FindTraces(context.Background(), params)
 			if err != nil {
-				fmt.Println("jaeger local collector read err = ", err)
+				logger.Cyan("jaeger local collector read err = ", err)
 				continue
 			}
 			lastTime = time.Now()
@@ -120,6 +121,7 @@ func (c *collector) runReadLoop(period time.Duration) {
 				c.out <- traces
 			}
 		case <-c.stopCh:
+			return
 		}
 	}
 }

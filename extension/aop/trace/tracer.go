@@ -49,10 +49,12 @@ func (w *wrapperTracer) getRawTracer() opentracing.Tracer {
 }
 
 func (w *wrapperTracer) subscribeTrace(subscribingTraceChan chan []*model.Trace) {
+	transport.SetCollector(appName, subscribingTraceChan, collectTraceInterval)
 	w.subscribingTraceChan = subscribingTraceChan
 }
 
 func (w *wrapperTracer) removeSubscribingTrace() {
+	transport.RemoveCollector()
 	w.subscribingTraceChan = nil
 }
 
@@ -89,7 +91,7 @@ func getGlobalTracer() *wrapperTracer {
 	if tracer == nil {
 		outCh := make(chan []*model.Trace)
 		batchBufferOut := make(chan *bytes.Buffer)
-		rawJaegerTracer, _ := newJaegerTracer(appName, collectorAddress, outCh, batchBufferOut)
+		rawJaegerTracer, _ := newJaegerTracer(appName, collectorAddress, batchBufferOut)
 		tracer = &wrapperTracer{
 			rawTracer:      rawJaegerTracer,
 			batchBufferOut: batchBufferOut,
@@ -112,10 +114,10 @@ func setAppName(name string) {
 	appName = name
 }
 
-func newJaegerTracer(service string, collectorAddress string, out chan []*model.Trace, batchBufferOut chan *bytes.Buffer) (opentracing.Tracer, io.Closer) {
+func newJaegerTracer(service string, collectorAddress string, batchBufferOut chan *bytes.Buffer) (opentracing.Tracer, io.Closer) {
 	return jaeger.NewTracer(
 		service,
 		jaeger.NewConstSampler(true),
-		jaeger.NewRemoteReporter(transport.GetLocalWrappedHTTPTransportSingleton(appName, collectorAddress, out, batchBufferOut, collectTraceInterval)),
+		jaeger.NewRemoteReporter(transport.GetLocalWrappedHTTPTransportSingleton(collectorAddress, batchBufferOut)),
 	)
 }
