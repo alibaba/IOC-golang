@@ -83,6 +83,7 @@ var monitorCommand = &cobra.Command{
 		go func() {
 			signals := make(chan os.Signal, 1)
 			signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+			<-signals
 			fmt.Println()
 			logger.Red("Got interrupt signal, collecting data during %dms", time.Now().UnixMilli()-startTime)
 			logger.Red("====================Collection====================")
