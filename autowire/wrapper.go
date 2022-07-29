@@ -18,6 +18,7 @@ package autowire
 import (
 	"fmt"
 	"reflect"
+	"sync"
 
 	perrors "github.com/pkg/errors"
 
@@ -45,16 +46,20 @@ func getWrappedAutowire(autowire Autowire, allAutowires map[string]WrapperAutowi
 
 type WrapperAutowireImpl struct {
 	Autowire
-	singletonImpledMap map[string]interface{}
-	allAutowires       map[string]WrapperAutowire
+	singletonImpledMap     map[string]interface{}
+	singletonImpledMapLock sync.RWMutex
+	allAutowires           map[string]WrapperAutowire
 }
 
 // ImplWithParam is used to get impled struct with param
 func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}, withProxy bool) (interface{}, error) {
 	// 1. check singleton
+	w.singletonImpledMapLock.RLock()
 	if singletonImpledPtr, ok := w.singletonImpledMap[sdID]; w.Autowire.IsSingleton() && ok {
+		w.singletonImpledMapLock.RUnlock()
 		return singletonImpledPtr, nil
 	}
+	w.singletonImpledMapLock.RUnlock()
 
 	// 2. factory
 	impledPtr, err := w.Autowire.Factory(sdID)
@@ -88,7 +93,9 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}, with
 
 	// 5. record singleton ptr
 	if w.Autowire.IsSingleton() {
+		w.singletonImpledMapLock.Lock()
 		w.singletonImpledMap[sdID] = impledPtr
+		w.singletonImpledMapLock.Unlock()
 	}
 	return impledPtr, nil
 }

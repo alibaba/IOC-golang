@@ -84,7 +84,7 @@ Total: 2, Success: 2, Fail: 0, AvgRT: `))
 		assert.Equal(t, 901, strings.Count(output, ", OperationName: github.com/alibaba/ioc-golang/test/stress/aop.(*recursiveApp_).RunTest, StartTime: "))
 		close(closeCh)
 	}()
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 3)
 	recApp.RunTest(t)
 	<-closeCh
 }
