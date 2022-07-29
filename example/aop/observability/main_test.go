@@ -50,6 +50,7 @@ github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl2
 
 	output, err = iocli_command.Run([]string{"monitor", "-i", "3"}, time.Second*4)
 	assert.Nil(t, err)
+	t.Log(output)
 	assert.True(t, strings.Contains(output, `github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1.GetHelloString()
 Total: 1, Success: 1, Fail: 0, AvgRT: `))
 	assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
@@ -68,6 +69,7 @@ Response 1: (string) (len=36) "This is ServiceImpl2, hello laurence"`))
 
 	output, err = iocli_command.Run([]string{"monitor", "-i", "3"}, time.Second*4)
 	assert.Nil(t, err)
+	t.Log(output)
 	assert.True(t, strings.Contains(output, `github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1.GetHelloString()
 Total: 1, Success: 1, Fail: 0, AvgRT: `))
 	assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
