@@ -34,7 +34,7 @@ func TestObservability(t *testing.T) {
 	go func() {
 		app.Run()
 	}()
-	time.Sleep(time.Millisecond * 500)
+	time.Sleep(time.Second * 1)
 	output, err := iocli_command.Run([]string{"list"}, time.Second)
 	assert.Nil(t, err)
 	assert.Equal(t, `github.com/alibaba/ioc-golang/example/aop/observability.App
@@ -50,6 +50,7 @@ github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl2
 
 	output, err = iocli_command.Run([]string{"monitor", "-i", "3"}, time.Second*4)
 	assert.Nil(t, err)
+	t.Log(output)
 	assert.True(t, strings.Contains(output, `github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1.GetHelloString()
 Total: 1, Success: 1, Fail: 0, AvgRT: `))
 	assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
@@ -68,6 +69,7 @@ Response 1: (string) (len=36) "This is ServiceImpl2, hello laurence"`))
 
 	output, err = iocli_command.Run([]string{"monitor", "-i", "3"}, time.Second*4)
 	assert.Nil(t, err)
+	t.Log(output)
 	assert.True(t, strings.Contains(output, `github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1.GetHelloString()
 Total: 1, Success: 1, Fail: 0, AvgRT: `))
 	assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
@@ -76,12 +78,14 @@ Total: 1, Success: 1, Fail: 0, AvgRT: `))
 
 	output, err = iocli_command.Run([]string{"trace", "github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1", "GetHelloString"}, time.Second*6)
 	assert.Nil(t, err)
+	t.Log(output)
 	assert.True(t, strings.Contains(output, `OperationName: github.com/alibaba/ioc-golang/example/aop/observability.(*serviceImpl2_).GetHelloString, StartTime: `))
 	assert.True(t, strings.Contains(output, `OperationName: github.com/alibaba/ioc-golang/example/aop/observability.(*serviceImpl1_).GetHelloString, StartTime: `))
 	assert.True(t, strings.Contains(output, `ReferenceSpans: [{TraceID:`))
 
 	output, err = iocli_command.Run([]string{"trace", "github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl2", "GetHelloString"}, time.Second*6)
 	assert.Nil(t, err)
+	t.Log(output)
 	assert.True(t, strings.Contains(output, `OperationName: github.com/alibaba/ioc-golang/example/aop/observability.(*serviceImpl2_).GetHelloString, StartTime: `))
 	assert.True(t, !strings.Contains(output, `OperationName: github.com/alibaba/ioc-golang/example/aop/observability.(*serviceImpl1_).GetHelloString, StartTime: `))
 	assert.True(t, strings.Contains(output, `ReferenceSpans: [{TraceID:`))

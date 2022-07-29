@@ -15,10 +15,7 @@ gen-all: proto-gen
 	sudo make imports
 
 tidy-all:
-	cd extension && go mod tidy -compat=1.17
-	cd example && go mod tidy -compat=1.17
-	cd iocli && go mod tidy -compat=1.17
-	go mod tidy -compat=1.17
+	go mod tidy
 
 imports:
 	goimports -local github.com/alibaba/ioc-golang -w .
@@ -28,12 +25,9 @@ lint: tidy-all
 
 test-all:
 	go test ./... -cover -p 1
-	cd extension && go test ./... -cover -p 1
-	cd example && go test ./... -cover -p 1
-	cd iocli && go test ./... -cover -p 1
 
 release-all: gen-all test-all
 	mkdir -p .release/ioc-golang
 	cd iocli  && make build-all-platform && mv ./.release ../.release/iocli
 	cp -r `ls` ./.release/ioc-golang
-	tar -czvf ./.release/ioc-golang.tar.gz ./.release/ioc-golang
+	cd ./.release && tar -czvf ./ioc-golang.tar.gz ./ioc-golang

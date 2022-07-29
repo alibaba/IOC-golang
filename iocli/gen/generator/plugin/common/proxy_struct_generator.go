@@ -29,7 +29,7 @@ func GenProxyStruct(proxySuffix string, c plugin.CodeWriter, needProxyStructInfo
 		// get all methods
 		c.Linef(`type %s%s struct {`, ToFirstCharLower(info.Name), proxySuffix)
 		methods := ParseMethodInfoFromGoFiles(info.Name, root.GoFiles)
-		for idx, _ := range methods {
+		for idx := range methods {
 			importsAlias := methods[idx].GetImportAlias()
 			aliasSwapMap := make(map[string]string)
 			if len(importsAlias) != 0 {

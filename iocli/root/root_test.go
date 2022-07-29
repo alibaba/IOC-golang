@@ -16,26 +16,18 @@
 package root
 
 import (
-	"fmt"
+	"strings"
+	"testing"
+	"time"
 
-	"github.com/spf13/cobra"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/test/iocli_command"
 )
 
-var Cmd = &cobra.Command{
-	Use: "iocli",
-	Run: func(cmd *cobra.Command, args []string) {
-		if versionFlag {
-			fmt.Printf("iocli version %s\n", ioc.Version)
-			return
-		}
-		fmt.Println("hello")
-	},
-}
-
-var versionFlag bool
-
-func init() {
-	Cmd.PersistentFlags().BoolVarP(&versionFlag, "version", "v", false, "Version of iocli")
+func TestPrintVersion(t *testing.T) {
+	output, err := iocli_command.Run([]string{"--version"}, time.Second)
+	assert.Nil(t, err)
+	assert.True(t, strings.Contains(output, "iocli version "+ioc.Version))
 }

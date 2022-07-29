@@ -23,6 +23,7 @@ import (
 	"os/signal"
 	"sort"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/alibaba/ioc-golang/logger"
@@ -81,57 +82,55 @@ var monitorCommand = &cobra.Command{
 		startTime := time.Now().UnixMilli()
 		go func() {
 			signals := make(chan os.Signal, 1)
-			signal.Notify(signals, os.Interrupt, os.Kill)
-			select {
-			case <-signals:
-				fmt.Println()
-				logger.Red("Got interrupt signal, collecting data during %dms", time.Now().UnixMilli()-startTime)
-				logger.Red("====================Collection====================")
-				logger.Red("%s", time.Now().Format("2006/01/02 15:04:05"))
-				allMonitorResponseItemsLock.RLock()
+			signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+			<-signals
+			fmt.Println()
+			logger.Red("Got interrupt signal, collecting data during %dms", time.Now().UnixMilli()-startTime)
+			logger.Red("====================Collection====================")
+			logger.Red("%s", time.Now().Format("2006/01/02 15:04:05"))
+			allMonitorResponseItemsLock.RLock()
 
-				allMethods := make(methodSorter, 0)
-				for k, _ := range allMonitorResponseItemsMap {
-					allMethods = append(allMethods, k)
-				}
-				sort.Sort(allMethods)
-
-				for _, methodKey := range allMethods {
-					// get method all records
-					items := allMonitorResponseItemsMap[methodKey]
-					logger.Blue(methodKey)
-
-					// init value
-					total := int64(0)
-					success := int64(0)
-					fail := int64(0)
-					avgRT := float32(0)
-					avgFailRate := float32(0)
-
-					allAvgRTS := make([]float32, 0)
-					allFailRates := make([]float32, 0)
-
-					// calculate total and average
-					for _, item := range items {
-						allAvgRTS = append(allAvgRTS, item.AvgRT)
-						allFailRates = append(allFailRates, item.FailRate)
-
-						total += item.Total
-						fail += item.Fail
-						success += item.Success
-					}
-					avgRT = getAverageFloat32(allAvgRTS)
-					avgFailRate = getAverageFloat32(allFailRates)
-
-					// print information
-					logger.Blue(fmt.Sprintf("Total: %d, Success: %d, Fail: %d, AvgRT: %.2fus, FailRate: %.2f%%",
-						total, success, fail, avgRT, avgFailRate))
-				}
-
-				allMonitorResponseItemsLock.RUnlock()
-				// shutdown
-				os.Exit(0)
+			allMethods := make(methodSorter, 0)
+			for k := range allMonitorResponseItemsMap {
+				allMethods = append(allMethods, k)
 			}
+			sort.Sort(allMethods)
+
+			for _, methodKey := range allMethods {
+				// get method all records
+				items := allMonitorResponseItemsMap[methodKey]
+				logger.Blue(methodKey)
+
+				// init value
+				total := int64(0)
+				success := int64(0)
+				fail := int64(0)
+				avgRT := float32(0)
+				avgFailRate := float32(0)
+
+				allAvgRTS := make([]float32, 0)
+				allFailRates := make([]float32, 0)
+
+				// calculate total and average
+				for _, item := range items {
+					allAvgRTS = append(allAvgRTS, item.AvgRT)
+					allFailRates = append(allFailRates, item.FailRate)
+
+					total += item.Total
+					fail += item.Fail
+					success += item.Success
+				}
+				avgRT = getAverageFloat32(allAvgRTS)
+				avgFailRate = getAverageFloat32(allFailRates)
+
+				// print information
+				logger.Blue(fmt.Sprintf("Total: %d, Success: %d, Fail: %d, AvgRT: %.2fus, FailRate: %.2f%%",
+					total, success, fail, avgRT, avgFailRate))
+			}
+
+			allMonitorResponseItemsLock.RUnlock()
+			// shutdown
+			os.Exit(0)
 		}()
 		for {
 			msg, err := client.Recv()

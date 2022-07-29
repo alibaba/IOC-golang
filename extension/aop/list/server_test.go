@@ -16,6 +16,7 @@
 package list
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -41,7 +42,7 @@ func TestListServiceImpl(t *testing.T) {
 		AllInterfaceMetadataMap: debugMetadata,
 	})
 	assert.Nil(t, err)
-	result, err := mockService.List(nil, nil)
+	result, err := mockService.List(context.TODO(), nil)
 	assert.Nil(t, err)
 	serviceMetadatas := result.GetServiceMetadata()
 	assert.NotNil(t, serviceMetadatas)

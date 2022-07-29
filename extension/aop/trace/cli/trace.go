@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/alibaba/ioc-golang/logger"
 
@@ -83,11 +84,9 @@ var trace = &cobra.Command{
 			logger.Cyan("Spans data is collecting, in order to save to %s", storeToFile)
 			go func() {
 				signals := make(chan os.Signal, 1)
-				signal.Notify(signals, os.Interrupt, os.Kill)
-				select {
-				case <-signals:
-					writeSpans(cacheData)
-				}
+				signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+				<-signals
+				writeSpans(cacheData)
 			}()
 		}
 
