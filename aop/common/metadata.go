@@ -17,8 +17,6 @@ package common
 
 import (
 	"sync"
-
-	"github.com/glory-go/monkey"
 )
 
 type StructMetadata struct {
@@ -26,8 +24,7 @@ type StructMetadata struct {
 }
 
 type MethodMetadata struct {
-	Guard *monkey.PatchGuard
-	Lock  sync.Mutex
+	Lock sync.Mutex
 }
 
 type AllInterfaceMetadata map[string]*StructMetadata

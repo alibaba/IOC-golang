@@ -29,7 +29,6 @@ func init() {
 }
 
 const Name = "config"
-const metadatMap = "config"
 
 type Autowire struct {
 	autowire.Autowire

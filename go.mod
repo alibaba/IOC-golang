@@ -4,12 +4,11 @@ go 1.18
 
 require (
 	dubbo.apache.org/dubbo-go/v3 v3.0.2
-	github.com/apache/rocketmq-client-go/v2 v2.1.1
+	github.com/apache/rocketmq-client-go/v2 v2.1.0
 	github.com/apache/thrift v0.16.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/color v1.13.0
 	github.com/gin-gonic/gin v1.8.1
-	github.com/glory-go/monkey v1.0.3
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gobuffalo/packr/v2 v2.8.3
 	github.com/google/uuid v1.3.0
@@ -137,7 +136,6 @@ require (
 	github.com/olivere/elastic v6.2.37+incompatible // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal v0.54.0 // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/jaeger v0.54.0 // indirect
-	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
@@ -155,7 +153,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stathat/consistent v1.0.0 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/subosito/gotenv v1.3.0 // indirect
 	github.com/tidwall/gjson v1.13.0 // indirect
@@ -193,4 +190,5 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/apimachinery v0.24.0 // indirect
+	stathat.com/c/consistent v1.0.0 // indirect
 )

@@ -20,7 +20,7 @@ import (
 
 	"github.com/apache/rocketmq-client-go/v2/admin"
 
-	"github.com/apache/rocketmq-client-go/v2"
+	rocketmq "github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 )

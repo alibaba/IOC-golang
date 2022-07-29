@@ -87,6 +87,7 @@ func (l *localWrappedHTTPTransport) Flush() (int, error) {
 }
 
 func (l *localWrappedHTTPTransport) Close() error {
+	l.collector.destroy()
 	return l.httpTransport.Close()
 }
 
