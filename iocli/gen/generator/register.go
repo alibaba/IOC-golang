@@ -154,18 +154,21 @@ type copyMethodMaker struct {
 	pkg *loader.Package
 	*importsList
 	*codeWriter
+	debugMode bool
 }
 
 type copyMethodMakerParam struct {
 	pkg *loader.Package
 	*importsList
 	outContent io.Writer
+	DebugMode  bool
 }
 
 func (c *copyMethodMakerParam) Init(m *copyMethodMaker) (*copyMethodMaker, error) {
 	m.pkg = c.pkg
 	m.importsList = c.importsList
 	m.codeWriter = &codeWriter{Out: c.outContent}
+	m.debugMode = c.DebugMode
 	return m, nil
 }
 
@@ -191,6 +194,12 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 	c.Line(`func init() {`)
 	autowireAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire")
 	for _, info := range infos {
+		if c.debugMode {
+			fmt.Printf("[Scan Struct] %s.%s\n", root.PkgPath, info.Name)
+			for key, v := range info.Markers {
+				fmt.Printf("[Scan Struct %s Marker] with marker: key = %s, value = %+v\n", info.Name, key, v)
+			}
+		}
 		// 1. create all struct-level plugins
 		allImplPluginsList, err := allimpls.GetImpl(util.GetSDIDByStructPtr(new(plugin.CodeGeneratorPluginForOneStruct)))
 		if err != nil {
@@ -409,7 +418,7 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 	}
 
 	// gen proxy struct
-	common.GenProxyStruct("_", c, needProxyStructInfos, root)
+	common.GenProxyStruct("_", c, needProxyStructInfos, root, c.debugMode)
 
 	// gen interface
 	common.GenInterface("IOCInterface", c, needProxyStructInfos, root)
@@ -497,7 +506,7 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 	}
 
 	// gen iocRPC client
-	genIOCRPCClientStub(ctx, root, rpcServiceStructInfos)
+	genIOCRPCClientStub(ctx, root, rpcServiceStructInfos, c.debugMode)
 }
 
 func getParamInterfaceType(paramType string) string {

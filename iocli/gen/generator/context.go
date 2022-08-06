@@ -42,6 +42,7 @@ type objectGenCtxParam struct {
 	Collector  *markers.Collector
 	Checker    *loader.TypeChecker
 	HeaderText string
+	DebugMode  bool
 }
 
 func (o *objectGenCtxParam) Init(i *objectGenCtx) (*objectGenCtx, error) {
@@ -79,6 +80,7 @@ func (ctx *objectGenCtx) generateForPackage(genCtx *genall.GenerationContext, ro
 		pkg:         root,
 		importsList: imports,
 		outContent:  outContent,
+		DebugMode:   ctx.DebugMode,
 	})
 	if err != nil {
 		fmt.Printf("get copy method maker error = %s\n", err)
@@ -89,10 +91,16 @@ func (ctx *objectGenCtx) generateForPackage(genCtx *genall.GenerationContext, ro
 	for _, info := range infos {
 		if len(info.Markers["ioc:autowire"]) != 0 {
 			needGen = true
+			if ctx.DebugMode {
+				fmt.Printf("==========\n[Gen Pkg %s] Found struct that needs to gen code\n", root.PkgPath)
+			}
 			break
 		}
 	}
 	if !needGen {
+		if ctx.DebugMode {
+			fmt.Printf("==========\n[Skip Pkg %s] Not found struct under the package that needs to gen code\n", root.PkgPath)
+		}
 		return nil
 	}
 

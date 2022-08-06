@@ -35,7 +35,7 @@ import (
 	"sigs.k8s.io/controller-tools/pkg/markers"
 )
 
-func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rpcServiceStructInfos []*markers.TypeInfo) {
+func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rpcServiceStructInfos []*markers.TypeInfo, debugMode bool) {
 	// api folder root
 	loadedRoots, err := loader.LoadRoots(root.PkgPath + "/api")
 	if err != nil {
@@ -122,7 +122,7 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 		c.Line(`})`)
 		c.Line(`}`)
 
-		common.GenProxyStruct("IOCRPCClient_", c, []*markers.TypeInfo{info}, root)
+		common.GenProxyStruct("IOCRPCClient_", c, []*markers.TypeInfo{info}, root, debugMode)
 		common.GenInterface("IOCRPCClient", c, []*markers.TypeInfo{info}, root)
 
 		c.Linef("type %sIOCRPCClient struct {", common.ToFirstCharLower(info.Name))

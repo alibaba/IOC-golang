@@ -28,6 +28,8 @@ import (
 	"sigs.k8s.io/controller-tools/pkg/markers"
 )
 
+var DebugMode = false
+
 type Generator struct {
 	HeaderFile string `marker:",optional"`
 	Year       string `marker:",optional"`
@@ -70,6 +72,7 @@ func (d Generator) Generate(ctx *genall.GenerationContext) error {
 		Collector:  ctx.Collector,
 		Checker:    ctx.Checker,
 		HeaderText: headerText,
+		DebugMode:  DebugMode,
 	})
 	if err != nil {
 		return err
