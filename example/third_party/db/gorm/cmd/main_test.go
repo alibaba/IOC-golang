@@ -48,7 +48,7 @@ func TestGORM(t *testing.T) {
 		log.Println("Warning: Mysql image only support amd arch. Skip integration test")
 		return
 	}
-	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", time.Second*10))
+	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", time.Second*20))
 	if err := ioc.Load(
 		config.WithSearchPath("../conf")); err != nil {
 		panic(err)
