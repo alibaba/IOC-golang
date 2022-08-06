@@ -16,6 +16,7 @@
 package common
 
 import (
+	"fmt"
 	"strings"
 
 	"sigs.k8s.io/controller-tools/pkg/loader"
@@ -24,12 +25,15 @@ import (
 	"github.com/alibaba/ioc-golang/iocli/gen/generator/plugin"
 )
 
-func GenProxyStruct(proxySuffix string, c plugin.CodeWriter, needProxyStructInfos []*markers.TypeInfo, root *loader.Package) {
+func GenProxyStruct(proxySuffix string, c plugin.CodeWriter, needProxyStructInfos []*markers.TypeInfo, root *loader.Package, debugMode bool) {
 	for _, info := range needProxyStructInfos {
 		// get all methods
 		c.Linef(`type %s%s struct {`, ToFirstCharLower(info.Name), proxySuffix)
 		methods := ParseMethodInfoFromGoFiles(info.Name, root.GoFiles)
 		for idx := range methods {
+			if debugMode {
+				fmt.Printf("[Method Scan] Struct %s method %s found\n", info.Name, methods[idx].Name)
+			}
 			importsAlias := methods[idx].GetImportAlias()
 			aliasSwapMap := make(map[string]string)
 			if len(importsAlias) != 0 {
