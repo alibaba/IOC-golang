@@ -20,8 +20,6 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/alibaba/ioc-golang/logger"
-
 	"github.com/alibaba/ioc-golang/aop/common"
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/normal"
@@ -89,17 +87,17 @@ func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName 
 	rawFunction := rf
 	interceptorImpls := getInterceptors()
 	proxyFunc := func(in []reflect.Value) []reflect.Value {
-		defer func() {
-			if r := recover(); r != nil {
-				logger.Red("[AOP Proxy] Catch error = %s", r)
-			}
-		}()
-
 		invocationCtx := NewInvocationContext(proxyPtr, sdid, methodName, common.CurrentCallingMethodName(3), in)
 
 		for _, i := range interceptorImpls {
 			i.BeforeInvoke(invocationCtx)
 		}
+
+		defer func() {
+			for _, i := range interceptorImpls {
+				i.AfterInvoke(invocationCtx)
+			}
+		}()
 
 		if isVariadic {
 			varParam := in[len(in)-1]
@@ -111,10 +109,6 @@ func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName 
 
 		out := rawFunction.Call(in)
 		invocationCtx.SetReturnValues(out)
-
-		for _, i := range interceptorImpls {
-			i.AfterInvoke(invocationCtx)
-		}
 
 		return out
 	}
