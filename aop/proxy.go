@@ -117,7 +117,9 @@ func makeProxyFunction(proxyPtr interface{}, rf reflect.Value, sdid, methodName 
 
 func GetMockProxyFunctionLayer() func(func()) {
 	proxyFunc := func(mockFunc func()) {
-		mockFunc()
+		defer func() {
+			mockFunc()
+		}()
 	}
 	return proxyFunc
 }
