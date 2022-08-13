@@ -8,7 +8,6 @@ package aop
 import (
 	testingx "testing"
 
-	ioc_golangaop "github.com/alibaba/ioc-golang/aop"
 	autowire "github.com/alibaba/ioc-golang/autowire"
 	normal "github.com/alibaba/ioc-golang/autowire/normal"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
@@ -31,56 +30,6 @@ func init() {
 		},
 	}
 	normal.RegisterStructDescriptor(normalAppStructDescriptor)
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &afterIsCalledAfterPanicTestInterceptor_{}
-		},
-	})
-	afterIsCalledAfterPanicTestInterceptorStructDescriptor := &autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &afterIsCalledAfterPanicTestInterceptor{}
-		},
-		ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
-			impl := i.(*afterIsCalledAfterPanicTestInterceptor)
-			var constructFunc afterIsCalledAfterPanicTestInterceptorConstructFunc = initAfterIsCalledAfterPanicTestInterceptor
-			return constructFunc(impl)
-		},
-		Metadata: map[string]interface{}{
-			"aop":      map[string]interface{}{},
-			"autowire": map[string]interface{}{},
-		},
-	}
-	singleton.RegisterStructDescriptor(afterIsCalledAfterPanicTestInterceptorStructDescriptor)
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &panicAfterCalledTestSubApp_{}
-		},
-	})
-	panicAfterCalledTestSubAppStructDescriptor := &autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &PanicAfterCalledTestSubApp{}
-		},
-		Metadata: map[string]interface{}{
-			"aop":      map[string]interface{}{},
-			"autowire": map[string]interface{}{},
-		},
-	}
-	singleton.RegisterStructDescriptor(panicAfterCalledTestSubAppStructDescriptor)
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &panicAfterCalledTestApp_{}
-		},
-	})
-	panicAfterCalledTestAppStructDescriptor := &autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &PanicAfterCalledTestApp{}
-		},
-		Metadata: map[string]interface{}{
-			"aop":      map[string]interface{}{},
-			"autowire": map[string]interface{}{},
-		},
-	}
-	singleton.RegisterStructDescriptor(panicAfterCalledTestAppStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &recursiveApp_{}
@@ -146,47 +95,12 @@ func init() {
 	normal.RegisterStructDescriptor(serviceStructStructDescriptor)
 }
 
-type afterIsCalledAfterPanicTestInterceptorConstructFunc func(impl *afterIsCalledAfterPanicTestInterceptor) (*afterIsCalledAfterPanicTestInterceptor, error)
 type normalApp_ struct {
 	RunTest_ func(t *testingx.T)
 }
 
 func (n *normalApp_) RunTest(t *testingx.T) {
 	n.RunTest_(t)
-}
-
-type afterIsCalledAfterPanicTestInterceptor_ struct {
-	GetAfterIsCalledNum_ func() int
-	BeforeInvoke_        func(ctx *ioc_golangaop.InvocationContext)
-	AfterInvoke_         func(ctx *ioc_golangaop.InvocationContext)
-}
-
-func (a *afterIsCalledAfterPanicTestInterceptor_) GetAfterIsCalledNum() int {
-	return a.GetAfterIsCalledNum_()
-}
-
-func (a *afterIsCalledAfterPanicTestInterceptor_) BeforeInvoke(ctx *ioc_golangaop.InvocationContext) {
-	a.BeforeInvoke_(ctx)
-}
-
-func (a *afterIsCalledAfterPanicTestInterceptor_) AfterInvoke(ctx *ioc_golangaop.InvocationContext) {
-	a.AfterInvoke_(ctx)
-}
-
-type panicAfterCalledTestSubApp_ struct {
-	RunWithPanic_ func(panicMsg string)
-}
-
-func (p *panicAfterCalledTestSubApp_) RunWithPanic(panicMsg string) {
-	p.RunWithPanic_(panicMsg)
-}
-
-type panicAfterCalledTestApp_ struct {
-	RunWithPanic_ func(panicMst string) (result string)
-}
-
-func (p *panicAfterCalledTestApp_) RunWithPanic(panicMst string) (result string) {
-	return p.RunWithPanic_(panicMst)
 }
 
 type recursiveApp_ struct {
@@ -230,20 +144,6 @@ type NormalAppIOCInterface interface {
 	RunTest(t *testingx.T)
 }
 
-type afterIsCalledAfterPanicTestInterceptorIOCInterface interface {
-	GetAfterIsCalledNum() int
-	BeforeInvoke(ctx *ioc_golangaop.InvocationContext)
-	AfterInvoke(ctx *ioc_golangaop.InvocationContext)
-}
-
-type PanicAfterCalledTestSubAppIOCInterface interface {
-	RunWithPanic(panicMsg string)
-}
-
-type PanicAfterCalledTestAppIOCInterface interface {
-	RunWithPanic(panicMst string) (result string)
-}
-
 type RecursiveAppIOCInterface interface {
 	Reset()
 	RunTest(t *testingx.T)
@@ -284,84 +184,6 @@ func GetNormalAppIOCInterface() (NormalAppIOCInterface, error) {
 		return nil, err
 	}
 	impl := i.(NormalAppIOCInterface)
-	return impl, nil
-}
-
-var _afterIsCalledAfterPanicTestInterceptorSDID string
-
-func GetafterIsCalledAfterPanicTestInterceptorSingleton() (*afterIsCalledAfterPanicTestInterceptor, error) {
-	if _afterIsCalledAfterPanicTestInterceptorSDID == "" {
-		_afterIsCalledAfterPanicTestInterceptorSDID = util.GetSDIDByStructPtr(new(afterIsCalledAfterPanicTestInterceptor))
-	}
-	i, err := singleton.GetImpl(_afterIsCalledAfterPanicTestInterceptorSDID, nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(*afterIsCalledAfterPanicTestInterceptor)
-	return impl, nil
-}
-
-func GetafterIsCalledAfterPanicTestInterceptorIOCInterfaceSingleton() (afterIsCalledAfterPanicTestInterceptorIOCInterface, error) {
-	if _afterIsCalledAfterPanicTestInterceptorSDID == "" {
-		_afterIsCalledAfterPanicTestInterceptorSDID = util.GetSDIDByStructPtr(new(afterIsCalledAfterPanicTestInterceptor))
-	}
-	i, err := singleton.GetImplWithProxy(_afterIsCalledAfterPanicTestInterceptorSDID, nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(afterIsCalledAfterPanicTestInterceptorIOCInterface)
-	return impl, nil
-}
-
-var _panicAfterCalledTestSubAppSDID string
-
-func GetPanicAfterCalledTestSubAppSingleton() (*PanicAfterCalledTestSubApp, error) {
-	if _panicAfterCalledTestSubAppSDID == "" {
-		_panicAfterCalledTestSubAppSDID = util.GetSDIDByStructPtr(new(PanicAfterCalledTestSubApp))
-	}
-	i, err := singleton.GetImpl(_panicAfterCalledTestSubAppSDID, nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(*PanicAfterCalledTestSubApp)
-	return impl, nil
-}
-
-func GetPanicAfterCalledTestSubAppIOCInterfaceSingleton() (PanicAfterCalledTestSubAppIOCInterface, error) {
-	if _panicAfterCalledTestSubAppSDID == "" {
-		_panicAfterCalledTestSubAppSDID = util.GetSDIDByStructPtr(new(PanicAfterCalledTestSubApp))
-	}
-	i, err := singleton.GetImplWithProxy(_panicAfterCalledTestSubAppSDID, nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(PanicAfterCalledTestSubAppIOCInterface)
-	return impl, nil
-}
-
-var _panicAfterCalledTestAppSDID string
-
-func GetPanicAfterCalledTestAppSingleton() (*PanicAfterCalledTestApp, error) {
-	if _panicAfterCalledTestAppSDID == "" {
-		_panicAfterCalledTestAppSDID = util.GetSDIDByStructPtr(new(PanicAfterCalledTestApp))
-	}
-	i, err := singleton.GetImpl(_panicAfterCalledTestAppSDID, nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(*PanicAfterCalledTestApp)
-	return impl, nil
-}
-
-func GetPanicAfterCalledTestAppIOCInterfaceSingleton() (PanicAfterCalledTestAppIOCInterface, error) {
-	if _panicAfterCalledTestAppSDID == "" {
-		_panicAfterCalledTestAppSDID = util.GetSDIDByStructPtr(new(PanicAfterCalledTestApp))
-	}
-	i, err := singleton.GetImplWithProxy(_panicAfterCalledTestAppSDID, nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(PanicAfterCalledTestAppIOCInterface)
 	return impl, nil
 }
 
