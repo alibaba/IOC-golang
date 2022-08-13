@@ -41,7 +41,7 @@ func Load() error {
 				if sd == nil {
 					continue
 				}
-				_, err := aw.ImplWithoutParam(sdID, !sd.DisableProxy)
+				_, err := aw.ImplWithoutParam(sdID, !sd.DisableProxy, false)
 				if err != nil {
 					return fmt.Errorf("[Autowire] Impl sd %s failed, reason is %s", sdID, err)
 				}
@@ -52,14 +52,18 @@ func Load() error {
 }
 
 func Impl(autowireType, key string, param interface{}) (interface{}, error) {
-	return impl(autowireType, key, param, false)
+	return impl(autowireType, key, param, false, false)
 }
 
 func ImplWithProxy(autowireType, key string, param interface{}) (interface{}, error) {
-	return impl(autowireType, key, param, true)
+	return impl(autowireType, key, param, true, false)
 }
 
-func impl(autowireType, key string, param interface{}, expectWithProxy bool) (interface{}, error) {
+func ImplByForce(autowireType, key string, param interface{}) (interface{}, error) {
+	return impl(autowireType, key, param, false, true)
+}
+
+func impl(autowireType, key string, param interface{}, expectWithProxy, force bool) (interface{}, error) {
 	targetSDID := GetSDIDByAliasIfNecessary(key)
 
 	// check expectWithProxy flag
@@ -71,7 +75,7 @@ func impl(autowireType, key string, param interface{}, expectWithProxy bool) (in
 
 	for _, wrapperAutowire := range GetAllWrapperAutowires() {
 		if wrapperAutowire.TagKey() == autowireType {
-			return wrapperAutowire.ImplWithParam(targetSDID, param, expectWithProxy)
+			return wrapperAutowire.ImplWithParam(targetSDID, param, expectWithProxy, force)
 		}
 	}
 	logger.Red("[Autowire] SDID %s with autowire type %s not found in all autowires", key, autowireType)

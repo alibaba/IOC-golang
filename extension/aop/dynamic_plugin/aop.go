@@ -13,13 +13,23 @@
  * limitations under the License.
  */
 
-package boot
+package dynamic_plugin
 
 import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin"
-	_ "github.com/alibaba/ioc-golang/extension/aop/list"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace"
-	_ "github.com/alibaba/ioc-golang/extension/aop/transaction"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch"
+	"google.golang.org/grpc"
+
+	"github.com/alibaba/ioc-golang/aop"
+	"github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin/api/ioc_golang/aop/dynamic_plugin"
 )
+
+const Name = "dynamic_plugin"
+
+func init() {
+	aop.RegisterAOP(aop.AOP{
+		Name: Name,
+		GRPCServiceRegister: func(server *grpc.Server) {
+			listServiceImplSingleton, _ := GetdynamicPluginServiceImplSingleton()
+			dynamic_plugin.RegisterDynamicPluginServiceServer(server, listServiceImplSingleton)
+		},
+	})
+}

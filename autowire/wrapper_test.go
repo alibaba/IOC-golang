@@ -121,7 +121,7 @@ func TestWrapperAutowireImpl_ImplWithParam(t *testing.T) {
 		})
 		wa := getWrappedAutowire(mockAutowire, GetAllWrapperAutowires())
 		RegisterAutowire(wa)
-		impl, err := wa.ImplWithParam(mockSDID, nil, false)
+		impl, err := wa.ImplWithParam(mockSDID, nil, false, false)
 		assert.Nil(t, err)
 		mockImpl, ok := impl.(*MockImpl)
 		assert.True(t, ok)

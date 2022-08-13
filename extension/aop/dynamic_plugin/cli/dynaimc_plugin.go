@@ -13,13 +13,20 @@
  * limitations under the License.
  */
 
-package boot
+package cli
 
 import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin"
-	_ "github.com/alibaba/ioc-golang/extension/aop/list"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace"
-	_ "github.com/alibaba/ioc-golang/extension/aop/transaction"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch"
+	"github.com/spf13/cobra"
+
+	"github.com/alibaba/ioc-golang/iocli/root"
 )
+
+var pluginCommand = &cobra.Command{
+	Use:   "goplugin",
+	Short: "Manage go plugins",
+	Long:  "Manage go plugins",
+}
+
+func init() {
+	root.Cmd.AddCommand(pluginCommand)
+}

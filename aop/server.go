@@ -16,6 +16,7 @@
 package aop
 
 import (
+	"math"
 	"net"
 
 	"google.golang.org/grpc"
@@ -29,7 +30,7 @@ func start(debugConfig *common.Config) error {
 		cl(debugConfig)
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.MaxRecvMsgSize(math.MaxInt32))
 	for _, register := range grpcServiceRegisters {
 		register(grpcServer)
 	}
