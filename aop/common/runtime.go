@@ -42,7 +42,7 @@ func IsTraceEntrance(entranceName string) bool {
 			if strings.HasPrefix(fName, ProxyMethodPrefix) {
 				level++
 			}
-			if level == 2 {
+			if level == 3 {
 				return false
 			}
 			continue
@@ -52,5 +52,5 @@ func IsTraceEntrance(entranceName string) bool {
 		}
 	}
 
-	return level-1 == 0
+	return level-2 == 0
 }
