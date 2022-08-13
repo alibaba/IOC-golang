@@ -16,7 +16,6 @@
 package main
 
 import (
-	"github.com/alibaba/ioc-golang/test/docker_compose"
 	"os/exec"
 	"strings"
 	"testing"
@@ -34,7 +33,6 @@ func (a *App) TestRun(t *testing.T) {
 }
 
 func TestApp(t *testing.T) {
-	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", 0))
 	assert.Nil(t, ioc.Load())
 	app, err := GetAppSingleton()
 	assert.Nil(t, err)
@@ -45,5 +43,4 @@ func TestApp(t *testing.T) {
 	time.Sleep(time.Second)
 	assert.True(t, strings.Contains(output, "Update plugin success!"))
 	app.TestRun(t)
-	assert.Nil(t, docker_compose.DockerComposeDown("../docker-compose/docker-compose.yaml"))
 }

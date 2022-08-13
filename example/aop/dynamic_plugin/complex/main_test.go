@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alibaba/ioc-golang/test/docker_compose"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
@@ -58,6 +60,7 @@ func (a *App) Init(t *testing.T) {
 }
 
 func TestApp(t *testing.T) {
+	assert.Nil(t, docker_compose.DockerComposeUp("../docker-compose/docker-compose.yaml", 0))
 	assert.Nil(t, ioc.Load())
 	app, err := GetAppSingleton()
 	assert.Nil(t, err)
@@ -72,4 +75,5 @@ func TestApp(t *testing.T) {
 	assert.True(t, strings.Contains(output, "Update plugin success!"))
 
 	app.TestWithPlugin(t)
+	assert.Nil(t, docker_compose.DockerComposeDown("../docker-compose/docker-compose.yaml"))
 }
