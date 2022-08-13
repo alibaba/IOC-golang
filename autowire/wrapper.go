@@ -30,8 +30,8 @@ import (
 type WrapperAutowire interface {
 	Autowire
 
-	ImplWithoutParam(sdID string, withProxy bool) (interface{}, error)
-	ImplWithParam(sdID string, param interface{}, withProxy bool) (interface{}, error)
+	ImplWithoutParam(sdID string, withProxy, force bool) (interface{}, error)
+	ImplWithParam(sdID string, param interface{}, withProxy, force bool) (interface{}, error)
 
 	implWithField(info *FieldInfo) (interface{}, error)
 }
@@ -52,10 +52,10 @@ type WrapperAutowireImpl struct {
 }
 
 // ImplWithParam is used to get impled struct with param
-func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}, withProxy bool) (interface{}, error) {
+func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}, withProxy, force bool) (interface{}, error) {
 	// 1. check singleton
 	w.singletonImpledMapLock.RLock()
-	if singletonImpledPtr, ok := w.singletonImpledMap[sdID]; w.Autowire.IsSingleton() && ok {
+	if singletonImpledPtr, ok := w.singletonImpledMap[sdID]; !force && w.Autowire.IsSingleton() && ok {
 		w.singletonImpledMapLock.RUnlock()
 		return singletonImpledPtr, nil
 	}
@@ -92,7 +92,7 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}, with
 	}
 
 	// 5. record singleton ptr
-	if w.Autowire.IsSingleton() {
+	if w.Autowire.IsSingleton() && !force {
 		w.singletonImpledMapLock.Lock()
 		w.singletonImpledMap[sdID] = impledPtr
 		w.singletonImpledMapLock.Unlock()
@@ -101,18 +101,18 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}, with
 }
 
 // ImplWithoutParam is used to create param from field without param
-func (w *WrapperAutowireImpl) ImplWithoutParam(sdID string, withProxy bool) (interface{}, error) {
+func (w *WrapperAutowireImpl) ImplWithoutParam(sdID string, withProxy, force bool) (interface{}, error) {
 	param, err := w.ParseParam(sdID, nil)
 	if err != nil {
 		if w.Autowire.IsSingleton() {
 			// FIXME: ignore parse param error, because of singleton with empty param also try to find property from config file
 			logger.Blue("[Wrapper Autowire] Parse param from config file with sdid %s failed, error: %s, continue with nil param.", sdID, err)
-			return w.ImplWithParam(sdID, param, withProxy)
+			return w.ImplWithParam(sdID, param, withProxy, force)
 		} else {
 			return nil, err
 		}
 	}
-	return w.ImplWithParam(sdID, param, withProxy)
+	return w.ImplWithParam(sdID, param, withProxy, force)
 }
 
 // ImplWithField is used to create param from field and call ImplWithParam
@@ -133,12 +133,12 @@ func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) 
 		if w.Autowire.IsSingleton() {
 			// FIXME: ignore parse param error, because of singleton with empty param also try to find property from config file
 			logger.Red("[Wrapper Autowire] Parse param from config file with sdid %s failed, error: %s, continue with nil param.", sdID, err)
-			return w.ImplWithParam(sdID, param, implWithProxy)
+			return w.ImplWithParam(sdID, param, implWithProxy, false)
 		} else {
 			return nil, err
 		}
 	}
-	return w.ImplWithParam(sdID, param, implWithProxy)
+	return w.ImplWithParam(sdID, param, implWithProxy, false)
 }
 
 // inject do tag autowire and monkey inject

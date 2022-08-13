@@ -28,6 +28,7 @@ import (
 
 func init() {
 	autowire.RegisterProxyFunction(proxyFunction)
+	autowire.RegisterProxyImplFunction(implProxy)
 }
 
 func proxyFunction(rawPtr interface{}) interface{} {

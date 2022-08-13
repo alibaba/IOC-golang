@@ -13,13 +13,16 @@
  * limitations under the License.
  */
 
-package boot
+package main
 
-import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin"
-	_ "github.com/alibaba/ioc-golang/extension/aop/list"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace"
-	_ "github.com/alibaba/ioc-golang/extension/aop/transaction"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch"
-)
+import "fmt"
+
+type ServiceImpl1 struct {
+}
+
+func (s *ServiceImpl1) GetHelloString(name string) string {
+	return fmt.Sprintf("This is Plugin, hello %s", name)
+}
+
+// nolint
+var Service1Plugin = ServiceImpl1{}

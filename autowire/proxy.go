@@ -31,3 +31,20 @@ func GetProxyFunction() func(interface{}) interface{} {
 	}
 	return pf
 }
+
+// proxy impl function
+
+var pif func(interface{}, interface{}, string) error
+
+func RegisterProxyImplFunction(f func(interface{}, interface{}, string) error) {
+	pif = f
+}
+
+func GetProxyImplFunction() func(interface{}, interface{}, string) error {
+	if pif == nil {
+		return func(interface{}, interface{}, string) error {
+			return nil
+		}
+	}
+	return pif
+}

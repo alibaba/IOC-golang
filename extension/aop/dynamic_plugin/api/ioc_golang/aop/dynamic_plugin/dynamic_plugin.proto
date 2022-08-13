@@ -1,3 +1,5 @@
+// EDIT IT, change to your package, service and message
+syntax = "proto3";
 /*
  * Copyright (c) 2022, Alibaba Group;
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +15,22 @@
  * limitations under the License.
  */
 
-package boot
+package ioc_golang.aop.dynamic_plugin;
 
-import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin"
-	_ "github.com/alibaba/ioc-golang/extension/aop/list"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace"
-	_ "github.com/alibaba/ioc-golang/extension/aop/transaction"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch"
-)
+option go_package = "ioc_golang/aop/dynamic_plugin";
+
+service DynamicPluginService {
+  rpc Update (DynamicPluginUpdateRequest) returns (DynamicPluginUpdateResponse) {}
+}
+
+message DynamicPluginUpdateRequest {
+  string sdid = 1;
+  string autowireType = 2;
+  bytes pluginFile = 3;
+  string pluginName = 4;
+}
+
+message DynamicPluginUpdateResponse{
+  bool success = 1;
+  string message = 2;
+}

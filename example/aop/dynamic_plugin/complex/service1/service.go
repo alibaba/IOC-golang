@@ -13,13 +13,26 @@
  * limitations under the License.
  */
 
-package boot
+package service1
 
-import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin"
-	_ "github.com/alibaba/ioc-golang/extension/aop/list"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace"
-	_ "github.com/alibaba/ioc-golang/extension/aop/transaction"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch"
-)
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:type=normal
+// +ioc:autowire:constructFunc=constructFunc
+
+type Service1 struct {
+	name string
+}
+
+func constructFunc(s *Service1) (*Service1, error) {
+	s.name = "default"
+	return s, nil
+}
+
+func (s *Service1) SetName(name string) {
+	s.name = name
+}
+
+func (s *Service1) GetName() string {
+	return s.name
+}
