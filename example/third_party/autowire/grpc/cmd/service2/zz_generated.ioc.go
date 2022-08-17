@@ -95,6 +95,14 @@ func GetImpl1IOCInterfaceSingleton() (Impl1IOCInterface, error) {
 	return impl, nil
 }
 
+type ThisImpl1 struct {
+}
+
+func (t *ThisImpl1) This() Impl1IOCInterface {
+	thisPtr, _ := GetImpl1IOCInterfaceSingleton()
+	return thisPtr
+}
+
 var _impl2SDID string
 
 func GetImpl2Singleton() (*Impl2, error) {
@@ -119,4 +127,12 @@ func GetImpl2IOCInterfaceSingleton() (Impl2IOCInterface, error) {
 	}
 	impl := i.(Impl2IOCInterface)
 	return impl, nil
+}
+
+type ThisImpl2 struct {
+}
+
+func (t *ThisImpl2) This() Impl2IOCInterface {
+	thisPtr, _ := GetImpl2IOCInterfaceSingleton()
+	return thisPtr
 }

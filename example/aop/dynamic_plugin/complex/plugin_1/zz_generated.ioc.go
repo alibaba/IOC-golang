@@ -98,3 +98,11 @@ func GetService2IOCInterfaceSingleton() (Service2IOCInterface, error) {
 	impl := i.(Service2IOCInterface)
 	return impl, nil
 }
+
+type ThisService2 struct {
+}
+
+func (t *ThisService2) This() Service2IOCInterface {
+	thisPtr, _ := GetService2IOCInterfaceSingleton()
+	return thisPtr
+}

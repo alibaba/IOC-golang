@@ -18,9 +18,6 @@ package aop
 import (
 	"testing"
 
-	"github.com/alibaba/ioc-golang/autowire/singleton"
-	"github.com/alibaba/ioc-golang/autowire/util"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,6 +25,7 @@ import (
 // +ioc:autowire:type=singleton
 
 type RecursiveApp struct {
+	ThisRecursiveApp
 	// inject main.ServiceImpl1 pointer to Service interface with proxy wrapper
 	ServiceImpl1 Service `normal:"github.com/alibaba/ioc-golang/test/stress/aop.ServiceImpl1"`
 	counter      int
@@ -40,9 +38,7 @@ func (s *RecursiveApp) Reset() {
 func (s *RecursiveApp) RunTest(t *testing.T) {
 	if s.counter < 900 {
 		s.counter++
-		s, err := singleton.GetImplWithProxy(util.GetSDIDByStructPtr(s), nil)
-		assert.Nil(t, err)
-		s.(RecursiveAppIOCInterface).RunTest(t)
+		s.This().RunTest(t)
 		return
 	}
 	assert.Equal(t, expectString, s.ServiceImpl1.GetHelloString(reqString))

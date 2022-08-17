@@ -161,3 +161,11 @@ func GetNamingClientIOCInterfaceSingleton(p *Param) (NamingClientIOCInterface, e
 	impl := i.(NamingClientIOCInterface)
 	return impl, nil
 }
+
+type ThisNamingClient struct {
+}
+
+func (t *ThisNamingClient) This() NamingClientIOCInterface {
+	thisPtr, _ := GetNamingClientIOCInterfaceSingleton(nil)
+	return thisPtr
+}

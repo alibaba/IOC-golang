@@ -141,6 +141,14 @@ func GetafterIsCalledAfterPanicTestInterceptorIOCInterfaceSingleton() (afterIsCa
 	return impl, nil
 }
 
+type ThisafterIsCalledAfterPanicTestInterceptor struct {
+}
+
+func (t *ThisafterIsCalledAfterPanicTestInterceptor) This() afterIsCalledAfterPanicTestInterceptorIOCInterface {
+	thisPtr, _ := GetafterIsCalledAfterPanicTestInterceptorIOCInterfaceSingleton()
+	return thisPtr
+}
+
 var _panicAfterCalledTestSubAppSDID string
 
 func GetPanicAfterCalledTestSubAppSingleton() (*PanicAfterCalledTestSubApp, error) {
@@ -167,6 +175,14 @@ func GetPanicAfterCalledTestSubAppIOCInterfaceSingleton() (PanicAfterCalledTestS
 	return impl, nil
 }
 
+type ThisPanicAfterCalledTestSubApp struct {
+}
+
+func (t *ThisPanicAfterCalledTestSubApp) This() PanicAfterCalledTestSubAppIOCInterface {
+	thisPtr, _ := GetPanicAfterCalledTestSubAppIOCInterfaceSingleton()
+	return thisPtr
+}
+
 var _panicAfterCalledTestAppSDID string
 
 func GetPanicAfterCalledTestAppSingleton() (*PanicAfterCalledTestApp, error) {
@@ -191,4 +207,12 @@ func GetPanicAfterCalledTestAppIOCInterfaceSingleton() (PanicAfterCalledTestAppI
 	}
 	impl := i.(PanicAfterCalledTestAppIOCInterface)
 	return impl, nil
+}
+
+type ThisPanicAfterCalledTestApp struct {
+}
+
+func (t *ThisPanicAfterCalledTestApp) This() PanicAfterCalledTestAppIOCInterface {
+	thisPtr, _ := GetPanicAfterCalledTestAppIOCInterfaceSingleton()
+	return thisPtr
 }

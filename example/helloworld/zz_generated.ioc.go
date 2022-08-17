@@ -149,6 +149,14 @@ func GetAppIOCInterfaceSingleton() (AppIOCInterface, error) {
 	return impl, nil
 }
 
+type ThisApp struct {
+}
+
+func (t *ThisApp) This() AppIOCInterface {
+	thisPtr, _ := GetAppIOCInterfaceSingleton()
+	return thisPtr
+}
+
 var _serviceImpl1SDID string
 
 func GetServiceImpl1Singleton() (*ServiceImpl1, error) {
@@ -173,6 +181,14 @@ func GetServiceImpl1IOCInterfaceSingleton() (ServiceImpl1IOCInterface, error) {
 	}
 	impl := i.(ServiceImpl1IOCInterface)
 	return impl, nil
+}
+
+type ThisServiceImpl1 struct {
+}
+
+func (t *ThisServiceImpl1) This() ServiceImpl1IOCInterface {
+	thisPtr, _ := GetServiceImpl1IOCInterfaceSingleton()
+	return thisPtr
 }
 
 var _serviceImpl2SDID string
@@ -201,6 +217,14 @@ func GetServiceImpl2IOCInterfaceSingleton() (ServiceImpl2IOCInterface, error) {
 	return impl, nil
 }
 
+type ThisServiceImpl2 struct {
+}
+
+func (t *ThisServiceImpl2) This() ServiceImpl2IOCInterface {
+	thisPtr, _ := GetServiceImpl2IOCInterfaceSingleton()
+	return thisPtr
+}
+
 var _serviceStructSDID string
 
 func GetServiceStructSingleton() (*ServiceStruct, error) {
@@ -225,4 +249,12 @@ func GetServiceStructIOCInterfaceSingleton() (ServiceStructIOCInterface, error) 
 	}
 	impl := i.(ServiceStructIOCInterface)
 	return impl, nil
+}
+
+type ThisServiceStruct struct {
+}
+
+func (t *ThisServiceStruct) This() ServiceStructIOCInterface {
+	thisPtr, _ := GetServiceStructIOCInterfaceSingleton()
+	return thisPtr
 }

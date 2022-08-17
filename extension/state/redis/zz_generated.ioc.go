@@ -1585,3 +1585,11 @@ func GetRedisIOCInterfaceSingleton(p *Param) (RedisIOCInterface, error) {
 	impl := i.(RedisIOCInterface)
 	return impl, nil
 }
+
+type ThisRedis struct {
+}
+
+func (t *ThisRedis) This() RedisIOCInterface {
+	thisPtr, _ := GetRedisIOCInterfaceSingleton(nil)
+	return thisPtr
+}

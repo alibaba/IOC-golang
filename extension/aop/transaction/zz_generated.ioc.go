@@ -225,3 +225,11 @@ func GetinterceptorImplIOCInterfaceSingleton() (interceptorImplIOCInterface, err
 	impl := i.(interceptorImplIOCInterface)
 	return impl, nil
 }
+
+type ThisinterceptorImpl struct {
+}
+
+func (t *ThisinterceptorImpl) This() interceptorImplIOCInterface {
+	thisPtr, _ := GetinterceptorImplIOCInterfaceSingleton()
+	return thisPtr
+}

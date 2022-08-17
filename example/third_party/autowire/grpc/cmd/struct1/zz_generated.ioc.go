@@ -67,3 +67,11 @@ func GetStruct1IOCInterfaceSingleton() (Struct1IOCInterface, error) {
 	impl := i.(Struct1IOCInterface)
 	return impl, nil
 }
+
+type ThisStruct1 struct {
+}
+
+func (t *ThisStruct1) This() Struct1IOCInterface {
+	thisPtr, _ := GetStruct1IOCInterfaceSingleton()
+	return thisPtr
+}

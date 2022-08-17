@@ -245,6 +245,14 @@ func GetPushConsumerIOCInterfaceSingleton(p *PushConsumerParam) (PushConsumerIOC
 	return impl, nil
 }
 
+type ThisPushConsumer struct {
+}
+
+func (t *ThisPushConsumer) This() PushConsumerIOCInterface {
+	thisPtr, _ := GetPushConsumerIOCInterfaceSingleton(nil)
+	return thisPtr
+}
+
 var _producerSDID string
 
 func GetProducer(p *ProducerParam) (*Producer, error) {
@@ -295,6 +303,14 @@ func GetProducerIOCInterfaceSingleton(p *ProducerParam) (ProducerIOCInterface, e
 	return impl, nil
 }
 
+type ThisProducer struct {
+}
+
+func (t *ThisProducer) This() ProducerIOCInterface {
+	thisPtr, _ := GetProducerIOCInterfaceSingleton(nil)
+	return thisPtr
+}
+
 var _adminSDID string
 
 func GetAdmin(p *AdminParam) (*Admin, error) {
@@ -343,4 +359,12 @@ func GetAdminIOCInterfaceSingleton(p *AdminParam) (AdminIOCInterface, error) {
 	}
 	impl := i.(AdminIOCInterface)
 	return impl, nil
+}
+
+type ThisAdmin struct {
+}
+
+func (t *ThisAdmin) This() AdminIOCInterface {
+	thisPtr, _ := GetAdminIOCInterfaceSingleton(nil)
+	return thisPtr
 }
