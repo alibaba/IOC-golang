@@ -67,3 +67,11 @@ func GetAppIOCInterfaceSingleton() (AppIOCInterface, error) {
 	impl := i.(AppIOCInterface)
 	return impl, nil
 }
+
+type ThisApp struct {
+}
+
+func (t *ThisApp) This() AppIOCInterface {
+	thisPtr, _ := GetAppIOCInterfaceSingleton()
+	return thisPtr
+}

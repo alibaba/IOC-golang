@@ -81,6 +81,14 @@ func GetService1IOCInterfaceSingleton() (Service1IOCInterface, error) {
 	return impl, nil
 }
 
+type ThisService1 struct {
+}
+
+func (t *ThisService1) This() Service1IOCInterface {
+	thisPtr, _ := GetService1IOCInterfaceSingleton()
+	return thisPtr
+}
+
 func GetService1() (*Service1, error) {
 	if _service1SDID == "" {
 		_service1SDID = util.GetSDIDByStructPtr(new(Service1))

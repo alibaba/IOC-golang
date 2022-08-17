@@ -463,6 +463,17 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 				impl := i.(%sIOCInterface)
 				return impl, nil
 			}`, g.structName, getterSuffix, g.paramTypeName, g.structName, sdidStrName, sdidStrName, utilAlias, g.structName, autowireAliasPair.autowireTypeAlias, sdidStrName, g.structName)
+					if autowireAliasPair.autowireType == "singleton" {
+						// singleton with proxy, generate This struct
+						c.Linef(`type This%s struct {
+}
+
+func (t *This%s) This() %sIOCInterface {
+	thisPtr, _ := Get%sIOCInterface%s(nil)
+	return thisPtr
+}
+`, g.structName, g.structName, g.structName, g.structName, getterSuffix)
+					}
 				}
 				c.Line("")
 			} else {
@@ -499,6 +510,17 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 			impl := i.(%sIOCInterface)
 			return impl, nil
 			}`, g.structName)
+					if autowireAliasPair.autowireType == "singleton" {
+						// singleton with proxy, generate This struct
+						c.Linef(`type This%s struct {
+}
+
+func (t *This%s) This() %sIOCInterface {
+	thisPtr, _ := Get%sIOCInterface%s()
+	return thisPtr
+}
+`, g.structName, g.structName, g.structName, g.structName, getterSuffix)
+					}
 				}
 				c.Line("")
 			}

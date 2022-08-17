@@ -279,6 +279,14 @@ func GetinterceptorImplIOCInterfaceSingleton() (interceptorImplIOCInterface, err
 	return impl, nil
 }
 
+type ThisinterceptorImpl struct {
+}
+
+func (t *ThisinterceptorImpl) This() interceptorImplIOCInterface {
+	thisPtr, _ := GetinterceptorImplIOCInterfaceSingleton()
+	return thisPtr
+}
+
 var _monitorServiceSDID string
 
 func GetmonitorServiceSingleton() (*monitorService, error) {
@@ -303,4 +311,12 @@ func GetmonitorServiceIOCInterfaceSingleton() (monitorServiceIOCInterface, error
 	}
 	impl := i.(monitorServiceIOCInterface)
 	return impl, nil
+}
+
+type ThismonitorService struct {
+}
+
+func (t *ThismonitorService) This() monitorServiceIOCInterface {
+	thisPtr, _ := GetmonitorServiceIOCInterfaceSingleton()
+	return thisPtr
 }

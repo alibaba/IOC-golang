@@ -148,6 +148,14 @@ func GetBankServiceIOCInterfaceSingleton() (BankServiceIOCInterface, error) {
 	return impl, nil
 }
 
+type ThisBankService struct {
+}
+
+func (t *ThisBankService) This() BankServiceIOCInterface {
+	thisPtr, _ := GetBankServiceIOCInterfaceSingleton()
+	return thisPtr
+}
+
 var _tradeServiceSDID string
 
 func GetTradeServiceSingleton() (*TradeService, error) {
@@ -172,4 +180,12 @@ func GetTradeServiceIOCInterfaceSingleton() (TradeServiceIOCInterface, error) {
 	}
 	impl := i.(TradeServiceIOCInterface)
 	return impl, nil
+}
+
+type ThisTradeService struct {
+}
+
+func (t *ThisTradeService) This() TradeServiceIOCInterface {
+	thisPtr, _ := GetTradeServiceIOCInterfaceSingleton()
+	return thisPtr
 }

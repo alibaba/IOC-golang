@@ -500,3 +500,11 @@ func GetGORMDBIOCInterfaceSingleton(p *Param) (GORMDBIOCInterface, error) {
 	impl := i.(GORMDBIOCInterface)
 	return impl, nil
 }
+
+type ThisGORMDB struct {
+}
+
+func (t *ThisGORMDB) This() GORMDBIOCInterface {
+	thisPtr, _ := GetGORMDBIOCInterfaceSingleton(nil)
+	return thisPtr
+}

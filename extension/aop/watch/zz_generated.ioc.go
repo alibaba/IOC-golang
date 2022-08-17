@@ -157,6 +157,14 @@ func GetinterceptorImplIOCInterfaceSingleton() (interceptorImplIOCInterface, err
 	return impl, nil
 }
 
+type ThisinterceptorImpl struct {
+}
+
+func (t *ThisinterceptorImpl) This() interceptorImplIOCInterface {
+	thisPtr, _ := GetinterceptorImplIOCInterfaceSingleton()
+	return thisPtr
+}
+
 var _contextSDID string
 
 func Getcontext(p *contextParam) (*context, error) {

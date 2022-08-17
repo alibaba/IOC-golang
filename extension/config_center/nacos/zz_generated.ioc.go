@@ -137,3 +137,11 @@ func GetConfigClientIOCInterfaceSingleton(p *Param) (ConfigClientIOCInterface, e
 	impl := i.(ConfigClientIOCInterface)
 	return impl, nil
 }
+
+type ThisConfigClient struct {
+}
+
+func (t *ThisConfigClient) This() ConfigClientIOCInterface {
+	thisPtr, _ := GetConfigClientIOCInterfaceSingleton(nil)
+	return thisPtr
+}

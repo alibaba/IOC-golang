@@ -113,6 +113,14 @@ func GetTradeServiceIOCInterfaceSingleton() (TradeServiceIOCInterface, error) {
 	return impl, nil
 }
 
+type ThisTradeService struct {
+}
+
+func (t *ThisTradeService) This() TradeServiceIOCInterface {
+	thisPtr, _ := GetTradeServiceIOCInterfaceSingleton()
+	return thisPtr
+}
+
 var _appSDID string
 
 func GetAppSingleton() (*App, error) {
@@ -137,4 +145,12 @@ func GetAppIOCInterfaceSingleton() (AppIOCInterface, error) {
 	}
 	impl := i.(AppIOCInterface)
 	return impl, nil
+}
+
+type ThisApp struct {
+}
+
+func (t *ThisApp) This() AppIOCInterface {
+	thisPtr, _ := GetAppIOCInterfaceSingleton()
+	return thisPtr
 }
