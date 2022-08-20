@@ -19,7 +19,7 @@ package config
 // +ioc:autowire:baseType=true
 // +ioc:autowire:type=config
 // +ioc:autowire:paramType=ConfigInt
-// +ioc:autowire:constructFunc=New
+// +ioc:autowire:constructFunc=new
 
 type ConfigInt int
 
@@ -27,7 +27,7 @@ func (ci *ConfigInt) Value() int {
 	return int(*ci)
 }
 
-func (param *ConfigInt) New(impl *ConfigInt) (*ConfigInt, error) {
+func (param *ConfigInt) new(impl *ConfigInt) (*ConfigInt, error) {
 	*impl = *param
 	return impl, nil
 }

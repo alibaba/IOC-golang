@@ -19,7 +19,7 @@ package config
 // +ioc:autowire:baseType=true
 // +ioc:autowire:type=config
 // +ioc:autowire:paramType=ConfigSlice
-// +ioc:autowire:constructFunc=New
+// +ioc:autowire:constructFunc=new
 
 type ConfigSlice []interface{}
 
@@ -27,7 +27,7 @@ func (cs *ConfigSlice) Value() []interface{} {
 	return *cs
 }
 
-func (ci *ConfigSlice) New(impl *ConfigSlice) (*ConfigSlice, error) {
+func (ci *ConfigSlice) new(impl *ConfigSlice) (*ConfigSlice, error) {
 	*impl = *ci
 	return impl, nil
 }

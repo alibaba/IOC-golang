@@ -19,7 +19,7 @@ package config
 // +ioc:autowire:baseType=true
 // +ioc:autowire:type=config
 // +ioc:autowire:paramType=ConfigMap
-// +ioc:autowire:constructFunc=New
+// +ioc:autowire:constructFunc=new
 
 type ConfigMap map[string]interface{}
 
@@ -27,7 +27,7 @@ func (ci *ConfigMap) Value() map[string]interface{} {
 	return *ci
 }
 
-func (ci *ConfigMap) New(impl *ConfigMap) (*ConfigMap, error) {
+func (ci *ConfigMap) new(impl *ConfigMap) (*ConfigMap, error) {
 	*impl = *ci
 	return impl, nil
 }
