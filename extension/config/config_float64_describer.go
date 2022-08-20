@@ -26,7 +26,7 @@ package config
 // +ioc:autowire:baseType=true
 // +ioc:autowire:type=config
 // +ioc:autowire:paramType=ConfigFloat64
-// +ioc:autowire:constructFunc=New
+// +ioc:autowire:constructFunc=new
 
 type ConfigFloat64 float64
 
@@ -34,7 +34,7 @@ func (ci *ConfigFloat64) Value() float64 {
 	return float64(*ci)
 }
 
-func (ci *ConfigFloat64) New(impl *ConfigFloat64) (*ConfigFloat64, error) {
+func (ci *ConfigFloat64) new(impl *ConfigFloat64) (*ConfigFloat64, error) {
 	*impl = *ci
 	return impl, nil
 }
