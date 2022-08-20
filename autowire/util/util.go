@@ -37,7 +37,10 @@ func GetSDIDByStructPtr(v interface{}) string {
 	if v == nil {
 		return ""
 	}
-	typeOfInterface := GetTypeFromInterface(v)
+	return GetSDIDByReflectType(GetTypeFromInterface(v))
+}
+
+func GetSDIDByReflectType(typeOfInterface reflect.Type) string {
 	return fmt.Sprintf("%s.%s", typeOfInterface.PkgPath(), typeOfInterface.Name())
 }
 

@@ -15,20 +15,28 @@
 
 package cli
 
-import (
-	"sigs.k8s.io/controller-tools/pkg/markers"
-)
-
-const transactionFunctionAnnotation = "ioc:tx:func"
+import "sigs.k8s.io/controller-tools/pkg/markers"
 
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:proxy=false
 // +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
-type transactionFunctionMarker struct {
+type iocGolangAutowireImplmentsAutoInjectionMarker struct {
 }
 
-func (m *transactionFunctionMarker) GetMarkerDefinition() *markers.Definition {
-	return markers.Must(markers.MakeDefinition(transactionFunctionAnnotation, markers.DescribesType, ""))
+func (m *iocGolangAutowireImplmentsAutoInjectionMarker) GetMarkerDefinition() *markers.Definition {
+	return markers.Must(markers.MakeDefinition(commonImplementsAnnotation, markers.DescribesType, ""))
+}
+
+// +ioc:autowire=true
+// +ioc:autowire:type=allimpls
+// +ioc:autowire:proxy=false
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+
+type iocGolangAutowireActiveProfileutoInjectionMarker struct {
+}
+
+func (m *iocGolangAutowireActiveProfileutoInjectionMarker) GetMarkerDefinition() *markers.Definition {
+	return markers.Must(markers.MakeDefinition(commonActiveProfileAnnotation, markers.DescribesType, ""))
 }

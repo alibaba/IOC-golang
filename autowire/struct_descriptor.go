@@ -17,8 +17,17 @@ package autowire
 
 var structDescriptorsMap = make(map[string]*StructDescriptor)
 
-func RegisterStructDescriptor(sdid string, descriptor *StructDescriptor) {
-	structDescriptorsMap[sdid] = descriptor
+func RegisterStructDescriptor(sd *StructDescriptor) {
+	// 1. register struct descriptor
+	structDescriptorsMap[sd.ID()] = sd
+
+	// 2. register alias if necessary
+	if sd.Alias != "" {
+		registerAlias(sd.Alias, sd.ID())
+	}
+
+	// 3. register struct implements info
+	registerImplements(sd)
 }
 
 func GetStructDescriptor(sdid string) *StructDescriptor {

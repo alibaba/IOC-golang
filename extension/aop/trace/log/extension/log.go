@@ -28,7 +28,7 @@ const logName = "log"
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:constructFunc=newLogWriter
 // +ioc:autowire:proxy:autoInjection=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/extension/aop/trace/log.TraceExtensionWriter
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/extension/aop/trace/log.TraceExtensionWriter
 
 type logWriter struct {
 	rawWriter         io.Writer

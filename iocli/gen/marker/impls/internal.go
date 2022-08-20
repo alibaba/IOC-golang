@@ -20,7 +20,7 @@ import "sigs.k8s.io/controller-tools/pkg/markers"
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
 type enableIOCGolangAutowireMarker struct {
 }
@@ -32,7 +32,7 @@ func (m *enableIOCGolangAutowireMarker) GetMarkerDefinition() *markers.Definitio
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
 type iocGolangAutowireTypeMarker struct {
 }
@@ -44,7 +44,7 @@ func (m *iocGolangAutowireTypeMarker) GetMarkerDefinition() *markers.Definition 
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
 type iocGolangAutowireParamMarker struct {
 }
@@ -56,7 +56,7 @@ func (m *iocGolangAutowireParamMarker) GetMarkerDefinition() *markers.Definition
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
 type iocGolangAutowireParamLoaderMarker struct {
 }
@@ -68,7 +68,7 @@ func (m *iocGolangAutowireParamLoaderMarker) GetMarkerDefinition() *markers.Defi
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
 type iocGolangAutowireConstructFuncMarker struct {
 }
@@ -80,7 +80,7 @@ func (m *iocGolangAutowireConstructFuncMarker) GetMarkerDefinition() *markers.De
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
 type iocGolangAutowireBaseTypeMarker struct {
 }
@@ -92,7 +92,7 @@ func (m *iocGolangAutowireBaseTypeMarker) GetMarkerDefinition() *markers.Definit
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
 type iocGolangAutowireAliasMarker struct {
 }
@@ -104,7 +104,7 @@ func (m *iocGolangAutowireAliasMarker) GetMarkerDefinition() *markers.Definition
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
 type iocGolangAutowireProxyMarker struct {
 }
@@ -116,7 +116,7 @@ func (m *iocGolangAutowireProxyMarker) GetMarkerDefinition() *markers.Definition
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
 type iocGolangAutowireProxyAutoInjectionMarker struct {
 }

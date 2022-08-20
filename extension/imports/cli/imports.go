@@ -24,4 +24,5 @@ import (
 	_ "github.com/alibaba/ioc-golang/extension/aop/watch/cli"
 
 	_ "github.com/alibaba/ioc-golang/extension/autowire/allimpls/cli"
+	_ "github.com/alibaba/ioc-golang/extension/autowire/common/cli"
 )

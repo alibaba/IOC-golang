@@ -59,12 +59,14 @@ func TestWrapperAutowireImpl_ImplWithParam(t *testing.T) {
 				},
 			}
 		})
-		RegisterStructDescriptor(mockSubSDID, &StructDescriptor{
+		RegisterStructDescriptor(&StructDescriptor{
+			SDID: mockSubSDID,
 			Factory: func() interface{} {
 				return &MockSubImpl{}
 			},
 		})
-		RegisterStructDescriptor(mockSDID, &StructDescriptor{
+		RegisterStructDescriptor(&StructDescriptor{
+			SDID: mockSDID,
 			Factory: func() interface{} {
 				return &MockImpl{}
 			},

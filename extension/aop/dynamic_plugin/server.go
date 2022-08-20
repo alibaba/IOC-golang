@@ -94,11 +94,12 @@ func updateDynamicPlugin(autowireType, sdid string, pluginPath, pluginName strin
 	}
 	// todo construct function have struct-level operation, so it should not run with plugin struct
 	structDescriptor.ConstructFunc = nil
+	structDescriptor.SDID = sdid
 
 	// 4. register to target autowire type
 	switch autowireType {
 	case singleton.Name:
-		singleton.RegisterStructDescriptorWithID(sdid, structDescriptor)
+		singleton.RegisterStructDescriptor(structDescriptor)
 		// get constructed struct
 		constructedPluginImpl, err := autowire.ImplByForce(singleton.Name, sdid, nil)
 		if err != nil {
@@ -114,7 +115,7 @@ func updateDynamicPlugin(autowireType, sdid string, pluginPath, pluginName strin
 			return err
 		}
 	case normal.Name:
-		normal.RegisterStructDescriptorWithID(sdid, structDescriptor)
+		normal.RegisterStructDescriptor(structDescriptor)
 	default:
 		return fmt.Errorf("autowire type %s not support plugin dynamic update", autowireType)
 	}

@@ -13,21 +13,22 @@
  * limitations under the License.
  */
 
-package transaction
+package aop
 
-import (
-	"github.com/alibaba/ioc-golang/aop"
-	"github.com/alibaba/ioc-golang/autowire"
-)
+import "github.com/alibaba/ioc-golang/autowire"
 
-func parseRollbackMethodNameFromSDMetadata(metadata autowire.Metadata, methodName string) (string, bool) {
-	if aopMetadata := aop.ParseAOPMetadataFromSDMetadata(metadata); aopMetadata != nil {
-		if txAOPMetadataVal, ok := aopMetadata[Name]; ok {
-			if txAOPMetadata, ok2 := txAOPMetadataVal.(map[string]string); ok2 {
-				rollbackMethodName, found := txAOPMetadata[methodName]
-				return rollbackMethodName, found
-			}
+const MetadataKey = "aop"
+
+type Metadata map[string]interface{}
+
+func ParseAOPMetadataFromSDMetadata(metadata autowire.Metadata) Metadata {
+	if metadata == nil {
+		return nil
+	}
+	if aopMetadataVal, ok := metadata[MetadataKey]; ok {
+		if aopMetadata, ok2 := aopMetadataVal.(map[string]interface{}); ok2 {
+			return aopMetadata
 		}
 	}
-	return "", false
+	return nil
 }

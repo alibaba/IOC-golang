@@ -79,15 +79,8 @@ func (s *SingletonAutowire) CanBeEntrance() bool {
 // developer APIs
 
 func RegisterStructDescriptor(sd *autowire.StructDescriptor) {
-	RegisterStructDescriptorWithID(sd.ID(), sd)
-}
-
-func RegisterStructDescriptorWithID(id string, sd *autowire.StructDescriptor) {
-	singletonStructDescriptorsMap[id] = sd
-	autowire.RegisterStructDescriptor(id, sd)
-	if sd.Alias != "" {
-		autowire.RegisterAlias(sd.Alias, id)
-	}
+	singletonStructDescriptorsMap[sd.ID()] = sd
+	autowire.RegisterStructDescriptor(sd)
 }
 
 func GetImpl(sdId string, param interface{}) (interface{}, error) {

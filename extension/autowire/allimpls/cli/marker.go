@@ -20,19 +20,7 @@ import "sigs.k8s.io/controller-tools/pkg/markers"
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
 // +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
-
-type iocGolangAutowireAllImplsInterfaceMarker struct {
-}
-
-func (m *iocGolangAutowireAllImplsInterfaceMarker) GetMarkerDefinition() *markers.Definition {
-	return markers.Must(markers.MakeDefinition(allimplsInterfaceAnnotation, markers.DescribesType, ""))
-}
-
-// +ioc:autowire=true
-// +ioc:autowire:type=allimpls
-// +ioc:autowire:proxy=false
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
 
 type iocGolangAutowireAllImplsTypeMarker struct {
 }

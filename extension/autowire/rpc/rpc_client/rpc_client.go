@@ -74,7 +74,7 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	}
 
 	rpcClientStructDescriptorMap[s.ID()] = s
-	autowire.RegisterStructDescriptor(s.ID(), s)
+	autowire.RegisterStructDescriptor(s)
 }
 
 /*

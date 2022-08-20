@@ -102,11 +102,7 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 	}
 
 	// register sd to autowire base layer
-	autowire.RegisterStructDescriptor(sdID, s)
-	if s.Alias != "" {
-		// register alias if necessary
-		autowire.RegisterAlias(s.Alias, sdID)
-	}
+	autowire.RegisterStructDescriptor(s)
 	allImpledIntefaces := parseAllImpledIntefacesFromSDMetadata(s.Metadata)
 	for _, impledInteface := range allImpledIntefaces {
 		interfaceSDID := util.GetSDIDByStructPtr(impledInteface)

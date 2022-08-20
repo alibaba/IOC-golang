@@ -18,6 +18,9 @@ package sdid_parser
 import (
 	"strings"
 
+	"github.com/alibaba/ioc-golang/config"
+	"github.com/alibaba/ioc-golang/logger"
+
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/util"
 )
@@ -39,12 +42,16 @@ func (p *defaultSDIDParser) Parse(fi *autowire.FieldInfo) (string, error) {
 	splitedTagValue := strings.Split(fi.TagValue, ",")
 	if len(splitedTagValue) > 0 && splitedTagValue[0] != "" {
 		injectStructName = splitedTagValue[0]
-	} else {
-		// no struct sdid in tag
-		if !util.IsPointerField(fi.FieldReflectType) && strings.HasSuffix(injectStructName, "IOCInterface") {
-			// is interface field without valid sdid from tag value, and with 'IOCInterface' suffix
-			// load trim suffix as sdid
-			injectStructName = strings.TrimSuffix(fi.FieldType, "IOCInterface")
+	} else if !util.IsPointerField(fi.FieldReflectType) && strings.HasSuffix(injectStructName, "IOCInterface") {
+		// is interface field without valid sdid from tag value, and with 'IOCInterface' suffix
+		// load trim suffix as sdid
+		injectStructName = strings.TrimSuffix(fi.FieldType, "IOCInterface")
+	} else if bestMatchSDIDs, matchProfile, err := autowire.GetBestImplementMapping(fi.FieldType, config.GetActiveProfiles()); err == nil {
+		// is interface field without valid sdid from tag value, without 'IOCInterface' suffix
+		// load injectStructName from implements annotation mapping
+		injectStructName = bestMatchSDIDs[0]
+		if len(bestMatchSDIDs) > 1 {
+			logger.Red("[Autowire Default SDIDParser] Field %s has multi impls [%+v] under profile %s, select first one.", fi.FieldType, bestMatchSDIDs, matchProfile)
 		}
 	}
 	return autowire.GetSDIDByAliasIfNecessary(injectStructName), nil

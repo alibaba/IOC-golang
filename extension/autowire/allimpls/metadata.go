@@ -17,22 +17,21 @@ package allimpls
 
 import (
 	"github.com/alibaba/ioc-golang/autowire"
-	"github.com/alibaba/ioc-golang/extension/autowire/common"
 )
 
 const InterfaceMetadataKey = "interfaces"
 const AutowireTypeMetadataKey = "autowireType"
 
 func parseAllImpledIntefacesFromSDMetadata(metadata autowire.Metadata) []interface{} {
-	autowireMetadata := common.ParseAutowireMetadataFromSDMetadata(metadata)
+	autowireMetadata := autowire.ParseAutowireMetadataFromSDMetadata(metadata)
 	if autowireMetadata == nil {
 		return nil
 	}
-	allimplsMetadata, ok := autowireMetadata[Name].(map[string]interface{})
+	allimplsMetadata, ok := autowireMetadata[autowire.CommonMetadataKey].(map[string]interface{})
 	if !ok {
 		return nil
 	}
-	result, ok := allimplsMetadata[InterfaceMetadataKey].([]interface{})
+	result, ok := allimplsMetadata[autowire.CommonImplementsMetadataKey].([]interface{})
 	if !ok {
 		return nil
 	}
@@ -40,7 +39,7 @@ func parseAllImpledIntefacesFromSDMetadata(metadata autowire.Metadata) []interfa
 }
 
 func parseAllImplsItemAutowireTypeFromSDMetadata(metadata autowire.Metadata) string {
-	autowireMetadata := common.ParseAutowireMetadataFromSDMetadata(metadata)
+	autowireMetadata := autowire.ParseAutowireMetadataFromSDMetadata(metadata)
 	if autowireMetadata == nil {
 		return ""
 	}
