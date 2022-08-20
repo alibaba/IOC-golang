@@ -46,7 +46,7 @@ func TestAutowire_RegisterAndGetAllStructDescriptors(t *testing.T) {
 }
 
 func TestAutowire_TagKey(t *testing.T) {
-	t.Run("test grpc autowire tag", func(t *testing.T) {
+	t.Run("test allimpls autowire tag", func(t *testing.T) {
 		a := &Autowire{}
 		assert.Equal(t, Name, a.TagKey())
 	})

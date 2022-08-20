@@ -70,16 +70,9 @@ var normalEntryDescriptorMap = make(map[string]*autowire.StructDescriptor)
 
 // developer APIs
 
-func RegisterStructDescriptor(s *autowire.StructDescriptor) {
-	RegisterStructDescriptorWithID(s.ID(), s)
-}
-
-func RegisterStructDescriptorWithID(id string, sd *autowire.StructDescriptor) {
-	normalEntryDescriptorMap[id] = sd
-	autowire.RegisterStructDescriptor(id, sd)
-	if sd.Alias != "" {
-		autowire.RegisterAlias(sd.Alias, id)
-	}
+func RegisterStructDescriptor(sd *autowire.StructDescriptor) {
+	normalEntryDescriptorMap[sd.ID()] = sd
+	autowire.RegisterStructDescriptor(sd)
 }
 
 func GetImpl(sdID string, param interface{}) (interface{}, error) {

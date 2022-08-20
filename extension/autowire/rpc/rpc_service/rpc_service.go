@@ -92,7 +92,7 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 		return impl, nil
 	}
 	rpcStructDescriptorMap[sdID] = s
-	autowire.RegisterStructDescriptor(sdID, s)
+	autowire.RegisterStructDescriptor(s)
 }
 
 func GetImpl(key string) (interface{}, error) {

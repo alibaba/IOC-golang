@@ -45,6 +45,7 @@ const (
 
 var (
 	config               Config
+	activeProfile        = make([]string, 0)
 	supportedConfigTypes = []string{YmlExtension, YamlExtension}
 	DefaultSearchPath    = []string{".", "./config", "./configs"}
 )
@@ -120,6 +121,10 @@ func Load(opts ...Option) error {
 	targetMap := make(Config)
 
 	options.printLogs()
+
+	// set profile
+	activeProfile = options.ProfilesActive
+
 	configFiles := searchConfigFiles(options)
 
 	for _, cf := range configFiles {
@@ -143,6 +148,7 @@ func Load(opts ...Option) error {
 	}
 	addProperties(targetMap, options.Properties)
 
+	// set config
 	config = targetMap
 
 	parseConfigIfNecessary(config)
@@ -233,6 +239,10 @@ func LoadConfigByPrefix(prefix string, configStructPtr interface{}) error {
 		}
 	}
 	return loadProperty(realConfigProperties, 0, config, configStructPtr)
+}
+
+func GetActiveProfiles() []string {
+	return activeProfile
 }
 
 func splitPrefix2Units(prefix string) []string {

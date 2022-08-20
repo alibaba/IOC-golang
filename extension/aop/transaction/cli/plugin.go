@@ -26,7 +26,7 @@ import (
 
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/iocli/gen/generator/plugin.CodeGeneratorPluginForOneStruct
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/generator/plugin.CodeGeneratorPluginForOneStruct
 // +ioc:autowire:allimpls:autowireType=normal
 // +ioc:autowire:constructFunc=create
 

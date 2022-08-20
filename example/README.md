@@ -22,6 +22,10 @@
 
 ### Autowire
 
+- autowire_active_profile_implements
+
+  展示了根据配置 profile 激活的情况注入对应实现的例子。
+
 - autowire_allimpls:
 
   展示了注入一个接口的全部实现的模型。
@@ -40,7 +44,7 @@
 
 ### Config File
 
-- activate_profile
+- active_profile
 - complex_example
 - default_config_file
 - mark_env_variable_in_config_file

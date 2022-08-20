@@ -34,32 +34,17 @@ func init() {
 			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
 				"allimpls": map[string]interface{}{
-					"interfaces": []interface{}{
+					"autowireType": "normal",
+				},
+				"common": map[string]interface{}{
+					"implements": []interface{}{
 						new(plugin.CodeGeneratorPluginForOneStruct),
 					},
-					"autowireType": "normal",
 				},
 			},
 		},
 	}
 	allimpls.RegisterStructDescriptor(allImplsCodeGenerationPluginStructDescriptor)
-	iocGolangAutowireAllImplsInterfaceMarkerStructDescriptor := &autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &iocGolangAutowireAllImplsInterfaceMarker{}
-		},
-		Metadata: map[string]interface{}{
-			"aop": map[string]interface{}{},
-			"autowire": map[string]interface{}{
-				"allimpls": map[string]interface{}{
-					"interfaces": []interface{}{
-						new(marker.DefinitionGetter),
-					},
-				},
-			},
-		},
-		DisableProxy: true,
-	}
-	allimpls.RegisterStructDescriptor(iocGolangAutowireAllImplsInterfaceMarkerStructDescriptor)
 	iocGolangAutowireAllImplsTypeMarkerStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireAllImplsTypeMarker{}
@@ -67,8 +52,8 @@ func init() {
 		Metadata: map[string]interface{}{
 			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": map[string]interface{}{
-					"interfaces": []interface{}{
+				"common": map[string]interface{}{
+					"implements": []interface{}{
 						new(marker.DefinitionGetter),
 					},
 				},
@@ -117,5 +102,4 @@ type allImplsCodeGenerationPluginIOCInterface interface {
 }
 
 var _allImplsCodeGenerationPluginSDID string
-var _iocGolangAutowireAllImplsInterfaceMarkerSDID string
 var _iocGolangAutowireAllImplsTypeMarkerSDID string

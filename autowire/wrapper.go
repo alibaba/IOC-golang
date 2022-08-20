@@ -212,8 +212,8 @@ func (w *WrapperAutowireImpl) inject(impledPtr interface{}, sdId string) error {
 func buildFiledTypeFullName(fieldType reflect.Type) string {
 	// todo find unsupported type and log warning, like 'struct' field
 	if util.IsPointerField(fieldType) || util.IsSliceField(fieldType) {
-		return fieldType.Elem().PkgPath() + "." + fieldType.Elem().Name()
+		return util.GetSDIDByReflectType(fieldType.Elem())
 	}
 	// interface field
-	return fieldType.PkgPath() + "." + fieldType.Name()
+	return util.GetSDIDByReflectType(fieldType)
 }

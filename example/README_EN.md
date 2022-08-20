@@ -22,6 +22,10 @@
 
 ### Autowire
 
+- autowire_active_profile_implements
+
+  Shows the example of inject specific impl that match activated profile to one interface field.
+
 - autowire_allimpls/
 
   Shows the example of inject all implementations of a interface.
@@ -40,7 +44,7 @@
 
 ### Config File
 
-- activate_profile
+- active_profile
 - complex_example
 - default_config_file
 - mark_env_variable_in_config_file

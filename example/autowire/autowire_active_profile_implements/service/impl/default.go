@@ -13,23 +13,17 @@
  * limitations under the License.
  */
 
-package common
+package impl
 
-import "github.com/alibaba/ioc-golang/autowire"
+import "fmt"
 
-const AOPMetadataKey = "aop"
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/example/autowire/autowire_active_profile_implements/service.Service
 
-// AOPMetadata is aop extension metadata
-type AOPMetadata map[string]interface{}
+type serviceDefaultImpl struct {
+}
 
-func ParseAOPMetadataFromSDMetadata(metadata autowire.Metadata) AOPMetadata {
-	if metadata == nil {
-		return nil
-	}
-	if aopMetadataVal, ok := metadata[AOPMetadataKey]; ok {
-		if aopMetadata, ok2 := aopMetadataVal.(map[string]interface{}); ok2 {
-			return aopMetadata
-		}
-	}
-	return nil
+func (s *serviceDefaultImpl) GetHelloString(name string) string {
+	return fmt.Sprintf("This is serviceDefaultImpl, hello %s", name)
 }

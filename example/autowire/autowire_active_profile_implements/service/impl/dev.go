@@ -13,21 +13,18 @@
  * limitations under the License.
  */
 
-package transaction
+package impl
 
-import (
-	"github.com/alibaba/ioc-golang/aop"
-	"github.com/alibaba/ioc-golang/autowire"
-)
+import "fmt"
 
-func parseRollbackMethodNameFromSDMetadata(metadata autowire.Metadata, methodName string) (string, bool) {
-	if aopMetadata := aop.ParseAOPMetadataFromSDMetadata(metadata); aopMetadata != nil {
-		if txAOPMetadataVal, ok := aopMetadata[Name]; ok {
-			if txAOPMetadata, ok2 := txAOPMetadataVal.(map[string]string); ok2 {
-				rollbackMethodName, found := txAOPMetadata[methodName]
-				return rollbackMethodName, found
-			}
-		}
-	}
-	return "", false
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:activeProfile=dev
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/example/autowire/autowire_active_profile_implements/service.Service
+
+type serviceDevImpl struct {
+}
+
+func (s *serviceDevImpl) GetHelloString(name string) string {
+	return fmt.Sprintf("This is serviceDevImpl, hello %s", name)
 }

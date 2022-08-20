@@ -19,7 +19,7 @@ import "fmt"
 
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
-// +ioc:autowire:allimpls:interface=github.com/alibaba/ioc-golang/example/autowire/autowire_allimpls/service.Service
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/example/autowire/autowire_allimpls/service.Service
 
 type serviceImpl2 struct {
 }

@@ -84,6 +84,7 @@ type FieldInfo struct {
 // StructDescriptor
 
 type StructDescriptor struct {
+	SDID          string
 	Factory       func() interface{} // raw struct
 	ParamFactory  func() interface{}
 	ParamLoader   ParamLoader
@@ -97,7 +98,10 @@ type StructDescriptor struct {
 }
 
 func (ed *StructDescriptor) ID() string {
-	return util.GetSDIDByStructPtr(ed.getStructPtr())
+	if ed.SDID == "" {
+		ed.SDID = util.GetSDIDByStructPtr(ed.getStructPtr())
+	}
+	return ed.SDID
 }
 
 func (ed *StructDescriptor) getStructPtr() interface{} {

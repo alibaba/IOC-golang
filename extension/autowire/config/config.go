@@ -47,12 +47,8 @@ func (a *Autowire) GetAllStructDescriptors() map[string]*autowire.StructDescript
 var configStructDescriptorMap = make(map[string]*autowire.StructDescriptor)
 
 func RegisterStructDescriptor(s *autowire.StructDescriptor) {
-	sdID := s.ID()
-	configStructDescriptorMap[sdID] = s
-	autowire.RegisterStructDescriptor(sdID, s)
-	if s.Alias != "" {
-		autowire.RegisterAlias(s.Alias, sdID)
-	}
+	configStructDescriptorMap[s.ID()] = s
+	autowire.RegisterStructDescriptor(s)
 }
 
 func GetImpl(key string, configPrefix string) (interface{}, error) {

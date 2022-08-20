@@ -13,23 +13,18 @@
  * limitations under the License.
  */
 
-package common
+package impl
 
-import "github.com/alibaba/ioc-golang/autowire"
+import "fmt"
 
-const AutowireMetadataKey = "autowire"
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:activeProfile=pro
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/example/autowire/autowire_active_profile_implements/service.Service
 
-// AutowireMetadata is autowire extension metadata
-type AutowireMetadata map[string]interface{}
+type serviceProImpl struct {
+}
 
-func ParseAutowireMetadataFromSDMetadata(metadata autowire.Metadata) AutowireMetadata {
-	if metadata == nil {
-		return nil
-	}
-	if autowireMetadataVal, ok := metadata[AutowireMetadataKey]; ok {
-		if autowireMetadata, ok2 := autowireMetadataVal.(map[string]interface{}); ok2 {
-			return autowireMetadata
-		}
-	}
-	return nil
+func (s *serviceProImpl) GetHelloString(name string) string {
+	return fmt.Sprintf("This is serviceProImpl, hello %s", name)
 }

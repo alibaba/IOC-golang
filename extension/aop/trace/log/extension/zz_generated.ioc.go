@@ -32,8 +32,8 @@ func init() {
 		Metadata: map[string]interface{}{
 			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": map[string]interface{}{
-					"interfaces": []interface{}{
+				"common": map[string]interface{}{
+					"implements": []interface{}{
 						new(log.TraceExtensionWriter),
 					},
 				},
@@ -59,8 +59,8 @@ func init() {
 		Metadata: map[string]interface{}{
 			"aop": map[string]interface{}{},
 			"autowire": map[string]interface{}{
-				"allimpls": map[string]interface{}{
-					"interfaces": []interface{}{
+				"common": map[string]interface{}{
+					"implements": []interface{}{
 						new(log.TraceExtensionWriter),
 					},
 				},
