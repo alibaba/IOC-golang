@@ -81,7 +81,7 @@ func (l *importsList) NeedImport(importPath string) string {
 	// we get an actual path from Package, which might include venddored
 	// packages if running on a package in vendor.
 	if ind := strings.LastIndex(importPath, "/vendor/"); ind != -1 {
-		importPath = importPath[ind+8: /* len("/vendor/") */]
+		importPath = importPath[ind+8:/* len("/vendor/") */ ]
 	}
 
 	// check to see if we've already assigned an alias, and just return that.
@@ -170,6 +170,11 @@ func (c *copyMethodMakerParam) Init(m *copyMethodMaker) (*copyMethodMaker, error
 	m.codeWriter = &codeWriter{Out: c.outContent}
 	m.debugMode = c.DebugMode
 	return m, nil
+}
+
+type singleConstructParamTypeInfo struct {
+	implName          string
+	constructFuncName string
 }
 
 type paramImplPair struct {
@@ -406,10 +411,25 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 	c.Line(`}`)
 
 	// gen param interface
-	for _, paramImplPair := range paramImplPairs {
-		c.Linef(`type %s interface {
-			%s (impl *%s) (*%s,error)
-		}`, getParamInterfaceType(paramImplPair.paramName), paramImplPair.constructFuncName, paramImplPair.implName, paramImplPair.implName)
+	// gen param step 1: param pairs to singleConstructParamTypeInfo mapping
+	paramImplInfoMap := make(map[string][]singleConstructParamTypeInfo)
+	for _, v := range paramImplPairs {
+		if _, ok := paramImplInfoMap[v.paramName]; !ok {
+			paramImplInfoMap[v.paramName] = make([]singleConstructParamTypeInfo, 0)
+		}
+		paramImplInfoMap[v.paramName] = append(paramImplInfoMap[v.paramName], singleConstructParamTypeInfo{
+			implName:          v.implName,
+			constructFuncName: v.constructFuncName,
+		})
+	}
+	// gen param step2: generate code for each param type
+	for k, v := range paramImplInfoMap {
+		c.Linef(`type %s interface {`, getParamInterfaceType(k))
+		for _, constructFuncInfo := range v {
+			c.Linef(`%s (impl *%s) (*%s,error)`, constructFuncInfo.constructFuncName,
+				constructFuncInfo.implName, constructFuncInfo.implName)
+		}
+		c.Linef(`}`)
 	}
 
 	// gen constructFunc signature
