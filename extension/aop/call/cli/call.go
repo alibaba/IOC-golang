@@ -18,38 +18,31 @@ package cli
 import (
 	"context"
 	"fmt"
-
+	callPB "github.com/alibaba/ioc-golang/extension/aop/call/api/ioc_golang/aop/call"
+	"github.com/alibaba/ioc-golang/iocli/root"
+	"github.com/alibaba/ioc-golang/logger"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/protobuf/types/known/emptypb"
-
-	listPB "github.com/alibaba/ioc-golang/extension/aop/list/api/ioc_golang/aop/list"
-	"github.com/alibaba/ioc-golang/iocli/root"
-	"github.com/alibaba/ioc-golang/logger"
 )
 
-func getListServiceClent(addr string) listPB.ListServiceClient {
+func getCallServiceClient(addr string) callPB.CallServiceClient {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}
-	return listPB.NewListServiceClient(conn)
+	return callPB.NewCallServiceClient(conn)
 }
 
-var list = &cobra.Command{
-	Use: "list",
+var call = &cobra.Command{
+	Use: "call",
 	Run: func(cmd *cobra.Command, args []string) {
-		listServiceClient := getListServiceClent(fmt.Sprintf("%s:%d", debugHost, debugPort))
-		rsp, err := listServiceClient.List(context.Background(), &emptypb.Empty{})
+		callServiceClient := getCallServiceClient(fmt.Sprintf("%s:%d", debugHost, debugPort))
+		// todo
+		_, err := callServiceClient.Call(context.Background(), nil)
 		if err != nil {
 			logger.Red(err.Error())
 			return
-		}
-		for _, v := range rsp.ServiceMetadata {
-			logger.Blue(v.ImplementationName)
-			logger.Blue("%s", v.Methods)
-			logger.Blue("")
 		}
 	},
 }
@@ -60,7 +53,7 @@ var (
 )
 
 func init() {
-	root.Cmd.AddCommand(list)
-	list.Flags().IntVarP(&debugPort, "port", "p", 1999, "debug port")
-	list.Flags().StringVar(&debugHost, "host", "127.0.0.1", "debug host")
+	root.Cmd.AddCommand(call)
+	call.Flags().IntVarP(&debugPort, "port", "p", 1999, "debug port")
+	call.Flags().StringVar(&debugHost, "host", "127.0.0.1", "debug host")
 }

@@ -81,7 +81,7 @@ func (l *importsList) NeedImport(importPath string) string {
 	// we get an actual path from Package, which might include venddored
 	// packages if running on a package in vendor.
 	if ind := strings.LastIndex(importPath, "/vendor/"); ind != -1 {
-		importPath = importPath[ind+8:/* len("/vendor/") */ ]
+		importPath = importPath[ind+8: /* len("/vendor/") */]
 	}
 
 	// check to see if we've already assigned an alias, and just return that.
