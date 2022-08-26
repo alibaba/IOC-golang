@@ -1,5 +1,3 @@
-// EDIT IT, change to your package, service and message
-syntax = "proto3";
 /*
  * Copyright (c) 2022, Alibaba Group;
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,24 +13,11 @@ syntax = "proto3";
  * limitations under the License.
  */
 
-package ioc_golang.aop.call;
+package dto
 
-option go_package = "ioc_golang/aop/call";
-
-service CallService {
-  rpc Call (CallRequest) returns (CallResponse) {}
-}
-
-message CallRequest{
-  string autowireType = 1;
-  string sdid = 2;
-  string methodName = 3;
-  bytes params = 4;
-}
-
-message CallResponse{
-  string sdid = 1;
-  string methodName = 2;
-  bytes params = 3;
-  bytes returnValues = 4;
+type User struct {
+	Id   int
+	Name string
+	Age  int
+	Mark string
 }

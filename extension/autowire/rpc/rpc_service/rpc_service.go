@@ -16,12 +16,10 @@
 package rpc_service
 
 import (
-	dubboCommon "dubbo.apache.org/dubbo-go/v3/common"
-	"dubbo.apache.org/dubbo-go/v3/common/constant"
-
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/autowire/singleton"
 	"github.com/alibaba/ioc-golang/extension/autowire/rpc/protocol/protocol_impl"
+	"github.com/alibaba/ioc-golang/extension/autowire/rpc/proxy"
 )
 
 func init() {
@@ -78,16 +76,12 @@ func RegisterStructDescriptor(s *autowire.StructDescriptor) {
 		if err != nil {
 			return nil, err
 		}
-		_, err = protocol_impl.ServiceMap.Register(sdID, protocol_impl.IOCProtocolName, "", "", impl)
+		_, err = proxy.MetadataMap.Register(sdID, protocol_impl.IOCProtocolName, "", "", impl)
 		if err != nil {
 			panic(err)
 		}
 
-		invURL, _ := dubboCommon.NewURL(protocol_impl.IOCProtocolName+"://",
-			dubboCommon.WithParamsValue(constant.InterfaceKey, sdID),
-			dubboCommon.WithParamsValue(autowire.AliasKey, s.Alias),
-		)
-		defaultProxyInvoker := newProxyInvoker(invURL)
+		defaultProxyInvoker := proxy.NewProxyInvoker(protocol_impl.IOCProtocolName, sdID, s.Alias)
 		iocProtocolInterface.Export(defaultProxyInvoker)
 		return impl, nil
 	}

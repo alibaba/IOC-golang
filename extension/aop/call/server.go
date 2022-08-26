@@ -17,14 +17,19 @@ package call
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"reflect"
 
-	"github.com/alibaba/ioc-golang/aop/common"
+	"dubbo.apache.org/dubbo-go/v3/protocol/invocation"
+
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/extension/aop/call/api/ioc_golang/aop/call"
+	"github.com/alibaba/ioc-golang/extension/autowire/rpc/protocol/protocol_impl"
+	"github.com/alibaba/ioc-golang/extension/autowire/rpc/proxy"
 	"github.com/alibaba/ioc-golang/logger"
 )
+
+const proxyProtocol = "aop" + Name
 
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
@@ -32,7 +37,6 @@ import (
 
 type callServiceImpl struct {
 	call.UnimplementedCallServiceServer
-	allInterfaceMetadataMap common.AllInterfaceMetadata
 }
 
 func (l *callServiceImpl) Call(_ context.Context, request *call.CallRequest) (*call.CallResponse, error) {
@@ -44,24 +48,47 @@ func (l *callServiceImpl) Call(_ context.Context, request *call.CallRequest) (*c
 		return nil, fmt.Errorf(errMsg)
 	}
 
-	valueOfImpl := reflect.ValueOf(impl)
-	valueOfElem := valueOfImpl.Elem()
+	// 1. register service metadata with aopCall protocol
+	_, _ = proxy.MetadataMap.Register(request.GetSdid(), proxyProtocol, "", "", impl)
 
-	numField := valueOfElem.NumField()
-	for i := 0; i < numField; i++ {
-		f := valueOfElem.Field(i)
-		funcRaw := valueOfImpl.MethodByName(request.MethodName)
-		if !(f.Kind() == reflect.Func && f.IsValid()) {
-			// not current field
-			continue
-		}
-		// current function is matched, try to call function
-		// todo []string -> []reflect.Value
-
-		funcRaw.Call(nil)
+	// 2. get registered service metadata with aopCall protocol
+	m, ok := proxy.MetadataMap.GetServiceByServiceKey(proxyProtocol, request.GetSdid()).Method()[request.GetMethodName()]
+	if !ok {
+		errMsg := fmt.Sprintf("[AOP call] Call function with autowire type %s, sdid = %s, method= %s failed, method not found",
+			request.GetAutowireType(), request.GetSdid(), request.GetMethodName())
+		logger.Red(errMsg)
+		return nil, fmt.Errorf(errMsg)
 	}
-	errMsg := fmt.Sprintf("[AOP call] Call function with autowire type %s, sdid = %s, method= %s failed, method not found",
-		request.GetAutowireType(), request.GetSdid(), request.GetMethodName())
-	logger.Red(errMsg)
-	return nil, fmt.Errorf(errMsg)
+
+	// 3. parse request params if necessary
+	arguments := make([]interface{}, 0)
+	if rawParams := request.GetParams(); len(rawParams) > 0 {
+		arguments, err = protocol_impl.ParseArgs(m.ArgsType(), rawParams)
+		if err != nil {
+			errMsg := fmt.Sprintf("[AOP call] Call function with autowire type %s, sdid = %s, method= %s failed, parse arguments failed with error = %s",
+				request.GetAutowireType(), request.GetSdid(), request.GetMethodName(), err.Error())
+			logger.Red(errMsg)
+			return nil, fmt.Errorf(errMsg)
+		}
+	}
+
+	// 4. do invoke
+	rsp := proxy.NewProxyInvoker(proxyProtocol, request.GetSdid(), "").Invoke(context.Background(),
+		invocation.NewRPCInvocation(request.GetMethodName(), arguments, nil)).Result()
+
+	// 5. marshal response
+	rspData, err := json.Marshal(rsp)
+	if err != nil {
+		errMsg := fmt.Sprintf("[AOP call] Call function with autowire type %s, sdid = %s, method= %s response marshal failed with error = %s",
+			request.GetAutowireType(), request.GetSdid(), request.GetMethodName(), err.Error())
+		logger.Red(errMsg)
+		return nil, fmt.Errorf(errMsg)
+	}
+
+	return &call.CallResponse{
+		Params:       request.GetParams(),
+		ReturnValues: rspData,
+		Sdid:         request.GetSdid(),
+		MethodName:   request.GetMethodName(),
+	}, nil
 }

@@ -6,6 +6,14 @@
 
 ### AOP
 
+- call
+
+  A demo of real-time debuging interface using iocli
+
+- dynamic_plugin
+
+  A demo of dynamic interface proxy using Golang native plugin
+
 - obervability
 
   A debug demo to show feature to list and watch interface, methods, rt, real-time param values and so on.

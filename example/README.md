@@ -6,6 +6,14 @@
 
 ### AOP
 
+- call
+
+  通过 iocli 工具实时调试接口例子
+
+- dynamic_plugin
+
+  基于 Go 插件的接口动态代理例子
+
 - obervability
 
   通过 iocli 工具展示接口、方法、实时参数、调用 RT 等可视化能力。

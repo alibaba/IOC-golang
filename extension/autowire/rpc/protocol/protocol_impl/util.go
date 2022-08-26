@@ -17,14 +17,22 @@ package protocol_impl
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
+
+	"github.com/alibaba/ioc-golang/logger"
 )
 
 // ParseArgs @data should be []interface{}'s marshal result, @argsType should be each object's reflect type
-func ParseArgs(argsType []reflect.Type, data []byte) ([]interface{}, error) {
+func ParseArgs(argsType []reflect.Type, data []byte) (finalArgument []interface{}, err error) {
+	finalArgument = make([]interface{}, 0)
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("IOC Protocol parse args failed with catched error = %+v", r)
+		}
+	}()
 	// http req -> invocation
 	rawArguments := make([]interface{}, 0)
-	finalArgument := make([]interface{}, 0)
 	for _, reflectType := range argsType {
 		if reflectType.Kind() == reflect.Ptr {
 			rawArguments = append(rawArguments, reflect.New(reflectType.Elem()).Interface())
@@ -36,6 +44,11 @@ func ParseArgs(argsType []reflect.Type, data []byte) ([]interface{}, error) {
 	}
 	if err := json.Unmarshal(data, &rawArguments); err != nil {
 		return nil, err
+	}
+	if len(rawArguments) != len(argsType) {
+		errMsg := fmt.Sprintf("IOC Protocol parse args failed, want %d params but %d is given", len(argsType), len(rawArguments))
+		logger.Red(errMsg)
+		return nil, fmt.Errorf(errMsg)
 	}
 	for idx, reflectType := range argsType {
 		if reflectType.Kind() == reflect.Ptr {

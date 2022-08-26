@@ -16,6 +16,7 @@
 package boot
 
 import (
+	_ "github.com/alibaba/ioc-golang/extension/aop/call"
 	_ "github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin"
 	_ "github.com/alibaba/ioc-golang/extension/aop/list"
 	_ "github.com/alibaba/ioc-golang/extension/aop/monitor"

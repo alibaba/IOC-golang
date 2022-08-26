@@ -13,24 +13,28 @@
  * limitations under the License.
  */
 
-package rpc_service
+package proxy
 
 import (
 	"context"
 	"reflect"
 	"strings"
 
+	"github.com/alibaba/ioc-golang/autowire"
+
 	"dubbo.apache.org/dubbo-go/v3/common"
 	"dubbo.apache.org/dubbo-go/v3/common/constant"
 	"dubbo.apache.org/dubbo-go/v3/protocol"
 	perrors "github.com/pkg/errors"
-
-	"github.com/alibaba/ioc-golang/extension/autowire/rpc/protocol/protocol_impl"
 )
 
-func newProxyInvoker(url *common.URL) protocol.Invoker {
+func NewProxyInvoker(proto, sdid, alias string) protocol.Invoker {
+	invURL, _ := common.NewURL(proto+"://",
+		common.WithParamsValue(constant.InterfaceKey, sdid),
+		common.WithParamsValue(autowire.AliasKey, alias),
+	)
 	return &ProxyInvoker{
-		BaseInvoker: *protocol.NewBaseInvoker(url),
+		BaseInvoker: *protocol.NewBaseInvoker(invURL),
 	}
 }
 
@@ -53,7 +57,7 @@ func (pi *ProxyInvoker) Invoke(ctx context.Context, invocation protocol.Invocati
 	args := invocation.Arguments()
 
 	// get service
-	svc := protocol_impl.ServiceMap.GetServiceByServiceKey(proto, url.ServiceKey())
+	svc := MetadataMap.GetServiceByServiceKey(proto, url.ServiceKey())
 	if svc == nil {
 		result.SetError(perrors.Errorf("cannot find service [%s] in %s", path, proto))
 		return result
