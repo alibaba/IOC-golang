@@ -7,6 +7,9 @@
 - aop/
   
   提供了基于 AOP 的多种扩展能力，包括与之相关的覆盖 RPC、AOP 拦截器、Debug 服务、cli 命令的相关实现。
+  - call
+    
+    使用 iocli 工具调用接口方法的能力
   
   - list/
   
@@ -27,6 +30,10 @@
   - transaction/
   
     事务、分布式事务能力
+  
+  - dynamic_plugin
+  
+    基于 Go 原生插件机制的接口动态代理能力
   
 - autowire/
   

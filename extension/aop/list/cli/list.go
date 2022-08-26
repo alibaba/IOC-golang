@@ -29,7 +29,7 @@ import (
 	"github.com/alibaba/ioc-golang/logger"
 )
 
-func getTraceServiceClent(addr string) listPB.ListServiceClient {
+func getListServiceClent(addr string) listPB.ListServiceClient {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
@@ -40,7 +40,7 @@ func getTraceServiceClent(addr string) listPB.ListServiceClient {
 var list = &cobra.Command{
 	Use: "list",
 	Run: func(cmd *cobra.Command, args []string) {
-		listServiceClient := getTraceServiceClent(fmt.Sprintf("%s:%d", debugHost, debugPort))
+		listServiceClient := getListServiceClent(fmt.Sprintf("%s:%d", debugHost, debugPort))
 		rsp, err := listServiceClient.List(context.Background(), &emptypb.Empty{})
 		if err != nil {
 			logger.Red(err.Error())

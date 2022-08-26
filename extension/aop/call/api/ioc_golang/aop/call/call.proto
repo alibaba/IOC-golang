@@ -1,3 +1,5 @@
+// EDIT IT, change to your package, service and message
+syntax = "proto3";
 /*
  * Copyright (c) 2022, Alibaba Group;
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +15,24 @@
  * limitations under the License.
  */
 
-package boot
+package ioc_golang.aop.call;
 
-import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/call"
-	_ "github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin"
-	_ "github.com/alibaba/ioc-golang/extension/aop/list"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace"
-	_ "github.com/alibaba/ioc-golang/extension/aop/transaction"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch"
-)
+option go_package = "ioc_golang/aop/call";
+
+service CallService {
+  rpc Call (CallRequest) returns (CallResponse) {}
+}
+
+message CallRequest{
+  string autowireType = 1;
+  string sdid = 2;
+  string methodName = 3;
+  bytes params = 4;
+}
+
+message CallResponse{
+  string sdid = 1;
+  string methodName = 2;
+  bytes params = 3;
+  bytes returnValues = 4;
+}

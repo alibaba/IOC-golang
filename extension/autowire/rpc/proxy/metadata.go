@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package protocol_impl
+package proxy
 
 import (
 	"context"
@@ -27,8 +27,8 @@ import (
 	perrors "github.com/pkg/errors"
 )
 
-// ServiceMap store description of service.
-var ServiceMap = &serviceMap{
+// MetadataMap store metadata of service.
+var MetadataMap = &serviceMap{
 	serviceMap:   make(map[string]map[string]*Service),
 	interfaceMap: make(map[string][]*Service),
 }

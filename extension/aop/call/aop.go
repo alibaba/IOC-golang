@@ -13,14 +13,23 @@
  * limitations under the License.
  */
 
-package boot
+package call
 
 import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/call"
-	_ "github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin"
-	_ "github.com/alibaba/ioc-golang/extension/aop/list"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace"
-	_ "github.com/alibaba/ioc-golang/extension/aop/transaction"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch"
+	"google.golang.org/grpc"
+
+	"github.com/alibaba/ioc-golang/aop"
+	"github.com/alibaba/ioc-golang/extension/aop/call/api/ioc_golang/aop/call"
 )
+
+const Name = "call"
+
+func init() {
+	aop.RegisterAOP(aop.AOP{
+		Name: Name,
+		GRPCServiceRegister: func(server *grpc.Server) {
+			callServiceImplSingleton, _ := GetcallServiceImplSingleton()
+			call.RegisterCallServiceServer(server, callServiceImplSingleton)
+		},
+	})
+}

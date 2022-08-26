@@ -24,6 +24,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alibaba/ioc-golang/extension/autowire/rpc/proxy"
+
 	"github.com/alibaba/ioc-golang/aop"
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/logger"
@@ -134,7 +136,7 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 
 	sdid := invoker.GetURL().GetParam(constant.InterfaceKey, "")
 	clientStubFullName := invoker.GetURL().GetParam(autowire.AliasKey, "")
-	svc := ServiceMap.GetServiceByServiceKey(IOCProtocolName, sdid)
+	svc := proxy.MetadataMap.GetServiceByServiceKey(IOCProtocolName, sdid)
 	if svc == nil {
 		return nil
 	}

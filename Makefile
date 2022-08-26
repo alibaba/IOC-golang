@@ -4,6 +4,7 @@ proto-gen:
 	protoc --go_out=./extension/aop/watch/api --go-grpc_out=./extension/aop/watch/api ./extension/aop/watch/api/ioc_golang/aop/watch/watch.proto
 	protoc --go_out=./extension/aop/dynamic_plugin/api --go-grpc_out=./extension/aop/dynamic_plugin/api ./extension/aop/dynamic_plugin/api/ioc_golang/aop/dynamic_plugin/dynamic_plugin.proto
 	protoc --go_out=./extension/aop/list/api --go-grpc_out=./extension/aop/list/api ./extension/aop/list/api/ioc_golang/aop/list/list.proto
+	protoc --go_out=./extension/aop/call/api --go-grpc_out=./extension/aop/call/api ./extension/aop/call/api/ioc_golang/aop/call/call.proto
 	protoc --go_out=./extension/aop/monitor/api --go-grpc_out=./extension/aop/monitor/api ./extension/aop/monitor/api/ioc_golang/aop/monitor/monitor.proto
 
 mockery-gen:

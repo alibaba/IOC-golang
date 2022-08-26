@@ -1,4 +1,12 @@
-# AOP 接口代理层能力的例子
+# AOP 接口代理能力的例子
+
+- [call](./call)
+
+通过 iocli 工具实时调试接口例子
+
+- [dynamic_plugin](./dynamic_plugin)
+
+基于 Go 插件的接口动态代理例子
 
 - [observability](./observability) 
 
