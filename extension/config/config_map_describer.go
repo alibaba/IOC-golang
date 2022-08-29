@@ -20,6 +20,7 @@ package config
 // +ioc:autowire:type=config
 // +ioc:autowire:paramType=ConfigMap
 // +ioc:autowire:constructFunc=new
+// +ioc:autowire:proxy:autoInjection=false
 
 type ConfigMap map[string]interface{}
 
