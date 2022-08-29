@@ -33,6 +33,7 @@ func init() {
 			"aop":      map[string]interface{}{},
 			"autowire": map[string]interface{}{},
 		},
+		DisableProxy: true,
 	}
 	autowireconfig.RegisterStructDescriptor(configFloat64StructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -56,6 +57,7 @@ func init() {
 			"aop":      map[string]interface{}{},
 			"autowire": map[string]interface{}{},
 		},
+		DisableProxy: true,
 	}
 	autowireconfig.RegisterStructDescriptor(configInt64StructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -79,6 +81,7 @@ func init() {
 			"aop":      map[string]interface{}{},
 			"autowire": map[string]interface{}{},
 		},
+		DisableProxy: true,
 	}
 	autowireconfig.RegisterStructDescriptor(configIntStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -102,6 +105,7 @@ func init() {
 			"aop":      map[string]interface{}{},
 			"autowire": map[string]interface{}{},
 		},
+		DisableProxy: true,
 	}
 	autowireconfig.RegisterStructDescriptor(configMapStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -125,6 +129,7 @@ func init() {
 			"aop":      map[string]interface{}{},
 			"autowire": map[string]interface{}{},
 		},
+		DisableProxy: true,
 	}
 	autowireconfig.RegisterStructDescriptor(configSliceStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
@@ -148,13 +153,11 @@ func init() {
 			"aop":      map[string]interface{}{},
 			"autowire": map[string]interface{}{},
 		},
+		DisableProxy: true,
 	}
 	autowireconfig.RegisterStructDescriptor(configStringStructDescriptor)
 }
 
-type configStringInterface interface {
-	new(impl *ConfigString) (*ConfigString, error)
-}
 type configFloat64Interface interface {
 	new(impl *ConfigFloat64) (*ConfigFloat64, error)
 }
@@ -169,6 +172,9 @@ type configMapInterface interface {
 }
 type configSliceInterface interface {
 	new(impl *ConfigSlice) (*ConfigSlice, error)
+}
+type configStringInterface interface {
+	new(impl *ConfigString) (*ConfigString, error)
 }
 type configFloat64_ struct {
 	Value_ func() float64
