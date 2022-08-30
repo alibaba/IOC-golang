@@ -14,7 +14,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/inconshreveable/log15 v0.0.0-20201112154412-8562bdadbbac
 	github.com/jaegertracing/jaeger v1.36.0
-	github.com/nacos-group/nacos-sdk-go/v2 v2.0.3
+	github.com/nacos-group/nacos-sdk-go/v2 v2.0.2
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/petermattis/goid v0.0.0-20220712135657-ac599d9cba15
 	github.com/pkg/errors v0.9.1
