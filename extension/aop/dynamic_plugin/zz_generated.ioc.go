@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	dynamicPluginServiceImplStructDescriptor := &autowire.StructDescriptor{
+	var dynamicPluginServiceImplStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &dynamicPluginServiceImpl{}
 		},

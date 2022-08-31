@@ -14,12 +14,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &serviceDefaultImpl_{}
-		},
-	})
-	serviceDefaultImplStructDescriptor := &autowire.StructDescriptor{
+	var serviceDefaultImplStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &serviceDefaultImpl{}
 		},
@@ -34,13 +29,13 @@ func init() {
 			},
 		},
 	}
-	singleton.RegisterStructDescriptor(serviceDefaultImplStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &serviceDevImpl_{}
+			return &serviceDefaultImpl_{}
 		},
 	})
-	serviceDevImplStructDescriptor := &autowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(serviceDefaultImplStructDescriptor)
+	var serviceDevImplStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &serviceDevImpl{}
 		},
@@ -56,13 +51,13 @@ func init() {
 			},
 		},
 	}
-	singleton.RegisterStructDescriptor(serviceDevImplStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &serviceProImpl_{}
+			return &serviceDevImpl_{}
 		},
 	})
-	serviceProImplStructDescriptor := &autowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(serviceDevImplStructDescriptor)
+	var serviceProImplStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &serviceProImpl{}
 		},
@@ -78,6 +73,11 @@ func init() {
 			},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &serviceProImpl_{}
+		},
+	})
 	singleton.RegisterStructDescriptor(serviceProImplStructDescriptor)
 }
 

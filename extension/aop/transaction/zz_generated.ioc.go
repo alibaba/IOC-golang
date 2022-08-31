@@ -14,12 +14,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &context_{}
-		},
-	})
-	contextStructDescriptor := &autowire.StructDescriptor{
+	var contextStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &context{}
 		},
@@ -38,13 +33,13 @@ func init() {
 		},
 		DisableProxy: true,
 	}
-	normal.RegisterStructDescriptor(contextStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &rollbackAbleInvocationCtx_{}
+			return &context_{}
 		},
 	})
-	rollbackAbleInvocationCtxStructDescriptor := &autowire.StructDescriptor{
+	normal.RegisterStructDescriptor(contextStructDescriptor)
+	var rollbackAbleInvocationCtxStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &rollbackAbleInvocationCtx{}
 		},
@@ -63,13 +58,13 @@ func init() {
 		},
 		DisableProxy: true,
 	}
-	normal.RegisterStructDescriptor(rollbackAbleInvocationCtxStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &interceptorImpl_{}
+			return &rollbackAbleInvocationCtx_{}
 		},
 	})
-	interceptorImplStructDescriptor := &autowire.StructDescriptor{
+	normal.RegisterStructDescriptor(rollbackAbleInvocationCtxStructDescriptor)
+	var interceptorImplStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &interceptorImpl{}
 		},
@@ -79,6 +74,11 @@ func init() {
 		},
 		DisableProxy: true,
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &interceptorImpl_{}
+		},
+	})
 	singleton.RegisterStructDescriptor(interceptorImplStructDescriptor)
 }
 

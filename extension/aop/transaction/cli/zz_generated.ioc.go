@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	transactionFunctionMarkerStructDescriptor := &autowire.StructDescriptor{
+	var transactionFunctionMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &transactionFunctionMarker{}
 		},
@@ -33,12 +33,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(transactionFunctionMarkerStructDescriptor)
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &txCodeGenerationPlugin_{}
-		},
-	})
-	txCodeGenerationPluginStructDescriptor := &autowire.StructDescriptor{
+	var txCodeGenerationPluginStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &txCodeGenerationPlugin{}
 		},
@@ -61,6 +56,11 @@ func init() {
 			},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &txCodeGenerationPlugin_{}
+		},
+	})
 	allimpls.RegisterStructDescriptor(txCodeGenerationPluginStructDescriptor)
 }
 

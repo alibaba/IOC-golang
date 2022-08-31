@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	objectGenCtxStructDescriptor := &autowire.StructDescriptor{
+	var objectGenCtxStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &objectGenCtx{}
 		},
@@ -32,7 +32,7 @@ func init() {
 		DisableProxy: true,
 	}
 	normal.RegisterStructDescriptor(objectGenCtxStructDescriptor)
-	importsListStructDescriptor := &autowire.StructDescriptor{
+	var importsListStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &importsList{}
 		},
@@ -52,7 +52,7 @@ func init() {
 		DisableProxy: true,
 	}
 	normal.RegisterStructDescriptor(importsListStructDescriptor)
-	copyMethodMakerStructDescriptor := &autowire.StructDescriptor{
+	var copyMethodMakerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &copyMethodMaker{}
 		},

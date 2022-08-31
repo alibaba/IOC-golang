@@ -14,12 +14,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &afterIsCalledAfterPanicTestInterceptor_{}
-		},
-	})
-	afterIsCalledAfterPanicTestInterceptorStructDescriptor := &autowire.StructDescriptor{
+	var afterIsCalledAfterPanicTestInterceptorStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &afterIsCalledAfterPanicTestInterceptor{}
 		},
@@ -33,13 +28,13 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	singleton.RegisterStructDescriptor(afterIsCalledAfterPanicTestInterceptorStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &panicAfterCalledTestSubApp_{}
+			return &afterIsCalledAfterPanicTestInterceptor_{}
 		},
 	})
-	panicAfterCalledTestSubAppStructDescriptor := &autowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(afterIsCalledAfterPanicTestInterceptorStructDescriptor)
+	var panicAfterCalledTestSubAppStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &PanicAfterCalledTestSubApp{}
 		},
@@ -48,13 +43,13 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	singleton.RegisterStructDescriptor(panicAfterCalledTestSubAppStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &panicAfterCalledTestApp_{}
+			return &panicAfterCalledTestSubApp_{}
 		},
 	})
-	panicAfterCalledTestAppStructDescriptor := &autowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(panicAfterCalledTestSubAppStructDescriptor)
+	var panicAfterCalledTestAppStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &PanicAfterCalledTestApp{}
 		},
@@ -63,6 +58,11 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &panicAfterCalledTestApp_{}
+		},
+	})
 	singleton.RegisterStructDescriptor(panicAfterCalledTestAppStructDescriptor)
 }
 

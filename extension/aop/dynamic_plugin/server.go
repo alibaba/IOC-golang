@@ -29,6 +29,11 @@ import (
 	"github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin/api/ioc_golang/aop/dynamic_plugin"
 )
 
+type StructDescriptorGetter interface {
+	GetStructDescriptor() *autowire.StructDescriptor
+	GetSDID() string
+}
+
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
 // +ioc:autowire:proxy=false
@@ -67,6 +72,45 @@ func (d *dynamicPluginServiceImpl) Update(ctx context.Context, req *dynamic_plug
 }
 
 func updateDynamicPlugin(autowireType, sdid string, pluginPath, pluginName string) error {
+	fmt.Println("updateDynamicPlugin", autowireType, sdid)
+	if sdid == "github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin.StructDescriptorGetter" {
+		// 2. load plugin
+		plug, err := plugin.Open(pluginPath)
+		if err != nil {
+			fmt.Println("load plugin failed with error = ", err.Error())
+			return err
+		}
+
+		pluginImpl, err := plug.Lookup(pluginName)
+		if err != nil {
+			fmt.Println("lookup plugin failed with error = ", err.Error())
+			return err
+		}
+		structDescriptor := pluginImpl.(StructDescriptorGetter).GetStructDescriptor()
+		structDescriptor.SDID = pluginImpl.(StructDescriptorGetter).GetSDID()
+		sdid = pluginImpl.(StructDescriptorGetter).GetSDID()
+		singleton.RegisterStructDescriptor(structDescriptor)
+		// get constructed struct
+		constructedPluginImpl, err := autowire.ImplByForce(singleton.Name, sdid, nil)
+		if err != nil {
+			fmt.Println("inple by force with plugin plugin failed with error = ", err.Error())
+			return err
+		}
+		// get old proxy wrapper struct
+		proxy, err := singleton.GetImplWithProxy(sdid, nil)
+		if err != nil {
+			fmt.Println("get old proxy plugin failed with error = ", err.Error())
+			return err
+		}
+		// redirect old proxy wrapper struct to new constructed plugin impl
+		if err := autowire.GetProxyImplFunction()(constructedPluginImpl, proxy, sdid); err != nil {
+			fmt.Println("proxy new plugin plugin failed with error = ", err.Error())
+			return err
+		}
+		fmt.Println("finished")
+		return nil
+	}
+
 	// 1. get struct descriptor
 	structDescriptor := autowire.GetStructDescriptor(sdid)
 	if structDescriptor == nil {

@@ -14,12 +14,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &iOCProtocol_{}
-		},
-	})
-	iOCProtocolStructDescriptor := &autowire.StructDescriptor{
+	var iOCProtocolStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &IOCProtocol{}
 		},
@@ -37,6 +32,11 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &iOCProtocol_{}
+		},
+	})
 	normal.RegisterStructDescriptor(iOCProtocolStructDescriptor)
 }
 

@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	callServiceImplStructDescriptor := &autowire.StructDescriptor{
+	var callServiceImplStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &callServiceImpl{}
 		},

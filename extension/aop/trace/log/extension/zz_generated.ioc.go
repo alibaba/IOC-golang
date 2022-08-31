@@ -15,12 +15,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &logWriter_{}
-		},
-	})
-	logWriterStructDescriptor := &autowire.StructDescriptor{
+	var logWriterStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &logWriter{}
 		},
@@ -41,13 +36,13 @@ func init() {
 		},
 		DisableProxy: true,
 	}
-	allimpls.RegisterStructDescriptor(logWriterStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &log15Handler_{}
+			return &logWriter_{}
 		},
 	})
-	log15HandlerStructDescriptor := &autowire.StructDescriptor{
+	allimpls.RegisterStructDescriptor(logWriterStructDescriptor)
+	var log15HandlerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &log15Handler{}
 		},
@@ -68,6 +63,11 @@ func init() {
 		},
 		DisableProxy: true,
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &log15Handler_{}
+		},
+	})
 	allimpls.RegisterStructDescriptor(log15HandlerStructDescriptor)
 }
 

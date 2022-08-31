@@ -104,9 +104,11 @@ func init() {
 type noUsageError struct{ error }
 
 var debugFlag bool
+var pluginFlag bool
 
 func init() {
 	genCMD.PersistentFlags().BoolVarP(&debugFlag, "debug", "d", false, "Print debug logs of iocli gen")
+	genCMD.PersistentFlags().BoolVarP(&pluginFlag, "plugin", "p", false, "Plugin mode")
 	root.Cmd.AddCommand(genCMD)
 }
 
@@ -129,6 +131,7 @@ var genCMD = &cobra.Command{
 		}
 
 		generator.DebugMode = debugFlag
+		generator.PluginMode = pluginFlag
 
 		logger.Disable()
 		if err := ioc.Load(config.AddProperty("debug.disable", true)); err != nil {

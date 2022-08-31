@@ -19,12 +19,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &pushConsumer_{}
-		},
-	})
-	pushConsumerStructDescriptor := &autowire.StructDescriptor{
+	var pushConsumerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &PushConsumer{}
 		},
@@ -42,14 +37,14 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	normal.RegisterStructDescriptor(pushConsumerStructDescriptor)
-	singleton.RegisterStructDescriptor(pushConsumerStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &producer_{}
+			return &pushConsumer_{}
 		},
 	})
-	producerStructDescriptor := &autowire.StructDescriptor{
+	normal.RegisterStructDescriptor(pushConsumerStructDescriptor)
+	singleton.RegisterStructDescriptor(pushConsumerStructDescriptor)
+	var producerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &Producer{}
 		},
@@ -67,14 +62,14 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	normal.RegisterStructDescriptor(producerStructDescriptor)
-	singleton.RegisterStructDescriptor(producerStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &admin_{}
+			return &producer_{}
 		},
 	})
-	adminStructDescriptor := &autowire.StructDescriptor{
+	normal.RegisterStructDescriptor(producerStructDescriptor)
+	singleton.RegisterStructDescriptor(producerStructDescriptor)
+	var adminStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &Admin{}
 		},
@@ -92,18 +87,23 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &admin_{}
+		},
+	})
 	normal.RegisterStructDescriptor(adminStructDescriptor)
 	singleton.RegisterStructDescriptor(adminStructDescriptor)
 }
 
+type adminParamInterface interface {
+	New(impl *Admin) (*Admin, error)
+}
 type pushConsumerParamInterface interface {
 	New(impl *PushConsumer) (*PushConsumer, error)
 }
 type producerParamInterface interface {
 	New(impl *Producer) (*Producer, error)
-}
-type adminParamInterface interface {
-	New(impl *Admin) (*Admin, error)
 }
 type pushConsumer_ struct {
 	Start_       func() error

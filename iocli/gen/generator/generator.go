@@ -29,6 +29,7 @@ import (
 )
 
 var DebugMode = false
+var PluginMode = false
 
 type Generator struct {
 	HeaderFile string `marker:",optional"`
@@ -73,6 +74,7 @@ func (d Generator) Generate(ctx *genall.GenerationContext) error {
 		Checker:    ctx.Checker,
 		HeaderText: headerText,
 		DebugMode:  DebugMode,
+		PluginMode: PluginMode,
 	})
 	if err != nil {
 		return err

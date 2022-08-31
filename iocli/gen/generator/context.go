@@ -43,6 +43,7 @@ type objectGenCtxParam struct {
 	Checker    *loader.TypeChecker
 	HeaderText string
 	DebugMode  bool
+	PluginMode bool
 }
 
 func (o *objectGenCtxParam) Init(i *objectGenCtx) (*objectGenCtx, error) {
@@ -81,6 +82,7 @@ func (ctx *objectGenCtx) generateForPackage(genCtx *genall.GenerationContext, ro
 		importsList: imports,
 		outContent:  outContent,
 		DebugMode:   ctx.DebugMode,
+		PluginMode:  ctx.PluginMode,
 	})
 	if err != nil {
 		fmt.Printf("get copy method maker error = %s\n", err)

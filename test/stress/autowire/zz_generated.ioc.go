@@ -15,12 +15,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&ioc_golangautowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &normalApp_{}
-		},
-	})
-	normalAppStructDescriptor := &ioc_golangautowire.StructDescriptor{
+	var normalAppStructDescriptor = &ioc_golangautowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &NormalApp{}
 		},
@@ -29,13 +24,13 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	normal.RegisterStructDescriptor(normalAppStructDescriptor)
 	normal.RegisterStructDescriptor(&ioc_golangautowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &serviceImpl1_{}
+			return &normalApp_{}
 		},
 	})
-	serviceImpl1StructDescriptor := &ioc_golangautowire.StructDescriptor{
+	normal.RegisterStructDescriptor(normalAppStructDescriptor)
+	var serviceImpl1StructDescriptor = &ioc_golangautowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
@@ -44,14 +39,14 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	singleton.RegisterStructDescriptor(serviceImpl1StructDescriptor)
-	normal.RegisterStructDescriptor(serviceImpl1StructDescriptor)
 	normal.RegisterStructDescriptor(&ioc_golangautowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &serviceImpl2_{}
+			return &serviceImpl1_{}
 		},
 	})
-	serviceImpl2StructDescriptor := &ioc_golangautowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(serviceImpl1StructDescriptor)
+	normal.RegisterStructDescriptor(serviceImpl1StructDescriptor)
+	var serviceImpl2StructDescriptor = &ioc_golangautowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
@@ -60,14 +55,14 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	singleton.RegisterStructDescriptor(serviceImpl2StructDescriptor)
-	normal.RegisterStructDescriptor(serviceImpl2StructDescriptor)
 	normal.RegisterStructDescriptor(&ioc_golangautowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &serviceStruct_{}
+			return &serviceImpl2_{}
 		},
 	})
-	serviceStructStructDescriptor := &ioc_golangautowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(serviceImpl2StructDescriptor)
+	normal.RegisterStructDescriptor(serviceImpl2StructDescriptor)
+	var serviceStructStructDescriptor = &ioc_golangautowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ServiceStruct{}
 		},
@@ -76,14 +71,14 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	singleton.RegisterStructDescriptor(serviceStructStructDescriptor)
-	normal.RegisterStructDescriptor(serviceStructStructDescriptor)
 	normal.RegisterStructDescriptor(&ioc_golangautowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &singletonApp_{}
+			return &serviceStruct_{}
 		},
 	})
-	singletonAppStructDescriptor := &ioc_golangautowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(serviceStructStructDescriptor)
+	normal.RegisterStructDescriptor(serviceStructStructDescriptor)
+	var singletonAppStructDescriptor = &ioc_golangautowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &SingletonApp{}
 		},
@@ -92,6 +87,11 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
+	normal.RegisterStructDescriptor(&ioc_golangautowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &singletonApp_{}
+		},
+	})
 	singleton.RegisterStructDescriptor(singletonAppStructDescriptor)
 }
 

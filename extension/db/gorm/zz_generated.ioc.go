@@ -19,12 +19,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &gORMDB_{}
-		},
-	})
-	gORMDBStructDescriptor := &autowire.StructDescriptor{
+	var gORMDBStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &GORMDB{}
 		},
@@ -42,6 +37,11 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &gORMDB_{}
+		},
+	})
 	normal.RegisterStructDescriptor(gORMDBStructDescriptor)
 	singleton.RegisterStructDescriptor(gORMDBStructDescriptor)
 }

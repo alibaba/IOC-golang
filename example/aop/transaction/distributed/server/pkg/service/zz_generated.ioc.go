@@ -13,12 +13,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &bankService_{}
-		},
-	})
-	bankServiceStructDescriptor := &autowire.StructDescriptor{
+	var bankServiceStructDescriptor = &autowire.StructDescriptor{
 		Alias: "github.com/alibaba/ioc-golang/example/aop/transaction/distributed/server/pkg/service/api.BankServiceIOCRPCClient",
 		Factory: func() interface{} {
 			return &BankService{}
@@ -38,6 +33,11 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &bankService_{}
+		},
+	})
 	rpc_service.RegisterStructDescriptor(bankServiceStructDescriptor)
 }
 

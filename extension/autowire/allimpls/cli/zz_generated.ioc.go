@@ -16,12 +16,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &allImplsCodeGenerationPlugin_{}
-		},
-	})
-	allImplsCodeGenerationPluginStructDescriptor := &autowire.StructDescriptor{
+	var allImplsCodeGenerationPluginStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &allImplsCodeGenerationPlugin{}
 		},
@@ -44,8 +39,13 @@ func init() {
 			},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &allImplsCodeGenerationPlugin_{}
+		},
+	})
 	allimpls.RegisterStructDescriptor(allImplsCodeGenerationPluginStructDescriptor)
-	iocGolangAutowireAllImplsTypeMarkerStructDescriptor := &autowire.StructDescriptor{
+	var iocGolangAutowireAllImplsTypeMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireAllImplsTypeMarker{}
 		},

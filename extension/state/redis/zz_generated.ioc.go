@@ -18,12 +18,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &redis_{}
-		},
-	})
-	redisStructDescriptor := &autowire.StructDescriptor{
+	var redisStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &Redis{}
 		},
@@ -41,6 +36,11 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &redis_{}
+		},
+	})
 	normal.RegisterStructDescriptor(redisStructDescriptor)
 	singleton.RegisterStructDescriptor(redisStructDescriptor)
 }

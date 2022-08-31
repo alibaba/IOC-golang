@@ -16,12 +16,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &commonCodeGenerationPlugin_{}
-		},
-	})
-	commonCodeGenerationPluginStructDescriptor := &autowire.StructDescriptor{
+	var commonCodeGenerationPluginStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &commonCodeGenerationPlugin{}
 		},
@@ -44,8 +39,13 @@ func init() {
 			},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &commonCodeGenerationPlugin_{}
+		},
+	})
 	allimpls.RegisterStructDescriptor(commonCodeGenerationPluginStructDescriptor)
-	iocGolangAutowireImplmentsAutoInjectionMarkerStructDescriptor := &autowire.StructDescriptor{
+	var iocGolangAutowireImplmentsAutoInjectionMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireImplmentsAutoInjectionMarker{}
 		},
@@ -62,7 +62,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireImplmentsAutoInjectionMarkerStructDescriptor)
-	iocGolangAutowireActiveProfileutoInjectionMarkerStructDescriptor := &autowire.StructDescriptor{
+	var iocGolangAutowireActiveProfileutoInjectionMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireActiveProfileutoInjectionMarker{}
 		},

@@ -154,7 +154,8 @@ type copyMethodMaker struct {
 	pkg *loader.Package
 	*importsList
 	*codeWriter
-	debugMode bool
+	debugMode  bool
+	pluginMode bool
 }
 
 type copyMethodMakerParam struct {
@@ -162,6 +163,7 @@ type copyMethodMakerParam struct {
 	*importsList
 	outContent io.Writer
 	DebugMode  bool
+	PluginMode bool
 }
 
 func (c *copyMethodMakerParam) Init(m *copyMethodMaker) (*copyMethodMaker, error) {
@@ -169,6 +171,9 @@ func (c *copyMethodMakerParam) Init(m *copyMethodMaker) (*copyMethodMaker, error
 	m.importsList = c.importsList
 	m.codeWriter = &codeWriter{Out: c.outContent}
 	m.debugMode = c.DebugMode
+	if c.pkg.Name == "main" && c.PluginMode {
+		m.pluginMode = true
+	}
 	return m, nil
 }
 
@@ -196,27 +201,54 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 	needProxyStructInfos := make([]*markers.TypeInfo, 0)
 	getMethodGenerateCtxs := make([]getMethodGenerateCtx, 0)
 	constructFunctionInfoNames := make([]string, 0)
-	c.Line(`func init() {`)
+
+	var proxyEnable bool
+	var autowireTypesAliasPairs []autowireTypeAliasPair
+	var structDescriptorVariableName string
+	var constructFunc string
+	var paramType string
+
+	type registerInfo struct {
+		proxyEnable                  bool
+		autowireTypesAliasPairs      []autowireTypeAliasPair
+		structDescriptorVariableName string
+		constructFunc                string
+		paramType                    string
+	}
+	registerInfos := make(map[int]registerInfo)
 	autowireAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire")
-	for _, info := range infos {
-		if c.debugMode {
-			fmt.Printf("[Scan Struct] %s.%s\n", root.PkgPath, info.Name)
-			for key, v := range info.Markers {
-				fmt.Printf("[Scan Struct %s Marker] with marker: key = %s, value = %+v\n", info.Name, key, v)
+	if c.pluginMode {
+		for idx, info := range infos {
+			if len(info.Markers["ioc:autowire"]) == 0 {
+				continue
+			}
+			if !info.Markers["ioc:autowire"][0].(bool) {
+				continue
+			}
+
+			if len(info.Markers["ioc:autowire:type"]) == 0 {
+				continue
+			}
+			// add plugin implements annotation
+			if info.Markers["ioc:autowire:implements"] == nil {
+				info.Markers["ioc:autowire:implements"] = make([]interface{}, 0)
+			}
+			info.Markers["ioc:autowire:implements"] = append(info.Markers["ioc:autowire:implements"], c.pkg.ID+"/api."+info.Name)
+
+			// gen sd var
+			proxyEnable, autowireTypesAliasPairs, structDescriptorVariableName, constructFunc, paramType = genStructDescriptorVar(c, info, &rpcServiceStructInfos, &constructFunctionInfoNames, autowireAlias, root)
+			registerInfos[idx] = registerInfo{
+				proxyEnable:                  proxyEnable,
+				autowireTypesAliasPairs:      autowireTypesAliasPairs,
+				structDescriptorVariableName: structDescriptorVariableName,
+				constructFunc:                constructFunc,
+				paramType:                    paramType,
 			}
 		}
-		// 1. create all struct-level plugins
-		allImplPluginsList, err := allimpls.GetImpl(util.GetSDIDByStructPtr(new(plugin.CodeGeneratorPluginForOneStruct)))
-		if err != nil {
-			panic(err)
-		}
-		// 2. sort plugins
-		sort.Sort(plugin.CodeGeneratorPluginForOneStructSorter(allImplPluginsList.([]plugin.CodeGeneratorPluginForOneStruct)))
-		allImplPlugins := allImplPluginsList.([]plugin.CodeGeneratorPluginForOneStruct)
-		for _, p := range allImplPlugins {
-			p.Init(info.Markers)
-		}
+	}
 
+	c.Line(`func init() {`)
+	for idx, info := range infos {
 		if len(info.Markers["ioc:autowire"]) == 0 {
 			continue
 		}
@@ -227,65 +259,17 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 		if len(info.Markers["ioc:autowire:type"]) == 0 {
 			continue
 		}
-		autowireTypes := make([]string, 0)
-		for _, v := range info.Markers["ioc:autowire:type"] {
-			if autowireType, ok := v.(string); ok {
-				autowireTypes = append(autowireTypes, autowireType)
-			}
-		}
 
-		baseType := false
-		if len(info.Markers["ioc:autowire:baseType"]) != 0 {
-			baseType = info.Markers["ioc:autowire:baseType"][0].(bool)
-		}
-		paramType := ""
-
-		if len(info.Markers["ioc:autowire:paramType"]) != 0 {
-			paramType = info.Markers["ioc:autowire:paramType"][0].(string)
-		}
-
-		paramLoader := ""
-		if len(info.Markers["ioc:autowire:paramLoader"]) != 0 {
-			paramLoader = info.Markers["ioc:autowire:paramLoader"][0].(string)
-		}
-
-		constructFunc := ""
-		if len(info.Markers["ioc:autowire:constructFunc"]) != 0 {
-			constructFunc = info.Markers["ioc:autowire:constructFunc"][0].(string)
-		}
-
-		proxyEnable := true
-		if len(info.Markers["ioc:autowire:proxy"]) != 0 {
-			proxyEnable = info.Markers["ioc:autowire:proxy"][0].(bool)
-		}
-
-		proxyAutoInjectionEnable := true
-		if len(info.Markers["ioc:autowire:proxy:autoInjection"]) != 0 {
-			proxyAutoInjectionEnable = info.Markers["ioc:autowire:proxy:autoInjection"][0].(bool)
-		}
-
-		autowireTypesAliasPairs := make([]autowireTypeAliasPair, 0)
-		for _, autowireType := range autowireTypes {
-			if autowireType == "normal" || autowireType == "singleton" {
-				autowireTypesAliasPairs = append(autowireTypesAliasPairs,
-					autowireTypeAliasPair{
-						autowireTypeAlias: c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/autowire/%s", autowireType)),
-						autowireType:      autowireType,
-					})
-			} else if autowireType == "rpc" {
-				autowireTypesAliasPairs = append(autowireTypesAliasPairs,
-					autowireTypeAliasPair{
-						autowireTypeAlias: c.NeedImport("github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_service"),
-						autowireType:      autowireType,
-					})
-				rpcServiceStructInfos = append(rpcServiceStructInfos, info)
-			} else {
-				autowireTypesAliasPairs = append(autowireTypesAliasPairs,
-					autowireTypeAliasPair{
-						autowireTypeAlias: c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/extension/autowire/%s", autowireType)),
-						autowireType:      autowireType,
-					})
-			}
+		// gen sd var
+		if !c.pluginMode {
+			proxyEnable, autowireTypesAliasPairs, structDescriptorVariableName, constructFunc, paramType = genStructDescriptorVar(c, info, &rpcServiceStructInfos, &constructFunctionInfoNames, autowireAlias, root)
+		} else {
+			regInfo := registerInfos[idx]
+			proxyEnable = regInfo.proxyEnable
+			paramType = regInfo.paramType
+			constructFunc = regInfo.constructFunc
+			autowireTypesAliasPairs = regInfo.autowireTypesAliasPairs
+			structDescriptorVariableName = regInfo.structDescriptorVariableName
 		}
 
 		// gen proxy registry
@@ -298,91 +282,6 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 		},`, common.ToFirstCharLower(info.Name))
 			c.Line(`})`)
 		}
-
-		// gen struct descriptor definition
-		structDescriptorVariableName := fmt.Sprintf("%sStructDescriptor", common.ToFirstCharLower(info.Name))
-		c.Linef(`%s := &%s.StructDescriptor{`, structDescriptorVariableName, autowireAlias)
-
-		// 0.gen alias
-		if len(autowireTypesAliasPairs) == 1 && autowireTypesAliasPairs[0].autowireType == "rpc" {
-			c.Linef(`Alias: "%s/api.%sIOCRPCClient",`, root.PkgPath, info.Name)
-		} else if len(info.Markers["ioc:autowire:alias"]) != 0 {
-			c.Linef(`Alias: "%s",`, info.Markers["ioc:autowire:alias"][0].(string))
-		}
-
-		// 1/2. gen struct factory and gen param
-		if !baseType {
-			c.Linef(`Factory: func() interface{} {
-			return &%s{}
-		},`, info.Name)
-			if paramType != "" {
-				c.Line(`ParamFactory: func() interface{} {`)
-				if constructFunc != "" && paramType != "" {
-					c.Linef(`var _ %s = &%s{}`, getParamInterfaceType(paramType), paramType)
-				}
-				c.Linef(`return &%s{}
-		},`, paramType)
-			}
-		} else {
-			c.Linef(`Factory: func() interface{} {
-			return new(%s)
-		},`, info.Name)
-			if paramType != "" {
-				c.Linef(`ParamFactory: func() interface{} {
-			return new(%s)
-		},`, paramType)
-			}
-		}
-
-		// 3. gen param loader
-		if paramLoader != "" {
-			c.Linef(`ParamLoader: &%s{},`, paramLoader)
-		}
-
-		// 4. gen constructor
-		if constructFunc != "" && paramType != "" {
-			c.Linef(`ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
-			param := p.(%s)
-			impl := i.(*%s)
-			return param.%s(impl)
-		},`, getParamInterfaceType(paramType), info.Name, constructFunc)
-		} else if constructFunc != "" && paramType == "" {
-			// gen specific construct function without param
-
-			c.Linef(`ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
-	impl := i.(*%s)
-	var constructFunc %sConstructFunc = %s
-	return constructFunc(impl)
-},`, info.Name, info.Name, constructFunc)
-			constructFunctionInfoNames = append(constructFunctionInfoNames, info.Name)
-		}
-
-		// 5. gen metadata
-		c.Line(`Metadata: map[string]interface{}{`)
-		// 5.1 gen aop plugins metadata
-		c.Line(`"aop": map[string]interface{}{`)
-		for _, pluginImpl := range allImplPlugins {
-			if pluginImpl.Type() == plugin.AOP {
-				pluginImpl.GenerateSDMetadataForOneStruct(c)
-			}
-		}
-		c.Line(`},`)
-
-		// 5.2 gen autowire plugins metadata
-		c.Line(`"autowire": map[string]interface{}{`)
-		for _, pluginImpl := range allImplPlugins {
-			if pluginImpl.Type() == plugin.Autowire {
-				pluginImpl.GenerateSDMetadataForOneStruct(c)
-			}
-		}
-		c.Line(`},`)
-		c.Line(`},`)
-
-		// 6. gen proxy enable
-		if !proxyEnable || !proxyAutoInjectionEnable {
-			c.Line(`DisableProxy: true,`)
-		}
-		c.Line(`}`)
 
 		for _, pair := range autowireTypesAliasPairs {
 			c.Linef(`%s.RegisterStructDescriptor(%s)`, pair.autowireTypeAlias, structDescriptorVariableName)
@@ -547,8 +446,210 @@ func (t *This%s) This() %sIOCInterface {
 		}
 	}
 
+	if c.pluginMode {
+		// gen plugin Get SD Struct
+		for _, g := range getMethodGenerateCtxs {
+			structDescriptorVariableName = fmt.Sprintf("%sStructDescriptor", common.ToFirstCharLower(g.structName))
+			sdGetterStructName := fmt.Sprintf("%sSDGetter", g.structName)
+			sdGetterPluginName := fmt.Sprintf("%sSDGetterPlugin", g.structName)
+			utilAlias := c.NeedImport("github.com/alibaba/ioc-golang/autowire/util")
+			sdidStrName := fmt.Sprintf("_%sSDID", common.ToFirstCharLower(g.structName))
+			c.Linef(`
+type %s struct {
+}
+
+func (s *%s) GetStructDescriptor() *%s.StructDescriptor {
+	return %s
+}
+
+func (s *%s) GetSDID() string {
+    if %s == ""{
+        %s = %s.GetSDIDByStructPtr(new(%s))
+    }
+	return %s
+}
+
+// nolint
+var %s = %s{}
+`, sdGetterStructName, sdGetterStructName, autowireAlias, structDescriptorVariableName, sdGetterStructName, sdidStrName, sdidStrName,
+				utilAlias, g.structName, sdidStrName, sdGetterPluginName, sdGetterStructName)
+		}
+	}
+
 	// gen iocRPC client
 	genIOCRPCClientStub(ctx, root, rpcServiceStructInfos, c.debugMode)
+
+	// gen plugin api interface
+	if c.pluginMode {
+		genGoPluginAPIInterface(ctx, root, infos)
+	}
+}
+
+func genStructDescriptorVar(c *copyMethodMaker, info *markers.TypeInfo, rpcServiceStructInfos *[]*markers.TypeInfo, constructFunctionInfoNames *[]string, autowireAlias string, root *loader.Package) (bool, []autowireTypeAliasPair, string, string, string) {
+	if c.debugMode {
+		fmt.Printf("[Scan Struct] %s.%s\n", root.PkgPath, info.Name)
+		for key, v := range info.Markers {
+			fmt.Printf("[Scan Struct %s Marker] with marker: key = %s, value = %+v\n", info.Name, key, v)
+		}
+	}
+	// 1. create all struct-level plugins
+	allImplPluginsList, err := allimpls.GetImpl(util.GetSDIDByStructPtr(new(plugin.CodeGeneratorPluginForOneStruct)))
+	if err != nil {
+		panic(err)
+	}
+	// 2. sort plugins
+	sort.Sort(plugin.CodeGeneratorPluginForOneStructSorter(allImplPluginsList.([]plugin.CodeGeneratorPluginForOneStruct)))
+	allImplPlugins := allImplPluginsList.([]plugin.CodeGeneratorPluginForOneStruct)
+	for _, p := range allImplPlugins {
+		p.Init(info.Markers)
+	}
+
+	autowireTypes := make([]string, 0)
+	for _, v := range info.Markers["ioc:autowire:type"] {
+		if autowireType, ok := v.(string); ok {
+			autowireTypes = append(autowireTypes, autowireType)
+		}
+	}
+
+	baseType := false
+	if len(info.Markers["ioc:autowire:baseType"]) != 0 {
+		baseType = info.Markers["ioc:autowire:baseType"][0].(bool)
+	}
+	paramType := ""
+
+	if len(info.Markers["ioc:autowire:paramType"]) != 0 {
+		paramType = info.Markers["ioc:autowire:paramType"][0].(string)
+	}
+
+	paramLoader := ""
+	if len(info.Markers["ioc:autowire:paramLoader"]) != 0 {
+		paramLoader = info.Markers["ioc:autowire:paramLoader"][0].(string)
+	}
+
+	constructFunc := ""
+	if len(info.Markers["ioc:autowire:constructFunc"]) != 0 {
+		constructFunc = info.Markers["ioc:autowire:constructFunc"][0].(string)
+	}
+
+	proxyEnable := true
+	if len(info.Markers["ioc:autowire:proxy"]) != 0 {
+		proxyEnable = info.Markers["ioc:autowire:proxy"][0].(bool)
+	}
+
+	proxyAutoInjectionEnable := true
+	if len(info.Markers["ioc:autowire:proxy:autoInjection"]) != 0 {
+		proxyAutoInjectionEnable = info.Markers["ioc:autowire:proxy:autoInjection"][0].(bool)
+	}
+
+	autowireTypesAliasPairs := make([]autowireTypeAliasPair, 0)
+	for _, autowireType := range autowireTypes {
+		if autowireType == "normal" || autowireType == "singleton" {
+			autowireTypesAliasPairs = append(autowireTypesAliasPairs,
+				autowireTypeAliasPair{
+					autowireTypeAlias: c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/autowire/%s", autowireType)),
+					autowireType:      autowireType,
+				})
+		} else if autowireType == "rpc" {
+			autowireTypesAliasPairs = append(autowireTypesAliasPairs,
+				autowireTypeAliasPair{
+					autowireTypeAlias: c.NeedImport("github.com/alibaba/ioc-golang/extension/autowire/rpc/rpc_service"),
+					autowireType:      autowireType,
+				})
+			*rpcServiceStructInfos = append(*rpcServiceStructInfos, info)
+		} else {
+			autowireTypesAliasPairs = append(autowireTypesAliasPairs,
+				autowireTypeAliasPair{
+					autowireTypeAlias: c.NeedImport(fmt.Sprintf("github.com/alibaba/ioc-golang/extension/autowire/%s", autowireType)),
+					autowireType:      autowireType,
+				})
+		}
+	}
+
+	// gen struct descriptor definition
+	structDescriptorVariableName := fmt.Sprintf("%sStructDescriptor", common.ToFirstCharLower(info.Name))
+	c.Linef(`var %s = &%s.StructDescriptor{`, structDescriptorVariableName, autowireAlias)
+
+	// 0.gen alias
+	if len(autowireTypesAliasPairs) == 1 && autowireTypesAliasPairs[0].autowireType == "rpc" {
+		c.Linef(`Alias: "%s/api.%sIOCRPCClient",`, root.PkgPath, info.Name)
+	} else if len(info.Markers["ioc:autowire:alias"]) != 0 {
+		c.Linef(`Alias: "%s",`, info.Markers["ioc:autowire:alias"][0].(string))
+	}
+
+	// 1/2. gen struct factory and gen param
+	if !baseType {
+		c.Linef(`Factory: func() interface{} {
+			return &%s{}
+		},`, info.Name)
+		if paramType != "" {
+			c.Line(`ParamFactory: func() interface{} {`)
+			if constructFunc != "" && paramType != "" {
+				c.Linef(`var _ %s = &%s{}`, getParamInterfaceType(paramType), paramType)
+			}
+			c.Linef(`return &%s{}
+		},`, paramType)
+		}
+	} else {
+		c.Linef(`Factory: func() interface{} {
+			return new(%s)
+		},`, info.Name)
+		if paramType != "" {
+			c.Linef(`ParamFactory: func() interface{} {
+			return new(%s)
+		},`, paramType)
+		}
+	}
+
+	// 3. gen param loader
+	if paramLoader != "" {
+		c.Linef(`ParamLoader: &%s{},`, paramLoader)
+	}
+
+	// 4. gen constructor
+	if constructFunc != "" && paramType != "" {
+		c.Linef(`ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
+			param := p.(%s)
+			impl := i.(*%s)
+			return param.%s(impl)
+		},`, getParamInterfaceType(paramType), info.Name, constructFunc)
+	} else if constructFunc != "" && paramType == "" {
+		// gen specific construct function without param
+
+		c.Linef(`ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
+	impl := i.(*%s)
+	var constructFunc %sConstructFunc = %s
+	return constructFunc(impl)
+},`, info.Name, info.Name, constructFunc)
+		*constructFunctionInfoNames = append(*constructFunctionInfoNames, info.Name)
+	}
+
+	// 5. gen metadata
+	c.Line(`Metadata: map[string]interface{}{`)
+	// 5.1 gen aop plugins metadata
+	c.Line(`"aop": map[string]interface{}{`)
+	for _, pluginImpl := range allImplPlugins {
+		if pluginImpl.Type() == plugin.AOP {
+			pluginImpl.GenerateSDMetadataForOneStruct(c)
+		}
+	}
+	c.Line(`},`)
+
+	// 5.2 gen autowire plugins metadata
+	c.Line(`"autowire": map[string]interface{}{`)
+	for _, pluginImpl := range allImplPlugins {
+		if pluginImpl.Type() == plugin.Autowire {
+			pluginImpl.GenerateSDMetadataForOneStruct(c)
+		}
+	}
+	c.Line(`},`)
+	c.Line(`},`)
+
+	// 6. gen proxy enable
+	if !proxyEnable || !proxyAutoInjectionEnable {
+		c.Line(`DisableProxy: true,`)
+	}
+	c.Line(`}`)
+	return proxyEnable, autowireTypesAliasPairs, structDescriptorVariableName, constructFunc, paramType
 }
 
 func getParamInterfaceType(paramType string) string {

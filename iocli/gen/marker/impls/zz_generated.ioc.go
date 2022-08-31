@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	enableIOCGolangAutowireMarkerStructDescriptor := &autowire.StructDescriptor{
+	var enableIOCGolangAutowireMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &enableIOCGolangAutowireMarker{}
 		},
@@ -29,7 +29,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(enableIOCGolangAutowireMarkerStructDescriptor)
-	iocGolangAutowireTypeMarkerStructDescriptor := &autowire.StructDescriptor{
+	var iocGolangAutowireTypeMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireTypeMarker{}
 		},
@@ -46,7 +46,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireTypeMarkerStructDescriptor)
-	iocGolangAutowireParamMarkerStructDescriptor := &autowire.StructDescriptor{
+	var iocGolangAutowireParamMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireParamMarker{}
 		},
@@ -63,7 +63,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireParamMarkerStructDescriptor)
-	iocGolangAutowireParamLoaderMarkerStructDescriptor := &autowire.StructDescriptor{
+	var iocGolangAutowireParamLoaderMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireParamLoaderMarker{}
 		},
@@ -80,7 +80,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireParamLoaderMarkerStructDescriptor)
-	iocGolangAutowireConstructFuncMarkerStructDescriptor := &autowire.StructDescriptor{
+	var iocGolangAutowireConstructFuncMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireConstructFuncMarker{}
 		},
@@ -97,7 +97,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireConstructFuncMarkerStructDescriptor)
-	iocGolangAutowireBaseTypeMarkerStructDescriptor := &autowire.StructDescriptor{
+	var iocGolangAutowireBaseTypeMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireBaseTypeMarker{}
 		},
@@ -114,7 +114,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireBaseTypeMarkerStructDescriptor)
-	iocGolangAutowireAliasMarkerStructDescriptor := &autowire.StructDescriptor{
+	var iocGolangAutowireAliasMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireAliasMarker{}
 		},
@@ -131,7 +131,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireAliasMarkerStructDescriptor)
-	iocGolangAutowireProxyMarkerStructDescriptor := &autowire.StructDescriptor{
+	var iocGolangAutowireProxyMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireProxyMarker{}
 		},
@@ -148,7 +148,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireProxyMarkerStructDescriptor)
-	iocGolangAutowireProxyAutoInjectionMarkerStructDescriptor := &autowire.StructDescriptor{
+	var iocGolangAutowireProxyAutoInjectionMarkerStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireProxyAutoInjectionMarker{}
 		},

@@ -15,12 +15,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &context_{}
-		},
-	})
-	contextStructDescriptor := &autowire.StructDescriptor{
+	var contextStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &context{}
 		},
@@ -39,13 +34,13 @@ func init() {
 		},
 		DisableProxy: true,
 	}
-	normal.RegisterStructDescriptor(contextStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &methodInvocationRecord_{}
+			return &context_{}
 		},
 	})
-	methodInvocationRecordStructDescriptor := &autowire.StructDescriptor{
+	normal.RegisterStructDescriptor(contextStructDescriptor)
+	var methodInvocationRecordStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &methodInvocationRecord{}
 		},
@@ -60,13 +55,13 @@ func init() {
 		},
 		DisableProxy: true,
 	}
-	normal.RegisterStructDescriptor(methodInvocationRecordStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &interceptorImpl_{}
+			return &methodInvocationRecord_{}
 		},
 	})
-	interceptorImplStructDescriptor := &autowire.StructDescriptor{
+	normal.RegisterStructDescriptor(methodInvocationRecordStructDescriptor)
+	var interceptorImplStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &interceptorImpl{}
 		},
@@ -76,13 +71,13 @@ func init() {
 		},
 		DisableProxy: true,
 	}
-	singleton.RegisterStructDescriptor(interceptorImplStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &monitorService_{}
+			return &interceptorImpl_{}
 		},
 	})
-	monitorServiceStructDescriptor := &autowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(interceptorImplStructDescriptor)
+	var monitorServiceStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &monitorService{}
 		},
@@ -92,6 +87,11 @@ func init() {
 		},
 		DisableProxy: true,
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &monitorService_{}
+		},
+	})
 	singleton.RegisterStructDescriptor(monitorServiceStructDescriptor)
 }
 

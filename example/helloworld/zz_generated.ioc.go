@@ -13,12 +13,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &app_{}
-		},
-	})
-	appStructDescriptor := &autowire.StructDescriptor{
+	var appStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &App{}
 		},
@@ -27,13 +22,13 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	singleton.RegisterStructDescriptor(appStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &serviceImpl1_{}
+			return &app_{}
 		},
 	})
-	serviceImpl1StructDescriptor := &autowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(appStructDescriptor)
+	var serviceImpl1StructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ServiceImpl1{}
 		},
@@ -42,13 +37,13 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	singleton.RegisterStructDescriptor(serviceImpl1StructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &serviceImpl2_{}
+			return &serviceImpl1_{}
 		},
 	})
-	serviceImpl2StructDescriptor := &autowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(serviceImpl1StructDescriptor)
+	var serviceImpl2StructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ServiceImpl2{}
 		},
@@ -57,13 +52,13 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	singleton.RegisterStructDescriptor(serviceImpl2StructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &serviceStruct_{}
+			return &serviceImpl2_{}
 		},
 	})
-	serviceStructStructDescriptor := &autowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(serviceImpl2StructDescriptor)
+	var serviceStructStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &ServiceStruct{}
 		},
@@ -72,6 +67,11 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &serviceStruct_{}
+		},
+	})
 	singleton.RegisterStructDescriptor(serviceStructStructDescriptor)
 }
 

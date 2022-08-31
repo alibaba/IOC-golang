@@ -13,12 +13,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &bankService_{}
-		},
-	})
-	bankServiceStructDescriptor := &autowire.StructDescriptor{
+	var bankServiceStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &BankService{}
 		},
@@ -37,13 +32,13 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
-	singleton.RegisterStructDescriptor(bankServiceStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
-			return &tradeService_{}
+			return &bankService_{}
 		},
 	})
-	tradeServiceStructDescriptor := &autowire.StructDescriptor{
+	singleton.RegisterStructDescriptor(bankServiceStructDescriptor)
+	var tradeServiceStructDescriptor = &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &TradeService{}
 		},
@@ -58,6 +53,11 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &tradeService_{}
+		},
+	})
 	singleton.RegisterStructDescriptor(tradeServiceStructDescriptor)
 }
 

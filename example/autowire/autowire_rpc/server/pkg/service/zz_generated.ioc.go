@@ -14,12 +14,7 @@ import (
 )
 
 func init() {
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &serviceStruct_{}
-		},
-	})
-	serviceStructStructDescriptor := &autowire.StructDescriptor{
+	var serviceStructStructDescriptor = &autowire.StructDescriptor{
 		Alias: "github.com/alibaba/ioc-golang/example/autowire/autowire_rpc/server/pkg/service/api.ServiceStructIOCRPCClient",
 		Factory: func() interface{} {
 			return &ServiceStruct{}
@@ -29,6 +24,11 @@ func init() {
 			"autowire": map[string]interface{}{},
 		},
 	}
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &serviceStruct_{}
+		},
+	})
 	rpc_service.RegisterStructDescriptor(serviceStructStructDescriptor)
 }
 
