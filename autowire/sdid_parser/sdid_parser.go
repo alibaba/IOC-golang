@@ -46,12 +46,15 @@ func (p *defaultSDIDParser) Parse(fi *autowire.FieldInfo) (string, error) {
 		// is interface field without valid sdid from tag value, and with 'IOCInterface' suffix
 		// load trim suffix as sdid
 		injectStructName = strings.TrimSuffix(fi.FieldType, "IOCInterface")
-	} else if bestMatchSDIDs, matchProfile, err := autowire.GetBestImplementMapping(fi.FieldType, config.GetActiveProfiles()); err == nil {
-		// is interface field without valid sdid from tag value, without 'IOCInterface' suffix
-		// load injectStructName from implements annotation mapping
-		injectStructName = bestMatchSDIDs[0]
-		if len(bestMatchSDIDs) > 1 {
-			logger.Red("[Autowire Default SDIDParser] Field %s has multi impls [%+v] under profile %s, select first one.", fi.FieldType, bestMatchSDIDs, matchProfile)
+	} else if !util.IsPointerField(fi.FieldReflectType) {
+		// is custom interface field, try to get best implements
+		if bestMatchSDIDs, matchProfile, err := autowire.GetBestImplementMapping(fi.FieldType, config.GetActiveProfiles()); err == nil {
+			// is interface field without valid sdid from tag value, without 'IOCInterface' suffix
+			// load injectStructName from implements annotation mapping
+			injectStructName = bestMatchSDIDs[0]
+			if len(bestMatchSDIDs) > 1 {
+				logger.Red("[Autowire Default SDIDParser] Field %s has multi impls [%+v] under profile %s, select first one.", fi.FieldType, bestMatchSDIDs, matchProfile)
+			}
 		}
 	}
 	return autowire.GetSDIDByAliasIfNecessary(injectStructName), nil
