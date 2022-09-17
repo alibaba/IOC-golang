@@ -24,9 +24,9 @@ service CallService {
 }
 
 message CallRequest{
-  string autowireType = 1;
-  string sdid = 2;
-  string methodName = 3;
+  string sdid = 1;
+  string methodName  = 2;
+  string autowireType = 3;
   bytes params = 4;
 }
 

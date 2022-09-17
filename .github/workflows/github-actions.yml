@@ -37,9 +37,9 @@ jobs:
       run : |
         cd ./iocli && go build -o /usr/local/bin .
 
-    - name: iocli gen
+    - name: gen all
       run : |
-        /usr/local/bin/iocli gen
+        make gen-all
     - name: Unit Test
       run: |
         make test-all
