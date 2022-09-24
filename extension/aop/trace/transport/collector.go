@@ -39,39 +39,44 @@ const dynamicQueueMaxMemory = 1 * 1024 * 1024 // 1MB
 const queueSize = 1000
 
 type collector struct {
-	spanHandlers *app.SpanHandlers
-	spanReader   spanstore.Reader
-	stopCh       chan struct{}
-	out          chan []*model.Trace
-	appName      string
+	spanHandlers   *app.SpanHandlers
+	spanReader     spanstore.Reader
+	stopCh         chan struct{}
+	out            chan []*model.Trace
+	appName        string
+	storageFactory *storage.Factory
 }
 
-func newCollector(appName string, interval int, out chan []*model.Trace) (*collector, error) {
+var storageFactory *storage.Factory
+var spanHandler *app.SpanHandlers
+var spanReader spanstore.Reader
+
+func initStorageFactory() error {
+	if storageFactory != nil {
+		return nil
+	}
 	logger := zap.NewNop()
 	v := viper.New()
 	v.Set("memory.max-traces", memoryMaxTraces)
 
-	storageFactory, err := storage.NewFactory(storage.FactoryConfig{
+	newStorageFactory, err := storage.NewFactory(storage.FactoryConfig{
 		SpanWriterTypes:         []string{memoryStorageType},
 		SpanReaderType:          memoryStorageType,
 		DependenciesStorageType: memoryStorageType,
 	})
-	if err != nil {
-		return nil, err
-	}
 
-	storageFactory.InitFromViper(v, logger)
-	if err := storageFactory.Initialize(metrics.NullFactory, logger); err != nil {
-		return nil, err
+	newStorageFactory.InitFromViper(v, logger)
+	if err := newStorageFactory.Initialize(metrics.NullFactory, logger); err != nil {
+		return err
 	}
-	spanWriter, err := storageFactory.CreateSpanWriter()
+	spanWriter, err := newStorageFactory.CreateSpanWriter()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	collectorOpts, err := new(flags.CollectorOptions).InitFromViper(v, zap.NewNop())
 	if err != nil {
-		return nil, err
+		return err
 	}
 	collectorOpts.DynQueueSizeMemory = dynamicQueueMaxMemory
 	collectorOpts.QueueSize = queueSize
@@ -83,21 +88,32 @@ func newCollector(appName string, interval int, out chan []*model.Trace) (*colle
 	}
 
 	spanProcessor := handlerBuilder.BuildSpanProcessor()
-	spanHandlers := handlerBuilder.BuildHandlers(spanProcessor)
+	newSpanHandlers := handlerBuilder.BuildHandlers(spanProcessor)
 
-	spanReader, err := storageFactory.CreateSpanReader()
+	newSpanReader, err := newStorageFactory.CreateSpanReader()
 	if err != nil {
+		return err
+	}
+	storageFactory = newStorageFactory
+	spanHandler = newSpanHandlers
+	spanReader = newSpanReader
+	return nil
+}
+
+func newCollector(appName string, interval int, out chan []*model.Trace) (*collector, error) {
+	if err := initStorageFactory(); err != nil {
 		return nil, err
 	}
-
 	newCreatedCollector := &collector{
-		spanHandlers: spanHandlers,
-		spanReader:   spanReader,
-		stopCh:       make(chan struct{}),
-		out:          out,
-		appName:      appName,
+		spanHandlers:   spanHandler,
+		spanReader:     spanReader,
+		stopCh:         make(chan struct{}),
+		out:            out,
+		appName:        appName,
+		storageFactory: storageFactory,
 	}
 	go newCreatedCollector.runReadLoop(time.Second * time.Duration(interval))
+
 	return newCreatedCollector, nil
 }
 
