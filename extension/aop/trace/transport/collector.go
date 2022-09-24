@@ -64,6 +64,9 @@ func initStorageFactory() error {
 		SpanReaderType:          memoryStorageType,
 		DependenciesStorageType: memoryStorageType,
 	})
+	if err != nil {
+		return err
+	}
 
 	newStorageFactory.InitFromViper(v, logger)
 	if err := newStorageFactory.Initialize(metrics.NullFactory, logger); err != nil {
