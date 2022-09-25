@@ -26,3 +26,7 @@ var defaultParam = &Param{
 func SetParam(param *Param) {
 	defaultParam = param
 }
+
+func GetParam() *Param {
+	return defaultParam
+}
