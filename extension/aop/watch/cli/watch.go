@@ -25,6 +25,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	aopLog "github.com/alibaba/ioc-golang/extension/aop/log"
 	watchPB "github.com/alibaba/ioc-golang/extension/aop/watch/api/ioc_golang/aop/watch"
 	"github.com/alibaba/ioc-golang/iocli/root"
 
@@ -68,27 +69,17 @@ var watch = &cobra.Command{
 			panic(err)
 		}
 		logger.Cyan("debug server connected, watch info would be printed when invocation occurs")
+		invocationCtxLogsGenerator, _ := aopLog.GetInvocationCtxLogsGeneratorSingleton()
 		for {
 			msg, err := client.Recv()
 			if err != nil {
 				logger.Red(err.Error())
 				return
 			}
-			paramOrResponse := "Param"
-			onToPrint := "Call"
-			logger.Red("========== On %s ==========\n", onToPrint)
-			logger.Red("%s.%s()", msg.Sdid, msg.MethodName)
-			for index, p := range msg.GetParams() {
-				logger.Blue("%s %d: %s", paramOrResponse, index+1, p)
-			}
-
-			onToPrint = "Response"
-			paramOrResponse = "Response"
-			logger.Red("========== On %s ==========\n", onToPrint)
-			logger.Red("%s.%s()", msg.Sdid, msg.MethodName)
-			for index, p := range msg.GetReturnValues() {
-				logger.Blue("%s %d: %s", paramOrResponse, index+1, p)
-			}
+			logger.Red(invocationCtxLogsGenerator.GetFunctionSignatureLogs(msg.Sdid, msg.MethodName, true))
+			logger.Blue(invocationCtxLogsGenerator.GetParamsLogs(msg.GetParams(), true) + "\n")
+			logger.Red(invocationCtxLogsGenerator.GetFunctionSignatureLogs(msg.Sdid, msg.MethodName, false))
+			logger.Blue(invocationCtxLogsGenerator.GetParamsLogs(msg.GetParams(), false) + "\n")
 		}
 	},
 }

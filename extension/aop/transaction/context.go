@@ -30,15 +30,15 @@ import (
 
 type context struct {
 	rollbackAbleInvocationContexts []rollbackAbleInvocationCtxIOCInterface
-	entranceMethod                 string
+	entranceMethodFullName         string
 }
 
 type contextParam struct {
-	entranceMethod string
+	entranceMethodFullName string
 }
 
 func (p *contextParam) init(c *context) (*context, error) {
-	c.entranceMethod = p.entranceMethod
+	c.entranceMethodFullName = p.entranceMethodFullName
 	c.rollbackAbleInvocationContexts = make([]rollbackAbleInvocationCtxIOCInterface, 0)
 	return c, nil
 }
@@ -47,8 +47,8 @@ func (c *context) finish() {
 
 }
 
-func (c *context) getEntranceMethod() string {
-	return c.entranceMethod
+func (c *context) getEntranceMethodFullName() string {
+	return c.entranceMethodFullName
 }
 
 func (c *context) failed(err error) {

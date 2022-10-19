@@ -35,7 +35,7 @@ func start(debugConfig *common.Config) error {
 		register(grpcServer)
 	}
 
-	lst, err := common.GetTCPListener(debugConfig.Port)
+	lst, err := common.GetTCPListener(debugConfig.DebugServer.Port)
 	if err != nil {
 		return err
 	}

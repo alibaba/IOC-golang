@@ -50,7 +50,7 @@ func TestBeforeInvoke(t *testing.T) {
 		},
 		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
 			param := p.(*contextParam)
-			assert.Equal(t, transactionMethodFullName, param.entranceMethod)
+			assert.Equal(t, transactionMethodFullName, param.entranceMethodFullName)
 			return param.init(i.(*context))
 		},
 		Metadata: map[string]interface{}{

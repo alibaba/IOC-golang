@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/alibaba/ioc-golang"
 )
 
@@ -46,6 +48,9 @@ type ServiceImpl1 struct {
 }
 
 func (s *ServiceImpl1) GetHelloString(name string) string {
+	logrus.Infof("ServiceImpl1 GetHelloString with name = %s", name)
+	logrus.Warningf("ServiceImpl1 GetHelloString with name = %s", name)
+	logrus.Errorf("ServiceImpl1 GetHelloString with name = %s", name)
 	return s.Service2.GetHelloString(name)
 }
 
@@ -56,6 +61,7 @@ type ServiceImpl2 struct {
 }
 
 func (s *ServiceImpl2) GetHelloString(name string) string {
+	logrus.Infof("ServiceImpl2 GetHelloString with name = %s", name)
 	return fmt.Sprintf("This is ServiceImpl2, hello %s", name)
 }
 

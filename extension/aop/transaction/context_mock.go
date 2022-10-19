@@ -30,8 +30,8 @@ func (_m *mockContextIOCInterface) finish() {
 	_m.Called()
 }
 
-// getEntranceMethod provides a mock function with given fields:
-func (_m *mockContextIOCInterface) getEntranceMethod() string {
+// getEntranceMethodFullName provides a mock function with given fields:
+func (_m *mockContextIOCInterface) getEntranceMethodFullName() string {
 	ret := _m.Called()
 
 	var r0 string

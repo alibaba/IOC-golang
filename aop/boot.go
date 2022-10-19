@@ -32,17 +32,17 @@ var debugMetadata = make(common.AllInterfaceMetadata)
 var debugMetadataLock = sync.Mutex{}
 
 func Load() error {
-	debugConfig := &common.Config{}
-	_ = config.LoadConfigByPrefix("debug", debugConfig)
-	if debugConfig.Disable {
+	aopConfig := &common.Config{}
+	_ = config.LoadConfigByPrefix(common.IOCGolangAOPConfigPrefix, aopConfig)
+	if aopConfig.DebugServer.Disable {
 		logger.Blue("[Debug] Debug server is disabled")
 		return nil
 	}
-	if debugConfig.Port == "" {
-		logger.Blue("[Debug] Debug port is set to default :%s", defaultDebugPort)
-		debugConfig.Port = defaultDebugPort
+	if aopConfig.DebugServer.Port == "" {
+		logger.Blue("[Debug] Debug server port is set to default :%s", defaultDebugPort)
+		aopConfig.DebugServer.Port = defaultDebugPort
 	}
-	if err := start(debugConfig); err != nil {
+	if err := start(aopConfig); err != nil {
 		logger.Red("[Debug] Start debug server error = %s", err)
 		return err
 	}

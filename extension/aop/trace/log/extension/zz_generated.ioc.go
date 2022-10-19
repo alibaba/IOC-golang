@@ -69,10 +69,38 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(log15HandlerStructDescriptor)
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &logrusWriter_{}
+		},
+	})
+	logrusWriterStructDescriptor := &autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &logrusWriter{}
+		},
+		ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
+			impl := i.(*logrusWriter)
+			var constructFunc logrusWriterConstructFunc = newLogrusWriter
+			return constructFunc(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
+			"autowire": map[string]interface{}{
+				"common": map[string]interface{}{
+					"implements": []interface{}{
+						new(log.TraceExtensionWriter),
+					},
+				},
+			},
+		},
+		DisableProxy: true,
+	}
+	allimpls.RegisterStructDescriptor(logrusWriterStructDescriptor)
 }
 
 type logWriterConstructFunc func(impl *logWriter) (*logWriter, error)
 type log15HandlerConstructFunc func(impl *log15Handler) (*log15Handler, error)
+type logrusWriterConstructFunc func(impl *logrusWriter) (*logrusWriter, error)
 type logWriter_ struct {
 	Write_                func(p []byte) (n int, err error)
 	SetTraceLoggerWriter_ func(traceLoggerWriter log.Writer)
@@ -109,6 +137,24 @@ func (l *log15Handler_) Name() string {
 	return l.Name_()
 }
 
+type logrusWriter_ struct {
+	Write_                func(p []byte) (n int, err error)
+	SetTraceLoggerWriter_ func(traceLoggerWriter log.Writer)
+	Name_                 func() string
+}
+
+func (l *logrusWriter_) Write(p []byte) (n int, err error) {
+	return l.Write_(p)
+}
+
+func (l *logrusWriter_) SetTraceLoggerWriter(traceLoggerWriter log.Writer) {
+	l.SetTraceLoggerWriter_(traceLoggerWriter)
+}
+
+func (l *logrusWriter_) Name() string {
+	return l.Name_()
+}
+
 type logWriterIOCInterface interface {
 	Write(p []byte) (n int, err error)
 	SetTraceLoggerWriter(traceLoggerWriter log.Writer)
@@ -121,5 +167,12 @@ type log15HandlerIOCInterface interface {
 	Name() string
 }
 
+type logrusWriterIOCInterface interface {
+	Write(p []byte) (n int, err error)
+	SetTraceLoggerWriter(traceLoggerWriter log.Writer)
+	Name() string
+}
+
 var _logWriterSDID string
 var _log15HandlerSDID string
+var _logrusWriterSDID string

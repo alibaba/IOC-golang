@@ -40,14 +40,24 @@ func (c *InvocationContext) SetReturnValues(returnValues []reflect.Value) {
 }
 
 func NewInvocationContext(proxyServicePtr interface{}, sdid, methodName, methodFullName string, params []reflect.Value) *InvocationContext {
-	return &InvocationContext{
+	grID := goid.Get()
+	newInvocationCtx := &InvocationContext{
 		ID:              uuid.New(),
 		ProxyServicePtr: proxyServicePtr,
 		SDID:            sdid,
 		Metadata:        make(map[string]interface{}),
 		MethodName:      methodName,
 		Params:          params,
-		GrID:            goid.Get(),
+		GrID:            grID,
 		MethodFullName:  methodFullName,
 	}
+	invocationContextMap[grID] = newInvocationCtx
+	return newInvocationCtx
+}
+
+// invocationContextMap is thread safe, because every gr can only read or write their own key
+var invocationContextMap = make(map[int64]*InvocationContext)
+
+func GetCurrentInvocationCtx() *InvocationContext {
+	return invocationContextMap[goid.Get()]
 }

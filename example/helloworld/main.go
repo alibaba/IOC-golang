@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/alibaba/ioc-golang"
 )
 
@@ -43,12 +45,12 @@ type App struct {
 func (a *App) Run() {
 	for {
 		time.Sleep(time.Second * 3)
-		fmt.Println(a.ServiceImpl1.GetHelloString("laurence"))
-		fmt.Println(a.ServiceImpl2.GetHelloString("laurence"))
+		logrus.Println(a.ServiceImpl1.GetHelloString("laurence"))
+		logrus.Println(a.ServiceImpl2.GetHelloString("laurence"))
 
-		fmt.Println(a.Service1OwnInterface.GetHelloString("laurence"))
-
-		fmt.Println(a.ServiceStruct.GetString("laurence"))
+		//logrus.Println(a.Service1OwnInterface.GetHelloString("laurence"))
+		//
+		//logrus.Println(a.ServiceStruct.GetString("laurence"))
 	}
 }
 
@@ -60,9 +62,11 @@ type Service interface {
 // +ioc:autowire:type=singleton
 
 type ServiceImpl1 struct {
+	ServiceImpl2 ServiceImpl2IOCInterface `singleton:""`
 }
 
 func (s *ServiceImpl1) GetHelloString(name string) string {
+	s.ServiceImpl2.GetHelloString(name)
 	return fmt.Sprintf("This is ServiceImpl1, hello %s", name)
 }
 
@@ -73,7 +77,12 @@ type ServiceImpl2 struct {
 }
 
 func (s *ServiceImpl2) GetHelloString(name string) string {
-	return fmt.Sprintf("This is ServiceImpl2, hello %s", name)
+	str := fmt.Sprintf("This is ServiceImpl2, hello %s", name)
+	logrus.Debugf(str)
+	logrus.Info(str)
+	logrus.Warnf(str)
+	logrus.Errorf(str)
+	return str
 }
 
 // +ioc:autowire=true
@@ -83,7 +92,12 @@ type ServiceStruct struct {
 }
 
 func (s *ServiceStruct) GetString(name string) string {
-	return fmt.Sprintf("This is ServiceStruct, hello %s", name)
+	str := fmt.Sprintf("This is ServiceImpl2, hello %s", name)
+	logrus.Debugf(str)
+	logrus.Info(str)
+	logrus.Warnf(str)
+	logrus.Errorf(str)
+	return str
 }
 
 func main() {

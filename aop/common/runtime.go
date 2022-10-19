@@ -30,7 +30,7 @@ func CurrentCallingMethodName(skip int) string {
 	return runtime.FuncForPC(pc[0]).Name()
 }
 
-func IsTraceEntrance(entranceName string) bool {
+func IsTraceEntrance(entranceMethodFullName string) bool {
 	pc := make([]uintptr, 500)
 	n := runtime.Callers(0, pc)
 	foundEntrance := false
@@ -47,7 +47,7 @@ func IsTraceEntrance(entranceName string) bool {
 			}
 			continue
 		}
-		if fName == entranceName {
+		if fName == entranceMethodFullName {
 			foundEntrance = true
 		}
 	}

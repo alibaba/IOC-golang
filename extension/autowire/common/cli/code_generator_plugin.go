@@ -26,6 +26,7 @@ import (
 
 const commonImplementsAnnotation = "ioc:autowire:implements"
 const commonActiveProfileAnnotation = "ioc:autowire:activeProfile"
+const commonLoadAtOnceAnnotation = "ioc:autowire:loadAtOnce"
 
 // +ioc:autowire=true
 // +ioc:autowire:type=allimpls
@@ -36,6 +37,7 @@ const commonActiveProfileAnnotation = "ioc:autowire:activeProfile"
 type commonCodeGenerationPlugin struct {
 	implements    []string
 	activeProfile string
+	loadAtOnce    bool
 }
 
 func create(t *commonCodeGenerationPlugin) (*commonCodeGenerationPlugin, error) {
@@ -61,12 +63,24 @@ func (t *commonCodeGenerationPlugin) Init(markers markers.MarkerValues) {
 		activeProfile = activeProfileValues[0].(string)
 	}
 	t.activeProfile = activeProfile
+
+	loadAtOnce := false
+
+	if loadAtOnceValues := markers[commonLoadAtOnceAnnotation]; len(loadAtOnceValues) > 0 {
+		loadAtOnce = loadAtOnceValues[0].(bool)
+	}
+	t.loadAtOnce = loadAtOnce
 }
 
 func (t *commonCodeGenerationPlugin) GenerateSDMetadataForOneStruct(w plugin.CodeWriter) {
+	if len(t.implements) == 0 && !t.loadAtOnce {
+		return
+	}
+	w.Linef(`"%s": map[string]interface{}{`, autowire.CommonMetadataKey)
+
+	// generate implements and active profiles metadata
 	if len(t.implements) > 0 {
-		w.Linef(`"%s": map[string]interface{}{
-				"%s":[]interface{}{`, autowire.CommonMetadataKey, autowire.CommonImplementsMetadataKey)
+		w.Linef(`"%s":[]interface{}{`, autowire.CommonImplementsMetadataKey)
 		for _, interfaceID := range t.implements {
 			interfacePkg, interfaceName := common.ParseInterfacePkgAndInterfaceName(interfaceID)
 			interfacePkgAlias := w.NeedImport(interfacePkg)
@@ -76,8 +90,13 @@ func (t *commonCodeGenerationPlugin) GenerateSDMetadataForOneStruct(w plugin.Cod
 		if t.activeProfile != "" {
 			w.Linef(`"%s":"%s",`, autowire.CommonActiveProfileMetadataKey, t.activeProfile)
 		}
-		w.Line(`},`)
 	}
+
+	// generate load at once metadata
+	if t.loadAtOnce {
+		w.Linef(`"%s":%t,`, autowire.CommonLoadAtOnceMetadataKey, true)
+	}
+	w.Line(`},`)
 }
 
 func (t *commonCodeGenerationPlugin) GenerateInFileForOneStruct(w plugin.CodeWriter) {

@@ -36,11 +36,11 @@ func Load() error {
 	// autowire all struct that can be entrance
 	for _, aw := range GetAllWrapperAutowires() {
 		for sdID := range aw.GetAllStructDescriptors() {
-			if aw.CanBeEntrance() {
-				sd := GetStructDescriptor(sdID)
-				if sd == nil {
-					continue
-				}
+			sd := GetStructDescriptor(sdID)
+			if sd == nil {
+				continue
+			}
+			if parseCommonLoadAtOnceMetadataFromSDMetadata(sd.Metadata) || aw.CanBeEntrance() {
 				_, err := aw.ImplWithoutParam(sdID, !sd.DisableProxy, false)
 				if err != nil {
 					return fmt.Errorf("[Autowire] Impl sd %s failed, reason is %s", sdID, err)

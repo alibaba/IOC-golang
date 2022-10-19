@@ -1,5 +1,5 @@
-//go:build !disableAOP
-
+// EDIT IT, change to your package, service and message
+syntax = "proto3";
 /*
  * Copyright (c) 2022, Alibaba Group;
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,15 +15,28 @@
  * limitations under the License.
  */
 
-package boot
+package ioc_golang.aop.log;
 
-import (
-	_ "github.com/alibaba/ioc-golang/extension/aop/call"
-	_ "github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin"
-	_ "github.com/alibaba/ioc-golang/extension/aop/list"
-	_ "github.com/alibaba/ioc-golang/extension/aop/log"
-	_ "github.com/alibaba/ioc-golang/extension/aop/monitor"
-	_ "github.com/alibaba/ioc-golang/extension/aop/trace"
-	_ "github.com/alibaba/ioc-golang/extension/aop/transaction"
-	_ "github.com/alibaba/ioc-golang/extension/aop/watch"
-)
+option go_package = "ioc_golang/aop/log";
+
+service LogService {
+  rpc Log (LogRequest) returns (stream LogResponse) {}
+}
+
+message LogRequest{
+  string autowireType = 1;
+  string sdid = 2;
+  string methodName = 3;
+  repeated Matcher machers = 4;
+  bool trace = 5;
+}
+
+message LogResponse{
+  string content = 1;
+}
+
+message Matcher{
+  int64 index = 1;
+  string matchPath = 2;
+  string matchValue = 3;
+}

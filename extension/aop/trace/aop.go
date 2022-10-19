@@ -16,6 +16,10 @@
 package trace
 
 import (
+	"fmt"
+
+	"github.com/alibaba/ioc-golang/logger"
+
 	"google.golang.org/grpc"
 
 	"github.com/alibaba/ioc-golang/aop"
@@ -32,28 +36,34 @@ func init() {
 	aop.RegisterAOP(aop.AOP{
 		Name: Name,
 		InterceptorFactory: func() aop.Interceptor {
-			return getTraceInterceptorSingleton()
+			interceptor, _ := GettraceInterceptorIOCInterfaceSingleton()
+			// inject logger interceptor
+			log.RunRegisteredTraceLoggerWriterFunc(interceptor.GetCurrentSpan)
+			return interceptor
 		},
 		RPCInterceptorFactory: func() aop.RPCInterceptor {
-			return getTraceRPCInterceptorSingleton()
+			traceRPCInterceptor, err := GetrpcInterceptorIOCInterfaceSingleton()
+			if err != nil {
+				logger.Red("trace AOP GetrpcInterceptorIOCInterfaceSingleton failed with error = %s", err.Error())
+			}
+			return traceRPCInterceptor
 		},
 		GRPCServiceRegister: func(server *grpc.Server) {
-			tracePB.RegisterTraceServiceServer(server, newTraceGRPCService())
+			rpcService, _ := GettraceServiceImplSingleton()
+			tracePB.RegisterTraceServiceServer(server, rpcService)
 		},
-		ConfigLoader: func(debugConfig *common.Config) {
-			if debugConfig.AppName != "" {
-				setAppName(debugConfig.AppName)
+		ConfigLoader: func(aopConfig *common.Config) {
+			if aopConfig.AppName != "" {
+				setAppName(aopConfig.AppName)
 			}
 			traceConfig := &TraceConfig{}
-			if err := config.LoadConfigByPrefix("aop.trace", traceConfig); err == nil {
+			if err := config.LoadConfigByPrefix(fmt.Sprintf("%s.%s", common.IOCGolangAOPConfigPrefix, Name), traceConfig); err == nil {
 				// found property
 				setCollectorAddress(traceConfig.CollectorAddress)
 			}
 			if traceConfig.ValueDepth != 0 {
 				valueDepth = traceConfig.ValueDepth
 			}
-			// inject logger interceptor
-			log.RunRegisteredTraceLoggerWriterFunc(getTraceInterceptorSingleton().GetCurrentSpan)
 		},
 	})
 }

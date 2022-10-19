@@ -19,6 +19,7 @@ import (
 	_ "github.com/alibaba/ioc-golang/extension/aop/call/cli"
 	_ "github.com/alibaba/ioc-golang/extension/aop/dynamic_plugin/cli"
 	_ "github.com/alibaba/ioc-golang/extension/aop/list/cli"
+	_ "github.com/alibaba/ioc-golang/extension/aop/log/cli"
 	_ "github.com/alibaba/ioc-golang/extension/aop/monitor/cli"
 	_ "github.com/alibaba/ioc-golang/extension/aop/trace/cli"
 	_ "github.com/alibaba/ioc-golang/extension/aop/transaction/cli"
