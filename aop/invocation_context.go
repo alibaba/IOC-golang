@@ -17,6 +17,7 @@ package aop
 
 import (
 	"reflect"
+	"sync"
 
 	"github.com/google/uuid"
 
@@ -51,13 +52,16 @@ func NewInvocationContext(proxyServicePtr interface{}, sdid, methodName, methodF
 		GrID:            grID,
 		MethodFullName:  methodFullName,
 	}
-	invocationContextMap[grID] = newInvocationCtx
+	invocationContextMap.Store(grID, newInvocationCtx)
 	return newInvocationCtx
 }
 
-// invocationContextMap is thread safe, because every gr can only read or write their own key
-var invocationContextMap = make(map[int64]*InvocationContext)
+var invocationContextMap = sync.Map{}
 
 func GetCurrentInvocationCtx() *InvocationContext {
-	return invocationContextMap[goid.Get()]
+	val, ok := invocationContextMap.Load(goid.Get())
+	if ok {
+		return val.(*InvocationContext)
+	}
+	return nil
 }

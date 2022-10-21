@@ -16,7 +16,9 @@
 package main
 
 import (
+	"log"
 	"os/exec"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -33,6 +35,10 @@ func (a *App) TestRun(t *testing.T) {
 }
 
 func TestApp(t *testing.T) {
+	if runtime.GOARCH != "amd64" {
+		log.Println("Warning: Plugin image only stable on amd arch. Skip integration test")
+		return
+	}
 	assert.Nil(t, ioc.Load())
 	app, err := GetAppSingleton()
 	assert.Nil(t, err)

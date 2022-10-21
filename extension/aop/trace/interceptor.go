@@ -110,8 +110,7 @@ func (m *traceInterceptor) StopTraceByMethod() {
 //}
 
 func (m *traceInterceptor) GetCurrentSpan() opentracing.Span {
-	currentGRTracingCtx := m.GoRoutineInterceptor.GetCurrentGRTracingContext(traceGoRoutineInterceptorFacadeCtxType)
-	if currentGRTracingCtx != nil {
+	if currentGRTracingCtx := m.GoRoutineInterceptor.GetCurrentGRTracingContext(traceGoRoutineInterceptorFacadeCtxType); currentGRTracingCtx != nil {
 		facadeCtx := currentGRTracingCtx.GetFacadeCtx().(*traceGoRoutineInterceptorFacadeCtx)
 		return facadeCtx.trace.currentSpan.span
 	}

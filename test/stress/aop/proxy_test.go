@@ -24,11 +24,14 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
+	"github.com/alibaba/ioc-golang/aop/common"
+	"github.com/alibaba/ioc-golang/config"
+	aopLog "github.com/alibaba/ioc-golang/extension/aop/log"
 	"github.com/alibaba/ioc-golang/test/iocli_command"
 )
 
 func TestAOPConcurrent(t *testing.T) {
-	assert.Nil(t, ioc.Load())
+	assert.Nil(t, ioc.Load(config.AddProperty(common.IOCGolangAOPConfigPrefix+"."+aopLog.Name+".invocation-aop-log.disable", true)))
 	closeCh := make(chan struct{})
 	go func() {
 		output, err := iocli_command.Run([]string{"monitor"}, time.Second*6)
@@ -59,7 +62,7 @@ Total: 100000, Success: 100000, Fail: 0, AvgRT: `))
 }
 
 func TestAOPRecursive(t *testing.T) {
-	assert.Nil(t, ioc.Load())
+	assert.Nil(t, ioc.Load(config.AddProperty(common.IOCGolangAOPConfigPrefix+"."+aopLog.Name+".invocation-aop-log.disable", true)))
 	closeCh := make(chan struct{})
 	go func() {
 		output, err := iocli_command.Run([]string{"monitor"}, time.Second*6)

@@ -39,6 +39,7 @@ func TestCallAOP(t *testing.T) {
 	output, err := iocli_command.Run([]string{"call", "singleton", "github.com/alibaba/ioc-golang/example/aop/call.UserService",
 		`CreateUser`, `--params`, `["laurence",22]`}, time.Second*1)
 	assert.Nil(t, err)
+	t.Log(output)
 	assert.True(t, strings.Contains(output, `Call singleton: github.com/alibaba/ioc-golang/example/aop/call.UserService.CreateUser() success!
 Param = ["laurence",22]
 Return values = [{"Id":1,"Name":"laurence","Age":22,"Mark":""},null]`))

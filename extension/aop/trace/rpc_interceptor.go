@@ -66,7 +66,7 @@ func (r *rpcInterceptor) BeforeServerInvoke(c *gin.Context) error {
 		traceByGrContext, err := goroutine_trace.GetGoRoutineTracingContext(&goroutine_trace.GoRoutineTracingContextParams{
 			/**
 			FIXME: now we just put short method name as full name, this would make TraceInterceptor never meet
-			'current span' and never jump out of tracing, so  we call r.TraceInterceptor.DeleteCurrentGRTracingContext()
+			'current span' and never jump out of tracing, so we call r.TraceInterceptor.DeleteCurrentGRTracingContext()
 			in AfterServerInvoke to force stop the tracing, but that's not graceful
 
 			Now, EntranceMethodFullName can be any string except empty, we just want 'current span' never match in TraceInterceptor
@@ -96,10 +96,12 @@ func (r *rpcInterceptor) AfterServerInvoke(ctx *gin.Context) error {
 
 func (r *rpcInterceptor) BeforeClientInvoke(req *http.Request) error {
 	// inject tracing context if necessary
-	if currentSpan := r.TraceInterceptor.GetCurrentGRTracingContext(traceGoRoutineInterceptorFacadeCtxType).GetFacadeCtx(); currentSpan != nil {
-		// current rpc invocation is in tracing link
-		carrier := opentracing.HTTPHeadersCarrier(req.Header)
-		_ = getGlobalTracer().getRawTracer().Inject(currentSpan.(*traceGoRoutineInterceptorFacadeCtx).clientSpanContext, opentracing.HTTPHeaders, carrier)
+	if currentGRTracingCtx := r.TraceInterceptor.GetCurrentGRTracingContext(traceGoRoutineInterceptorFacadeCtxType); currentGRTracingCtx != nil {
+		if currentSpan := currentGRTracingCtx.GetFacadeCtx(); currentSpan != nil {
+			// current rpc invocation is in tracing link
+			carrier := opentracing.HTTPHeadersCarrier(req.Header)
+			_ = getGlobalTracer().getRawTracer().Inject(currentSpan.(*traceGoRoutineInterceptorFacadeCtx).clientSpanContext, opentracing.HTTPHeaders, carrier)
+		}
 	}
 	return nil
 }

@@ -102,6 +102,9 @@ func (p *logInterceptorParams) initLogInterceptor(interceptor *logInterceptor) (
 
 func (w *logInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// [Feature1]
+	if w.disable {
+		return
+	}
 	w.invocationAOPLogFFunction("\n[AOP Function Call] %s\n%s\n\n",
 		w.InvocationCtxLogsGenerator.GetFunctionSignatureLogs(ctx.SDID, ctx.MethodName, true),
 		w.InvocationCtxLogsGenerator.GetParamsLogs(common.ReflectValues2Strings(ctx.Params, w.printParamsMaxDepth, w.printParamsMaxLength), true))
@@ -159,6 +162,9 @@ func (w *logInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 }
 
 func (w *logInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
+	if w.disable {
+		return
+	}
 	// [Feature2]
 	w.GoRoutineInterceptor.AfterInvoke(ctx)
 
