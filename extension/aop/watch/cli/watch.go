@@ -79,7 +79,7 @@ var watch = &cobra.Command{
 			logger.Red(invocationCtxLogsGenerator.GetFunctionSignatureLogs(msg.Sdid, msg.MethodName, true))
 			logger.Blue(invocationCtxLogsGenerator.GetParamsLogs(msg.GetParams(), true) + "\n")
 			logger.Red(invocationCtxLogsGenerator.GetFunctionSignatureLogs(msg.Sdid, msg.MethodName, false))
-			logger.Blue(invocationCtxLogsGenerator.GetParamsLogs(msg.GetParams(), false) + "\n")
+			logger.Blue(invocationCtxLogsGenerator.GetParamsLogs(msg.GetReturnValues(), false) + "\n")
 		}
 	},
 }

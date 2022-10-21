@@ -28,10 +28,10 @@ func TestDefaultLogAOPLevelConfiguration(t *testing.T) {
 
 func testLogCommand(t *testing.T) {
 	assert.Nil(t, ioc.Load())
-	app, err := app.GetAppIOCInterfaceSingleton()
+	application, err := app.GetAppIOCInterfaceSingleton()
 	assert.Nil(t, err)
 	go func() {
-		app.Run()
+		application.Run()
 	}()
 	time.Sleep(time.Second * 1)
 
@@ -58,8 +58,8 @@ func testLogCommand(t *testing.T) {
 	assert.Nil(t, err)
 	assertContainsLevel(t, output, []string{"debug", "info", "warning", "error"}, "This is ServiceImpl1, hello laurence")
 	assertContainsLevel(t, output, []string{"debug", "info", "warning", "error"}, "This is ServiceImpl2, hello laurence")
-	assertContainsInvocationCtx(t, output, "Response 1: (string) (len=36) \"This is ServiceImpl2, hello laurence\"")
-	assertContainsInvocationCtx(t, output, "Param 1: (string) (len=8) \"laurence\"")
+	assertContainsInvocationCtx(t, output, `Response 1:`)
+	assertContainsInvocationCtx(t, output, `Param 1:`)
 
 	output, err = iocli_command.Run([]string{"log", "singleton", "github.com/alibaba/ioc-golang/example/aop/log/app.ServiceImpl1", "GetHelloString", "--level", "error", "--invocation"}, time.Second*4)
 	assert.Nil(t, err)
@@ -67,8 +67,8 @@ func testLogCommand(t *testing.T) {
 	assertContainsLevel(t, output, []string{"error"}, "This is ServiceImpl2, hello laurence")
 	assertNotContainsLevel(t, output, []string{"debug", "info", "warning"}, "This is ServiceImpl1, hello laurence")
 	assertNotContainsLevel(t, output, []string{"debug", "info", "warning"}, "This is ServiceImpl2, hello laurence")
-	assertContainsInvocationCtx(t, output, "Response 1: (string) (len=36) \"This is ServiceImpl2, hello laurence\"")
-	assertContainsInvocationCtx(t, output, "Param 1: (string) (len=8) \"laurence\"")
+	assertContainsInvocationCtx(t, output, `Response 1`)
+	assertContainsInvocationCtx(t, output, `Param 1`)
 
 }
 
