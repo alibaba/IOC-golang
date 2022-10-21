@@ -90,7 +90,7 @@ func TestBeforeInvoke(t *testing.T) {
 
 	record, ok := impl.transactionGrIDMap.Load(mockGRID)
 	assert.True(t, ok)
-	assert.Equal(t, transactionMethodFullName, record.(contextIOCInterface).getEntranceMethod())
+	assert.Equal(t, transactionMethodFullName, record.(contextIOCInterface).getEntranceMethodFullName())
 }
 
 func TestAfterInvoke(t *testing.T) {

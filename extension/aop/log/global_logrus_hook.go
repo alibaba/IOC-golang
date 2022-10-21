@@ -16,7 +16,6 @@
 package call
 
 import (
-	"io"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -40,8 +39,6 @@ const GlobalLogrusIOCCtxHookType = "GlobalLogrusIOCCtxHook"
 // +ioc:autowire:proxy:autoInjection=false
 
 type GlobalLogrusIOCCtxHook struct {
-	originWriter io.Writer
-
 	structIDKey   string
 	methodNameKey string
 	grIDKey       string

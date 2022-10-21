@@ -71,7 +71,7 @@ func (w *wrapperTracer) runCollectingTrace() {
 	for {
 		select {
 		case traces := <-w.out:
-			if traces == nil || len(traces) == 0 {
+			if len(traces) == 0 {
 				continue
 			}
 			if ch := w.subscribingTraceChan; ch != nil {
