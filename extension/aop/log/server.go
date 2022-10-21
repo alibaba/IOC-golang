@@ -16,6 +16,8 @@
 package call
 
 import (
+	"github.com/sirupsen/logrus"
+
 	"github.com/alibaba/ioc-golang/aop/common"
 	logPB "github.com/alibaba/ioc-golang/extension/aop/log/api/ioc_golang/aop/log"
 	"github.com/alibaba/ioc-golang/logger"
@@ -45,14 +47,36 @@ func (l *logServiceImpl) Log(req *logPB.LogRequest, logServer logPB.LogService_L
 		}
 	}
 
+	originLevel := logrus.GetLevel()
+	originInvocationCtxLevel := l.LogInterceptor.GetInvocationCtxLogger().GetLevel()
+	defer func() {
+		logrus.SetLevel(originLevel)
+		l.LogInterceptor.GetInvocationCtxLogger().SetLevel(originInvocationCtxLevel)
+	}()
+
+	targetLevel := logrus.DebugLevel
+	if req.Level != 0 {
+		targetLevel = logrus.Level(req.Level)
+	}
+	if req.Invocation {
+		// change log level to debug if invocation ctx is enable
+		logrus.SetLevel(logrus.DebugLevel)
+		l.LogInterceptor.GetInvocationCtxLogger().SetLevel(logrus.DebugLevel)
+	} else {
+		// change log level to target level
+		logrus.SetLevel(targetLevel)
+		l.LogInterceptor.GetInvocationCtxLogger().SetLevel(targetLevel)
+	}
+
 	responseCh := make(chan *logPB.LogResponse, 100)
 
 	logDebugCtx, _ := GetdebugLogContext(&debugLogContextParam{
-		sdid:         sdid,
-		methodName:   method,
-		fieldMatcher: fieldMatcher,
-		ch:           responseCh,
-		//traceEnable:  req.Trace,
+		sdid:                sdid,
+		methodName:          method,
+		fieldMatcher:        fieldMatcher,
+		ch:                  responseCh,
+		invocationCtxEnable: req.Invocation,
+		level:               targetLevel,
 	})
 	l.LogInterceptor.WatchLogs(logDebugCtx)
 

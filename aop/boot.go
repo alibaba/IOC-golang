@@ -32,18 +32,31 @@ var debugMetadata = make(common.AllInterfaceMetadata)
 var debugMetadataLock = sync.Mutex{}
 
 func Load() error {
+	// 1.1 check AOP config
 	aopConfig := &common.Config{}
 	_ = config.LoadConfigByPrefix(common.IOCGolangAOPConfigPrefix, aopConfig)
-	if aopConfig.DebugServer.Disable {
-		logger.Blue("[Debug] Debug server is disabled")
+	if aopConfig.Disable {
+		logger.Blue("[AOP] AOP is disabled")
 		return nil
 	}
-	if aopConfig.DebugServer.Port == "" {
-		logger.Blue("[Debug] Debug server port is set to default :%s", defaultDebugPort)
+
+	// 1.2 enable AOP
+	enableAOP(aopConfig)
+
+	// 2.1 check Debug Server config
+	if aopConfig.DebugServer.Disable {
+		// aop is enabled but debug server is disabled, just return
+		// on such condition, all aop interceptors also works, but debug service would not be registered
+		logger.Blue("[AOP] Debug server is disabled")
+		return nil
+	} else if aopConfig.DebugServer.Port == "" {
+		logger.Blue("[AOP] Debug server port is set to default :%s", defaultDebugPort)
 		aopConfig.DebugServer.Port = defaultDebugPort
 	}
-	if err := start(aopConfig); err != nil {
-		logger.Red("[Debug] Start debug server error = %s", err)
+
+	// 2.2 start debug server
+	if err := startDebugServer(aopConfig); err != nil {
+		logger.Red("[AOP] Start debug server error = %s", err)
 		return err
 	}
 	return nil

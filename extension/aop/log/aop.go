@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/sirupsen/logrus"
+
 	"google.golang.org/grpc"
 
 	"github.com/alibaba/ioc-golang/aop/common"
@@ -47,13 +48,16 @@ func init() {
 			logConfig := &LogConfig{}
 			_ = config.LoadConfigByPrefix(fmt.Sprintf("%s.%s", common.IOCGolangAOPConfigPrefix, Name), logConfig)
 			logConfig.fillDefaultConfig()
+			globalLogLevel, _ := logrus.ParseLevel(logConfig.Level)
 			// init logInterceptor singleton
 			_, _ = GetlogInterceptorIOCInterfaceSingleton(&logInterceptorParams{
 				InvocationAOPLogConfig: logConfig.InvocationAOPLogConfig,
 			})
-			// init logrus default logger level
-			level, _ := logrus.ParseLevel(logConfig.Level)
-			logrus.SetLevel(level)
+
+			// init logrus hook
+			_, _ = GetGlobalLogrusIOCCtxHookIOCInterfaceSingleton(&globalLogrusIOCCtxHookParam{
+				globalLogLevel: globalLogLevel,
+			})
 		},
 	})
 }

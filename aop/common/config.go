@@ -17,6 +17,7 @@ package common
 
 type Config struct {
 	AppName     string            `yaml:"app-name"`
+	Disable     bool              `yaml:"disable"`
 	DebugServer DebugServerConfig `yaml:"debug-server"`
 }
 

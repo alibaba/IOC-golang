@@ -38,6 +38,31 @@ func init() {
 	normal.RegisterStructDescriptor(debugLogContextStructDescriptor)
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
+			return &globalLogrusIOCCtxHook_{}
+		},
+	})
+	globalLogrusIOCCtxHookStructDescriptor := &autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &GlobalLogrusIOCCtxHook{}
+		},
+		ParamFactory: func() interface{} {
+			var _ globalLogrusIOCCtxHookParamInterface = &globalLogrusIOCCtxHookParam{}
+			return &globalLogrusIOCCtxHookParam{}
+		},
+		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
+			param := p.(globalLogrusIOCCtxHookParamInterface)
+			impl := i.(*GlobalLogrusIOCCtxHook)
+			return param.newLogrusIOCCtxHook(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
+		DisableProxy: true,
+	}
+	singleton.RegisterStructDescriptor(globalLogrusIOCCtxHookStructDescriptor)
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
 			return &logInterceptor_{}
 		},
 	})
@@ -85,6 +110,30 @@ func init() {
 		},
 	}
 	normal.RegisterStructDescriptor(logGoRoutineInterceptorFacadeCtxStructDescriptor)
+	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &invocationCtxNotifyHook_{}
+		},
+	})
+	invocationCtxNotifyHookStructDescriptor := &autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &invocationCtxNotifyHook{}
+		},
+		ParamFactory: func() interface{} {
+			var _ invocationCtxNotifyHookParamInterface = &invocationCtxNotifyHookParam{}
+			return &invocationCtxNotifyHookParam{}
+		},
+		ConstructFunc: func(i interface{}, p interface{}) (interface{}, error) {
+			param := p.(invocationCtxNotifyHookParamInterface)
+			impl := i.(*invocationCtxNotifyHook)
+			return param.initInvocationCtxNotifyHook(impl)
+		},
+		Metadata: map[string]interface{}{
+			"aop":      map[string]interface{}{},
+			"autowire": map[string]interface{}{},
+		},
+	}
+	singleton.RegisterStructDescriptor(invocationCtxNotifyHookStructDescriptor)
 	invocationCtxLogsGeneratorStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &InvocationCtxLogsGenerator{}
@@ -96,31 +145,6 @@ func init() {
 		DisableProxy: true,
 	}
 	singleton.RegisterStructDescriptor(invocationCtxLogsGeneratorStructDescriptor)
-	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &logrusIOCCtxHook_{}
-		},
-	})
-	logrusIOCCtxHookStructDescriptor := &autowire.StructDescriptor{
-		Factory: func() interface{} {
-			return &LogrusIOCCtxHook{}
-		},
-		ConstructFunc: func(i interface{}, _ interface{}) (interface{}, error) {
-			impl := i.(*LogrusIOCCtxHook)
-			var constructFunc LogrusIOCCtxHookConstructFunc = newLogrusIOCCtxHook
-			return constructFunc(impl)
-		},
-		Metadata: map[string]interface{}{
-			"aop": map[string]interface{}{},
-			"autowire": map[string]interface{}{
-				"common": map[string]interface{}{
-					"loadAtOnce": true,
-				},
-			},
-		},
-		DisableProxy: true,
-	}
-	singleton.RegisterStructDescriptor(logrusIOCCtxHookStructDescriptor)
 	logServiceImplStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &logServiceImpl{}
@@ -134,8 +158,14 @@ func init() {
 	singleton.RegisterStructDescriptor(logServiceImplStructDescriptor)
 }
 
+type invocationCtxNotifyHookParamInterface interface {
+	initInvocationCtxNotifyHook(impl *invocationCtxNotifyHook) (*invocationCtxNotifyHook, error)
+}
 type debugLogContextParamInterface interface {
 	init(impl *debugLogContext) (*debugLogContext, error)
+}
+type globalLogrusIOCCtxHookParamInterface interface {
+	newLogrusIOCCtxHook(impl *GlobalLogrusIOCCtxHook) (*GlobalLogrusIOCCtxHook, error)
 }
 type logInterceptorParamsInterface interface {
 	initLogInterceptor(impl *logInterceptor) (*logInterceptor, error)
@@ -143,13 +173,31 @@ type logInterceptorParamsInterface interface {
 type logGoRoutineInterceptorFacadeCtxParamInterface interface {
 	initLogGoRoutineInterceptorFacadeCtx(impl *logGoRoutineInterceptorFacadeCtx) (*logGoRoutineInterceptorFacadeCtx, error)
 }
-type LogrusIOCCtxHookConstructFunc func(impl *LogrusIOCCtxHook) (*LogrusIOCCtxHook, error)
+type globalLogrusIOCCtxHook_ struct {
+	Levels_      func() []logrus.Level
+	Fire_        func(entry *logrus.Entry) error
+	SetLogLevel_ func(level uint32)
+}
+
+func (g *globalLogrusIOCCtxHook_) Levels() []logrus.Level {
+	return g.Levels_()
+}
+
+func (g *globalLogrusIOCCtxHook_) Fire(entry *logrus.Entry) error {
+	return g.Fire_(entry)
+}
+
+func (g *globalLogrusIOCCtxHook_) SetLogLevel(level uint32) {
+	g.SetLogLevel_(level)
+}
+
 type logInterceptor_ struct {
-	BeforeInvoke_ func(ctx *aop.InvocationContext)
-	AfterInvoke_  func(ctx *aop.InvocationContext)
-	WatchLogs_    func(logCtx *debugLogContext)
-	StopWatch_    func()
-	NotifyLogs_   func(content string)
+	BeforeInvoke_           func(ctx *aop.InvocationContext)
+	AfterInvoke_            func(ctx *aop.InvocationContext)
+	WatchLogs_              func(logCtx *debugLogContext)
+	StopWatch_              func()
+	NotifyEntry_            func(entry *logrus.Entry, hookType string)
+	GetInvocationCtxLogger_ func() *logrus.Logger
 }
 
 func (l *logInterceptor_) BeforeInvoke(ctx *aop.InvocationContext) {
@@ -168,19 +216,23 @@ func (l *logInterceptor_) StopWatch() {
 	l.StopWatch_()
 }
 
-func (l *logInterceptor_) NotifyLogs(content string) {
-	l.NotifyLogs_(content)
+func (l *logInterceptor_) NotifyEntry(entry *logrus.Entry, hookType string) {
+	l.NotifyEntry_(entry, hookType)
+}
+
+func (l *logInterceptor_) GetInvocationCtxLogger() *logrus.Logger {
+	return l.GetInvocationCtxLogger_()
 }
 
 type logGoRoutineInterceptorFacadeCtx_ struct {
-	pushContent_  func(content string)
+	pushEntry_    func(entry *logrus.Entry, hookType string)
 	BeforeInvoke_ func(ctx *aop.InvocationContext)
 	AfterInvoke_  func(ctx *aop.InvocationContext)
 	Type_         func() string
 }
 
-func (l *logGoRoutineInterceptorFacadeCtx_) pushContent(content string) {
-	l.pushContent_(content)
+func (l *logGoRoutineInterceptorFacadeCtx_) pushEntry(entry *logrus.Entry, hookType string) {
+	l.pushEntry_(entry, hookType)
 }
 
 func (l *logGoRoutineInterceptorFacadeCtx_) BeforeInvoke(ctx *aop.InvocationContext) {
@@ -195,22 +247,23 @@ func (l *logGoRoutineInterceptorFacadeCtx_) Type() string {
 	return l.Type_()
 }
 
-type logrusIOCCtxHook_ struct {
-	Levels_      func() []logrus.Level
-	Fire_        func(entry *logrus.Entry) error
-	SetLogLevel_ func(level uint32)
+type invocationCtxNotifyHook_ struct {
+	Levels_ func() []logrus.Level
+	Fire_   func(entry *logrus.Entry) error
 }
 
-func (l *logrusIOCCtxHook_) Levels() []logrus.Level {
-	return l.Levels_()
+func (i *invocationCtxNotifyHook_) Levels() []logrus.Level {
+	return i.Levels_()
 }
 
-func (l *logrusIOCCtxHook_) Fire(entry *logrus.Entry) error {
-	return l.Fire_(entry)
+func (i *invocationCtxNotifyHook_) Fire(entry *logrus.Entry) error {
+	return i.Fire_(entry)
 }
 
-func (l *logrusIOCCtxHook_) SetLogLevel(level uint32) {
-	l.SetLogLevel_(level)
+type GlobalLogrusIOCCtxHookIOCInterface interface {
+	Levels() []logrus.Level
+	Fire(entry *logrus.Entry) error
+	SetLogLevel(level uint32)
 }
 
 type logInterceptorIOCInterface interface {
@@ -218,20 +271,20 @@ type logInterceptorIOCInterface interface {
 	AfterInvoke(ctx *aop.InvocationContext)
 	WatchLogs(logCtx *debugLogContext)
 	StopWatch()
-	NotifyLogs(content string)
+	NotifyEntry(entry *logrus.Entry, hookType string)
+	GetInvocationCtxLogger() *logrus.Logger
 }
 
 type logGoRoutineInterceptorFacadeCtxIOCInterface interface {
-	pushContent(content string)
+	pushEntry(entry *logrus.Entry, hookType string)
 	BeforeInvoke(ctx *aop.InvocationContext)
 	AfterInvoke(ctx *aop.InvocationContext)
 	Type() string
 }
 
-type LogrusIOCCtxHookIOCInterface interface {
+type invocationCtxNotifyHookIOCInterface interface {
 	Levels() []logrus.Level
 	Fire(entry *logrus.Entry) error
-	SetLogLevel(level uint32)
 }
 
 var _debugLogContextSDID string
@@ -246,6 +299,40 @@ func GetdebugLogContext(p *debugLogContextParam) (*debugLogContext, error) {
 	}
 	impl := i.(*debugLogContext)
 	return impl, nil
+}
+
+var _globalLogrusIOCCtxHookSDID string
+
+func GetGlobalLogrusIOCCtxHookSingleton(p *globalLogrusIOCCtxHookParam) (*GlobalLogrusIOCCtxHook, error) {
+	if _globalLogrusIOCCtxHookSDID == "" {
+		_globalLogrusIOCCtxHookSDID = util.GetSDIDByStructPtr(new(GlobalLogrusIOCCtxHook))
+	}
+	i, err := singleton.GetImpl(_globalLogrusIOCCtxHookSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*GlobalLogrusIOCCtxHook)
+	return impl, nil
+}
+
+func GetGlobalLogrusIOCCtxHookIOCInterfaceSingleton(p *globalLogrusIOCCtxHookParam) (GlobalLogrusIOCCtxHookIOCInterface, error) {
+	if _globalLogrusIOCCtxHookSDID == "" {
+		_globalLogrusIOCCtxHookSDID = util.GetSDIDByStructPtr(new(GlobalLogrusIOCCtxHook))
+	}
+	i, err := singleton.GetImplWithProxy(_globalLogrusIOCCtxHookSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(GlobalLogrusIOCCtxHookIOCInterface)
+	return impl, nil
+}
+
+type ThisGlobalLogrusIOCCtxHook struct {
+}
+
+func (t *ThisGlobalLogrusIOCCtxHook) This() GlobalLogrusIOCCtxHookIOCInterface {
+	thisPtr, _ := GetGlobalLogrusIOCCtxHookIOCInterfaceSingleton(nil)
+	return thisPtr
 }
 
 var _logInterceptorSDID string
@@ -308,6 +395,40 @@ func GetlogGoRoutineInterceptorFacadeCtxIOCInterface(p *logGoRoutineInterceptorF
 	return impl, nil
 }
 
+var _invocationCtxNotifyHookSDID string
+
+func GetinvocationCtxNotifyHookSingleton(p *invocationCtxNotifyHookParam) (*invocationCtxNotifyHook, error) {
+	if _invocationCtxNotifyHookSDID == "" {
+		_invocationCtxNotifyHookSDID = util.GetSDIDByStructPtr(new(invocationCtxNotifyHook))
+	}
+	i, err := singleton.GetImpl(_invocationCtxNotifyHookSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(*invocationCtxNotifyHook)
+	return impl, nil
+}
+
+func GetinvocationCtxNotifyHookIOCInterfaceSingleton(p *invocationCtxNotifyHookParam) (invocationCtxNotifyHookIOCInterface, error) {
+	if _invocationCtxNotifyHookSDID == "" {
+		_invocationCtxNotifyHookSDID = util.GetSDIDByStructPtr(new(invocationCtxNotifyHook))
+	}
+	i, err := singleton.GetImplWithProxy(_invocationCtxNotifyHookSDID, p)
+	if err != nil {
+		return nil, err
+	}
+	impl := i.(invocationCtxNotifyHookIOCInterface)
+	return impl, nil
+}
+
+type ThisinvocationCtxNotifyHook struct {
+}
+
+func (t *ThisinvocationCtxNotifyHook) This() invocationCtxNotifyHookIOCInterface {
+	thisPtr, _ := GetinvocationCtxNotifyHookIOCInterfaceSingleton(nil)
+	return thisPtr
+}
+
 var _invocationCtxLogsGeneratorSDID string
 
 func GetInvocationCtxLogsGeneratorSingleton() (*InvocationCtxLogsGenerator, error) {
@@ -320,40 +441,6 @@ func GetInvocationCtxLogsGeneratorSingleton() (*InvocationCtxLogsGenerator, erro
 	}
 	impl := i.(*InvocationCtxLogsGenerator)
 	return impl, nil
-}
-
-var _logrusIOCCtxHookSDID string
-
-func GetLogrusIOCCtxHookSingleton() (*LogrusIOCCtxHook, error) {
-	if _logrusIOCCtxHookSDID == "" {
-		_logrusIOCCtxHookSDID = util.GetSDIDByStructPtr(new(LogrusIOCCtxHook))
-	}
-	i, err := singleton.GetImpl(_logrusIOCCtxHookSDID, nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(*LogrusIOCCtxHook)
-	return impl, nil
-}
-
-func GetLogrusIOCCtxHookIOCInterfaceSingleton() (LogrusIOCCtxHookIOCInterface, error) {
-	if _logrusIOCCtxHookSDID == "" {
-		_logrusIOCCtxHookSDID = util.GetSDIDByStructPtr(new(LogrusIOCCtxHook))
-	}
-	i, err := singleton.GetImplWithProxy(_logrusIOCCtxHookSDID, nil)
-	if err != nil {
-		return nil, err
-	}
-	impl := i.(LogrusIOCCtxHookIOCInterface)
-	return impl, nil
-}
-
-type ThisLogrusIOCCtxHook struct {
-}
-
-func (t *ThisLogrusIOCCtxHook) This() LogrusIOCCtxHookIOCInterface {
-	thisPtr, _ := GetLogrusIOCCtxHookIOCInterfaceSingleton()
-	return thisPtr
 }
 
 var _logServiceImplSDID string

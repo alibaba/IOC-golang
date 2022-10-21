@@ -25,11 +25,16 @@ import (
 )
 
 type AOP struct {
-	Name                  string
-	InterceptorFactory    interceptorFactory
+	Name string
+	// ConfigLoader is called during ioc.Load() when aop is enabled
+	ConfigLoader func(config *common.Config)
+
+	// InterceptorFactory is called after ConfigLoader is called, when bot aop and debug-server are enabled
+	InterceptorFactory interceptorFactory
+	// RPCInterceptorFactory is called after ConfigLoader is called, when bot aop and debug-server are enabled
 	RPCInterceptorFactory rpcInterceptorFactory
-	GRPCServiceRegister   gRPCServiceRegister
-	ConfigLoader          func(config *common.Config)
+	// GRPCServiceRegister is called after ConfigLoader is called, when bot aop and debug-server are enabled
+	GRPCServiceRegister gRPCServiceRegister
 }
 
 type Interceptor interface {
@@ -75,6 +80,9 @@ func RegisterAOP(aopImpl AOP) {
 }
 
 func GetRPCInterceptors() []RPCInterceptor {
+	if !enabled {
+		return make([]RPCInterceptor, 0)
+	}
 	if rpcInterceptors == nil {
 		rpcInterceptors = make([]RPCInterceptor, 0)
 		for _, f := range rpcInterceptorFactories {
@@ -85,6 +93,9 @@ func GetRPCInterceptors() []RPCInterceptor {
 }
 
 func getInterceptors() []Interceptor {
+	if !enabled {
+		return make([]Interceptor, 0)
+	}
 	if interceptors == nil {
 		interceptors = make([]Interceptor, 0)
 		for _, f := range interceptorFactories {
@@ -92,4 +103,16 @@ func getInterceptors() []Interceptor {
 		}
 	}
 	return interceptors
+}
+
+var enabled = false
+
+// enableAOP let all aop load config and set enable to true
+func enableAOP(aopConfig *common.Config) {
+	// let aop load config
+	for _, cl := range configLoaderFuncs {
+		cl(aopConfig)
+	}
+
+	enabled = true
 }

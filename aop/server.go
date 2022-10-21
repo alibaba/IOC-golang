@@ -25,21 +25,26 @@ import (
 	"github.com/alibaba/ioc-golang/logger"
 )
 
-func start(debugConfig *common.Config) error {
-	for _, cl := range configLoaderFuncs {
-		cl(debugConfig)
+// startDebugServer should be called only when aop is enabled
+func startDebugServer(aopConfig *common.Config) error {
+	if !enabled {
+		return nil
 	}
 
+	// new grpc server
 	grpcServer := grpc.NewServer(grpc.MaxRecvMsgSize(math.MaxInt32))
+
+	// register sop service
 	for _, register := range grpcServiceRegisters {
 		register(grpcServer)
 	}
 
-	lst, err := common.GetTCPListener(debugConfig.DebugServer.Port)
+	lst, err := common.GetTCPListener(aopConfig.DebugServer.Port)
 	if err != nil {
 		return err
 	}
 
+	// start server
 	go func() {
 		logger.Blue("[Debug] Debug server listening at :%d", lst.Addr().(*net.TCPAddr).Port)
 		if err := grpcServer.Serve(lst); err != nil {

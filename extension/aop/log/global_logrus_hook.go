@@ -24,17 +24,22 @@ import (
 	"github.com/alibaba/ioc-golang/aop"
 )
 
-// LogrusIOCCtxHook
+const GlobalLogrusIOCCtxHookType = "GlobalLogrusIOCCtxHook"
+
+// GlobalLogrusIOCCtxHook is logrus hook
 // [Feature1] append some keys as field of logs
 // [Feature2] send log content to current gr ctx, to let log interceptor collect if necessary
 
+// ATTENTION: GlobalLogrusIOCCtxHook contains injection field LogInterceptor with param, it should be created after LogInterceptor is inited
+// to avoid LogInterceptor's construct param NPE.
+
 // +ioc:autowire=true
 // +ioc:autowire:type=singleton
-// +ioc:autowire:loadAtOnce=true
 // +ioc:autowire:constructFunc=newLogrusIOCCtxHook
+// +ioc:autowire:paramType=globalLogrusIOCCtxHookParam
 // +ioc:autowire:proxy:autoInjection=false
 
-type LogrusIOCCtxHook struct {
+type GlobalLogrusIOCCtxHook struct {
 	originWriter io.Writer
 
 	structIDKey   string
@@ -44,22 +49,48 @@ type LogrusIOCCtxHook struct {
 	LogInterceptor logInterceptorIOCInterface `singleton:""`
 }
 
-func newLogrusIOCCtxHook(l *LogrusIOCCtxHook) (*LogrusIOCCtxHook, error) {
+type globalLogrusIOCCtxHookParam struct {
+	// all fields are optional
+	timestampFormat string
+	structIDKey     string
+	methodNameKey   string
+	grIDKey         string
+	globalLogLevel  logrus.Level
+}
+
+func (p *globalLogrusIOCCtxHookParam) newLogrusIOCCtxHook(l *GlobalLogrusIOCCtxHook) (*GlobalLogrusIOCCtxHook, error) {
+	if p.timestampFormat == "" {
+		p.timestampFormat = time.RFC3339
+	}
+	if p.structIDKey == "" {
+		p.structIDKey = "structID"
+	}
+	if p.methodNameKey == "" {
+		p.methodNameKey = "methodName"
+	}
+	if p.grIDKey == "" {
+		p.grIDKey = "grID"
+	}
+	if p.globalLogLevel == 0 {
+		p.globalLogLevel = logrus.InfoLevel
+	}
+
 	logrus.AddHook(l)
 	logrus.SetReportCaller(true)
 	logrus.SetFormatter(&logrus.TextFormatter{
-		TimestampFormat: time.RFC3339,
+		TimestampFormat: p.timestampFormat,
 	})
-	l.structIDKey = "structID"
-	l.methodNameKey = "methodName"
-	l.grIDKey = "grID"
+	l.structIDKey = p.structIDKey
+	l.methodNameKey = p.methodNameKey
+	l.grIDKey = p.grIDKey
+	logrus.SetLevel(p.globalLogLevel)
 	return l, nil
 }
 
-func (l *LogrusIOCCtxHook) Levels() []logrus.Level {
+func (l *GlobalLogrusIOCCtxHook) Levels() []logrus.Level {
 	return logrus.AllLevels
 }
-func (l *LogrusIOCCtxHook) Fire(entry *logrus.Entry) error {
+func (l *GlobalLogrusIOCCtxHook) Fire(entry *logrus.Entry) error {
 	// [Feature1]
 	aopInvocationCtx := aop.GetCurrentInvocationCtx()
 	if aopInvocationCtx == nil {
@@ -73,18 +104,14 @@ func (l *LogrusIOCCtxHook) Fire(entry *logrus.Entry) error {
 	entry.Data[l.grIDKey] = aopInvocationCtx.GrID
 
 	// [Feature2]
-	content, err := entry.String()
-	if err != nil {
-		return err
-	}
-	l.LogInterceptor.NotifyLogs(content)
+	l.LogInterceptor.NotifyEntry(entry, GlobalLogrusIOCCtxHookType)
 	return nil
 }
 
 /*
 	SetLogLevel is used to dynamic change log level using 'iocli call' command
 
- 	iocli call singleton github.com/alibaba/ioc-golang/extension/aop/log.LogrusIOCCtxHook SetLogLevel --params "[2]"
+ 	iocli call singleton github.com/alibaba/ioc-golang/extension/aop/log.GlobalLogrusIOCCtxHook SetLogLevel --params "[2]"
 
 params:
 	PanicLevel: 0
@@ -95,6 +122,6 @@ params:
 	DebugLevel: 5
 	TraceLevel: 6
 */
-func (l *LogrusIOCCtxHook) SetLogLevel(level uint32) {
+func (l *GlobalLogrusIOCCtxHook) SetLogLevel(level uint32) {
 	logrus.SetLevel(logrus.Level(level))
 }

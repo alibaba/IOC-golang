@@ -1,6 +1,0 @@
-ioc-golang:
-  aop:
-    log:
-      level: debug
-      invocation-aop-log:
-        level: debug

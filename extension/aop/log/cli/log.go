@@ -19,6 +19,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -47,17 +49,23 @@ var call = &cobra.Command{
 		autowireType := args[0]
 		sdid := args[1]
 		methodName := args[2]
-		if trace {
-			logger.Cyan("iocli log command run in trace mode, this would print all logs of target trace span")
+		logrusLevel, err := logrus.ParseLevel(level)
+		if err != nil {
+			logger.Red("level %s is invalid", level)
+			return
+		}
+
+		if printInvocationCtx {
+			logger.Cyan("print invocation ctx")
 		}
 
 		callServiceClient := getLogServiceClient(fmt.Sprintf("%s:%d", debugHost, debugPort))
-		// todo
 		logSvcClient, err := callServiceClient.Log(context.Background(), &logPB.LogRequest{
 			Sdid:         sdid,
 			MethodName:   methodName,
 			AutowireType: autowireType,
-			Trace:        trace,
+			Level:        int64(logrusLevel),
+			Invocation:   printInvocationCtx,
 		})
 		if err != nil {
 			logger.Red(err.Error())
@@ -76,14 +84,16 @@ var call = &cobra.Command{
 }
 
 var (
-	debugHost string
-	debugPort int
-	trace     bool
+	debugHost          string
+	debugPort          int
+	level              string
+	printInvocationCtx bool
 )
 
 func init() {
 	root.Cmd.AddCommand(call)
 	call.Flags().IntVarP(&debugPort, "port", "p", 1999, "debug port")
 	call.Flags().StringVar(&debugHost, "host", "127.0.0.1", "debug host")
-	call.Flags().BoolVar(&trace, "trace", false, "print logs of sub methods under target trace span")
+	call.Flags().StringVar(&level, "level", "debug", "pull logs level")
+	call.Flags().BoolVar(&printInvocationCtx, "invocation", false, "if print invocation context info")
 }

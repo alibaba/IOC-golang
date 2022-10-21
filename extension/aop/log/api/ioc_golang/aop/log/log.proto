@@ -28,7 +28,8 @@ message LogRequest{
   string sdid = 2;
   string methodName = 3;
   repeated Matcher machers = 4;
-  bool trace = 5;
+  bool invocation = 5;
+  int64 level = 6;
 }
 
 message LogResponse{

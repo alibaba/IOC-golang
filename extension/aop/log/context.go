@@ -16,6 +16,8 @@
 package call
 
 import (
+	"github.com/sirupsen/logrus"
+
 	"github.com/alibaba/ioc-golang/aop/common"
 	logPB "github.com/alibaba/ioc-golang/extension/aop/log/api/ioc_golang/aop/log"
 )
@@ -31,11 +33,12 @@ type debugLogContext struct {
 }
 
 type debugLogContextParam struct {
-	sdid         string
-	methodName   string
-	ch           chan *logPB.LogResponse
-	fieldMatcher *common.FieldMatcher
-	//traceEnable  bool
+	sdid                string
+	methodName          string
+	ch                  chan *logPB.LogResponse
+	fieldMatcher        *common.FieldMatcher
+	level               logrus.Level
+	invocationCtxEnable bool
 }
 
 func (p *debugLogContextParam) init(c *debugLogContext) (*debugLogContext, error) {

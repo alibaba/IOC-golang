@@ -47,7 +47,8 @@ type logInterceptor struct {
 
 	GoRoutineInterceptor goroutine_trace.GoRoutineTraceInterceptorIOCInterface `singleton:""`
 
-	logDebugCtx *debugLogContext
+	logDebugCtx         *debugLogContext
+	invocationCtxLogger *logrus.Logger
 }
 
 type logInterceptorParams struct {
@@ -62,25 +63,31 @@ func (p *logInterceptorParams) initLogInterceptor(interceptor *logInterceptor) (
 	// log interceptor is enabled
 	interceptor.disable = false
 
-	// init logger
+	// init invocationCtxLogger
+	invocationCtxLogger := logrus.New()
 	if level, err := logrus.ParseLevel(p.Level); err != nil {
 		return interceptor, err
 	} else {
+		invocationCtxLogger.SetLevel(level)
+		notifyHook, _ := GetinvocationCtxNotifyHookSingleton(&invocationCtxNotifyHookParam{
+			logInterceptor: interceptor,
+		})
+		invocationCtxLogger.AddHook(notifyHook)
 		switch level {
 		case logrus.DebugLevel:
-			interceptor.invocationAOPLogFFunction = logrus.Debugf
+			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Debugf
 		case logrus.InfoLevel:
-			interceptor.invocationAOPLogFFunction = logrus.Infof
+			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Infof
 		case logrus.WarnLevel:
-			interceptor.invocationAOPLogFFunction = logrus.Warnf
+			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Warnf
 		case logrus.ErrorLevel:
-			interceptor.invocationAOPLogFFunction = logrus.Errorf
+			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Errorf
 		case logrus.FatalLevel:
-			interceptor.invocationAOPLogFFunction = logrus.Fatalf
+			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Fatalf
 		case logrus.PanicLevel:
-			interceptor.invocationAOPLogFFunction = logrus.Panicf
+			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Panicf
 		case logrus.TraceLevel:
-			interceptor.invocationAOPLogFFunction = logrus.Tracef
+			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Tracef
 		default:
 			return interceptor, fmt.Errorf("invalid log level %d", level)
 		}
@@ -89,13 +96,15 @@ func (p *logInterceptorParams) initLogInterceptor(interceptor *logInterceptor) (
 	interceptor.disablePrintParams = p.DisablePrintParams
 	interceptor.printParamsMaxDepth = p.PrintParamsMaxDepth
 	interceptor.printParamsMaxLength = p.PrintParamsMaxLength
+	interceptor.invocationCtxLogger = invocationCtxLogger
 	return interceptor, nil
 }
 
 func (w *logInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// [Feature1]
-	w.invocationAOPLogFFunction("[AOP Function Call] %s\n", w.InvocationCtxLogsGenerator.GetFunctionSignatureLogs(ctx.SDID, ctx.MethodName, true))
-	w.invocationAOPLogFFunction("[AOP Param] %s\n\n", w.InvocationCtxLogsGenerator.GetParamsLogs(common.ReflectValues2Strings(ctx.Params, w.printParamsMaxDepth, w.printParamsMaxLength), true))
+	w.invocationAOPLogFFunction("\n[AOP Function Call] %s\n%s\n\n",
+		w.InvocationCtxLogsGenerator.GetFunctionSignatureLogs(ctx.SDID, ctx.MethodName, true),
+		w.InvocationCtxLogsGenerator.GetParamsLogs(common.ReflectValues2Strings(ctx.Params, w.printParamsMaxDepth, w.printParamsMaxLength), true))
 
 	// [Feature2]
 	// 1. find if already in goroutine tracing
@@ -128,7 +137,9 @@ func (w *logInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// 3.start goroutine tracing
 	// create facade ctx
 	facadeLogCtx, err := GetlogGoRoutineInterceptorFacadeCtx(&logGoRoutineInterceptorFacadeCtxParam{
-		logCh: debugServerLogCtx.ch,
+		logCh:               debugServerLogCtx.ch,
+		invocationCtxEnable: debugServerLogCtx.invocationCtxEnable,
+		level:               debugServerLogCtx.level,
 		//traceEnable:            debugServerLogCtx.traceEnable,
 		//entranceMethodFullName: ctx.MethodFullName,
 	})
@@ -152,9 +163,9 @@ func (w *logInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
 	w.GoRoutineInterceptor.AfterInvoke(ctx)
 
 	// [Feature1]
-	w.invocationAOPLogFFunction("[AOP Function Response] %s\n", w.InvocationCtxLogsGenerator.GetFunctionSignatureLogs(ctx.SDID, ctx.MethodName, false))
-	w.invocationAOPLogFFunction("[AOP Return Values] %s\n\n", w.InvocationCtxLogsGenerator.GetParamsLogs(common.ReflectValues2Strings(ctx.ReturnValues, w.printParamsMaxDepth, w.printParamsMaxLength), false))
-
+	w.invocationAOPLogFFunction("\n[AOP Function Response] %s\n%s\n\n",
+		w.InvocationCtxLogsGenerator.GetFunctionSignatureLogs(ctx.SDID, ctx.MethodName, false),
+		w.InvocationCtxLogsGenerator.GetParamsLogs(common.ReflectValues2Strings(ctx.ReturnValues, w.printParamsMaxDepth, w.printParamsMaxLength), false))
 }
 
 func (w *logInterceptor) WatchLogs(logCtx *debugLogContext) {
@@ -165,15 +176,18 @@ func (w *logInterceptor) StopWatch() {
 	w.logDebugCtx = nil
 }
 
-func (w *logInterceptor) NotifyLogs(content string) {
+func (w *logInterceptor) NotifyEntry(entry *logrus.Entry, hookType string) {
 	//  get current gr span
 	if grCtx := w.GoRoutineInterceptor.GetCurrentGRTracingContext(logGoRoutineInterceptorFacadeCtxType); grCtx != nil {
 		// found current log gr span
 		grLogFacadeCtx := grCtx.GetFacadeCtx().(*logGoRoutineInterceptorFacadeCtx)
 		// todo: trace log switch
-		// if grLogFacadeCtx.traceEnable || common.IsTraceEntrance(grLogFacadeCtx.entranceMethodFullName) {
-		grLogFacadeCtx.pushContent(content)
+		grLogFacadeCtx.pushEntry(entry, hookType)
 	}
+}
+
+func (w *logInterceptor) GetInvocationCtxLogger() *logrus.Logger {
+	return w.invocationCtxLogger
 }
 
 const logGoRoutineInterceptorFacadeCtxType = "logGoRoutineInterceptorFacadeCtx"
@@ -188,17 +202,33 @@ type logGoRoutineInterceptorFacadeCtx struct {
 }
 
 type logGoRoutineInterceptorFacadeCtxParam struct {
-	logCh chan *logPB.LogResponse
-	//traceEnable            bool
-	entranceMethodFullName string
+	logCh               chan *logPB.LogResponse
+	invocationCtxEnable bool
+	level               logrus.Level
 }
 
 func (p *logGoRoutineInterceptorFacadeCtxParam) initLogGoRoutineInterceptorFacadeCtx(l *logGoRoutineInterceptorFacadeCtx) (*logGoRoutineInterceptorFacadeCtx, error) {
 	l.logGoRoutineInterceptorFacadeCtxParam = *p
 	return l, nil
 }
-func (l *logGoRoutineInterceptorFacadeCtx) pushContent(content string) {
+func (l *logGoRoutineInterceptorFacadeCtx) pushEntry(entry *logrus.Entry, hookType string) {
 	if ch := l.logCh; ch != nil {
+		if hookType == GlobalLogrusIOCCtxHookType && entry.Level > l.level {
+			// ignore lower level global logrus
+			return
+		}
+
+		if hookType == invocationCtxNotifyHookType && !l.invocationCtxEnable {
+			// ignore invocation ctx logs
+			return
+		}
+
+		content, err := entry.String()
+		if err != nil {
+			log.Printf("get content of %+v failed with error = %s\n", entry, err.Error())
+			return
+		}
+
 		select {
 		case l.logCh <- &logPB.LogResponse{
 			Content: content,
@@ -217,4 +247,33 @@ func (l *logGoRoutineInterceptorFacadeCtx) AfterInvoke(ctx *aop.InvocationContex
 
 func (t *logGoRoutineInterceptorFacadeCtx) Type() string {
 	return logGoRoutineInterceptorFacadeCtxType
+}
+
+const invocationCtxNotifyHookType = "invocationCtxNotifyHook"
+
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:paramType=invocationCtxNotifyHookParam
+// +ioc:autowire:constructFunc=initInvocationCtxNotifyHook
+
+type invocationCtxNotifyHook struct {
+	invocationCtxNotifyHookParam
+}
+
+type invocationCtxNotifyHookParam struct {
+	logInterceptor logInterceptorIOCInterface
+}
+
+func (p *invocationCtxNotifyHookParam) initInvocationCtxNotifyHook(h *invocationCtxNotifyHook) (*invocationCtxNotifyHook, error) {
+	h.invocationCtxNotifyHookParam = *p
+	return h, nil
+}
+
+func (i *invocationCtxNotifyHook) Levels() []logrus.Level {
+	return logrus.AllLevels
+}
+
+func (i *invocationCtxNotifyHook) Fire(entry *logrus.Entry) error {
+	i.logInterceptor.NotifyEntry(entry, invocationCtxNotifyHookType)
+	return nil
 }
