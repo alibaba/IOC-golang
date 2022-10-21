@@ -31,6 +31,7 @@ import (
 )
 
 func TestAOPConcurrent(t *testing.T) {
+	// FIXME: now we disable aop logs, as the debug log too much, but this would ignore concurrent problem in log aop
 	assert.Nil(t, ioc.Load(config.AddProperty(common.IOCGolangAOPConfigPrefix+"."+aopLog.Name+".invocation-aop-log.disable", true)))
 	closeCh := make(chan struct{})
 	go func() {
@@ -62,6 +63,7 @@ Total: 100000, Success: 100000, Fail: 0, AvgRT: `))
 }
 
 func TestAOPRecursive(t *testing.T) {
+	// FIXME: now we disable aop logs, as the debug log too much, but this would ignore recursive problem in log aop
 	assert.Nil(t, ioc.Load(config.AddProperty(common.IOCGolangAOPConfigPrefix+"."+aopLog.Name+".invocation-aop-log.disable", true)))
 	closeCh := make(chan struct{})
 	go func() {
