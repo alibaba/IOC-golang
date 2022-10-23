@@ -99,16 +99,6 @@ func (m *traceInterceptor) StopTraceByMethod() {
 	m.debugServerTraceByMethodCtx = nil
 }
 
-//TraceCurrentGR is used in rpc-server side, to continue tracing.
-//func (m *traceInterceptor) TraceCurrentGR(traceCtx *goroutine_trace.GoRoutineTracingContext) {
-//	m.goRoutineInterceptor.AddCurrentGRTracingContext(traceCtx)
-//}
-//
-//StopTraceCurrentGR is used in rpc-server side, to continue tracing.
-//func (m *traceInterceptor) StopTraceCurrentGR() {
-//	m.goRoutineInterceptor.DeleteCurrentGRTracingContext()
-//}
-
 func (m *traceInterceptor) GetCurrentSpan() opentracing.Span {
 	if currentGRTracingCtx := m.GoRoutineInterceptor.GetCurrentGRTracingContext(traceGoRoutineInterceptorFacadeCtxType); currentGRTracingCtx != nil {
 		facadeCtx := currentGRTracingCtx.GetFacadeCtx().(*traceGoRoutineInterceptorFacadeCtx)
