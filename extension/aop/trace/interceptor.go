@@ -40,7 +40,7 @@ type traceInterceptor struct {
 func (m *traceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// 1. find if already in goroutine tracing
 	if m.GoRoutineInterceptor.GetCurrentGRTracingContext(traceGoRoutineInterceptorFacadeCtxType) != nil {
-		m.GoRoutineInterceptor.BeforeInvoke(ctx)
+		m.GoRoutineInterceptor.BeforeInvoke(ctx, traceGoRoutineInterceptorFacadeCtxType)
 		return
 	}
 	// current invocation not in goroutine tracing
@@ -84,11 +84,11 @@ func (m *traceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 
 	// start tracing
 	m.GoRoutineInterceptor.AddCurrentGRTracingContext(grCtx)
-	m.GoRoutineInterceptor.BeforeInvoke(ctx)
+	m.GoRoutineInterceptor.BeforeInvoke(ctx, traceGoRoutineInterceptorFacadeCtxType)
 }
 
 func (m *traceInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
-	m.GoRoutineInterceptor.AfterInvoke(ctx)
+	m.GoRoutineInterceptor.AfterInvoke(ctx, traceGoRoutineInterceptorFacadeCtxType)
 }
 
 func (m *traceInterceptor) StartTraceByMethod(traceCtx *debugServerTraceByMethodContext) {

@@ -32,18 +32,25 @@ type GoRoutineTraceInterceptor struct {
 	tracingGrIDMap sync.Map // tracingGrIDMap stores goroutine-id -> goRoutineTracingContext
 }
 
-func (g *GoRoutineTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
+func (g *GoRoutineTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext, facadeCtxType string) {
 	// if current goroutine is in tracing
 	if traceCtxVal, ok := g.tracingGrIDMap.Load(ctx.GrID); ok {
+		traceCtx := traceCtxVal.(*GoRoutineTracingContext)
+		if traceCtx.GetFacadeCtx().Type() != facadeCtxType {
+			return
+		}
 		traceCtxVal.(*GoRoutineTracingContext).facadeCtx.BeforeInvoke(ctx)
 	}
 }
 
-func (g *GoRoutineTraceInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
+func (g *GoRoutineTraceInterceptor) AfterInvoke(ctx *aop.InvocationContext, facadeCtxType string) {
 	// if current goroutine is watched?
 	if traceCtxVal, ok := g.tracingGrIDMap.Load(ctx.GrID); ok {
 		// this goRoutine is in tracing, return span
 		traceCtx := traceCtxVal.(*GoRoutineTracingContext)
+		if traceCtx.GetFacadeCtx().Type() != facadeCtxType {
+			return
+		}
 		traceCtx.facadeCtx.AfterInvoke(ctx)
 		// calculate level
 		if common.IsTraceEntrance(traceCtx.entranceMethodFullName) {

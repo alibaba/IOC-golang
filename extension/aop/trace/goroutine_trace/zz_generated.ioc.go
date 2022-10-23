@@ -56,19 +56,19 @@ type goRoutineTracingContextParamsInterface interface {
 	initGoRoutineTracingContext(impl *GoRoutineTracingContext) (*GoRoutineTracingContext, error)
 }
 type goRoutineTraceInterceptor_ struct {
-	BeforeInvoke_                  func(ctx *aop.InvocationContext)
-	AfterInvoke_                   func(ctx *aop.InvocationContext)
+	BeforeInvoke_                  func(ctx *aop.InvocationContext, facadeCtxType string)
+	AfterInvoke_                   func(ctx *aop.InvocationContext, facadeCtxType string)
 	AddCurrentGRTracingContext_    func(ctx *GoRoutineTracingContext)
 	DeleteCurrentGRTracingContext_ func()
 	GetCurrentGRTracingContext_    func(ctxType string) *GoRoutineTracingContext
 }
 
-func (g *goRoutineTraceInterceptor_) BeforeInvoke(ctx *aop.InvocationContext) {
-	g.BeforeInvoke_(ctx)
+func (g *goRoutineTraceInterceptor_) BeforeInvoke(ctx *aop.InvocationContext, facadeCtxType string) {
+	g.BeforeInvoke_(ctx, facadeCtxType)
 }
 
-func (g *goRoutineTraceInterceptor_) AfterInvoke(ctx *aop.InvocationContext) {
-	g.AfterInvoke_(ctx)
+func (g *goRoutineTraceInterceptor_) AfterInvoke(ctx *aop.InvocationContext, facadeCtxType string) {
+	g.AfterInvoke_(ctx, facadeCtxType)
 }
 
 func (g *goRoutineTraceInterceptor_) AddCurrentGRTracingContext(ctx *GoRoutineTracingContext) {
@@ -84,8 +84,8 @@ func (g *goRoutineTraceInterceptor_) GetCurrentGRTracingContext(ctxType string) 
 }
 
 type GoRoutineTraceInterceptorIOCInterface interface {
-	BeforeInvoke(ctx *aop.InvocationContext)
-	AfterInvoke(ctx *aop.InvocationContext)
+	BeforeInvoke(ctx *aop.InvocationContext, facadeCtxType string)
+	AfterInvoke(ctx *aop.InvocationContext, facadeCtxType string)
 	AddCurrentGRTracingContext(ctx *GoRoutineTracingContext)
 	DeleteCurrentGRTracingContext()
 	GetCurrentGRTracingContext(ctxType string) *GoRoutineTracingContext

@@ -65,6 +65,7 @@ func (p *logInterceptorParams) initLogInterceptor(interceptor *logInterceptor) (
 
 	// init invocationCtxLogger
 	invocationCtxLogger := logrus.New()
+	invocationCtxLogger.SetOutput(logrus.StandardLogger().Out)
 	if level, err := logrus.ParseLevel(p.Level); err != nil {
 		return interceptor, err
 	} else {
@@ -112,7 +113,7 @@ func (w *logInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// [Feature2]
 	// 1. find if already in goroutine tracing
 	if w.GoRoutineInterceptor.GetCurrentGRTracingContext(logGoRoutineInterceptorFacadeCtxType) != nil {
-		w.GoRoutineInterceptor.BeforeInvoke(ctx)
+		w.GoRoutineInterceptor.BeforeInvoke(ctx, logGoRoutineInterceptorFacadeCtxType)
 		return
 	}
 	// current invocation not in goroutine tracing
@@ -158,7 +159,7 @@ func (w *logInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 
 	// start tracing
 	w.GoRoutineInterceptor.AddCurrentGRTracingContext(grCtx)
-	w.GoRoutineInterceptor.BeforeInvoke(ctx)
+	w.GoRoutineInterceptor.BeforeInvoke(ctx, logGoRoutineInterceptorFacadeCtxType)
 }
 
 func (w *logInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
@@ -166,7 +167,7 @@ func (w *logInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
 		return
 	}
 	// [Feature2]
-	w.GoRoutineInterceptor.AfterInvoke(ctx)
+	w.GoRoutineInterceptor.AfterInvoke(ctx, logGoRoutineInterceptorFacadeCtxType)
 
 	// [Feature1]
 	w.invocationAOPLogFFunction("\n[AOP Function Response] %s\n%s\n\n",

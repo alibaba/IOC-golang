@@ -21,19 +21,25 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
-	"github.com/alibaba/ioc-golang/aop/common"
-	"github.com/alibaba/ioc-golang/config"
-	aopLog "github.com/alibaba/ioc-golang/extension/aop/log"
 	"github.com/alibaba/ioc-golang/test/iocli_command"
 )
 
+type mockWriter struct {
+}
+
+func (m *mockWriter) Write(p []byte) (n int, err error) {
+	return 0, nil
+}
+
 func TestAOPConcurrent(t *testing.T) {
-	// FIXME: now we disable aop logs, as the debug log too much, but this would ignore concurrent problem in log aop
-	assert.Nil(t, ioc.Load(config.AddProperty(common.IOCGolangAOPConfigPrefix+"."+aopLog.Name+".invocation-aop-log.disable", true)))
 	closeCh := make(chan struct{})
+	logrus.SetOutput(&mockWriter{})
+	assert.Nil(t, ioc.Load())
 	go func() {
 		output, err := iocli_command.Run([]string{"monitor"}, time.Second*6)
 		assert.Nil(t, err)
@@ -63,8 +69,8 @@ Total: 100000, Success: 100000, Fail: 0, AvgRT: `))
 }
 
 func TestAOPRecursive(t *testing.T) {
-	// FIXME: now we disable aop logs, as the debug log too much, but this would ignore recursive problem in log aop
-	assert.Nil(t, ioc.Load(config.AddProperty(common.IOCGolangAOPConfigPrefix+"."+aopLog.Name+".invocation-aop-log.disable", true)))
+	logrus.SetOutput(&mockWriter{})
+	assert.Nil(t, ioc.Load())
 	closeCh := make(chan struct{})
 	go func() {
 		output, err := iocli_command.Run([]string{"monitor"}, time.Second*6)
