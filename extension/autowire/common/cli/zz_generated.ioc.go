@@ -79,6 +79,23 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireActiveProfileutoInjectionMarkerStructDescriptor)
+	iocGolangAutowireLoadAtOnceMarkerStructDescriptor := &autowire.StructDescriptor{
+		Factory: func() interface{} {
+			return &iocGolangAutowireLoadAtOnceMarker{}
+		},
+		Metadata: map[string]interface{}{
+			"aop": map[string]interface{}{},
+			"autowire": map[string]interface{}{
+				"common": map[string]interface{}{
+					"implements": []interface{}{
+						new(marker.DefinitionGetter),
+					},
+				},
+			},
+		},
+		DisableProxy: true,
+	}
+	allimpls.RegisterStructDescriptor(iocGolangAutowireLoadAtOnceMarkerStructDescriptor)
 }
 
 type commonCodeGenerationPluginConstructFunc func(impl *commonCodeGenerationPlugin) (*commonCodeGenerationPlugin, error)
@@ -121,3 +138,4 @@ type commonCodeGenerationPluginIOCInterface interface {
 var _commonCodeGenerationPluginSDID string
 var _iocGolangAutowireImplmentsAutoInjectionMarkerSDID string
 var _iocGolangAutowireActiveProfileutoInjectionMarkerSDID string
+var _iocGolangAutowireLoadAtOnceMarkerSDID string

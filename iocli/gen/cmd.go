@@ -18,6 +18,7 @@ package gen
 import (
 	"fmt"
 
+	"github.com/alibaba/ioc-golang/aop/common"
 	"github.com/alibaba/ioc-golang/logger"
 
 	"github.com/spf13/cobra"
@@ -130,8 +131,10 @@ var genCMD = &cobra.Command{
 
 		generator.DebugMode = debugFlag
 
+		// disable ioc-golang internal logs
 		logger.Disable()
-		if err := ioc.Load(config.AddProperty("debug.disable", true)); err != nil {
+		// load with aop disable
+		if err := ioc.Load(config.AddProperty(common.IOCGolangAOPConfigPrefix+".disable", true)); err != nil {
 			return err
 		}
 

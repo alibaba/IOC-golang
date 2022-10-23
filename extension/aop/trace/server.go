@@ -28,9 +28,13 @@ import (
 
 const outBatchBufferAndChSize = 1000
 
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:proxy:autoInjection=false
+
 type traceServiceImpl struct {
 	tracePB.UnimplementedTraceServiceServer
-	traceInterceptor *methodTraceInterceptor
+	TraceInterceptor traceInterceptorIOCInterface `singleton:""`
 }
 
 func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.TraceService_TraceServer) error {
@@ -47,8 +51,14 @@ func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.
 		}
 	}
 
-	traceCtx := newTraceByMethodContext(sdid, method, fieldMatcher, req.MaxDepth, req.MaxLength)
-	d.traceInterceptor.StartTraceByMethod(traceCtx)
+	traceCtx, _ := GetdebugServerTraceByMethodContext(&debugServerTraceByMethodContextParam{
+		sdid:         sdid,
+		method:       method,
+		fieldMatcher: fieldMatcher,
+		maxDepth:     req.MaxDepth,
+		maxLength:    req.MaxLength,
+	})
+	d.TraceInterceptor.StartTraceByMethod(traceCtx)
 
 	done := traceServer.Context().Done()
 	if err := traceServer.Send(&tracePB.TraceResponse{
@@ -95,12 +105,6 @@ func (d *traceServiceImpl) Trace(req *tracePB.TraceRequest, traceServer tracePB.
 		}
 	}()
 	<-done
-	d.traceInterceptor.StopTraceByMethod()
+	d.TraceInterceptor.StopTraceByMethod()
 	return nil
-}
-
-func newTraceGRPCService() *traceServiceImpl {
-	return &traceServiceImpl{
-		traceInterceptor: getTraceInterceptorSingleton(),
-	}
 }

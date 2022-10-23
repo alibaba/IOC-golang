@@ -18,6 +18,8 @@ package trace
 import (
 	"time"
 
+	"github.com/petermattis/goid"
+
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 )
@@ -28,19 +30,19 @@ type trace struct {
 	entranceMethod string
 }
 
-func newTraceWithClientSpanContext(grID int64, entranceMethod string, clientSpanContext opentracing.SpanContext) *trace {
+func newTraceWithClientSpanContext(entranceMethod string, clientSpanContext opentracing.SpanContext) *trace {
 	rootSpan := getGlobalTracer().getRawTracer().StartSpan(entranceMethod, ext.RPCServerOption(clientSpanContext))
 	return &trace{
-		grID:           grID,
+		grID:           goid.Get(),
 		currentSpan:    newSpanWithParent(rootSpan, nil),
 		entranceMethod: entranceMethod,
 	}
 }
 
-func newTrace(grID int64, entranceMethod string) *trace {
+func newTrace(entranceMethod string) *trace {
 	rootSpan := getGlobalTracer().getRawTracer().StartSpan(entranceMethod)
 	return &trace{
-		grID:           grID,
+		grID:           goid.Get(),
 		currentSpan:    newSpanWithParent(rootSpan, nil),
 		entranceMethod: entranceMethod,
 	}

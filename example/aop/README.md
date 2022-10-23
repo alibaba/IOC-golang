@@ -4,6 +4,10 @@
 
 通过 iocli 工具实时调试接口例子
 
+- [logs](./log)
+
+通过 iocli 工具实时拉取调用链路/接口/方法日志的例子
+
 - [dynamic_plugin](./dynamic_plugin)
 
 基于 Go 插件的接口动态代理例子

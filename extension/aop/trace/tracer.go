@@ -18,6 +18,7 @@ package trace
 import (
 	"bytes"
 	"io"
+	"log"
 
 	"github.com/jaegertracing/jaeger/model"
 
@@ -70,17 +71,25 @@ func (w *wrapperTracer) runCollectingTrace() {
 	for {
 		select {
 		case traces := <-w.out:
+			if len(traces) == 0 {
+				continue
+			}
 			if ch := w.subscribingTraceChan; ch != nil {
 				select {
 				case ch <- traces:
 				default:
+					log.Printf("[Trace AOP] failed to write back to trace debug server: %+v\n", traces)
 				}
 			}
-		case bathBuffer := <-w.batchBufferOut:
+		case batchBuffer := <-w.batchBufferOut:
+			if batchBuffer == nil {
+				continue
+			}
 			if ch := w.subscribingBatchBufferChan; ch != nil {
 				select {
-				case ch <- bathBuffer:
+				case ch <- batchBuffer:
 				default:
+					log.Printf("[Trace AOP] failed to write back batchBuffer to trace debug server: %s\n", batchBuffer.String())
 				}
 			}
 		}

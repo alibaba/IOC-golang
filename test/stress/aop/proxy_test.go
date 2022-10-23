@@ -21,29 +21,40 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
 	"github.com/alibaba/ioc-golang/test/iocli_command"
 )
 
+type mockWriter struct {
+}
+
+func (m *mockWriter) Write(p []byte) (n int, err error) {
+	return 0, nil
+}
+
 func TestAOPConcurrent(t *testing.T) {
-	assert.Nil(t, ioc.Load())
 	closeCh := make(chan struct{})
+	// set empty writer to make sure aop logs not be printed, to avoid timeout
+	logrus.SetOutput(&mockWriter{})
+	assert.Nil(t, ioc.Load())
 	go func() {
 		output, err := iocli_command.Run([]string{"monitor"}, time.Second*6)
 		assert.Nil(t, err)
 		t.Log(output)
 		assert.True(t, strings.Contains(output, `github.com/alibaba/ioc-golang/test/stress/aop.NormalApp.RunTest()
-Total: 100000, Success: 100000, Fail: 0, AvgRT: `))
+Total: 10000, Success: 10000, Fail: 0, AvgRT: `))
 		assert.True(t, strings.Contains(output, `us, FailRate: 0.00%
 github.com/alibaba/ioc-golang/test/stress/aop.ServiceImpl1.GetHelloString()
-Total: 100000, Success: 100000, Fail: 0, AvgRT: `))
+Total: 10000, Success: 10000, Fail: 0, AvgRT: `))
 		close(closeCh)
 	}()
 	time.Sleep(time.Second * 1)
 	wg := sync.WaitGroup{}
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -59,6 +70,7 @@ Total: 100000, Success: 100000, Fail: 0, AvgRT: `))
 }
 
 func TestAOPRecursive(t *testing.T) {
+	logrus.SetOutput(&mockWriter{})
 	assert.Nil(t, ioc.Load())
 	closeCh := make(chan struct{})
 	go func() {

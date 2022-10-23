@@ -16,92 +16,146 @@
 package trace
 
 import (
-	"github.com/opentracing/opentracing-go"
+	"fmt"
+	"log"
 
-	traceCommon "github.com/alibaba/ioc-golang/extension/aop/trace/common"
+	opentracing "github.com/opentracing/opentracing-go"
+	opentracingLog "github.com/opentracing/opentracing-go/log"
 
 	"github.com/alibaba/ioc-golang/aop"
+	"github.com/alibaba/ioc-golang/aop/common"
+	traceCommon "github.com/alibaba/ioc-golang/extension/aop/trace/common"
+	"github.com/alibaba/ioc-golang/extension/aop/trace/goroutine_trace"
 )
 
-type methodTraceInterceptor struct {
-	goRoutineInterceptor *goRoutineTraceInterceptor
-	tracingCtx           *methodTracingContext
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:proxy:autoInjection=false
+
+type traceInterceptor struct {
+	GoRoutineInterceptor        goroutine_trace.GoRoutineTraceInterceptorIOCInterface `singleton:""`
+	debugServerTraceByMethodCtx *debugServerTraceByMethodContext
 }
 
-func (m *methodTraceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
+func (m *traceInterceptor) BeforeInvoke(ctx *aop.InvocationContext) {
 	// 1. find if already in goroutine tracing
-	if m.goRoutineInterceptor.IsCurrentGRTracing() {
-		m.goRoutineInterceptor.BeforeInvoke(ctx)
+	if m.GoRoutineInterceptor.GetCurrentGRTracingContext(traceGoRoutineInterceptorFacadeCtxType) != nil {
+		m.GoRoutineInterceptor.BeforeInvoke(ctx, traceGoRoutineInterceptorFacadeCtxType)
 		return
 	}
 	// current invocation not in goroutine tracing
 
 	// 2. try to get matched method tracing context
-	traceCtx := m.tracingCtx
-	if traceCtx == nil {
+	debugServerTraceByMethodCtx := m.debugServerTraceByMethodCtx
+	if debugServerTraceByMethodCtx == nil {
 		return
 	}
 	// method tracing found,
-	if traceCtx.fieldMatcher != nil && !traceCtx.fieldMatcher.Match(ctx.Params) {
+	if debugServerTraceByMethodCtx.fieldMatcher != nil && !debugServerTraceByMethodCtx.fieldMatcher.Match(ctx.Params) {
 		// doesn't match trace by method
 		return
 	}
-	if traceCtx.sdid != "" && traceCtx.sdid != ctx.SDID {
+	if debugServerTraceByMethodCtx.sdid != "" && debugServerTraceByMethodCtx.sdid != ctx.SDID {
 		// doesn't match sdid
 		return
 	}
-	if traceCtx.methodName != "" && traceCtx.methodName != ctx.MethodName {
+	if debugServerTraceByMethodCtx.methodName != "" && debugServerTraceByMethodCtx.methodName != ctx.MethodName {
 		// doesn't match method
 		return
 	}
 	// match method tracing context found
 
 	// 3.start goroutine tracing
-	grCtx := newGoRoutineTracingContext(ctx.MethodFullName, traceCtx.maxDepth, traceCtx.maxLength)
-	m.goRoutineInterceptor.AddCurrentGRTracingContext(grCtx)
-	m.goRoutineInterceptor.BeforeInvoke(ctx)
+	// create facade ctx
+	facadeCtx, err := GettraceGoRoutineInterceptorFacadeCtx(&traceGoRoutineInterceptorFacadeCtxParam{
+		trace:     newTrace(ctx.MethodFullName),
+		maxDepth:  debugServerTraceByMethodCtx.maxDepth,
+		maxLength: debugServerTraceByMethodCtx.maxLength,
+	})
+	if err != nil {
+		log.Printf("traceInterceptor GettraceGoRoutineInterceptorFacadeCtx failed with erorr = %s\n", err.Error())
+		return
+	}
+	// create gr trace ctx
+	grCtx, _ := goroutine_trace.GetGoRoutineTracingContext(&goroutine_trace.GoRoutineTracingContextParams{
+		FacadeCtx:              facadeCtx,
+		EntranceMethodFullName: ctx.MethodFullName,
+	})
+
+	// start tracing
+	m.GoRoutineInterceptor.AddCurrentGRTracingContext(grCtx)
+	m.GoRoutineInterceptor.BeforeInvoke(ctx, traceGoRoutineInterceptorFacadeCtxType)
 }
 
-func (m *methodTraceInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
-	m.goRoutineInterceptor.AfterInvoke(ctx)
+func (m *traceInterceptor) AfterInvoke(ctx *aop.InvocationContext) {
+	m.GoRoutineInterceptor.AfterInvoke(ctx, traceGoRoutineInterceptorFacadeCtxType)
 }
 
-func (m *methodTraceInterceptor) StartTraceByMethod(traceCtx *methodTracingContext) {
-	m.tracingCtx = traceCtx
+func (m *traceInterceptor) StartTraceByMethod(traceCtx *debugServerTraceByMethodContext) {
+	m.debugServerTraceByMethodCtx = traceCtx
 }
 
-func (m *methodTraceInterceptor) StopTraceByMethod() {
-	m.tracingCtx = nil
+func (m *traceInterceptor) StopTraceByMethod() {
+	m.debugServerTraceByMethodCtx = nil
 }
 
-// TraceCurrentGR is used in rpc-server side, to continue tracing.
-func (m *methodTraceInterceptor) TraceCurrentGR(traceCtx *goRoutineTracingContext) {
-	m.goRoutineInterceptor.AddCurrentGRTracingContext(traceCtx)
-}
-
-// StopTraceCurrentGR is used in rpc-server side, to continue tracing.
-func (m *methodTraceInterceptor) StopTraceCurrentGR() {
-	m.goRoutineInterceptor.DeleteCurrentGRTracingContext()
-}
-
-func (m *methodTraceInterceptor) GetCurrentSpan() opentracing.Span {
-	currentGRTracingCtx := m.goRoutineInterceptor.GetCurrentGRTracingContext()
-	if currentGRTracingCtx != nil {
-		return currentGRTracingCtx.getTrace().currentSpan.span
+func (m *traceInterceptor) GetCurrentSpan() opentracing.Span {
+	if currentGRTracingCtx := m.GoRoutineInterceptor.GetCurrentGRTracingContext(traceGoRoutineInterceptorFacadeCtxType); currentGRTracingCtx != nil {
+		facadeCtx := currentGRTracingCtx.GetFacadeCtx().(*traceGoRoutineInterceptorFacadeCtx)
+		return facadeCtx.trace.currentSpan.span
 	}
 	return nil
 }
 
-var methodTraceInterceptorSingleton *methodTraceInterceptor
-
 var valueDepth = traceCommon.DefaultRecordValuesDepth
 var valueLength = traceCommon.DefaultRecordValuesLength
 
-func getTraceInterceptorSingleton() *methodTraceInterceptor {
-	if methodTraceInterceptorSingleton == nil {
-		methodTraceInterceptorSingleton = &methodTraceInterceptor{
-			goRoutineInterceptor: getGoRoutineTraceInterceptor(),
-		}
+const traceGoRoutineInterceptorFacadeCtxType = "traceGoRoutineInterceptorFacadeCtx"
+
+// +ioc:autowire=true
+// +ioc:autowire:type=normal
+// +ioc:autowire:constructFunc=newTraceGoRoutineInterceptorFacadeCtx
+// +ioc:autowire:paramType=traceGoRoutineInterceptorFacadeCtxParam
+
+type traceGoRoutineInterceptorFacadeCtx struct {
+	traceGoRoutineInterceptorFacadeCtxParam
+}
+
+type traceGoRoutineInterceptorFacadeCtxParam struct {
+	trace *trace
+
+	// must be set for rpc interceptor
+	clientSpanContext opentracing.SpanContext
+
+	// optional
+	maxDepth  int64
+	maxLength int64
+}
+
+func (p *traceGoRoutineInterceptorFacadeCtxParam) newTraceGoRoutineInterceptorFacadeCtx(c *traceGoRoutineInterceptorFacadeCtx) (*traceGoRoutineInterceptorFacadeCtx, error) {
+	if p.trace == nil {
+		return nil, fmt.Errorf("traceGoRoutineInterceptorFacadeCtx param traceGoRoutineInterceptorFacadeCtxParam field trace is nil")
 	}
-	return methodTraceInterceptorSingleton
+	if p.maxDepth == 0 {
+		p.maxDepth = traceCommon.DefaultRecordValuesDepth
+	}
+	if p.maxLength == 0 {
+		p.maxLength = traceCommon.DefaultRecordValuesLength
+	}
+	c.traceGoRoutineInterceptorFacadeCtxParam = *p
+	return c, nil
+}
+
+func (t *traceGoRoutineInterceptorFacadeCtx) BeforeInvoke(ctx *aop.InvocationContext) {
+	currentSpan := t.trace.addChildSpan(ctx.MethodFullName)
+	currentSpan.span.LogFields(opentracingLog.String(traceCommon.SpanParamsKey, common.ReflectValues2String(ctx.Params, valueDepth, valueLength)))
+}
+
+func (t *traceGoRoutineInterceptorFacadeCtx) AfterInvoke(ctx *aop.InvocationContext) {
+	currentSpan := t.trace.currentSpan.span
+	t.trace.returnSpan()
+	currentSpan.LogFields(opentracingLog.String(traceCommon.SpanReturnValuesKey, common.ReflectValues2String(ctx.ReturnValues, int(t.maxDepth), int(t.maxLength))))
+}
+func (t *traceGoRoutineInterceptorFacadeCtx) Type() string {
+	return traceGoRoutineInterceptorFacadeCtxType
 }

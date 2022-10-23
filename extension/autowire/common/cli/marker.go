@@ -40,3 +40,15 @@ type iocGolangAutowireActiveProfileutoInjectionMarker struct {
 func (m *iocGolangAutowireActiveProfileutoInjectionMarker) GetMarkerDefinition() *markers.Definition {
 	return markers.Must(markers.MakeDefinition(commonActiveProfileAnnotation, markers.DescribesType, ""))
 }
+
+// +ioc:autowire=true
+// +ioc:autowire:type=allimpls
+// +ioc:autowire:proxy=false
+// +ioc:autowire:implements=github.com/alibaba/ioc-golang/iocli/gen/marker.DefinitionGetter
+
+type iocGolangAutowireLoadAtOnceMarker struct {
+}
+
+func (m *iocGolangAutowireLoadAtOnceMarker) GetMarkerDefinition() *markers.Definition {
+	return markers.Must(markers.MakeDefinition(commonLoadAtOnceAnnotation, markers.DescribesType, false))
+}

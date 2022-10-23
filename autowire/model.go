@@ -24,13 +24,16 @@ import (
 // Autowire
 type Autowire interface {
 	TagKey() string
-	// IsSingleton means struct can be boot entrance, and only have one impl globally, only created once.
+	// IsSingleton means the struct of this autowire type can only have one object globally, which is only created once.
 	IsSingleton() bool
 	/*
 		CanBeEntrance means the struct is loaded at the start of application.
 		By default, only rpc-server can be entrance.
 	*/
 	CanBeEntrance() bool
+	/*
+		Factory is contruct function of struct of this autowire type
+	*/
 	Factory(sdID string) (interface{}, error)
 
 	/*

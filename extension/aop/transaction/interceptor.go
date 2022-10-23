@@ -49,7 +49,7 @@ func (t *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
 	if _, ok := parseRollbackMethodNameFromSDMetadata(sd.Metadata, ctx.MethodName); ok {
 		// current method wants to start a transaction
 		newCtx, _ := GetcontextIOCInterface(&contextParam{
-			entranceMethod: ctx.MethodFullName,
+			entranceMethodFullName: ctx.MethodFullName,
 		})
 		t.transactionGrIDMap.Store(ctx.GrID, newCtx)
 		return
@@ -68,7 +68,7 @@ func (t *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
 
 		// if current invocation is the entrance of transaction ?
 		// check if is entrance
-		if common.IsTraceEntrance(txCtx.getEntranceMethod()) {
+		if common.IsTraceEntrance(txCtx.getEntranceMethodFullName()) {
 			// current invocation is the entrance of transaction
 			t.transactionGrIDMap.Delete(ctx.GrID)
 			// if the transaction failed ?

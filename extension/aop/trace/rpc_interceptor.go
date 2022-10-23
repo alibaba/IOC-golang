@@ -17,6 +17,7 @@ package trace
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -24,11 +25,21 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/petermattis/goid"
 
-	"github.com/alibaba/ioc-golang/aop"
+	"github.com/alibaba/ioc-golang/extension/aop/trace/goroutine_trace"
 )
 
+// +ioc:autowire=true
+// +ioc:autowire:type=singleton
+// +ioc:autowire:constructFunc=initRPCInterceptor
+
 type rpcInterceptor struct {
-	tracingGRIDMap map[int64]struct{}
+	tracingGRIDMap   map[int64]struct{}
+	TraceInterceptor goroutine_trace.GoRoutineTraceInterceptorIOCInterface `singleton:""`
+}
+
+func initRPCInterceptor(r *rpcInterceptor) (*rpcInterceptor, error) {
+	r.tracingGRIDMap = make(map[int64]struct{})
+	return r, nil
 }
 
 func (r *rpcInterceptor) BeforeServerInvoke(c *gin.Context) error {
@@ -42,17 +53,42 @@ func (r *rpcInterceptor) BeforeServerInvoke(c *gin.Context) error {
 		}
 		method := splitedPath[len(splitedPath)-1]
 
-		traceByGrContext := newGoRoutineTracingContextWithClientSpan(method, clientContext)
-		getTraceInterceptorSingleton().TraceCurrentGR(traceByGrContext)
+		// create facade ctx
+		facadeCtx, err := GettraceGoRoutineInterceptorFacadeCtx(&traceGoRoutineInterceptorFacadeCtxParam{
+			trace:             newTraceWithClientSpanContext(method, clientContext),
+			clientSpanContext: clientContext,
+		})
+		if err != nil {
+			log.Printf("rpc trace Interceptor GettraceGoRoutineInterceptorFacadeCtx failed with erorr = %s\n", err.Error())
+			return err
+		}
+
+		traceByGrContext, err := goroutine_trace.GetGoRoutineTracingContext(&goroutine_trace.GoRoutineTracingContextParams{
+			/**
+			FIXME: now we just put short method name as full name, this would make TraceInterceptor never meet
+			'current span' and never jump out of tracing, so we call r.TraceInterceptor.DeleteCurrentGRTracingContext()
+			in AfterServerInvoke to force stop the tracing, but that's not graceful
+
+			Now, EntranceMethodFullName can be any string except empty, we just want 'current span' never match in TraceInterceptor
+			*/
+			EntranceMethodFullName: method,
+			FacadeCtx:              facadeCtx,
+		})
+		if err != nil {
+			return err
+		}
+		r.TraceInterceptor.AddCurrentGRTracingContext(traceByGrContext)
 		r.tracingGRIDMap[goid.Get()] = struct{}{}
 	}
 	return nil
 }
 
-func (r *rpcInterceptor) AfterServerInvoke(_ *gin.Context) error {
+func (r *rpcInterceptor) AfterServerInvoke(ctx *gin.Context) error {
 	grID := goid.Get()
 	if _, ok := r.tracingGRIDMap[grID]; ok {
-		getTraceInterceptorSingleton().StopTraceCurrentGR()
+		// force stop tracing as the rpc is finished
+		// FIXME: gr tracing type is ignored, this would cause existing debug log tracing failed.
+		r.TraceInterceptor.DeleteCurrentGRTracingContext()
 		delete(r.tracingGRIDMap, grID)
 	}
 	return nil
@@ -60,25 +96,16 @@ func (r *rpcInterceptor) AfterServerInvoke(_ *gin.Context) error {
 
 func (r *rpcInterceptor) BeforeClientInvoke(req *http.Request) error {
 	// inject tracing context if necessary
-	if currentSpan := getTraceInterceptorSingleton().GetCurrentSpan(); currentSpan != nil {
-		// current rpc invocation is in tracing link
-		carrier := opentracing.HTTPHeadersCarrier(req.Header)
-		_ = getGlobalTracer().getRawTracer().Inject(currentSpan.Context(), opentracing.HTTPHeaders, carrier)
+	if currentGRTracingCtx := r.TraceInterceptor.GetCurrentGRTracingContext(traceGoRoutineInterceptorFacadeCtxType); currentGRTracingCtx != nil {
+		if currentSpan := currentGRTracingCtx.GetFacadeCtx(); currentSpan != nil {
+			// current rpc invocation is in tracing link
+			carrier := opentracing.HTTPHeadersCarrier(req.Header)
+			_ = getGlobalTracer().getRawTracer().Inject(currentSpan.(*traceGoRoutineInterceptorFacadeCtx).clientSpanContext, opentracing.HTTPHeaders, carrier)
+		}
 	}
 	return nil
 }
 
 func (r *rpcInterceptor) AfterClientInvoke(response *http.Response) error {
 	return nil
-}
-
-var rpcInterceptorSingleton aop.RPCInterceptor
-
-func getTraceRPCInterceptorSingleton() aop.RPCInterceptor {
-	if rpcInterceptorSingleton == nil {
-		rpcInterceptorSingleton = &rpcInterceptor{
-			tracingGRIDMap: map[int64]struct{}{},
-		}
-	}
-	return rpcInterceptorSingleton
 }

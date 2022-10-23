@@ -16,9 +16,16 @@
 package common
 
 type Config struct {
+	AppName     string            `yaml:"app-name"`
+	Disable     bool              `yaml:"disable"`
+	DebugServer DebugServerConfig `yaml:"debug-server"`
+}
+
+type DebugServerConfig struct {
 	Port    string `yaml:"port"`
-	AppName string `yaml:"app-name"`
 	Disable bool   `yaml:"disable"`
 }
 
 type ConfigLoader func(config *Config)
+
+const IOCGolangAOPConfigPrefix = "ioc-golang.aop"

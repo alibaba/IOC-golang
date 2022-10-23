@@ -225,6 +225,7 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 		}
 
 		if len(info.Markers["ioc:autowire:type"]) == 0 {
+			fmt.Printf("struct %s with '+ioc:autowire=true' needs another annotation '+ioc:autowire:type=xxx'\n", info.Name)
 			continue
 		}
 		autowireTypes := make([]string, 0)

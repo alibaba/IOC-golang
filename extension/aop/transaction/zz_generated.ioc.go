@@ -82,15 +82,15 @@ func init() {
 	singleton.RegisterStructDescriptor(interceptorImplStructDescriptor)
 }
 
-type contextParamInterface interface {
-	init(impl *context) (*context, error)
-}
 type rollbackAbleInvocationCtxParamInterface interface {
 	init(impl *rollbackAbleInvocationCtx) (*rollbackAbleInvocationCtx, error)
 }
+type contextParamInterface interface {
+	init(impl *context) (*context, error)
+}
 type context_ struct {
 	finish_                             func()
-	getEntranceMethod_                  func() string
+	getEntranceMethodFullName_          func() string
 	failed_                             func(err error)
 	addSuccessfullyCalledInvocationCtx_ func(ctx *aop.InvocationContext)
 }
@@ -99,8 +99,8 @@ func (c *context_) finish() {
 	c.finish_()
 }
 
-func (c *context_) getEntranceMethod() string {
-	return c.getEntranceMethod_()
+func (c *context_) getEntranceMethodFullName() string {
+	return c.getEntranceMethodFullName_()
 }
 
 func (c *context_) failed(err error) {
@@ -134,7 +134,7 @@ func (i *interceptorImpl_) AfterInvoke(ctx *aop.InvocationContext) {
 
 type contextIOCInterface interface {
 	finish()
-	getEntranceMethod() string
+	getEntranceMethodFullName() string
 	failed(err error)
 	addSuccessfullyCalledInvocationCtx(ctx *aop.InvocationContext)
 }

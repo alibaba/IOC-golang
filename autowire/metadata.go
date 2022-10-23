@@ -38,6 +38,7 @@ func ParseAutowireMetadataFromSDMetadata(metadata Metadata) AutowireMetadata {
 const CommonMetadataKey = "common"
 const CommonImplementsMetadataKey = "implements"
 const CommonActiveProfileMetadataKey = "activeProfile"
+const CommonLoadAtOnceMetadataKey = "loadAtOnce"
 
 func parseCommonImplementsMetadataFromSDMetadata(metadata Metadata) []interface{} {
 	autowireMetadata := ParseAutowireMetadataFromSDMetadata(metadata)
@@ -67,6 +68,22 @@ func parseCommonActiveProfileMetadataFromSDMetadata(metadata Metadata) string {
 	result, ok := autowireCommonMetadata[CommonActiveProfileMetadataKey].(string)
 	if !ok {
 		return ""
+	}
+	return result
+}
+
+func parseCommonLoadAtOnceMetadataFromSDMetadata(metadata Metadata) bool {
+	autowireMetadata := ParseAutowireMetadataFromSDMetadata(metadata)
+	if autowireMetadata == nil {
+		return false
+	}
+	autowireCommonMetadata, ok := autowireMetadata[CommonMetadataKey].(map[string]interface{})
+	if !ok {
+		return false
+	}
+	result, ok := autowireCommonMetadata[CommonLoadAtOnceMetadataKey].(bool)
+	if !ok {
+		return false
 	}
 	return result
 }
