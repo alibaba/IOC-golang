@@ -66,32 +66,36 @@ func (p *logInterceptorParams) initLogInterceptor(interceptor *logInterceptor) (
 	// init invocationCtxLogger
 	invocationCtxLogger := logrus.New()
 	invocationCtxLogger.SetOutput(logrus.StandardLogger().Out)
-	if level, err := logrus.ParseLevel(p.Level); err != nil {
+	level, err := logrus.ParseLevel(p.Level)
+	if err != nil {
 		return interceptor, err
-	} else {
-		invocationCtxLogger.SetLevel(level)
-		notifyHook, _ := GetinvocationCtxNotifyHookSingleton(&invocationCtxNotifyHookParam{
-			logInterceptor: interceptor,
-		})
-		invocationCtxLogger.AddHook(notifyHook)
-		switch level {
-		case logrus.DebugLevel:
-			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Debugf
-		case logrus.InfoLevel:
-			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Infof
-		case logrus.WarnLevel:
-			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Warnf
-		case logrus.ErrorLevel:
-			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Errorf
-		case logrus.FatalLevel:
-			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Fatalf
-		case logrus.PanicLevel:
-			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Panicf
-		case logrus.TraceLevel:
-			interceptor.invocationAOPLogFFunction = invocationCtxLogger.Tracef
-		default:
-			return interceptor, fmt.Errorf("invalid log level %d", level)
-		}
+	}
+	printLevel, err := logrus.ParseLevel(p.PrintLevel)
+	if err != nil {
+		return interceptor, err
+	}
+	invocationCtxLogger.SetLevel(level)
+	notifyHook, _ := GetinvocationCtxNotifyHookSingleton(&invocationCtxNotifyHookParam{
+		logInterceptor: interceptor,
+	})
+	invocationCtxLogger.AddHook(notifyHook)
+	switch printLevel {
+	case logrus.DebugLevel:
+		interceptor.invocationAOPLogFFunction = invocationCtxLogger.Debugf
+	case logrus.InfoLevel:
+		interceptor.invocationAOPLogFFunction = invocationCtxLogger.Infof
+	case logrus.WarnLevel:
+		interceptor.invocationAOPLogFFunction = invocationCtxLogger.Warnf
+	case logrus.ErrorLevel:
+		interceptor.invocationAOPLogFFunction = invocationCtxLogger.Errorf
+	case logrus.FatalLevel:
+		interceptor.invocationAOPLogFFunction = invocationCtxLogger.Fatalf
+	case logrus.PanicLevel:
+		interceptor.invocationAOPLogFFunction = invocationCtxLogger.Panicf
+	case logrus.TraceLevel:
+		interceptor.invocationAOPLogFFunction = invocationCtxLogger.Tracef
+	default:
+		return interceptor, fmt.Errorf("invalid log level %d", level)
 	}
 
 	interceptor.disablePrintParams = p.DisablePrintParams

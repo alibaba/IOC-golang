@@ -36,7 +36,7 @@ func TestDefaultLogAOPLevelConfiguration(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, logrus.InfoLevel, logrus.GetLevel())
 	logInterceptorSingleton, _ := aopLog.GetlogInterceptorIOCInterfaceSingleton(nil)
-	assert.Equal(t, logrus.DebugLevel, logInterceptorSingleton.GetInvocationCtxLogger().GetLevel())
+	assert.Equal(t, logrus.InfoLevel, logInterceptorSingleton.GetInvocationCtxLogger().GetLevel())
 
 	testLogCommand(t)
 }
