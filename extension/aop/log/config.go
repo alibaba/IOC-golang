@@ -23,6 +23,7 @@ import (
 
 type LogConfig struct {
 	Level                  string                 `yaml:"level"`
+	Disable                bool                   `yaml:"disable"`
 	InvocationAOPLogConfig InvocationAOPLogConfig `yaml:"invocation-aop-log"`
 }
 
