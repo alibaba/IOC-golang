@@ -29,7 +29,8 @@ type LogConfig struct {
 
 type InvocationAOPLogConfig struct {
 	Disable              bool   `yaml:"disable"`
-	Level                string `yaml:"level"`
+	Level                string `yaml:"level"`       // default info
+	PrintLevel           string `yaml:"print-level"` // default debug
 	DisablePrintParams   bool   `yaml:"disable-print-params"`
 	PrintParamsMaxDepth  int    `yaml:"print-params-max-depth"`
 	PrintParamsMaxLength int    `yaml:"print-params-max-length"`
@@ -58,13 +59,24 @@ func (l *LogConfig) fillDefaultConfig() {
 
 	// fill invocation aop ctx logs level
 	if l.InvocationAOPLogConfig.Level == "" {
-		logger.Blue("[AOP Log] log config invocation ctx logs level is using default '%s'", defaultInvocationCtxPrintLevel)
-		l.InvocationAOPLogConfig.Level = defaultInvocationCtxPrintLevel
+		logger.Blue("[AOP Log] log config invocation ctx logs level is using default '%s'", defaultLevel)
+		l.InvocationAOPLogConfig.Level = defaultLevel
 	}
 	_, err = logrus.ParseLevel(l.InvocationAOPLogConfig.Level)
 	if err != nil {
-		logger.Red("[AOP Log] parse log config invocation ctx logs level %s failed with error = %s, using default '%s'", l.InvocationAOPLogConfig.Level, err, defaultInvocationCtxPrintLevel)
-		l.InvocationAOPLogConfig.Level = defaultInvocationCtxPrintLevel
+		logger.Red("[AOP Log] parse log config invocation ctx logs level %s failed with error = %s, using default '%s'", l.InvocationAOPLogConfig.Level, err, defaultLevel)
+		l.InvocationAOPLogConfig.Level = defaultLevel
+	}
+
+	// fill invocation aop ctx logs print level
+	if l.InvocationAOPLogConfig.PrintLevel == "" {
+		logger.Blue("[AOP Log] log config invocation ctx logs print level is using default '%s'", defaultInvocationCtxPrintLevel)
+		l.InvocationAOPLogConfig.PrintLevel = defaultInvocationCtxPrintLevel
+	}
+	_, err = logrus.ParseLevel(l.InvocationAOPLogConfig.PrintLevel)
+	if err != nil {
+		logger.Red("[AOP Log] parse log config invocation ctx logs print level %s failed with error = %s, using default '%s'", l.InvocationAOPLogConfig.PrintLevel, err, defaultInvocationCtxPrintLevel)
+		l.InvocationAOPLogConfig.PrintLevel = defaultInvocationCtxPrintLevel
 	}
 
 	if l.InvocationAOPLogConfig.PrintParamsMaxLength == 0 {
