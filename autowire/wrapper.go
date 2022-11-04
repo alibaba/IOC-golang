@@ -40,64 +40,91 @@ func getWrappedAutowire(autowire Autowire, allAutowires map[string]WrapperAutowi
 	return &WrapperAutowireImpl{
 		Autowire:           autowire,
 		allAutowires:       allAutowires,
-		singletonImpledMap: map[string]interface{}{},
+		singletonImpledMap: make(map[string]*SingletonCache),
 	}
+}
+
+type SingletonCache struct {
+	RawPtr   interface{}
+	ProxyPtr interface{}
 }
 
 type WrapperAutowireImpl struct {
 	Autowire
-	singletonImpledMap     map[string]interface{}
+	singletonImpledMap     map[string]*SingletonCache
 	singletonImpledMapLock sync.RWMutex
 	allAutowires           map[string]WrapperAutowire
 }
 
 // ImplWithParam is used to get impled struct with param
 func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}, withProxy, force bool) (interface{}, error) {
+	var rawPtr interface{}
+	var err error
 	// 1. check singleton
 	w.singletonImpledMapLock.RLock()
-	if singletonImpledPtr, ok := w.singletonImpledMap[sdID]; !force && w.Autowire.IsSingleton() && ok {
-		w.singletonImpledMapLock.RUnlock()
-		return singletonImpledPtr, nil
+	if singletonCache, ok := w.singletonImpledMap[sdID]; !force && w.Autowire.IsSingleton() && ok {
+		if !withProxy {
+			// singletonCache.RawPtr must be cached before
+			w.singletonImpledMapLock.RUnlock()
+			return singletonCache.RawPtr, nil
+		}
+		// want proxy ptr, check if cached it
+		if singletonCache.ProxyPtr != nil {
+			// proxy ptr found
+			w.singletonImpledMapLock.RUnlock()
+			return singletonCache.ProxyPtr, nil
+		}
+
+		// proxy ptr not found, set raw ptr to rawPtr to re-used
+		rawPtr = singletonCache.RawPtr
 	}
 	w.singletonImpledMapLock.RUnlock()
 
 	// 2. factory
-	impledPtr, err := w.Autowire.Factory(sdID)
-	if err != nil {
-		return nil, err
+	if rawPtr == nil {
+		rawPtr, err = w.Autowire.Factory(sdID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if w.Autowire.InjectPosition() == AfterFactoryCalled {
-		if err := w.inject(impledPtr, sdID); err != nil {
+		if err := w.inject(rawPtr, sdID); err != nil {
 			return nil, err
 		}
 	}
 
 	// 3. construct field
-	impledPtr, err = w.Autowire.Construct(sdID, impledPtr, param)
+	rawPtr, err = w.Autowire.Construct(sdID, rawPtr, param)
 	if err != nil {
 		return nil, err
 	}
 
 	if w.Autowire.InjectPosition() == AfterConstructorCalled {
-		if err := w.inject(impledPtr, sdID); err != nil {
+		if err := w.inject(rawPtr, sdID); err != nil {
 			return nil, err
 		}
 	}
 
 	// 4. try to wrap proxy
+	var finalPtr = rawPtr
+	var proxyPtr interface{}
 	if withProxy {
 		// if field is interface, try to inject proxy wrapped pointer
-		impledPtr = GetProxyFunction()(impledPtr)
+		finalPtr = GetProxyFunction()(rawPtr)
+		proxyPtr = finalPtr
 	}
 
 	// 5. record singleton ptr
 	if w.Autowire.IsSingleton() && !force {
 		w.singletonImpledMapLock.Lock()
-		w.singletonImpledMap[sdID] = impledPtr
+		w.singletonImpledMap[sdID] = &SingletonCache{
+			RawPtr:   rawPtr,
+			ProxyPtr: proxyPtr,
+		}
 		w.singletonImpledMapLock.Unlock()
 	}
-	return impledPtr, nil
+	return finalPtr, nil
 }
 
 // ImplWithoutParam is used to create param from field without param

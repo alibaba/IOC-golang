@@ -18,6 +18,8 @@ package main
 import (
 	"testing"
 
+	"github.com/alibaba/ioc-golang/autowire/util"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/alibaba/ioc-golang"
@@ -55,4 +57,21 @@ func TestGetAPI(t *testing.T) {
 	}
 	app.TestRun(t)
 	assert.Nil(t, docker_compose.DockerComposeDown("../docker-compose/docker-compose.yaml"))
+}
+
+func TestGetSingletonWithProxyAndWithoutProxy(t *testing.T) {
+	if err := ioc.Load(); err != nil {
+		panic(err)
+	}
+	app, err := GetAppSingleton()
+	assert.Nil(t, err)
+	assert.Equal(t, util.GetSDIDByStructPtr(new(App)), util.GetSDIDByStructPtr(app))
+
+	appWithProxy, err := GetAppIOCInterfaceSingleton()
+	assert.Nil(t, err)
+	assert.Equal(t, util.GetSDIDByStructPtr(new(app_)), util.GetSDIDByStructPtr(appWithProxy))
+
+	app, err = GetAppSingleton()
+	assert.Nil(t, err)
+	assert.Equal(t, util.GetSDIDByStructPtr(new(App)), util.GetSDIDByStructPtr(app))
 }
