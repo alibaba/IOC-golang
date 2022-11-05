@@ -16,6 +16,9 @@
 package call
 
 import (
+	"fmt"
+	"path"
+	"runtime"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -76,6 +79,9 @@ func (p *globalLogrusIOCCtxHookParam) newLogrusIOCCtxHook(l *GlobalLogrusIOCCtxH
 	logrus.SetReportCaller(true)
 	logrus.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: p.timestampFormat,
+		CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
+			return "", fmt.Sprintf("%s:%d", path.Base(frame.File), frame.Line)
+		},
 	})
 	l.structIDKey = p.structIDKey
 	l.methodNameKey = p.methodNameKey
