@@ -23,7 +23,7 @@ import (
 
 type LogConfig struct {
 	Level                  string                 `yaml:"level"`
-	Disable                bool                   `yaml:"disable"`
+	GlobalLoggerReadOnly   bool                   `yaml:"global-logger-read-only"`
 	InvocationAOPLogConfig InvocationAOPLogConfig `yaml:"invocation-aop-log"`
 }
 

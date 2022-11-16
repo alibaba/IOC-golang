@@ -82,11 +82,11 @@ func init() {
 	singleton.RegisterStructDescriptor(interceptorImplStructDescriptor)
 }
 
-type rollbackAbleInvocationCtxParamInterface interface {
-	init(impl *rollbackAbleInvocationCtx) (*rollbackAbleInvocationCtx, error)
-}
 type contextParamInterface interface {
 	init(impl *context) (*context, error)
+}
+type rollbackAbleInvocationCtxParamInterface interface {
+	init(impl *rollbackAbleInvocationCtx) (*rollbackAbleInvocationCtx, error)
 }
 type context_ struct {
 	finish_                             func()

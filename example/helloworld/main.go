@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/alibaba/ioc-golang"
 )
 
@@ -83,6 +85,7 @@ type ServiceStruct struct {
 }
 
 func (s *ServiceStruct) GetString(name string) string {
+	logrus.Infof("hello %s", name)
 	return fmt.Sprintf("This is ServiceStruct, hello %s", name)
 }
 

@@ -51,11 +51,12 @@ type GlobalLogrusIOCCtxHook struct {
 
 type globalLogrusIOCCtxHookParam struct {
 	// all fields are optional
-	timestampFormat string
-	structIDKey     string
-	methodNameKey   string
-	grIDKey         string
-	globalLogLevel  logrus.Level
+	timestampFormat      string
+	structIDKey          string
+	methodNameKey        string
+	grIDKey              string
+	globalLogLevel       logrus.Level
+	globalLoggerReadOnly bool
 }
 
 func (p *globalLogrusIOCCtxHookParam) newLogrusIOCCtxHook(l *GlobalLogrusIOCCtxHook) (*GlobalLogrusIOCCtxHook, error) {
@@ -76,6 +77,9 @@ func (p *globalLogrusIOCCtxHookParam) newLogrusIOCCtxHook(l *GlobalLogrusIOCCtxH
 	}
 
 	logrus.AddHook(l)
+	if p.globalLoggerReadOnly {
+		return l, nil
+	}
 	logrus.SetReportCaller(true)
 	logrus.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: p.timestampFormat,
