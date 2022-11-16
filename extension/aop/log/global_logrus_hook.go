@@ -77,9 +77,14 @@ func (p *globalLogrusIOCCtxHookParam) newLogrusIOCCtxHook(l *GlobalLogrusIOCCtxH
 	}
 
 	logrus.AddHook(l)
+	l.structIDKey = p.structIDKey
+	l.methodNameKey = p.methodNameKey
+	l.grIDKey = p.grIDKey
+
 	if p.globalLoggerReadOnly {
 		return l, nil
 	}
+	logrus.SetLevel(p.globalLogLevel)
 	logrus.SetReportCaller(true)
 	logrus.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: p.timestampFormat,
@@ -87,10 +92,6 @@ func (p *globalLogrusIOCCtxHookParam) newLogrusIOCCtxHook(l *GlobalLogrusIOCCtxH
 			return "", fmt.Sprintf("%s:%d", path.Base(frame.File), frame.Line)
 		},
 	})
-	l.structIDKey = p.structIDKey
-	l.methodNameKey = p.methodNameKey
-	l.grIDKey = p.grIDKey
-	logrus.SetLevel(p.globalLogLevel)
 	return l, nil
 }
 
