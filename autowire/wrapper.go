@@ -158,8 +158,7 @@ func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) 
 	param, err := w.ParseParam(sdID, fi)
 	if err != nil {
 		if w.Autowire.IsSingleton() {
-			// FIXME: ignore parse param error, because of singleton with empty param also try to find property from config file
-			logger.Red("[Wrapper Autowire] Parse param from config file with sdid %s failed, error: %s, continue with nil param.", sdID, err)
+			// ignore parse param error, because of singleton with empty param also try to find property from config file
 			return w.ImplWithParam(sdID, param, implWithProxy, false)
 		} else {
 			return nil, err
