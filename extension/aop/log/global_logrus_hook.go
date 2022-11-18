@@ -16,6 +16,9 @@
 package call
 
 import (
+	"fmt"
+	"path"
+	"runtime"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -48,11 +51,12 @@ type GlobalLogrusIOCCtxHook struct {
 
 type globalLogrusIOCCtxHookParam struct {
 	// all fields are optional
-	timestampFormat string
-	structIDKey     string
-	methodNameKey   string
-	grIDKey         string
-	globalLogLevel  logrus.Level
+	timestampFormat      string
+	structIDKey          string
+	methodNameKey        string
+	grIDKey              string
+	globalLogLevel       logrus.Level
+	globalLoggerReadOnly bool
 }
 
 func (p *globalLogrusIOCCtxHookParam) newLogrusIOCCtxHook(l *GlobalLogrusIOCCtxHook) (*GlobalLogrusIOCCtxHook, error) {
@@ -73,14 +77,21 @@ func (p *globalLogrusIOCCtxHookParam) newLogrusIOCCtxHook(l *GlobalLogrusIOCCtxH
 	}
 
 	logrus.AddHook(l)
-	logrus.SetReportCaller(true)
-	logrus.SetFormatter(&logrus.TextFormatter{
-		TimestampFormat: p.timestampFormat,
-	})
 	l.structIDKey = p.structIDKey
 	l.methodNameKey = p.methodNameKey
 	l.grIDKey = p.grIDKey
+
+	if p.globalLoggerReadOnly {
+		return l, nil
+	}
 	logrus.SetLevel(p.globalLogLevel)
+	logrus.SetReportCaller(true)
+	logrus.SetFormatter(&logrus.TextFormatter{
+		TimestampFormat: p.timestampFormat,
+		CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
+			return "", fmt.Sprintf("%s:%d", path.Base(frame.File), frame.Line)
+		},
+	})
 	return l, nil
 }
 

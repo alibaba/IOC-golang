@@ -49,15 +49,6 @@ func init() {
 			_ = config.LoadConfigByPrefix(fmt.Sprintf("%s.%s", common.IOCGolangAOPConfigPrefix, Name), logConfig)
 			logConfig.fillDefaultConfig()
 
-			if logConfig.Disable {
-				logConfig.InvocationAOPLogConfig.Disable = true
-				// init logInterceptor singleton with disable
-				_, _ = GetlogInterceptorIOCInterfaceSingleton(&logInterceptorParams{
-					InvocationAOPLogConfig: logConfig.InvocationAOPLogConfig,
-				})
-				return
-			}
-
 			// init logInterceptor singleton
 			_, _ = GetlogInterceptorIOCInterfaceSingleton(&logInterceptorParams{
 				InvocationAOPLogConfig: logConfig.InvocationAOPLogConfig,
@@ -66,7 +57,8 @@ func init() {
 			// init global logrus hook
 			globalLogLevel, _ := logrus.ParseLevel(logConfig.Level)
 			_, _ = GetGlobalLogrusIOCCtxHookIOCInterfaceSingleton(&globalLogrusIOCCtxHookParam{
-				globalLogLevel: globalLogLevel,
+				globalLogLevel:       globalLogLevel,
+				globalLoggerReadOnly: logConfig.GlobalLoggerReadOnly,
 			})
 		},
 	})
