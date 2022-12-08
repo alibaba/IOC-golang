@@ -27,7 +27,7 @@ const (
 )
 
 // implementsMap a map from interface SDID to implement struct SDID
-var implementsMap = make(map[string]map[string][]string)
+var implementsMap = make(map[string]map[string]map[string]struct{})
 
 func registerImplements(sd *StructDescriptor) {
 	// get and register impl interfaces metadata
@@ -48,17 +48,17 @@ func registerImplementMapping(interfaceSDID, activeProfile, implStructSDID strin
 
 	// 1. assure interfaceSDID map exists
 	if _, ok := implementsMap[interfaceSDID]; !ok {
-		implementsMap[interfaceSDID] = make(map[string][]string)
+		implementsMap[interfaceSDID] = make(map[string]map[string]struct{})
 	}
 
 	// 2. assure activeProfile slice exist
 	_, ok := implementsMap[interfaceSDID][activeProfile]
 	if !ok {
-		implementsMap[interfaceSDID][activeProfile] = make([]string, 0)
+		implementsMap[interfaceSDID][activeProfile] = make(map[string]struct{}, 0)
 	}
 
 	// 3. register implements mapping
-	implementsMap[interfaceSDID][activeProfile] = append(implementsMap[interfaceSDID][activeProfile], implStructSDID)
+	implementsMap[interfaceSDID][activeProfile][implStructSDID] = struct{}{}
 	return nil
 }
 
@@ -85,16 +85,16 @@ func GetBestImplementMapping(interfaceSDID string, activitedOrderedProfiles []st
 	}
 
 	// get with best profile
-	bestMatchesStructImplSDIDs := make([]string, 0)
+	bestMatchesStructImplSDIDsMap := make(map[string]struct{}, 0)
 	bestMatchProfile := ""
 	for i := len(activitedOrderedProfiles) - 1; i >= 0; i-- {
 		currentProfile := activitedOrderedProfiles[i]
-		bestMatchesStructImplSDIDs, ok = interfaceImplsMap[currentProfile]
-		if !ok || len(bestMatchesStructImplSDIDs) == 0 {
+		bestMatchesStructImplSDIDsMap, ok = interfaceImplsMap[currentProfile]
+		if !ok || len(bestMatchesStructImplSDIDsMap) == 0 {
 			logger.Blue("[Autowire Implement] Interface %s implements with profile %s not found", interfaceSDID, currentProfile)
 			continue
 		}
-		logger.Blue("[Autowire Implement] Interface %s implements SDID %s with profile %s bast matches activited profiles, select it(them)", interfaceSDID, bestMatchesStructImplSDIDs, currentProfile)
+		logger.Blue("[Autowire Implement] Interface %s implements SDID %s with profile %s bast matches activited profiles, select it(them)", interfaceSDID, bestMatchesStructImplSDIDsMap, currentProfile)
 		bestMatchProfile = currentProfile
 		break
 	}
@@ -107,6 +107,10 @@ func GetBestImplementMapping(interfaceSDID string, activitedOrderedProfiles []st
 			interfaceSDID, allImplementedProfiles, activitedOrderedProfiles)
 		logger.Red(err.Error())
 		return nil, "", err
+	}
+	bestMatchesStructImplSDIDs := make([]string, 0)
+	for k := range bestMatchesStructImplSDIDsMap {
+		bestMatchesStructImplSDIDs = append(bestMatchesStructImplSDIDs, k)
 	}
 	return bestMatchesStructImplSDIDs, bestMatchProfile, nil
 }
