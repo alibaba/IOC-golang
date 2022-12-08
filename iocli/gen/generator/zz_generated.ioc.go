@@ -74,14 +74,14 @@ func init() {
 	normal.RegisterStructDescriptor(copyMethodMakerStructDescriptor)
 }
 
-type objectGenCtxParamInterface interface {
-	Init(impl *objectGenCtx) (*objectGenCtx, error)
-}
 type importsListParamInterface interface {
 	Init(impl *importsList) (*importsList, error)
 }
 type copyMethodMakerParamInterface interface {
 	Init(impl *copyMethodMaker) (*copyMethodMaker, error)
+}
+type objectGenCtxParamInterface interface {
+	Init(impl *objectGenCtx) (*objectGenCtx, error)
 }
 
 var _objectGenCtxSDID string
