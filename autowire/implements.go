@@ -109,7 +109,7 @@ func GetBestImplementMapping(interfaceSDID string, activitedOrderedProfiles []st
 		return nil, "", err
 	}
 	bestMatchesStructImplSDIDs := make([]string, 0)
-	for k, _ := range bestMatchesStructImplSDIDsMap {
+	for k := range bestMatchesStructImplSDIDsMap {
 		bestMatchesStructImplSDIDs = append(bestMatchesStructImplSDIDs, k)
 	}
 	return bestMatchesStructImplSDIDs, bestMatchProfile, nil
