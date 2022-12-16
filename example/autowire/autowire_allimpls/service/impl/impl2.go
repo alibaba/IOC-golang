@@ -24,6 +24,8 @@ import "fmt"
 type serviceImpl2 struct {
 }
 
-func (s *serviceImpl2) GetHelloString(name string) string {
+func (s *serviceImpl2) GetHelloString(
+	name string,
+) string {
 	return fmt.Sprintf("This is ServiceImpl1, hello %s", name)
 }
