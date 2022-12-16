@@ -34,6 +34,7 @@ func ParseMethodInfoFromGoFiles(structName string, goFilesPath []string) []metho
 		}
 		fileString := string(data)
 		fileLines := strings.Split(fileString, "\n")
+		fileLines = joinMethodLine(fileLines)
 		for _, line := range fileLines {
 			parsedMethod, ok := newMethodFromLine(structName, line)
 			if ok {
@@ -42,4 +43,64 @@ func ParseMethodInfoFromGoFiles(structName string, goFilesPath []string) []metho
 		}
 	}
 	return allMethods
+}
+
+/*
+joinMethodLine join func line splited by '\n' like:
+
+func (s *ComplexService) RPCBasicType(name string,
+	ageF64Ptr *float64)
+	(string, error){
+	return "", nil
+}
+
+after join, the output is
+func (s *ComplexService) RPCBasicType(name string, ageF64Ptr *float64) (string, error){
+	return "", nil
+}
+*/
+func joinMethodLine(splitedFileLines []string) []string {
+	afterJoinedFileLine := make([]string, 0)
+	var inMethodSignature = false
+	methodSignatureLine := make([]string, 0)
+	for _, l := range splitedFileLines {
+		l = validateSignatureSingleLine(l)
+		if !inMethodSignature && strings.HasPrefix(strings.TrimSpace(l), "func ") && !strings.HasSuffix(strings.TrimSpace(l), "{") {
+			inMethodSignature = true
+			methodSignatureLine = append(methodSignatureLine, strings.TrimSpace(l))
+		} else if inMethodSignature && strings.HasSuffix(strings.TrimSpace(l), "{") {
+			inMethodSignature = false
+			methodSignatureLine = append(methodSignatureLine, strings.TrimSpace(l))
+		} else if inMethodSignature {
+			methodSignatureLine = append(methodSignatureLine, strings.TrimSpace(l))
+		}
+
+		if !inMethodSignature {
+			if len(methodSignatureLine) > 0 {
+				// join signature lines
+				joinedSignatoreLine := strings.Join(methodSignatureLine, " ")
+				afterJoinedFileLine = append(afterJoinedFileLine, validateSignatureLine(joinedSignatoreLine), "\n")
+				methodSignatureLine = make([]string, 0)
+			} else {
+				afterJoinedFileLine = append(afterJoinedFileLine, l, "\n")
+			}
+		}
+	}
+	return afterJoinedFileLine
+}
+
+// validateSignatureLine can validate joined signature line, replace ",)" to ")"
+func validateSignatureLine(signatureLine string) string {
+	splited := strings.Split(signatureLine, ")")
+	for idx := range splited {
+		splited[idx] = strings.TrimSpace(splited[idx])
+		splited[idx] = strings.TrimSuffix(splited[idx], ",")
+	}
+	return strings.Join(splited, ")")
+}
+
+// validateSignatureSingleLine remote comments
+func validateSignatureSingleLine(signatureLine string) string {
+	splited := strings.Split(signatureLine, "//")
+	return strings.TrimSpace(splited[0])
 }
