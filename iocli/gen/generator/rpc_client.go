@@ -64,7 +64,7 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 		sort.Sort(plugin.CodeGeneratorPluginForOneStructSorter(allImplPluginsList.([]plugin.CodeGeneratorPluginForOneStruct)))
 		allImplPlugins := allImplPluginsList.([]plugin.CodeGeneratorPluginForOneStruct)
 		for _, p := range allImplPlugins {
-			p.Init(info.Markers)
+			p.Init(*info)
 		}
 
 		// avoid confusing aliases by "reserving" the root package's name as an alias
@@ -98,7 +98,7 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 		c.Line(`"aop": map[string]interface{}{`)
 		for _, pluginImpl := range allImplPlugins {
 			if pluginImpl.Type() == plugin.AOP {
-				pluginImpl.GenerateSDMetadataForOneStruct(c)
+				pluginImpl.GenerateSDMetadataForOneStruct(root, c)
 			}
 		}
 		c.Line(`},`)
@@ -107,7 +107,7 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 		c.Line(`"autowire": map[string]interface{}{`)
 		for _, pluginImpl := range allImplPlugins {
 			if pluginImpl.Type() == plugin.Autowire {
-				pluginImpl.GenerateSDMetadataForOneStruct(c)
+				pluginImpl.GenerateSDMetadataForOneStruct(root, c)
 			}
 		}
 		c.Line(`},`)

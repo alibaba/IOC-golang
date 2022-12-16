@@ -19,5 +19,8 @@ import "strings"
 
 func ParseInterfacePkgAndInterfaceName(interfaceID string) (string, string) {
 	splited := strings.Split(interfaceID, ".")
+	if len(splited) == 1 {
+		return "", splited[0]
+	}
 	return strings.Join(splited[:len(splited)-1], "."), splited[len(splited)-1]
 }

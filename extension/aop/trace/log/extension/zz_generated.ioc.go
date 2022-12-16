@@ -42,6 +42,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(logWriterStructDescriptor)
+	var _ log.TraceExtensionWriter = &logWriter{}
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &log15Handler_{}
@@ -69,6 +70,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(log15HandlerStructDescriptor)
+	var _ log.TraceExtensionWriter = &log15Handler{}
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &logrusWriter_{}
@@ -96,6 +98,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(logrusWriterStructDescriptor)
+	var _ log.TraceExtensionWriter = &logrusWriter{}
 }
 
 type logWriterConstructFunc func(impl *logWriter) (*logWriter, error)

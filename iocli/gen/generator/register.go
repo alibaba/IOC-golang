@@ -214,7 +214,7 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 		sort.Sort(plugin.CodeGeneratorPluginForOneStructSorter(allImplPluginsList.([]plugin.CodeGeneratorPluginForOneStruct)))
 		allImplPlugins := allImplPluginsList.([]plugin.CodeGeneratorPluginForOneStruct)
 		for _, p := range allImplPlugins {
-			p.Init(info.Markers)
+			p.Init(*info)
 		}
 
 		if len(info.Markers["ioc:autowire"]) == 0 {
@@ -364,7 +364,7 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 		c.Line(`"aop": map[string]interface{}{`)
 		for _, pluginImpl := range allImplPlugins {
 			if pluginImpl.Type() == plugin.AOP {
-				pluginImpl.GenerateSDMetadataForOneStruct(c)
+				pluginImpl.GenerateSDMetadataForOneStruct(root, c)
 			}
 		}
 		c.Line(`},`)
@@ -373,7 +373,7 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 		c.Line(`"autowire": map[string]interface{}{`)
 		for _, pluginImpl := range allImplPlugins {
 			if pluginImpl.Type() == plugin.Autowire {
-				pluginImpl.GenerateSDMetadataForOneStruct(c)
+				pluginImpl.GenerateSDMetadataForOneStruct(root, c)
 			}
 		}
 		c.Line(`},`)
@@ -407,6 +407,11 @@ func (c *copyMethodMaker) generateMethodsFor(ctx *genall.GenerationContext, root
 		typeInfo := root.TypesInfo.TypeOf(info.RawSpec.Name)
 		if typeInfo == types.Typ[types.Invalid] {
 			root.AddError(loader.ErrFromNode(fmt.Errorf("unknown type: %s", info.Name), info.RawSpec))
+		}
+
+		// 6 gen autowire plugins metadata
+		for _, pluginImpl := range allImplPlugins {
+			pluginImpl.GenerateInFileForOneStruct(root, c)
 		}
 	}
 	c.Line(`}`)
