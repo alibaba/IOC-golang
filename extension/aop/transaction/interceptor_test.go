@@ -103,7 +103,7 @@ func TestAfterInvoke(t *testing.T) {
 		ctx := newMockContextIOCInterface(t)
 		currentMethodName := common.CurrentCallingMethodName(2)
 		ctx.On("GetEntranceMethodFullName").Return(currentMethodName)
-		ctx.On("finish").Once()
+		ctx.On("Finish").Once()
 
 		impl.transactionGrIDMap.Store(mockGRID, ctx)
 
@@ -130,7 +130,7 @@ func TestAfterInvoke(t *testing.T) {
 		ctx := newMockContextIOCInterface(t)
 		currentMethodName := common.CurrentCallingMethodName(2)
 		ctx.On("GetEntranceMethodFullName").Return(currentMethodName)
-		ctx.On("finish").Once()
+		ctx.On("Finish").Once()
 
 		impl.transactionGrIDMap.Store(mockGRID, ctx)
 
@@ -153,7 +153,7 @@ func TestAfterInvoke(t *testing.T) {
 		ctx := newMockContextIOCInterface(t)
 		currentMethodName := common.CurrentCallingMethodName(2)
 		ctx.On("GetEntranceMethodFullName").Return(currentMethodName)
-		ctx.On("finish").Once()
+		ctx.On("Finish").Once()
 
 		impl.transactionGrIDMap.Store(mockGRID, ctx)
 
@@ -182,7 +182,7 @@ func TestAfterInvoke(t *testing.T) {
 		ctx := newMockContextIOCInterface(t)
 		currentMethodName := common.CurrentCallingMethodName(2)
 		ctx.On("GetEntranceMethodFullName").Return(currentMethodName)
-		ctx.On("failed", mock.MatchedBy(func(err error) bool {
+		ctx.On("Failed", mock.MatchedBy(func(err error) bool {
 			return err.Error() == expectErr.Error()
 		})).Once()
 

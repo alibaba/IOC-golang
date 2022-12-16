@@ -39,10 +39,10 @@ func init() {
 		},
 	}
 	rpc_service.RegisterStructDescriptor(bankServiceStructDescriptor)
-	type AddMoneyTxFunction func(id, num int, errMsg string)
-	var _ AddMoneyTxFunction = (&BankService{}).AddMoneyRollback
-	type RemoveMoneyTxFunction func(id, num int, errMsg string)
-	var _ RemoveMoneyTxFunction = (&BankService{}).RemoveMoneyRollback
+	type bankServiceAddMoneyTxFunction func(id, num int, errMsg string)
+	var _ bankServiceAddMoneyTxFunction = (&BankService{}).AddMoneyRollback
+	type bankServiceRemoveMoneyTxFunction func(id, num int, errMsg string)
+	var _ bankServiceRemoveMoneyTxFunction = (&BankService{}).RemoveMoneyRollback
 }
 
 type BankServiceConstructFunc func(impl *BankService) (*BankService, error)

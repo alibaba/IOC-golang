@@ -158,6 +158,12 @@ func init() {
 	singleton.RegisterStructDescriptor(logServiceImplStructDescriptor)
 }
 
+type debugLogContextParamInterface interface {
+	init(impl *debugLogContext) (*debugLogContext, error)
+}
+type globalLogrusIOCCtxHookParamInterface interface {
+	newLogrusIOCCtxHook(impl *GlobalLogrusIOCCtxHook) (*GlobalLogrusIOCCtxHook, error)
+}
 type logInterceptorParamsInterface interface {
 	initLogInterceptor(impl *logInterceptor) (*logInterceptor, error)
 }
@@ -166,12 +172,6 @@ type logGoRoutineInterceptorFacadeCtxParamInterface interface {
 }
 type invocationCtxNotifyHookParamInterface interface {
 	initInvocationCtxNotifyHook(impl *invocationCtxNotifyHook) (*invocationCtxNotifyHook, error)
-}
-type debugLogContextParamInterface interface {
-	init(impl *debugLogContext) (*debugLogContext, error)
-}
-type globalLogrusIOCCtxHookParamInterface interface {
-	newLogrusIOCCtxHook(impl *GlobalLogrusIOCCtxHook) (*GlobalLogrusIOCCtxHook, error)
 }
 type globalLogrusIOCCtxHook_ struct {
 	Levels_      func() []logrus.Level

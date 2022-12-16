@@ -96,14 +96,14 @@ func init() {
 	singleton.RegisterStructDescriptor(adminStructDescriptor)
 }
 
-type adminParamInterface interface {
-	New(impl *Admin) (*Admin, error)
-}
 type pushConsumerParamInterface interface {
 	New(impl *PushConsumer) (*PushConsumer, error)
 }
 type producerParamInterface interface {
 	New(impl *Producer) (*Producer, error)
+}
+type adminParamInterface interface {
+	New(impl *Admin) (*Admin, error)
 }
 type pushConsumer_ struct {
 	Start_       func() error
