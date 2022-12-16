@@ -18,6 +18,8 @@ package cli
 import (
 	"strings"
 
+	"github.com/alibaba/ioc-golang/iocli/gen/generator/plugin/common"
+
 	"sigs.k8s.io/controller-tools/pkg/loader"
 
 	"sigs.k8s.io/controller-tools/pkg/markers"
@@ -34,6 +36,7 @@ import (
 
 type txCodeGenerationPlugin struct {
 	txFunctionPairs []txFunctionPair
+	structName      string
 }
 
 func create(t *txCodeGenerationPlugin) (*txCodeGenerationPlugin, error) {
@@ -50,6 +53,7 @@ func (t *txCodeGenerationPlugin) Type() plugin.Type {
 }
 
 func (t *txCodeGenerationPlugin) Init(info markers.TypeInfo) {
+	t.structName = info.Name
 	for _, v := range info.Markers[transactionFunctionAnnotation] {
 		if txFuncMark, ok := v.(string); ok {
 			txFuncPairRawStrings := strings.Split(txFuncMark, "-")
@@ -78,6 +82,19 @@ func (t *txCodeGenerationPlugin) GenerateSDMetadataForOneStruct(root *loader.Pac
 }
 
 func (t *txCodeGenerationPlugin) GenerateInFileForOneStruct(root *loader.Package, c plugin.CodeWriter) {
+	methods := common.ParseExportedMethodInfoFromGoFiles(t.structName, root.GoFiles)
+	methodStaticInfoMap := make(map[string]common.Method)
+	for _, v := range methods {
+		methodStaticInfoMap[v.Name] = v
+	}
+
+	for _, pair := range t.txFunctionPairs {
+		if pair.RollbackName == "" {
+			continue
+		}
+		c.Linef(`type %sTxFunction func (%s, errMsg string)`, pair.Name, methodStaticInfoMap[pair.Name].ParamBody)
+		c.Linef(`var _ %sTxFunction = (&%s{}).%s`, pair.Name, t.structName, pair.RollbackName)
+	}
 }
 
 type txFunctionPair struct {

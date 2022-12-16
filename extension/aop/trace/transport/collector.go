@@ -145,7 +145,7 @@ func (c *collector) runReadLoop(period time.Duration) {
 	}
 }
 
-func (c *collector) destroy() {
+func (c *collector) Destroy() {
 	close(c.stopCh)
 }
 

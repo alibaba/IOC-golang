@@ -29,7 +29,7 @@ func GenProxyStruct(proxySuffix string, c plugin.CodeWriter, needProxyStructInfo
 	for _, info := range needProxyStructInfos {
 		// get all methods
 		c.Linef(`type %s%s struct {`, ToFirstCharLower(info.Name), proxySuffix)
-		methods := ParseMethodInfoFromGoFiles(info.Name, root.GoFiles)
+		methods := ParseExportedMethodInfoFromGoFiles(info.Name, root.GoFiles)
 		for idx := range methods {
 			if debugMode {
 				fmt.Printf("[Method Scan] Struct %s method %s found\n", info.Name, methods[idx].Name)

@@ -100,49 +100,39 @@ type contextParamInterface interface {
 }
 type methodInvocationRecordConstructFunc func(impl *methodInvocationRecord) (*methodInvocationRecord, error)
 type context_ struct {
-	run_                func()
-	filterAndGetRecord_ func(ctx *aop.InvocationContext) (methodInvocationRecordIOCInterface, bool)
-	beforeInvoke_       func(ctx *aop.InvocationContext)
-	afterInvoke_        func(ctx *aop.InvocationContext)
-	destroy_            func()
+	BeforeInvoke_ func(ctx *aop.InvocationContext)
+	AfterInvoke_  func(ctx *aop.InvocationContext)
+	Destroy_      func()
 }
 
-func (c *context_) run() {
-	c.run_()
+func (c *context_) BeforeInvoke(ctx *aop.InvocationContext) {
+	c.BeforeInvoke_(ctx)
 }
 
-func (c *context_) filterAndGetRecord(ctx *aop.InvocationContext) (methodInvocationRecordIOCInterface, bool) {
-	return c.filterAndGetRecord_(ctx)
+func (c *context_) AfterInvoke(ctx *aop.InvocationContext) {
+	c.AfterInvoke_(ctx)
 }
 
-func (c *context_) beforeInvoke(ctx *aop.InvocationContext) {
-	c.beforeInvoke_(ctx)
-}
-
-func (c *context_) afterInvoke(ctx *aop.InvocationContext) {
-	c.afterInvoke_(ctx)
-}
-
-func (c *context_) destroy() {
-	c.destroy_()
+func (c *context_) Destroy() {
+	c.Destroy_()
 }
 
 type methodInvocationRecord_ struct {
-	describeAndReset_ func() (int, int, int, float32, float32)
-	beforeRequest_    func(ctx *aop.InvocationContext)
-	afterRequest_     func(ctx *aop.InvocationContext)
+	DescribeAndReset_ func() (int, int, int, float32, float32)
+	BeforeRequest_    func(ctx *aop.InvocationContext)
+	AfterRequest_     func(ctx *aop.InvocationContext)
 }
 
-func (m *methodInvocationRecord_) describeAndReset() (int, int, int, float32, float32) {
-	return m.describeAndReset_()
+func (m *methodInvocationRecord_) DescribeAndReset() (int, int, int, float32, float32) {
+	return m.DescribeAndReset_()
 }
 
-func (m *methodInvocationRecord_) beforeRequest(ctx *aop.InvocationContext) {
-	m.beforeRequest_(ctx)
+func (m *methodInvocationRecord_) BeforeRequest(ctx *aop.InvocationContext) {
+	m.BeforeRequest_(ctx)
 }
 
-func (m *methodInvocationRecord_) afterRequest(ctx *aop.InvocationContext) {
-	m.afterRequest_(ctx)
+func (m *methodInvocationRecord_) AfterRequest(ctx *aop.InvocationContext) {
+	m.AfterRequest_(ctx)
 }
 
 type interceptorImpl_ struct {
@@ -177,17 +167,15 @@ func (m *monitorService_) Monitor(req *aopmonitor.MonitorRequest, svr aopmonitor
 }
 
 type contextIOCInterface interface {
-	run()
-	filterAndGetRecord(ctx *aop.InvocationContext) (methodInvocationRecordIOCInterface, bool)
-	beforeInvoke(ctx *aop.InvocationContext)
-	afterInvoke(ctx *aop.InvocationContext)
-	destroy()
+	BeforeInvoke(ctx *aop.InvocationContext)
+	AfterInvoke(ctx *aop.InvocationContext)
+	Destroy()
 }
 
 type methodInvocationRecordIOCInterface interface {
-	describeAndReset() (int, int, int, float32, float32)
-	beforeRequest(ctx *aop.InvocationContext)
-	afterRequest(ctx *aop.InvocationContext)
+	DescribeAndReset() (int, int, int, float32, float32)
+	BeforeRequest(ctx *aop.InvocationContext)
+	AfterRequest(ctx *aop.InvocationContext)
 }
 
 type interceptorImplIOCInterface interface {

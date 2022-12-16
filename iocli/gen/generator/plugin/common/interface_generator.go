@@ -28,7 +28,7 @@ func GenInterface(interfaceSuffix string, c plugin.CodeWriter, needInterfaceStru
 	for _, info := range needInterfaceStructInfos {
 		// get all methods
 		c.Linef(`type %s%s interface {`, info.Name, interfaceSuffix)
-		methods := ParseMethodInfoFromGoFiles(info.Name, root.GoFiles)
+		methods := ParseExportedMethodInfoFromGoFiles(info.Name, root.GoFiles)
 		for idx := range methods {
 			importsAlias := methods[idx].GetImportAlias()
 			if len(importsAlias) != 0 {

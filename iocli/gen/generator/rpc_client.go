@@ -126,7 +126,7 @@ func genIOCRPCClientStub(ctx *genall.GenerationContext, root *loader.Package, rp
 		common.GenInterface("IOCRPCClient", c, []*markers.TypeInfo{info}, root)
 
 		c.Linef("type %sIOCRPCClient struct {", common.ToFirstCharLower(info.Name))
-		methods := common.ParseMethodInfoFromGoFiles(info.Name, root.GoFiles)
+		methods := common.ParseExportedMethodInfoFromGoFiles(info.Name, root.GoFiles)
 		for idx := range methods {
 			importsAlias := methods[idx].GetImportAlias()
 			aliasSwapMap := make(map[string]string)

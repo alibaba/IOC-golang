@@ -89,34 +89,34 @@ type rollbackAbleInvocationCtxParamInterface interface {
 	init(impl *rollbackAbleInvocationCtx) (*rollbackAbleInvocationCtx, error)
 }
 type context_ struct {
-	finish_                             func()
-	getEntranceMethodFullName_          func() string
-	failed_                             func(err error)
-	addSuccessfullyCalledInvocationCtx_ func(ctx *aop.InvocationContext)
+	Finish_                             func()
+	GetEntranceMethodFullName_          func() string
+	Failed_                             func(err error)
+	AddSuccessfullyCalledInvocationCtx_ func(ctx *aop.InvocationContext)
 }
 
-func (c *context_) finish() {
-	c.finish_()
+func (c *context_) Finish() {
+	c.Finish_()
 }
 
-func (c *context_) getEntranceMethodFullName() string {
-	return c.getEntranceMethodFullName_()
+func (c *context_) GetEntranceMethodFullName() string {
+	return c.GetEntranceMethodFullName_()
 }
 
-func (c *context_) failed(err error) {
-	c.failed_(err)
+func (c *context_) Failed(err error) {
+	c.Failed_(err)
 }
 
-func (c *context_) addSuccessfullyCalledInvocationCtx(ctx *aop.InvocationContext) {
-	c.addSuccessfullyCalledInvocationCtx_(ctx)
+func (c *context_) AddSuccessfullyCalledInvocationCtx(ctx *aop.InvocationContext) {
+	c.AddSuccessfullyCalledInvocationCtx_(ctx)
 }
 
 type rollbackAbleInvocationCtx_ struct {
-	rollback_ func(err error)
+	Rollback_ func(err error)
 }
 
-func (r *rollbackAbleInvocationCtx_) rollback(err error) {
-	r.rollback_(err)
+func (r *rollbackAbleInvocationCtx_) Rollback(err error) {
+	r.Rollback_(err)
 }
 
 type interceptorImpl_ struct {
@@ -133,14 +133,14 @@ func (i *interceptorImpl_) AfterInvoke(ctx *aop.InvocationContext) {
 }
 
 type contextIOCInterface interface {
-	finish()
-	getEntranceMethodFullName() string
-	failed(err error)
-	addSuccessfullyCalledInvocationCtx(ctx *aop.InvocationContext)
+	Finish()
+	GetEntranceMethodFullName() string
+	Failed(err error)
+	AddSuccessfullyCalledInvocationCtx(ctx *aop.InvocationContext)
 }
 
 type rollbackAbleInvocationCtxIOCInterface interface {
-	rollback(err error)
+	Rollback(err error)
 }
 
 type interceptorImplIOCInterface interface {

@@ -29,13 +29,13 @@ type interceptorImpl struct {
 
 func (w *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
 	if w.monitorContext != nil {
-		w.monitorContext.beforeInvoke(ctx)
+		w.monitorContext.BeforeInvoke(ctx)
 	}
 }
 
 func (w *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
 	if w.monitorContext != nil {
-		w.monitorContext.afterInvoke(ctx)
+		w.monitorContext.AfterInvoke(ctx)
 	}
 }
 
@@ -44,6 +44,6 @@ func (w *interceptorImpl) Monitor(monitorCtx contextIOCInterface) {
 }
 
 func (w *interceptorImpl) StopMonitor() {
-	w.monitorContext.destroy()
+	w.monitorContext.Destroy()
 	w.monitorContext = nil
 }

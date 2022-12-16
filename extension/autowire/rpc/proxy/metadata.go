@@ -20,11 +20,11 @@ import (
 	"reflect"
 	"strings"
 	"sync"
-	"unicode"
-	"unicode/utf8"
 
-	"dubbo.apache.org/dubbo-go/v3/common"
+	dubboCommon "dubbo.apache.org/dubbo-go/v3/common"
 	perrors "github.com/pkg/errors"
+
+	"github.com/alibaba/ioc-golang/extension/autowire/common"
 )
 
 // MetadataMap store metadata of service.
@@ -41,7 +41,7 @@ type serviceMap struct {
 
 // GetService gets a service definition by protocol and name
 func (sm *serviceMap) GetService(protocol, interfaceName, group, version string) *Service {
-	serviceKey := common.ServiceKey(interfaceName, group, version)
+	serviceKey := dubboCommon.ServiceKey(interfaceName, group, version)
 	return sm.GetServiceByServiceKey(protocol, serviceKey)
 }
 
@@ -69,7 +69,7 @@ func (sm *serviceMap) GetInterface(interfaceName string) []*Service {
 }
 
 // Register registers a service by @interfaceName and @protocol
-func (sm *serviceMap) Register(interfaceName, protocol, group, version string, rcvr common.RPCService) (string, error) {
+func (sm *serviceMap) Register(interfaceName, protocol, group, version string, rcvr dubboCommon.RPCService) (string, error) {
 	if sm.serviceMap[protocol] == nil {
 		sm.serviceMap[protocol] = make(map[string]*Service)
 	}
@@ -81,7 +81,7 @@ func (sm *serviceMap) Register(interfaceName, protocol, group, version string, r
 	s.rcvrType = reflect.TypeOf(rcvr)
 	s.rcvr = reflect.ValueOf(rcvr)
 
-	sname := common.ServiceKey(interfaceName, group, version)
+	sname := dubboCommon.ServiceKey(interfaceName, group, version)
 	if server := sm.GetService(protocol, interfaceName, group, version); server != nil {
 		return "", perrors.New("service already defined: " + sname)
 	}
@@ -131,7 +131,7 @@ func (s *Service) Rcvr() reflect.Value {
 func suitableMethods(typ reflect.Type) (string, map[string]*MethodType) {
 	methods := make(map[string]*MethodType)
 	var mts []string
-	method, ok := typ.MethodByName(common.METHOD_MAPPER)
+	method, ok := typ.MethodByName(dubboCommon.METHOD_MAPPER)
 	var methodMapper map[string]string
 	if ok && method.Type.NumIn() == 1 && method.Type.NumOut() == 1 && method.Type.Out(0).String() == "map[string]string" {
 		methodMapper = method.Func.Call([]reflect.Value{reflect.New(typ.Elem())})[0].Interface().(map[string]string)
@@ -230,12 +230,6 @@ func (m *MethodType) SuiteContext(ctx context.Context) reflect.Value {
 	return reflect.Zero(m.ctxType)
 }
 
-// Is this an exported - upper case - name
-func isExported(name string) bool {
-	s, _ := utf8.DecodeRuneInString(name)
-	return unicode.IsUpper(s)
-}
-
 // Is this type exported or a builtin?
 func isExportedOrBuiltinType(t reflect.Type) bool {
 	for t.Kind() == reflect.Ptr {
@@ -243,5 +237,5 @@ func isExportedOrBuiltinType(t reflect.Type) bool {
 	}
 	// PkgPath will be non-empty even for an exported type,
 	// so we need to check the type name as well.
-	return isExported(t.Name()) || t.PkgPath() == ""
+	return common.IsExportedMethod(t.Name()) || t.PkgPath() == ""
 }

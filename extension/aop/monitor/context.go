@@ -58,7 +58,7 @@ func (c *context) run() {
 			c.methodUniqueNameInvocationRecordMapLock.Lock()
 			for invocationMethodKey, invocationMethodRecord := range c.methodUniqueNameInvocationRecordMap {
 				sdid, methodName := common.ParseSDIDAndMethodFromUniqueKey(invocationMethodKey)
-				total, success, fail, agRT, failedRate := invocationMethodRecord.describeAndReset()
+				total, success, fail, agRT, failedRate := invocationMethodRecord.DescribeAndReset()
 				if total == 0 {
 					continue
 				}
@@ -101,21 +101,21 @@ func (c *context) filterAndGetRecord(ctx *aop.InvocationContext) (methodInvocati
 	return methodRecord, true
 }
 
-func (c *context) beforeInvoke(ctx *aop.InvocationContext) {
+func (c *context) BeforeInvoke(ctx *aop.InvocationContext) {
 	monitorMethodRecord, match := c.filterAndGetRecord(ctx)
 	if match {
-		monitorMethodRecord.beforeRequest(ctx)
+		monitorMethodRecord.BeforeRequest(ctx)
 	}
 }
 
-func (c *context) afterInvoke(ctx *aop.InvocationContext) {
+func (c *context) AfterInvoke(ctx *aop.InvocationContext) {
 	monitorMethodRecord, match := c.filterAndGetRecord(ctx)
 	if match {
-		monitorMethodRecord.afterRequest(ctx)
+		monitorMethodRecord.AfterRequest(ctx)
 	}
 }
 
-func (c *context) destroy() {
+func (c *context) Destroy() {
 	if !c.destroyed {
 		c.destroyed = true
 		c.ticker.Stop()
@@ -144,7 +144,7 @@ func newMethodInvocationRecord(record *methodInvocationRecord) (*methodInvocatio
 	return record, nil
 }
 
-func (m *methodInvocationRecord) describeAndReset() (int, int, int, float32, float32) {
+func (m *methodInvocationRecord) DescribeAndReset() (int, int, int, float32, float32) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
@@ -166,11 +166,11 @@ func (m *methodInvocationRecord) describeAndReset() (int, int, int, float32, flo
 	return total, success, fail, agRT, failedRate
 }
 
-func (m *methodInvocationRecord) beforeRequest(ctx *aop.InvocationContext) {
+func (m *methodInvocationRecord) BeforeRequest(ctx *aop.InvocationContext) {
 	m.grIDReqMap.Store(ctx.ID, time.Now().UnixMicro())
 }
 
-func (m *methodInvocationRecord) afterRequest(ctx *aop.InvocationContext) {
+func (m *methodInvocationRecord) AfterRequest(ctx *aop.InvocationContext) {
 	val, ok := m.grIDReqMap.LoadAndDelete(ctx.ID)
 	if !ok {
 		return

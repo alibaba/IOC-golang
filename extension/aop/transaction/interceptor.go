@@ -68,22 +68,22 @@ func (t *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
 
 		// if current invocation is the entrance of transaction ?
 		// check if is entrance
-		if common.IsTraceEntrance(txCtx.getEntranceMethodFullName()) {
+		if common.IsTraceEntrance(txCtx.GetEntranceMethodFullName()) {
 			// current invocation is the entrance of transaction
 			t.transactionGrIDMap.Delete(ctx.GrID)
 			// if the transaction failed ?
 			if invocationFailed {
-				txCtx.failed(err)
+				txCtx.Failed(err)
 				return
 			}
-			txCtx.finish()
+			txCtx.Finish()
 			return
 		}
 		// current invocation is not the entrance of transaction
 		// if the invocation is success ?
 		if !invocationFailed {
 			// the invocation is success, try to add to context
-			txCtx.addSuccessfullyCalledInvocationCtx(ctx)
+			txCtx.AddSuccessfullyCalledInvocationCtx(ctx)
 			return
 		}
 		// the invocation failed
