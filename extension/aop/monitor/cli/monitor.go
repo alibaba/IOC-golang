@@ -125,7 +125,7 @@ var monitorCommand = &cobra.Command{
 
 				// print information
 				logger.Blue(fmt.Sprintf("Total: %d, Success: %d, Fail: %d, AvgRT: %.2fus, FailRate: %.2f%%",
-					total, success, fail, avgRT, avgFailRate))
+					total, success, fail, avgRT, avgFailRate*100))
 			}
 
 			allMonitorResponseItemsLock.RUnlock()
