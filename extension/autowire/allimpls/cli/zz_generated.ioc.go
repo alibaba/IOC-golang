@@ -6,6 +6,7 @@
 package cli
 
 import (
+	"sigs.k8s.io/controller-tools/pkg/loader"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 
 	autowire "github.com/alibaba/ioc-golang/autowire"
@@ -45,6 +46,7 @@ func init() {
 		},
 	}
 	allimpls.RegisterStructDescriptor(allImplsCodeGenerationPluginStructDescriptor)
+	var _ plugin.CodeGeneratorPluginForOneStruct = &allImplsCodeGenerationPlugin{}
 	iocGolangAutowireAllImplsTypeMarkerStructDescriptor := &autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &iocGolangAutowireAllImplsTypeMarker{}
@@ -62,15 +64,16 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(iocGolangAutowireAllImplsTypeMarkerStructDescriptor)
+	var _ marker.DefinitionGetter = &iocGolangAutowireAllImplsTypeMarker{}
 }
 
 type allImplsCodeGenerationPluginConstructFunc func(impl *allImplsCodeGenerationPlugin) (*allImplsCodeGenerationPlugin, error)
 type allImplsCodeGenerationPlugin_ struct {
 	Name_                           func() string
 	Type_                           func() plugin.Type
-	Init_                           func(markers markers.MarkerValues)
-	GenerateSDMetadataForOneStruct_ func(c plugin.CodeWriter)
-	GenerateInFileForOneStruct_     func(c plugin.CodeWriter)
+	Init_                           func(info markers.TypeInfo)
+	GenerateSDMetadataForOneStruct_ func(root *loader.Package, c plugin.CodeWriter)
+	GenerateInFileForOneStruct_     func(root *loader.Package, c plugin.CodeWriter)
 }
 
 func (a *allImplsCodeGenerationPlugin_) Name() string {
@@ -81,24 +84,24 @@ func (a *allImplsCodeGenerationPlugin_) Type() plugin.Type {
 	return a.Type_()
 }
 
-func (a *allImplsCodeGenerationPlugin_) Init(markers markers.MarkerValues) {
-	a.Init_(markers)
+func (a *allImplsCodeGenerationPlugin_) Init(info markers.TypeInfo) {
+	a.Init_(info)
 }
 
-func (a *allImplsCodeGenerationPlugin_) GenerateSDMetadataForOneStruct(c plugin.CodeWriter) {
-	a.GenerateSDMetadataForOneStruct_(c)
+func (a *allImplsCodeGenerationPlugin_) GenerateSDMetadataForOneStruct(root *loader.Package, c plugin.CodeWriter) {
+	a.GenerateSDMetadataForOneStruct_(root, c)
 }
 
-func (a *allImplsCodeGenerationPlugin_) GenerateInFileForOneStruct(c plugin.CodeWriter) {
-	a.GenerateInFileForOneStruct_(c)
+func (a *allImplsCodeGenerationPlugin_) GenerateInFileForOneStruct(root *loader.Package, c plugin.CodeWriter) {
+	a.GenerateInFileForOneStruct_(root, c)
 }
 
 type allImplsCodeGenerationPluginIOCInterface interface {
 	Name() string
 	Type() plugin.Type
-	Init(markers markers.MarkerValues)
-	GenerateSDMetadataForOneStruct(c plugin.CodeWriter)
-	GenerateInFileForOneStruct(c plugin.CodeWriter)
+	Init(info markers.TypeInfo)
+	GenerateSDMetadataForOneStruct(root *loader.Package, c plugin.CodeWriter)
+	GenerateInFileForOneStruct(root *loader.Package, c plugin.CodeWriter)
 }
 
 var _allImplsCodeGenerationPluginSDID string

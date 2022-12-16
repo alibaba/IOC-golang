@@ -16,6 +16,7 @@
 package cli
 
 import (
+	"sigs.k8s.io/controller-tools/pkg/loader"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 
 	"github.com/alibaba/ioc-golang/autowire"
@@ -38,6 +39,7 @@ type commonCodeGenerationPlugin struct {
 	implements    []string
 	activeProfile string
 	loadAtOnce    bool
+	typeName      string
 }
 
 func create(t *commonCodeGenerationPlugin) (*commonCodeGenerationPlugin, error) {
@@ -53,7 +55,9 @@ func (t *commonCodeGenerationPlugin) Type() plugin.Type {
 	return plugin.Autowire
 }
 
-func (t *commonCodeGenerationPlugin) Init(markers markers.MarkerValues) {
+func (t *commonCodeGenerationPlugin) Init(info markers.TypeInfo) {
+	t.typeName = info.Name
+	markers := info.Markers
 	for _, v := range markers[commonImplementsAnnotation] {
 		t.implements = append(t.implements, v.(string))
 	}
@@ -72,7 +76,7 @@ func (t *commonCodeGenerationPlugin) Init(markers markers.MarkerValues) {
 	t.loadAtOnce = loadAtOnce
 }
 
-func (t *commonCodeGenerationPlugin) GenerateSDMetadataForOneStruct(w plugin.CodeWriter) {
+func (t *commonCodeGenerationPlugin) GenerateSDMetadataForOneStruct(root *loader.Package, w plugin.CodeWriter) {
 	if len(t.implements) == 0 && !t.loadAtOnce {
 		return
 	}
@@ -83,8 +87,12 @@ func (t *commonCodeGenerationPlugin) GenerateSDMetadataForOneStruct(w plugin.Cod
 		w.Linef(`"%s":[]interface{}{`, autowire.CommonImplementsMetadataKey)
 		for _, interfaceID := range t.implements {
 			interfacePkg, interfaceName := common.ParseInterfacePkgAndInterfaceName(interfaceID)
-			interfacePkgAlias := w.NeedImport(interfacePkg)
-			w.Linef(`new(%s.%s),`, interfacePkgAlias, interfaceName)
+			if interfacePkg == "" || root.PkgPath == interfacePkg {
+				w.Linef(`new(%s),`, interfaceName)
+			} else {
+				interfacePkgAlias := w.NeedImport(interfacePkg)
+				w.Linef(`new(%s.%s),`, interfacePkgAlias, interfaceName)
+			}
 		}
 		w.Linef(`},`)
 		if t.activeProfile != "" {
@@ -99,5 +107,15 @@ func (t *commonCodeGenerationPlugin) GenerateSDMetadataForOneStruct(w plugin.Cod
 	w.Line(`},`)
 }
 
-func (t *commonCodeGenerationPlugin) GenerateInFileForOneStruct(w plugin.CodeWriter) {
+func (t *commonCodeGenerationPlugin) GenerateInFileForOneStruct(root *loader.Package, w plugin.CodeWriter) {
+	// 1. get implements interface pkg and name
+	for _, interfaceID := range t.implements {
+		interfacePkg, interfaceName := common.ParseInterfacePkgAndInterfaceName(interfaceID)
+		if interfacePkg == "" || root.PkgPath == interfacePkg {
+			w.Linef("var _ %s = &%s{}", interfaceName, t.typeName)
+		} else {
+			interfacePkgAlias := w.NeedImport(interfacePkg)
+			w.Linef("var _ %s.%s = &%s{}", interfacePkgAlias, interfaceName, t.typeName)
+		}
+	}
 }

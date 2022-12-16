@@ -18,6 +18,8 @@ package cli
 import (
 	"strings"
 
+	"sigs.k8s.io/controller-tools/pkg/loader"
+
 	"sigs.k8s.io/controller-tools/pkg/markers"
 
 	"github.com/alibaba/ioc-golang/extension/aop/transaction"
@@ -47,8 +49,8 @@ func (t *txCodeGenerationPlugin) Type() plugin.Type {
 	return plugin.AOP
 }
 
-func (t *txCodeGenerationPlugin) Init(markers markers.MarkerValues) {
-	for _, v := range markers[transactionFunctionAnnotation] {
+func (t *txCodeGenerationPlugin) Init(info markers.TypeInfo) {
+	for _, v := range info.Markers[transactionFunctionAnnotation] {
 		if txFuncMark, ok := v.(string); ok {
 			txFuncPairRawStrings := strings.Split(txFuncMark, "-")
 			if len(txFuncPairRawStrings) == 1 {
@@ -65,7 +67,7 @@ func (t *txCodeGenerationPlugin) Init(markers markers.MarkerValues) {
 	}
 }
 
-func (t *txCodeGenerationPlugin) GenerateSDMetadataForOneStruct(c plugin.CodeWriter) {
+func (t *txCodeGenerationPlugin) GenerateSDMetadataForOneStruct(root *loader.Package, c plugin.CodeWriter) {
 	if len(t.txFunctionPairs) > 0 {
 		c.Line(`"transaction": map[string]string{`)
 		for _, pair := range t.txFunctionPairs {
@@ -75,7 +77,7 @@ func (t *txCodeGenerationPlugin) GenerateSDMetadataForOneStruct(c plugin.CodeWri
 	}
 }
 
-func (t *txCodeGenerationPlugin) GenerateInFileForOneStruct(c plugin.CodeWriter) {
+func (t *txCodeGenerationPlugin) GenerateInFileForOneStruct(root *loader.Package, c plugin.CodeWriter) {
 }
 
 type txFunctionPair struct {

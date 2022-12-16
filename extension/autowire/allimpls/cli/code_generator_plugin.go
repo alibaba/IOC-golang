@@ -16,6 +16,7 @@
 package cli
 
 import (
+	"sigs.k8s.io/controller-tools/pkg/loader"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 
 	"github.com/alibaba/ioc-golang/extension/autowire/allimpls"
@@ -46,15 +47,15 @@ func (t *allImplsCodeGenerationPlugin) Type() plugin.Type {
 	return plugin.Autowire
 }
 
-func (t *allImplsCodeGenerationPlugin) Init(markers markers.MarkerValues) {
+func (t *allImplsCodeGenerationPlugin) Init(info markers.TypeInfo) {
 	allimplsAutowireType := ""
-	if allimplsAutowireTypeValues := markers[allimplsAutowireTypeAnnotation]; len(allimplsAutowireTypeValues) > 0 {
+	if allimplsAutowireTypeValues := info.Markers[allimplsAutowireTypeAnnotation]; len(allimplsAutowireTypeValues) > 0 {
 		allimplsAutowireType = allimplsAutowireTypeValues[0].(string)
 	}
 	t.allimplsAutowireType = allimplsAutowireType
 }
 
-func (t *allImplsCodeGenerationPlugin) GenerateSDMetadataForOneStruct(c plugin.CodeWriter) {
+func (t *allImplsCodeGenerationPlugin) GenerateSDMetadataForOneStruct(root *loader.Package, c plugin.CodeWriter) {
 	if t.allimplsAutowireType != "" {
 		c.Linef(`"%s": map[string]interface{}{`, allimpls.Name)
 		c.Linef(`"%s":"%s",`, allimpls.AutowireTypeMetadataKey, t.allimplsAutowireType)
@@ -62,5 +63,5 @@ func (t *allImplsCodeGenerationPlugin) GenerateSDMetadataForOneStruct(c plugin.C
 	}
 }
 
-func (t *allImplsCodeGenerationPlugin) GenerateInFileForOneStruct(c plugin.CodeWriter) {
+func (t *allImplsCodeGenerationPlugin) GenerateInFileForOneStruct(root *loader.Package, c plugin.CodeWriter) {
 }
