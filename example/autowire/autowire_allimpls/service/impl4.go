@@ -13,29 +13,17 @@
  * limitations under the License.
  */
 
-package plugin
+package service
 
-import (
-	"sigs.k8s.io/controller-tools/pkg/loader"
-	"sigs.k8s.io/controller-tools/pkg/markers"
-)
+import "fmt"
 
-type CodeGeneratorPluginForOneStruct interface {
-	Name() string
-	Type() Type
+// +ioc:autowire=true
+// +ioc:autowire:type=allimpls
+// +ioc:autowire:implements=Service
 
-	Init(info markers.TypeInfo)
-	GenerateSDMetadataForOneStruct(root *loader.Package, c CodeWriter)
-	GenerateInFileForOneStruct(root *loader.Package, c CodeWriter)
+type serviceImpl4 struct {
 }
 
-type Type int
-
-const (
-	AOP      = Type(1)
-	Autowire = Type(2)
-)
-
-type CodeGeneratorPluginForPkg interface {
-	GenerateCodeInPkg(c CodeWriter)
+func (s *serviceImpl4) GetHelloString(name string) string {
+	return fmt.Sprintf("This is ServiceImpl4, hello %s", name)
 }

@@ -30,13 +30,17 @@ import (
 
 func (a *App) TestRun(t *testing.T) {
 	outputMap := make(map[string]struct{})
-	assert.Equal(t, 2, len(a.ServiceImpls))
+	assert.Equal(t, 4, len(a.ServiceImpls))
 	for _, s := range a.ServiceImpls {
 		outputMap[s.GetHelloString("laurence")] = struct{}{}
 	}
-	_, ok := outputMap["This is ServiceImpl2, hello laurence"]
+	_, ok := outputMap["This is ServiceImpl1, hello laurence"]
 	assert.True(t, ok)
-	_, ok = outputMap["This is ServiceImpl1, hello laurence"]
+	_, ok = outputMap["This is ServiceImpl2, hello laurence"]
+	assert.True(t, ok)
+	_, ok = outputMap["This is ServiceImpl3, hello laurence"]
+	assert.True(t, ok)
+	_, ok = outputMap["This is ServiceImpl4, hello laurence"]
 	assert.True(t, ok)
 }
 
@@ -54,14 +58,18 @@ func TestAutowireAllImplsAPI(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	assert.Equal(t, 2, len(allServiceImpls.([]service.Service)))
+	assert.Equal(t, 4, len(allServiceImpls.([]service.Service)))
 	for _, s := range allServiceImpls.([]service.Service) {
 		fmt.Println(s.GetHelloString("laurence"))
 		outputMap[s.GetHelloString("laurence")] = struct{}{}
 	}
-	_, ok := outputMap["This is ServiceImpl2, hello laurence"]
+	_, ok := outputMap["This is ServiceImpl1, hello laurence"]
 	assert.True(t, ok)
-	_, ok = outputMap["This is ServiceImpl1, hello laurence"]
+	_, ok = outputMap["This is ServiceImpl2, hello laurence"]
+	assert.True(t, ok)
+	_, ok = outputMap["This is ServiceImpl3, hello laurence"]
+	assert.True(t, ok)
+	_, ok = outputMap["This is ServiceImpl4, hello laurence"]
 	assert.True(t, ok)
 	assert.Nil(t, err)
 }

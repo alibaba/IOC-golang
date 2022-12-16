@@ -6,6 +6,7 @@
 package cli
 
 import (
+	"sigs.k8s.io/controller-tools/pkg/loader"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 
 	autowire "github.com/alibaba/ioc-golang/autowire"
@@ -33,6 +34,7 @@ func init() {
 		DisableProxy: true,
 	}
 	allimpls.RegisterStructDescriptor(transactionFunctionMarkerStructDescriptor)
+	var _ marker.DefinitionGetter = &transactionFunctionMarker{}
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &txCodeGenerationPlugin_{}
@@ -62,15 +64,16 @@ func init() {
 		},
 	}
 	allimpls.RegisterStructDescriptor(txCodeGenerationPluginStructDescriptor)
+	var _ plugin.CodeGeneratorPluginForOneStruct = &txCodeGenerationPlugin{}
 }
 
 type txCodeGenerationPluginConstructFunc func(impl *txCodeGenerationPlugin) (*txCodeGenerationPlugin, error)
 type txCodeGenerationPlugin_ struct {
 	Name_                           func() string
 	Type_                           func() plugin.Type
-	Init_                           func(markers markers.MarkerValues)
-	GenerateSDMetadataForOneStruct_ func(c plugin.CodeWriter)
-	GenerateInFileForOneStruct_     func(c plugin.CodeWriter)
+	Init_                           func(info markers.TypeInfo)
+	GenerateSDMetadataForOneStruct_ func(root *loader.Package, c plugin.CodeWriter)
+	GenerateInFileForOneStruct_     func(root *loader.Package, c plugin.CodeWriter)
 }
 
 func (t *txCodeGenerationPlugin_) Name() string {
@@ -81,24 +84,24 @@ func (t *txCodeGenerationPlugin_) Type() plugin.Type {
 	return t.Type_()
 }
 
-func (t *txCodeGenerationPlugin_) Init(markers markers.MarkerValues) {
-	t.Init_(markers)
+func (t *txCodeGenerationPlugin_) Init(info markers.TypeInfo) {
+	t.Init_(info)
 }
 
-func (t *txCodeGenerationPlugin_) GenerateSDMetadataForOneStruct(c plugin.CodeWriter) {
-	t.GenerateSDMetadataForOneStruct_(c)
+func (t *txCodeGenerationPlugin_) GenerateSDMetadataForOneStruct(root *loader.Package, c plugin.CodeWriter) {
+	t.GenerateSDMetadataForOneStruct_(root, c)
 }
 
-func (t *txCodeGenerationPlugin_) GenerateInFileForOneStruct(c plugin.CodeWriter) {
-	t.GenerateInFileForOneStruct_(c)
+func (t *txCodeGenerationPlugin_) GenerateInFileForOneStruct(root *loader.Package, c plugin.CodeWriter) {
+	t.GenerateInFileForOneStruct_(root, c)
 }
 
 type txCodeGenerationPluginIOCInterface interface {
 	Name() string
 	Type() plugin.Type
-	Init(markers markers.MarkerValues)
-	GenerateSDMetadataForOneStruct(c plugin.CodeWriter)
-	GenerateInFileForOneStruct(c plugin.CodeWriter)
+	Init(info markers.TypeInfo)
+	GenerateSDMetadataForOneStruct(root *loader.Package, c plugin.CodeWriter)
+	GenerateInFileForOneStruct(root *loader.Package, c plugin.CodeWriter)
 }
 
 var _transactionFunctionMarkerSDID string

@@ -35,6 +35,7 @@ func init() {
 		},
 	}
 	singleton.RegisterStructDescriptor(serviceDefaultImplStructDescriptor)
+	var _ service.Service = &serviceDefaultImpl{}
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &serviceDevImpl_{}
@@ -57,6 +58,7 @@ func init() {
 		},
 	}
 	singleton.RegisterStructDescriptor(serviceDevImplStructDescriptor)
+	var _ service.Service = &serviceDevImpl{}
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &serviceProImpl_{}
@@ -79,6 +81,7 @@ func init() {
 		},
 	}
 	singleton.RegisterStructDescriptor(serviceProImplStructDescriptor)
+	var _ service.Service = &serviceProImpl{}
 }
 
 type serviceDefaultImpl_ struct {
