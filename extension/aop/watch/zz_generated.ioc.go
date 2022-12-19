@@ -95,26 +95,26 @@ func (i *interceptorImpl_) UnWatch(watchCtx contextIOCInterface) {
 }
 
 type context_ struct {
-	getSDID_      func() string
-	getMethod_    func() string
-	beforeInvoke_ func(ctx *aop.InvocationContext)
-	afterInvoke_  func(ctx *aop.InvocationContext)
+	GetSDID_      func() string
+	GetMethod_    func() string
+	BeforeInvoke_ func(ctx *aop.InvocationContext)
+	AfterInvoke_  func(ctx *aop.InvocationContext)
 }
 
-func (c *context_) getSDID() string {
-	return c.getSDID_()
+func (c *context_) GetSDID() string {
+	return c.GetSDID_()
 }
 
-func (c *context_) getMethod() string {
-	return c.getMethod_()
+func (c *context_) GetMethod() string {
+	return c.GetMethod_()
 }
 
-func (c *context_) beforeInvoke(ctx *aop.InvocationContext) {
-	c.beforeInvoke_(ctx)
+func (c *context_) BeforeInvoke(ctx *aop.InvocationContext) {
+	c.BeforeInvoke_(ctx)
 }
 
-func (c *context_) afterInvoke(ctx *aop.InvocationContext) {
-	c.afterInvoke_(ctx)
+func (c *context_) AfterInvoke(ctx *aop.InvocationContext) {
+	c.AfterInvoke_(ctx)
 }
 
 type interceptorImplIOCInterface interface {
@@ -125,10 +125,10 @@ type interceptorImplIOCInterface interface {
 }
 
 type contextIOCInterface interface {
-	getSDID() string
-	getMethod() string
-	beforeInvoke(ctx *aop.InvocationContext)
-	afterInvoke(ctx *aop.InvocationContext)
+	GetSDID() string
+	GetMethod() string
+	BeforeInvoke(ctx *aop.InvocationContext)
+	AfterInvoke(ctx *aop.InvocationContext)
 }
 
 var _interceptorImplSDID string

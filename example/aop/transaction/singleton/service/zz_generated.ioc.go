@@ -38,6 +38,10 @@ func init() {
 		},
 	}
 	singleton.RegisterStructDescriptor(bankServiceStructDescriptor)
+	type bankServiceAddMoneyTxFunction func(id, num int, errMsg string)
+	var _ bankServiceAddMoneyTxFunction = (&BankService{}).AddMoneyRollback
+	type bankServiceRemoveMoneyTxFunction func(id, num int, errMsg string)
+	var _ bankServiceRemoveMoneyTxFunction = (&BankService{}).RemoveMoneyRollback
 	normal.RegisterStructDescriptor(&autowire.StructDescriptor{
 		Factory: func() interface{} {
 			return &tradeService_{}

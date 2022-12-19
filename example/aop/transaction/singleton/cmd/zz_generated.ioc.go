@@ -31,12 +31,7 @@ func init() {
 }
 
 type app_ struct {
-	printMoney_ func()
-	Run_        func()
-}
-
-func (a *app_) printMoney() {
-	a.printMoney_()
+	Run_ func()
 }
 
 func (a *app_) Run() {
@@ -44,7 +39,6 @@ func (a *app_) Run() {
 }
 
 type AppIOCInterface interface {
-	printMoney()
 	Run()
 }
 

@@ -225,14 +225,9 @@ func (l *logInterceptor_) GetInvocationCtxLogger() *logrus.Logger {
 }
 
 type logGoRoutineInterceptorFacadeCtx_ struct {
-	pushEntry_    func(entry *logrus.Entry, hookType string)
 	BeforeInvoke_ func(ctx *aop.InvocationContext)
 	AfterInvoke_  func(ctx *aop.InvocationContext)
 	Type_         func() string
-}
-
-func (l *logGoRoutineInterceptorFacadeCtx_) pushEntry(entry *logrus.Entry, hookType string) {
-	l.pushEntry_(entry, hookType)
 }
 
 func (l *logGoRoutineInterceptorFacadeCtx_) BeforeInvoke(ctx *aop.InvocationContext) {
@@ -276,7 +271,6 @@ type logInterceptorIOCInterface interface {
 }
 
 type logGoRoutineInterceptorFacadeCtxIOCInterface interface {
-	pushEntry(entry *logrus.Entry, hookType string)
 	BeforeInvoke(ctx *aop.InvocationContext)
 	AfterInvoke(ctx *aop.InvocationContext)
 	Type() string

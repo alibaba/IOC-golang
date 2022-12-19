@@ -20,16 +20,17 @@ import (
 	"strings"
 )
 
-type method struct {
-	Name string
-	Body string // like '(name, param *substruct.Param) (string, error)'
+type Method struct {
+	Name      string
+	Body      string // like '(name, param *substruct.Param) (string, error)'
+	ParamBody string // like 'name, param *substruct.Param'
 
 	params           []param
 	returnValueTypes []string
 	isVariadic       bool
 }
 
-func (m *method) parseParamAndReturnValues() {
+func (m *Method) parseParamAndReturnValues() {
 	// split to params and values
 	deep := 0
 	tempStr := ""
@@ -55,7 +56,8 @@ func (m *method) parseParamAndReturnValues() {
 		paramsAndvalue = append(paramsAndvalue, tempStr)
 	}
 
-	m.params = parseParam(paramsAndvalue[0])
+	m.ParamBody = paramsAndvalue[0]
+	m.params = parseParam(m.ParamBody)
 	if len(paramsAndvalue) > 1 {
 		m.returnValueTypes = parseReturnValueTypes(paramsAndvalue[1])
 	}
@@ -116,7 +118,7 @@ type param struct {
 
 // func (hs *Impl) RegisterRouterWithRawHttpHandler(path string, handler func(w http.ResponseWriter, r *http.Request), method string) {
 
-func (m *method) GetParamValues() string {
+func (m *Method) GetParamValues() string {
 	// remove func( xxx ) in body
 	paramValues := make([]string, 0)
 	for _, v := range m.params {
@@ -129,7 +131,7 @@ func (m *method) GetParamValues() string {
 	return returnValues
 }
 
-func (m *method) ReturnValueNum() int {
+func (m *Method) ReturnValueNum() int {
 	return len(m.returnValueTypes)
 }
 
@@ -147,7 +149,7 @@ func getTailLetter(input string) string {
 	return input
 }
 
-func (m *method) SwapAliasMap(swapMap map[string]string) {
+func (m *Method) SwapAliasMap(swapMap map[string]string) {
 	splitedByDot := strings.Split(m.Body, ".")
 	if len(splitedByDot) == 1 {
 		return
@@ -173,7 +175,7 @@ func (m *method) SwapAliasMap(swapMap map[string]string) {
 	m.parseParamAndReturnValues()
 }
 
-func (m *method) GetImportAlias() []string {
+func (m *Method) GetImportAlias() []string {
 	result := make([]string, 0)
 	splitedByDot := strings.Split(m.Body, ".")
 	if len(splitedByDot) == 1 {
@@ -200,7 +202,7 @@ func (s *ServiceStruct) GetString(name, param *substruct.Param) (string, error) 
 func (s *ServiceStruct) GetString() string {
 func (s *ServiceStruct) GetString()  {
 */
-func newMethodFromLine(structName, line string) (method, bool) {
+func newMethodFromLine(structName, line string) (Method, bool) {
 	line = strings.TrimSpace(line)
 	if funcBody, ok := MatchFunctionByStructName(line, structName); ok {
 		line = strings.TrimSuffix(funcBody, "{")
@@ -216,15 +218,15 @@ func newMethodFromLine(structName, line string) (method, bool) {
 		// funcName is 'GetString'
 		funcName := strings.TrimSpace(splited[0])
 		// funcBody is like '() string', '(name, param *substruct.Param) (string, error)'
-		funcBody := strings.TrimSpace("(" + strings.Join(splited[1:], "("))
-		newMethod := method{
+		funcBody = strings.TrimSpace("(" + strings.Join(splited[1:], "("))
+		newMethod := Method{
 			Name: funcName,
 			Body: funcBody,
 		}
 		newMethod.parseParamAndReturnValues()
 		return newMethod, true
 	}
-	return method{}, false
+	return Method{}, false
 }
 
 func MatchFunctionByStructName(functionSignature, structName string) (string, bool) {

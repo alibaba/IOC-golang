@@ -41,22 +41,22 @@ type interceptorImpl struct {
 
 func (w *interceptorImpl) BeforeInvoke(ctx *aop.InvocationContext) {
 	if watchCtxInterface, ok := w.watch.Load(common.GetMethodUniqueKey(ctx.SDID, ctx.MethodName)); ok {
-		watchCtxInterface.(contextIOCInterface).beforeInvoke(ctx)
+		watchCtxInterface.(contextIOCInterface).BeforeInvoke(ctx)
 	}
 }
 
 func (w *interceptorImpl) AfterInvoke(ctx *aop.InvocationContext) {
 	if watchCtxInterface, ok := w.watch.Load(common.GetMethodUniqueKey(ctx.SDID, ctx.MethodName)); ok {
-		watchCtxInterface.(contextIOCInterface).afterInvoke(ctx)
+		watchCtxInterface.(contextIOCInterface).AfterInvoke(ctx)
 	}
 }
 
 func (w *interceptorImpl) Watch(watchCtx contextIOCInterface) {
-	w.watch.Store(common.GetMethodUniqueKey(watchCtx.getSDID(), watchCtx.getMethod()), watchCtx)
+	w.watch.Store(common.GetMethodUniqueKey(watchCtx.GetSDID(), watchCtx.GetMethod()), watchCtx)
 }
 
 func (w *interceptorImpl) UnWatch(watchCtx contextIOCInterface) {
-	w.watch.Delete(common.GetMethodUniqueKey(watchCtx.getSDID(), watchCtx.getMethod()))
+	w.watch.Delete(common.GetMethodUniqueKey(watchCtx.GetSDID(), watchCtx.GetMethod()))
 }
 
 // +ioc:autowire=true
@@ -90,15 +90,15 @@ func (p *contextParam) new(c *context) (*context, error) {
 	return c, nil
 }
 
-func (c *context) getSDID() string {
+func (c *context) GetSDID() string {
 	return c.SDID
 }
 
-func (c *context) getMethod() string {
+func (c *context) GetMethod() string {
 	return c.MethodName
 }
 
-func (c *context) beforeInvoke(ctx *aop.InvocationContext) {
+func (c *context) BeforeInvoke(ctx *aop.InvocationContext) {
 	if c.FieldMatcher != nil && !c.FieldMatcher.Match(ctx.Params) {
 		// doesn't match
 		return
@@ -107,7 +107,7 @@ func (c *context) beforeInvoke(ctx *aop.InvocationContext) {
 	c.watchGRRequestMap.Store(grID, ctx.Params)
 }
 
-func (c *context) afterInvoke(ctx *aop.InvocationContext) {
+func (c *context) AfterInvoke(ctx *aop.InvocationContext) {
 	paramValues, ok := c.watchGRRequestMap.Load(ctx.GrID)
 	if !ok {
 		return

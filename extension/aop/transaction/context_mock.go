@@ -15,23 +15,23 @@ type mockContextIOCInterface struct {
 	mock.Mock
 }
 
-// addSuccessfullyCalledInvocationCtx provides a mock function with given fields: ctx
-func (_m *mockContextIOCInterface) addSuccessfullyCalledInvocationCtx(ctx *aop.InvocationContext) {
+// AddSuccessfullyCalledInvocationCtx provides a mock function with given fields: ctx
+func (_m *mockContextIOCInterface) AddSuccessfullyCalledInvocationCtx(ctx *aop.InvocationContext) {
 	_m.Called(ctx)
 }
 
-// failed provides a mock function with given fields: err
-func (_m *mockContextIOCInterface) failed(err error) {
+// Failed provides a mock function with given fields: err
+func (_m *mockContextIOCInterface) Failed(err error) {
 	_m.Called(err)
 }
 
-// finish provides a mock function with given fields:
-func (_m *mockContextIOCInterface) finish() {
+// Finish provides a mock function with given fields:
+func (_m *mockContextIOCInterface) Finish() {
 	_m.Called()
 }
 
-// getEntranceMethodFullName provides a mock function with given fields:
-func (_m *mockContextIOCInterface) getEntranceMethodFullName() string {
+// GetEntranceMethodFullName provides a mock function with given fields:
+func (_m *mockContextIOCInterface) GetEntranceMethodFullName() string {
 	ret := _m.Called()
 
 	var r0 string

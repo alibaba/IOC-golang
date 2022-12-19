@@ -18,6 +18,8 @@ package cli
 import (
 	"strings"
 
+	"github.com/alibaba/ioc-golang/iocli/gen/generator/plugin/common"
+
 	"sigs.k8s.io/controller-tools/pkg/loader"
 
 	"sigs.k8s.io/controller-tools/pkg/markers"
@@ -34,6 +36,8 @@ import (
 
 type txCodeGenerationPlugin struct {
 	txFunctionPairs []txFunctionPair
+	structName      string
+	info            markers.TypeInfo
 }
 
 func create(t *txCodeGenerationPlugin) (*txCodeGenerationPlugin, error) {
@@ -50,6 +54,8 @@ func (t *txCodeGenerationPlugin) Type() plugin.Type {
 }
 
 func (t *txCodeGenerationPlugin) Init(info markers.TypeInfo) {
+	t.structName = info.Name
+	t.info = info
 	for _, v := range info.Markers[transactionFunctionAnnotation] {
 		if txFuncMark, ok := v.(string); ok {
 			txFuncPairRawStrings := strings.Split(txFuncMark, "-")
@@ -78,6 +84,57 @@ func (t *txCodeGenerationPlugin) GenerateSDMetadataForOneStruct(root *loader.Pac
 }
 
 func (t *txCodeGenerationPlugin) GenerateInFileForOneStruct(root *loader.Package, c plugin.CodeWriter) {
+	// check if needs parse
+	needGenerate := false
+	for _, pair := range t.txFunctionPairs {
+		if pair.RollbackName == "" {
+			continue
+		}
+		needGenerate = true
+	}
+	if !needGenerate {
+		return
+	}
+
+	methods := common.ParseExportedMethodInfoFromGoFiles(t.structName, root.GoFiles)
+	for idx := range methods {
+		importsAlias := methods[idx].GetImportAlias()
+		if len(importsAlias) != 0 {
+			aliasSwapMap := make(map[string]string)
+			for _, importAlias := range importsAlias {
+				for _, rawFileImport := range t.info.RawFile.Imports {
+					var originAlias string
+					if rawFileImport.Name != nil {
+						originAlias = rawFileImport.Name.String()
+					} else {
+						splitedImport := strings.Split(rawFileImport.Path.Value, "/")
+						originAlias = strings.TrimPrefix(splitedImport[len(splitedImport)-1], `"`)
+						originAlias = strings.TrimSuffix(originAlias, `"`)
+					}
+					if originAlias == importAlias {
+						toImport := strings.TrimPrefix(rawFileImport.Path.Value, `"`)
+						toImport = strings.TrimSuffix(toImport, `"`)
+						clientStubAlias := c.NeedImport(toImport)
+						aliasSwapMap[importAlias] = clientStubAlias
+					}
+				}
+			}
+			methods[idx].SwapAliasMap(aliasSwapMap)
+		}
+	}
+
+	methodStaticInfoMap := make(map[string]common.Method)
+	for _, v := range methods {
+		methodStaticInfoMap[v.Name] = v
+	}
+
+	for _, pair := range t.txFunctionPairs {
+		if pair.RollbackName == "" {
+			continue
+		}
+		c.Linef(`type %s%sTxFunction func (%s, errMsg string)`, common.ToFirstCharLower(t.structName), pair.Name, methodStaticInfoMap[pair.Name].ParamBody)
+		c.Linef(`var _ %s%sTxFunction = (&%s{}).%s`, common.ToFirstCharLower(t.structName), pair.Name, t.structName, pair.RollbackName)
+	}
 }
 
 type txFunctionPair struct {

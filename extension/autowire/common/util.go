@@ -15,7 +15,11 @@
 
 package common
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+	"unicode/utf8"
+)
 
 func ParseInterfacePkgAndInterfaceName(interfaceID string) (string, string) {
 	splited := strings.Split(interfaceID, ".")
@@ -23,4 +27,10 @@ func ParseInterfacePkgAndInterfaceName(interfaceID string) (string, string) {
 		return "", splited[0]
 	}
 	return strings.Join(splited[:len(splited)-1], "."), splited[len(splited)-1]
+}
+
+//IsExportedMethod  Is this an exported - upper case - name
+func IsExportedMethod(name string) bool {
+	s, _ := utf8.DecodeRuneInString(name)
+	return unicode.IsUpper(s)
 }

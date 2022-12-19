@@ -43,22 +43,22 @@ func (p *contextParam) init(c *context) (*context, error) {
 	return c, nil
 }
 
-func (c *context) finish() {
+func (c *context) Finish() {
 
 }
 
-func (c *context) getEntranceMethodFullName() string {
+func (c *context) GetEntranceMethodFullName() string {
 	return c.entranceMethodFullName
 }
 
-func (c *context) failed(err error) {
+func (c *context) Failed(err error) {
 	for i := len(c.rollbackAbleInvocationContexts) - 1; i >= 0; i-- {
 		snapshot := c.rollbackAbleInvocationContexts[i]
-		snapshot.rollback(err)
+		snapshot.Rollback(err)
 	}
 }
 
-func (c *context) addSuccessfullyCalledInvocationCtx(ctx *aop.InvocationContext) {
+func (c *context) AddSuccessfullyCalledInvocationCtx(ctx *aop.InvocationContext) {
 	sd := autowire.GetStructDescriptor(ctx.SDID)
 	if sd == nil {
 		// todo: print logs
@@ -93,7 +93,7 @@ func (p *rollbackAbleInvocationCtxParam) init(c *rollbackAbleInvocationCtx) (*ro
 	return c, nil
 }
 
-func (c *rollbackAbleInvocationCtx) rollback(err error) {
+func (c *rollbackAbleInvocationCtx) Rollback(err error) {
 	valueOf := reflect.ValueOf(c.invocationCtx.ProxyServicePtr)
 	valueOfElem := valueOf.Elem()
 	// todo what if rollback function annotation is incorrect? it would cause reflect.Value.Call on zero Value

@@ -106,7 +106,7 @@ func (l *localWrappedHTTPTransport) RemoveCollector() {
 	l.collectorLock.Lock()
 	defer l.collectorLock.Unlock()
 	if l.collector != nil {
-		l.collector.destroy()
+		l.collector.Destroy()
 		l.collector = nil
 	}
 }

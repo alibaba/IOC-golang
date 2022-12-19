@@ -90,7 +90,7 @@ func TestBeforeInvoke(t *testing.T) {
 
 	record, ok := impl.transactionGrIDMap.Load(mockGRID)
 	assert.True(t, ok)
-	assert.Equal(t, transactionMethodFullName, record.(contextIOCInterface).getEntranceMethodFullName())
+	assert.Equal(t, transactionMethodFullName, record.(contextIOCInterface).GetEntranceMethodFullName())
 }
 
 func TestAfterInvoke(t *testing.T) {
@@ -102,8 +102,8 @@ func TestAfterInvoke(t *testing.T) {
 		// 2. mock context
 		ctx := newMockContextIOCInterface(t)
 		currentMethodName := common.CurrentCallingMethodName(2)
-		ctx.On("getEntranceMethodFullName").Return(currentMethodName)
-		ctx.On("finish").Once()
+		ctx.On("GetEntranceMethodFullName").Return(currentMethodName)
+		ctx.On("Finish").Once()
 
 		impl.transactionGrIDMap.Store(mockGRID, ctx)
 
@@ -129,8 +129,8 @@ func TestAfterInvoke(t *testing.T) {
 		// 2. mock context
 		ctx := newMockContextIOCInterface(t)
 		currentMethodName := common.CurrentCallingMethodName(2)
-		ctx.On("getEntranceMethodFullName").Return(currentMethodName)
-		ctx.On("finish").Once()
+		ctx.On("GetEntranceMethodFullName").Return(currentMethodName)
+		ctx.On("Finish").Once()
 
 		impl.transactionGrIDMap.Store(mockGRID, ctx)
 
@@ -152,8 +152,8 @@ func TestAfterInvoke(t *testing.T) {
 		// 2. mock context
 		ctx := newMockContextIOCInterface(t)
 		currentMethodName := common.CurrentCallingMethodName(2)
-		ctx.On("getEntranceMethodFullName").Return(currentMethodName)
-		ctx.On("finish").Once()
+		ctx.On("GetEntranceMethodFullName").Return(currentMethodName)
+		ctx.On("Finish").Once()
 
 		impl.transactionGrIDMap.Store(mockGRID, ctx)
 
@@ -181,8 +181,8 @@ func TestAfterInvoke(t *testing.T) {
 
 		ctx := newMockContextIOCInterface(t)
 		currentMethodName := common.CurrentCallingMethodName(2)
-		ctx.On("getEntranceMethodFullName").Return(currentMethodName)
-		ctx.On("failed", mock.MatchedBy(func(err error) bool {
+		ctx.On("GetEntranceMethodFullName").Return(currentMethodName)
+		ctx.On("Failed", mock.MatchedBy(func(err error) bool {
 			return err.Error() == expectErr.Error()
 		})).Once()
 
@@ -210,8 +210,8 @@ func TestAfterInvoke(t *testing.T) {
 		// 2. mock context
 		ctx := newMockContextIOCInterface(t)
 		currentMethodName := common.CurrentCallingMethodName(2)
-		ctx.On("getEntranceMethodFullName").Return(currentMethodName + "notEntrance")
-		ctx.On("addSuccessfullyCalledInvocationCtx", mock.MatchedBy(func(ctx *aop.InvocationContext) bool {
+		ctx.On("GetEntranceMethodFullName").Return(currentMethodName + "notEntrance")
+		ctx.On("AddSuccessfullyCalledInvocationCtx", mock.MatchedBy(func(ctx *aop.InvocationContext) bool {
 			return ctx.GrID == mockGRID
 		})).Once()
 

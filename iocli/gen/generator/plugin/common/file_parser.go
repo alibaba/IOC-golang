@@ -18,15 +18,15 @@ package common
 import (
 	"io/ioutil"
 	"strings"
+
+	"github.com/alibaba/ioc-golang/extension/autowire/common"
 )
 
 /*
-ParseMethodInfoFromGoFiles parse all methods, FIXME: now we don't support parse method signature with '\n' inner. like:
-func (s *ComplexService) RPCBasicType(name string,
-ageF64Ptr *float64) (string, error)
+ParseExportedMethodInfoFromGoFiles parse all Upper case methods,
 */
-func ParseMethodInfoFromGoFiles(structName string, goFilesPath []string) []method {
-	allMethods := make([]method, 0)
+func ParseExportedMethodInfoFromGoFiles(structName string, goFilesPath []string) []Method {
+	exportedMethods := make([]Method, 0)
 	for _, filePath := range goFilesPath {
 		data, err := ioutil.ReadFile(filePath)
 		if err != nil {
@@ -38,19 +38,21 @@ func ParseMethodInfoFromGoFiles(structName string, goFilesPath []string) []metho
 		for _, line := range fileLines {
 			parsedMethod, ok := newMethodFromLine(structName, line)
 			if ok {
-				allMethods = append(allMethods, parsedMethod)
+				if common.IsExportedMethod(parsedMethod.Name) {
+					exportedMethods = append(exportedMethods, parsedMethod)
+				}
 			}
 		}
 	}
-	return allMethods
+	return exportedMethods
 }
 
 /*
 joinMethodLine join func line splited by '\n' like:
 
 func (s *ComplexService) RPCBasicType(name string,
-	ageF64Ptr *float64)
-	(string, error){
+	ageF64Ptr *float64,
+) (string, error){
 	return "", nil
 }
 
