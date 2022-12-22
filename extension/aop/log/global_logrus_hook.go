@@ -89,7 +89,7 @@ func (p *globalLogrusIOCCtxHookParam) newLogrusIOCCtxHook(l *GlobalLogrusIOCCtxH
 	logrus.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: p.timestampFormat,
 		CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
-			return "", fmt.Sprintf("%s:%d", path.Base(frame.File), frame.Line)
+			return frame.Function, fmt.Sprintf("%s:%d", path.Base(frame.File), frame.Line)
 		},
 	})
 	return l, nil
@@ -107,8 +107,6 @@ func (l *GlobalLogrusIOCCtxHook) Fire(entry *logrus.Entry) error {
 	if entry.Data == nil {
 		entry.Data = make(map[string]interface{})
 	}
-	entry.Data[l.structIDKey] = aopInvocationCtx.SDID
-	entry.Data[l.methodNameKey] = aopInvocationCtx.MethodName
 	entry.Data[l.grIDKey] = aopInvocationCtx.GrID
 
 	// [Feature2]
