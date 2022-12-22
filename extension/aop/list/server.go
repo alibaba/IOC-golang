@@ -34,14 +34,17 @@ import (
 type listServiceImpl struct {
 	list.UnimplementedListServiceServer
 	allInterfaceMetadataMap common.AllInterfaceMetadata
+	appName                 string
 }
 
 type listServiceImplParam struct {
 	AllInterfaceMetadataMap common.AllInterfaceMetadata
+	AppName                 string
 }
 
 func (l *listServiceImplParam) Init(i *listServiceImpl) (*listServiceImpl, error) {
 	i.allInterfaceMetadataMap = l.AllInterfaceMetadataMap
+	i.appName = l.AppName
 	return i, nil
 }
 
@@ -63,5 +66,6 @@ func (l *listServiceImpl) List(_ context.Context, _ *emptypb.Empty) (*list.ListS
 
 	return &list.ListServiceResponse{
 		ServiceMetadata: structsMetadatas,
+		AppName:         l.appName,
 	}, nil
 }
