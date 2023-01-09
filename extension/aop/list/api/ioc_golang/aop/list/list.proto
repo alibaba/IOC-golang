@@ -26,6 +26,7 @@ service ListService {
 
 message ListServiceResponse{
   repeated ServiceMetadata serviceMetadata = 1;
+  string appName = 2;
 }
 
 message ServiceMetadata{

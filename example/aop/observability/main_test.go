@@ -20,6 +20,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alibaba/ioc-golang/aop/common"
+	"github.com/alibaba/ioc-golang/config"
+
 	"github.com/alibaba/ioc-golang"
 
 	"github.com/stretchr/testify/assert"
@@ -28,7 +31,8 @@ import (
 )
 
 func TestObservability(t *testing.T) {
-	assert.Nil(t, ioc.Load())
+	testAppName := "testAppName"
+	assert.Nil(t, ioc.Load(config.AddProperty(common.IOCGolangAOPConfigPrefix+".app-name", testAppName)))
 	app, err := GetAppIOCInterfaceSingleton()
 	assert.Nil(t, err)
 	go func() {
@@ -37,7 +41,8 @@ func TestObservability(t *testing.T) {
 	time.Sleep(time.Second * 1)
 	output, err := iocli_command.Run([]string{"list"}, time.Second)
 	assert.Nil(t, err)
-	assert.Equal(t, `github.com/alibaba/ioc-golang/example/aop/observability.App
+	assert.Equal(t, `appName: `+testAppName+`
+github.com/alibaba/ioc-golang/example/aop/observability.App
 [Run]
 
 github.com/alibaba/ioc-golang/example/aop/observability.ServiceImpl1

@@ -18,6 +18,8 @@ package list
 import (
 	"google.golang.org/grpc"
 
+	"github.com/alibaba/ioc-golang/aop/common"
+
 	"github.com/alibaba/ioc-golang/aop"
 	"github.com/alibaba/ioc-golang/extension/aop/list/api/ioc_golang/aop/list"
 )
@@ -26,10 +28,14 @@ func init() {
 	aop.RegisterAOP(aop.AOP{
 		Name: "list",
 		GRPCServiceRegister: func(server *grpc.Server) {
-			listServiceImplSingleton, _ := GetlistServiceImplSingleton(&listServiceImplParam{
-				AllInterfaceMetadataMap: aop.GetAllInterfaceMetadata(),
-			})
+			listServiceImplSingleton, _ := GetlistServiceImplSingleton(nil)
 			list.RegisterListServiceServer(server, listServiceImplSingleton)
+		},
+		ConfigLoader: func(aopConfig *common.Config) {
+			_, _ = GetlistServiceImplSingleton(&listServiceImplParam{
+				AllInterfaceMetadataMap: aop.GetAllInterfaceMetadata(),
+				AppName:                 aopConfig.AppName,
+			})
 		},
 	})
 }

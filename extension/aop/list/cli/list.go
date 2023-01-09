@@ -46,6 +46,9 @@ var list = &cobra.Command{
 			logger.Red(err.Error())
 			return
 		}
+		if rsp.AppName != "" {
+			logger.Blue("appName: %s", rsp.GetAppName())
+		}
 		for _, v := range rsp.ServiceMetadata {
 			logger.Blue(v.ImplementationName)
 			logger.Blue("%s", v.Methods)
