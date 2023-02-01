@@ -54,7 +54,7 @@ IOC-golang is a powerful golang dependency injection framework that provides a c
 ### Install code generation tools
 
 ```shell
-% go install github.com/alibaba/ioc-golang/iocli@latest
+% go install github.com/alibaba/ioc-golang/iocli@v1.0.3
 % iocli
 hello
 ````
