@@ -61,7 +61,7 @@ IOC-golang 是一款强大的 Go 语言依赖注入框架，提供了一套完�
 ### 安装代码生成工具
 
 ```shell
-% go install github.com/alibaba/ioc-golang/iocli@latest
+% go install github.com/alibaba/ioc-golang/iocli@v1.0.3
 % iocli
 hello
 ```
