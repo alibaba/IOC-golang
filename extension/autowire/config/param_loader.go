@@ -17,7 +17,8 @@ package config
 
 import (
 	"errors"
-	"log"
+	"github.com/sirupsen/logrus"
+	"os"
 	"strings"
 
 	"github.com/alibaba/ioc-golang/autowire"
@@ -46,10 +47,19 @@ func (p *paramLoader) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo
 		return nil, errors.New("not supported")
 	}
 	splitedTagValue := strings.Split(fi.TagValue, ",")
-	configPath := splitedTagValue[1]
+	configTagValue := splitedTagValue[1]
 	param := sd.ParamFactory()
-	if err := config.LoadConfigByPrefix(configPath, param); err != nil {
-		log.Println("load config path "+configPath+" error = ", err)
+	if strings.HasPrefix(configTagValue, config.EnvPrefixKey) && strings.HasSuffix(configTagValue, config.EnvSuffixKey) {
+		// config is env var
+		configEnvVal := os.Getenv(strings.TrimSuffix(strings.TrimPrefix(configTagValue, config.EnvPrefixKey), config.EnvSuffixKey))
+		if configEnvVal == "" {
+			logrus.Warningf("load env key %s with empty string", configTagValue)
+		}
+		return configEnvVal, nil
+	}
+	// config is config file path
+	if err := config.LoadConfigByPrefix(configTagValue, param); err != nil {
+		logrus.Errorf("load config path %s error = %s", configTagValue, err.Error())
 		// FIXME ignore config read error?
 	}
 	return param, nil
