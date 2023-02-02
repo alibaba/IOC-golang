@@ -150,10 +150,14 @@ func (w *WrapperAutowireImpl) implWithField(fi *FieldInfo) (interface{}, error) 
 		return nil, err
 	}
 	sd := GetStructDescriptor(sdID)
-	// FIXME, dangerous, sd may be nil for allimpl autowire
-	implWithProxy := fi.FieldReflectValue.Kind() == reflect.Interface && !sd.DisableProxy
-	if err != nil {
-		return nil, err
+	implWithProxy := fi.FieldReflectValue.Kind() == reflect.Interface
+	if implWithProxy {
+		if sd == nil {
+			err = fmt.Errorf("[Wrapper Autowire] sdID %s is invalid when injecting %s type %s, please check", sdID, fi.FieldName, fi.FieldType)
+			logger.Red(err.Error())
+			return nil, err
+		}
+		implWithProxy = !sd.DisableProxy
 	}
 	param, err := w.ParseParam(sdID, fi)
 	if err != nil {
