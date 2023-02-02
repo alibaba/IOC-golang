@@ -16,6 +16,7 @@ func (a *App) TestRun(t *testing.T) {
 	assert.Equal(t, "myEnvValue", a.ConfigValueFromEnv.Value())
 	assert.Equal(t, "myValue", a.NestedConfigValue.Value())
 	assert.Equal(t, "myEnvValue", a.NestedConfigValueFromEnv.Value())
+	assert.Equal(t, "myEnvValue", a.ConfigValueFromTagEnvKey.Value())
 	assert.Nil(t, a.RedisClient.Ping().Err())
 }
 

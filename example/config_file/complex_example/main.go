@@ -33,6 +33,7 @@ type App struct {
 	ConfigValueFromEnv       *configField.ConfigString `config:",config.app.config-value-from-env"`
 	NestedConfigValue        *configField.ConfigString `config:",config.app.nested-config-value"`
 	NestedConfigValueFromEnv *configField.ConfigString `config:",config.app.nested-config-value-from-env"`
+	ConfigValueFromTagEnvKey *configField.ConfigString `config:",${MY_CONFIG_ENV_KEY}"`
 
 	RedisClient redis.RedisIOCInterface `singleton:""`
 }
@@ -42,6 +43,7 @@ func (a *App) Run() {
 	fmt.Printf("Load '%s' from env\n", a.ConfigValueFromEnv.Value())
 	fmt.Printf("Load nested value '%s' from config file\n", a.NestedConfigValue.Value())
 	fmt.Printf("Load nested value '%s' from env\n", a.NestedConfigValueFromEnv.Value())
+	fmt.Printf("Load config value from tag env '%s'\n", a.NestedConfigValueFromEnv.Value())
 	if err := a.RedisClient.Ping().Err(); err != nil {
 		panic(err)
 	}
