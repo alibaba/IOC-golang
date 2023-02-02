@@ -17,9 +17,11 @@ package config
 
 import (
 	"errors"
-	"github.com/sirupsen/logrus"
 	"os"
 	"strings"
+
+	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 
 	"github.com/alibaba/ioc-golang/autowire"
 	"github.com/alibaba/ioc-golang/config"
@@ -55,7 +57,8 @@ func (p *paramLoader) Load(sd *autowire.StructDescriptor, fi *autowire.FieldInfo
 		if configEnvVal == "" {
 			logrus.Warningf("load env key %s with empty string", configTagValue)
 		}
-		return configEnvVal, nil
+		_ = yaml.Unmarshal([]byte(configEnvVal), param)
+		return param, nil
 	}
 	// config is config file path
 	if err := config.LoadConfigByPrefix(configTagValue, param); err != nil {
