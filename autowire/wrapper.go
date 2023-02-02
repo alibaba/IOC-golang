@@ -97,7 +97,14 @@ func (w *WrapperAutowireImpl) ImplWithParam(sdID string, param interface{}, with
 	// 3. construct field
 	rawPtr, err = w.Autowire.Construct(sdID, rawPtr, param)
 	if err != nil {
-		return nil, err
+		errMsg := fmt.Sprintf("Construct struct %s failed with error = %s, param = %s", sdID, err.Error(), param)
+		logger.Red(errMsg)
+		return nil, fmt.Errorf(errMsg)
+	}
+	if rawPtr == nil {
+		errMsg := fmt.Sprintf("Construct struct %s failed, constructed ptr is nil, param = %s", sdID, param)
+		logger.Red(errMsg)
+		return nil, fmt.Errorf(errMsg)
 	}
 
 	if w.Autowire.InjectPosition() == AfterConstructorCalled {
