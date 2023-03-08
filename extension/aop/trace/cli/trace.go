@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
@@ -132,7 +131,7 @@ var trace = &cobra.Command{
 }
 
 func writeSpans(cacheData bytes.Buffer) {
-	if err := ioutil.WriteFile(storeToFile, cacheData.Bytes(), fs.ModePerm); err != nil {
+	if err := os.WriteFile(storeToFile, cacheData.Bytes(), fs.ModePerm); err != nil {
 		logger.Red("Write cached spans data to %s failed, error is %s", storeToFile, err.Error())
 		os.Exit(1)
 	}

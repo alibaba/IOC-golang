@@ -16,7 +16,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -129,7 +128,7 @@ func Load(opts ...Option) error {
 
 	for _, cf := range configFiles {
 		logger.Blue("[Config] Loading config file %s", cf)
-		contents, err := ioutil.ReadFile(cf)
+		contents, err := os.ReadFile(cf)
 		if err != nil {
 			logger.Red("[Config] Load ioc-golang config file failed. %v\n The load procedure is continue", err)
 			return nil

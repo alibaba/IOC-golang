@@ -19,7 +19,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -56,7 +56,7 @@ var call = &cobra.Command{
 
 		paramsJSON := params
 		if paramsJSON == "" && paramsFile != "" {
-			data, err := ioutil.ReadFile(paramsFile)
+			data, err := os.ReadFile(paramsFile)
 			if err != nil {
 				logger.Red("iocli call command read param json from %s failed with error = %s", paramsFile, err.Error())
 				return

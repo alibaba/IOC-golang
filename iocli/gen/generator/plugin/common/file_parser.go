@@ -16,7 +16,7 @@
 package common
 
 import (
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/alibaba/ioc-golang/extension/autowire/common"
@@ -28,7 +28,7 @@ ParseExportedMethodInfoFromGoFiles parse all Upper case methods,
 func ParseExportedMethodInfoFromGoFiles(structName string, goFilesPath []string) []Method {
 	exportedMethods := make([]Method, 0)
 	for _, filePath := range goFilesPath {
-		data, err := ioutil.ReadFile(filePath)
+		data, err := os.ReadFile(filePath)
 		if err != nil {
 			continue
 		}
