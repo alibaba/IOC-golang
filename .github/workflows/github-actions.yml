@@ -5,6 +5,8 @@ on:
     branches: [master, develop]
   pull_request:
     branches: "*"
+  schedule:
+    - cron: '0 2 * * *'
 
 jobs:
   build:
@@ -15,6 +17,8 @@ jobs:
       matrix:
         go_version:
           - 1.18
+          - 1.19
+          - 1.20
         os:
           - ubuntu-latest
     steps:
