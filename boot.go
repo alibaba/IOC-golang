@@ -24,7 +24,7 @@ import (
 	_ "github.com/alibaba/ioc-golang/extension/imports/boot"
 )
 
-const Version = "1.0.3"
+const Version = "1.0.4"
 
 func Load(opts ...config.Option) error {
 	printLogo()
