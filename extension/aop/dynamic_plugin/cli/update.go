@@ -18,8 +18,8 @@ package cli
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"math"
+	"os"
 
 	"github.com/alibaba/ioc-golang/logger"
 
@@ -63,7 +63,7 @@ var updateCommand = &cobra.Command{
 		pluginFilePath := args[2]
 		pluginName := args[3]
 
-		pluginFile, err := ioutil.ReadFile(pluginFilePath)
+		pluginFile, err := os.ReadFile(pluginFilePath)
 		if err != nil {
 			logger.Red("Read plugin file %s failed with error = %s", pluginFilePath, err)
 			return

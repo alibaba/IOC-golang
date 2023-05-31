@@ -20,7 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
@@ -94,7 +94,7 @@ func (i *IOCProtocol) Invoke(invocation dubboProtocol.Invocation) dubboProtocol.
 		}
 	}
 
-	rspData, _ := ioutil.ReadAll(rsp.Body)
+	rspData, _ := io.ReadAll(rsp.Body)
 	replyList := invocation.Reply().(*[]interface{})
 	finalIsError := false
 	finalErrorNotNil := false
@@ -152,7 +152,7 @@ func (i *IOCProtocol) Export(invoker dubboProtocol.Invoker) dubboProtocol.Export
 				}
 			}
 
-			reqData, err := ioutil.ReadAll(c.Request.Body)
+			reqData, err := io.ReadAll(c.Request.Body)
 			if err != nil {
 				c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 				return

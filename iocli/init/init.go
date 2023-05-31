@@ -18,7 +18,6 @@ package init
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -128,7 +127,7 @@ func doWriteFile(path, tmpl string) (err error) {
 	}
 	fmt.Println("File -> ", path)
 
-	return ioutil.WriteFile(path, data, 0755)
+	return os.WriteFile(path, data, 0755)
 }
 
 func parseTmpl(tmpl string) ([]byte, error) {
@@ -148,7 +147,7 @@ func determineModPath(projectPath string) (modPath string) {
 	dir := filepath.Dir(projectPath)
 	for {
 		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			content, _ := ioutil.ReadFile(filepath.Join(dir, "go.mod"))
+			content, _ := os.ReadFile(filepath.Join(dir, "go.mod"))
 			mod := find(`module\s+(?P<name>[\S]+)`, string(content), "$name")
 			name := strings.TrimPrefix(filepath.Dir(projectPath), dir)
 			name = strings.TrimPrefix(name, string(os.PathSeparator))

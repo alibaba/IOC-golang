@@ -18,7 +18,7 @@ package dynamic_plugin
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"plugin"
 
 	"github.com/alibaba/ioc-golang/logger"
@@ -39,7 +39,7 @@ type dynamicPluginServiceImpl struct {
 }
 
 func (d *dynamicPluginServiceImpl) Update(ctx context.Context, req *dynamic_plugin.DynamicPluginUpdateRequest) (*dynamic_plugin.DynamicPluginUpdateResponse, error) {
-	tempFile, err := ioutil.TempFile("", req.GetPluginName())
+	tempFile, err := os.CreateTemp("", req.GetPluginName())
 	defer func() {
 		_ = tempFile.Close()
 	}()
